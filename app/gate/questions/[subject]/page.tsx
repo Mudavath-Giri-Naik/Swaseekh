@@ -25,6 +25,7 @@ interface SubjectData {
   name: string
   slug: string
   topics: Topic[]
+  questionCount?: number
 }
 
 export default function QuestionsPage() {
