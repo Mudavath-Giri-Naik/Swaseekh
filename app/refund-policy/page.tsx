@@ -13,7 +13,7 @@ export default function RefundPolicyPage() {
 
           <section>
             <h2 className="text-lg font-semibold text-gray-900 mb-3">2. How to Request a Refund</h2>
-            <p>To request a refund, email us at <a href="mailto:support@swaseekh.com" className="text-[#4A235A] underline">support@swaseekh.com</a> with your registered email address and payment details. Refunds will be processed within 5–7 business days to the original payment method.</p>
+            <p>To request a refund, email us at <a href="mailto:yourgirinaik@gmail.com" className="text-[#4A235A] underline">yourgirinaik@gmail.com</a> with your registered email address and payment details. Refunds will be processed within 5–7 business days to the original payment method.</p>
           </section>
 
           <section>
@@ -28,7 +28,7 @@ export default function RefundPolicyPage() {
 
           <section>
             <h2 className="text-lg font-semibold text-gray-900 mb-3">5. Contact</h2>
-            <p>For refund inquiries, reach out to <a href="mailto:support@swaseekh.com" className="text-[#4A235A] underline">support@swaseekh.com</a>.</p>
+            <p>For refund inquiries, reach out to <a href="mailto:yourgirinaik@gmail.com" className="text-[#4A235A] underline">yourgirinaik@gmail.com</a>.</p>
           </section>
         </div>
       </div>

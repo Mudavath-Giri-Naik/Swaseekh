@@ -10,7 +10,7 @@ export default function ContactPage() {
           <div className="bg-gray-50 rounded-2xl p-8 space-y-4">
             <div>
               <h3 className="font-semibold text-gray-900 mb-1">Email</h3>
-              <a href="mailto:support@swaseekh.com" className="text-[#4A235A] underline">support@swaseekh.com</a>
+              <a href="mailto:yourgirinaik@gmail.com" className="text-[#4A235A] underline">yourgirinaik@gmail.com</a>
             </div>
 
             <div>

@@ -28,12 +28,12 @@ export default function PrivacyPolicyPage() {
 
           <section>
             <h2 className="text-lg font-semibold text-gray-900 mb-3">5. Your Rights</h2>
-            <p>You may request deletion of your account and associated data at any time by contacting us at support@swaseekh.com.</p>
+            <p>You may request deletion of your account and associated data at any time by contacting us at yourgirinaik@gmail.com.</p>
           </section>
 
           <section>
             <h2 className="text-lg font-semibold text-gray-900 mb-3">6. Contact</h2>
-            <p>For privacy-related inquiries, contact us at <a href="mailto:support@swaseekh.com" className="text-[#4A235A] underline">support@swaseekh.com</a>.</p>
+            <p>For privacy-related inquiries, contact us at <a href="mailto:yourgirinaik@gmail.com" className="text-[#4A235A] underline">yourgirinaik@gmail.com</a>.</p>
           </section>
         </div>
       </div>

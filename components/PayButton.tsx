@@ -123,10 +123,10 @@ export default function PayButton({ className, children, couponCode, finalAmount
               // Force full page reload to refresh session with updated plan
               window.location.reload()
             } else {
-              alert('Payment verification failed. Please contact support@swaseekh.com')
+              alert('Payment verification failed. Please contact yourgirinaik@gmail.com')
             }
           } catch {
-            alert('Payment verification error. Contact support@swaseekh.com')
+            alert('Payment verification error. Contact yourgirinaik@gmail.com')
           }
         },
         modal: {
