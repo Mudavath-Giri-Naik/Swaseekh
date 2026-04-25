@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
 
 /* ─── Types ─────────────────────────────────────────────────────────────── */
 
@@ -16,9 +15,10 @@ interface SubjectFromDB {
 
 /* ─── Topic phrase: a clickable chunk inside each subject description ──── */
 
+export type TopicSegment = string | { text: string; slug: string }
+
 interface TopicPhrase {
-  text: string   // display text e.g. "Propositional and first order logic"
-  slug: string   // maps to taxonomy.topicId → used in /gate/[subject]/[slug]
+  segments: TopicSegment[]
 }
 
 interface SubjectEntry {
@@ -44,38 +44,38 @@ const syllabus: SyllabusSection[] = [
         name: 'Discrete Mathematics',
         slug: 'discrete-mathematics',
         topics: [
-          { text: 'Propositional and first order logic', slug: 'mathematical-logic' },
-          { text: 'Sets, relations, functions, partial orders and lattices', slug: 'set-theory-algebra' },
-          { text: 'Monoids, Groups', slug: 'set-theory-algebra' },
-          { text: 'Graphs: connectivity, matching, colouring', slug: 'graph-theory' },
-          { text: 'Combinatorics: counting, recurrence relations, generating functions', slug: 'combinatorics' },
+          { segments: [ { text: 'Propositional', slug: 'propositional-logic' }, ' and ', { text: 'first order logic', slug: 'first-order-logic' } ] },
+          { segments: [ { text: 'Sets', slug: 'set-theory' }, ', ', { text: 'relations', slug: 'relations' }, ', ', { text: 'functions', slug: 'functions' }, ', ', { text: 'partial orders', slug: 'partial-orders' }, ' and ', { text: 'lattices', slug: 'lattice' } ] },
+          { segments: [ { text: 'Monoids', slug: 'monoids' }, ', ', { text: 'Groups', slug: 'groups' } ] },
+          { segments: [ { text: 'Graphs', slug: 'graph-theory' }, ': ', { text: 'connectivity', slug: 'graph-connectivity' }, ', ', { text: 'matching', slug: 'graph-matching' }, ', ', { text: 'colouring', slug: 'graph-coloring' } ] },
+          { segments: [ { text: 'Combinatorics', slug: 'combinatorics' }, ': ', { text: 'counting', slug: 'counting' }, ', ', { text: 'recurrence relations', slug: 'recurrence-relation' }, ', ', { text: 'generating functions', slug: 'generating-functions' } ] },
         ],
       },
       {
         name: 'Linear Algebra',
         slug: 'linear-algebra',
         topics: [
-          { text: 'Matrices, determinants, system of linear equations, eigenvalues and eigenvectors, LU decomposition', slug: 'matrices-and-determinants' },
+          { segments: [ { text: 'Matrices', slug: 'matrices' }, ', ', { text: 'determinants', slug: 'determinants' }, ', ', { text: 'system of linear equations', slug: 'system-of-linear-equations' }, ', ', { text: 'eigenvalues and eigenvectors', slug: 'eigenvalues-and-eigenvectors' }, ', ', { text: 'LU decomposition', slug: 'lu-decomposition' } ] },
         ],
       },
       {
         name: 'Calculus',
         slug: 'calculus',
         topics: [
-          { text: 'Limits, continuity and differentiability', slug: 'limits-continuity' },
-          { text: 'Maxima and minima', slug: 'maxima-minima' },
-          { text: 'Mean value theorem', slug: 'mean-value-theorem' },
-          { text: 'Integration', slug: 'integration' },
+          { segments: [ { text: 'Limits, continuity and differentiability', slug: 'limits-continuity' } ] },
+          { segments: [ { text: 'Maxima and minima', slug: 'maxima-minima' } ] },
+          { segments: [ { text: 'Mean value theorem', slug: 'mean-value-theorem' } ] },
+          { segments: [ { text: 'Integration', slug: 'integration' } ] },
         ],
       },
       {
         name: 'Probability and Statistics',
         slug: 'probability-statistics',
         topics: [
-          { text: 'Random variables', slug: 'random-variables' },
-          { text: 'Uniform, normal, exponential, Poisson and binomial distributions', slug: 'distributions' },
-          { text: 'Mean, median, mode and standard deviation', slug: 'descriptive-statistics' },
-          { text: 'Conditional probability and Bayes theorem', slug: 'conditional-probability' },
+          { segments: [ { text: 'Random variables', slug: 'random-variables' } ] },
+          { segments: [ { text: 'Uniform', slug: 'uniform-distribution' }, ', ', { text: 'normal', slug: 'normal-distribution' }, ', ', { text: 'exponential', slug: 'exponential-distribution' }, ', ', { text: 'Poisson', slug: 'poisson-distribution' }, ' and ', { text: 'binomial distributions', slug: 'binomial-distribution' } ] },
+          { segments: [ { text: 'Mean, median, mode and standard deviation', slug: 'descriptive-statistics' } ] },
+          { segments: [ { text: 'Conditional probability and Bayes theorem', slug: 'conditional-probability' } ] },
         ],
       },
     ],
@@ -88,10 +88,10 @@ const syllabus: SyllabusSection[] = [
         name: 'Digital Logic',
         slug: 'digital-logic',
         topics: [
-          { text: 'Boolean algebra', slug: 'boolean-algebra' },
-          { text: 'Combinational and sequential circuits', slug: 'combinational-sequential-circuits' },
-          { text: 'Minimization', slug: 'minimization' },
-          { text: 'Number representations and computer arithmetic (fixed and floating point)', slug: 'number-representations' },
+          { segments: [ { text: 'Boolean algebra', slug: 'boolean-algebra' } ] },
+          { segments: [ { text: 'Combinational', slug: 'combinational-circuits' }, ' and ', { text: 'sequential circuits', slug: 'sequential-circuits' } ] },
+          { segments: [ { text: 'Minimization', slug: 'minimization' } ] },
+          { segments: [ { text: 'Number representations and computer arithmetic', slug: 'number-representations' }, ' (fixed and floating point)' ] },
         ],
       },
     ],
@@ -104,10 +104,10 @@ const syllabus: SyllabusSection[] = [
         name: 'Computer Organization and Architecture',
         slug: 'computer-organization',
         topics: [
-          { text: 'Machine instructions and addressing modes', slug: 'machine-instructions' },
-          { text: 'ALU, data\u2011path and control unit', slug: 'alu-datapath' },
-          { text: 'Instruction pipelining, pipeline hazards', slug: 'pipelining' },
-          { text: 'Memory hierarchy: cache, main memory and secondary storage; I/O interface (interrupt and DMA mode)', slug: 'memory-hierarchy' },
+          { segments: [ { text: 'Machine instructions', slug: 'machine-instructions' }, ' and ', { text: 'addressing modes', slug: 'addressing-modes' } ] },
+          { segments: [ { text: 'ALU', slug: 'alu' }, ', ', { text: 'data\u2011path and control unit', slug: 'datapath-control' } ] },
+          { segments: [ { text: 'Instruction pipelining', slug: 'pipelining' }, ', ', { text: 'pipeline hazards', slug: 'pipeline-hazards' } ] },
+          { segments: [ { text: 'Memory hierarchy', slug: 'memory-hierarchy' }, ': ', { text: 'cache', slug: 'cache' }, ', ', { text: 'main memory', slug: 'main-memory' }, ' and ', { text: 'secondary storage', slug: 'secondary-storage' }, '; ', { text: 'I/O interface', slug: 'io-interface' }, ' (interrupt and DMA mode)' ] },
         ],
       },
     ],
@@ -120,9 +120,9 @@ const syllabus: SyllabusSection[] = [
         name: 'Programming and Data Structures',
         slug: 'programming-ds',
         topics: [
-          { text: 'Programming in C', slug: 'programming-in-c' },
-          { text: 'Recursion', slug: 'recursion' },
-          { text: 'Arrays, stacks, queues, linked lists, trees, binary search trees, binary heaps, graphs', slug: 'data-structures' },
+          { segments: [ { text: 'Programming in C', slug: 'programming-in-c' } ] },
+          { segments: [ { text: 'Recursion', slug: 'recursion' } ] },
+          { segments: [ { text: 'Arrays', slug: 'arrays' }, ', ', { text: 'stacks', slug: 'stacks' }, ', ', { text: 'queues', slug: 'queues' }, ', ', { text: 'linked lists', slug: 'linked-lists' }, ', ', { text: 'trees', slug: 'trees' }, ', ', { text: 'binary search trees', slug: 'binary-search-trees' }, ', ', { text: 'binary heaps', slug: 'binary-heaps' }, ', ', { text: 'graphs', slug: 'graphs' } ] },
         ],
       },
     ],
@@ -135,10 +135,10 @@ const syllabus: SyllabusSection[] = [
         name: 'Algorithms',
         slug: 'algorithms',
         topics: [
-          { text: 'Searching, sorting, hashing', slug: 'searching-sorting' },
-          { text: 'Asymptotic worst case time and space complexity', slug: 'complexity-analysis' },
-          { text: 'Algorithm design techniques: greedy, dynamic programming and divide\u2011and\u2011conquer', slug: 'algorithm-design' },
-          { text: 'Graph traversals, minimum spanning trees, shortest paths', slug: 'graph-algorithms' },
+          { segments: [ { text: 'Searching', slug: 'searching' }, ', ', { text: 'sorting', slug: 'sorting' }, ', ', { text: 'hashing', slug: 'hashing' } ] },
+          { segments: [ { text: 'Asymptotic worst case time and space complexity', slug: 'complexity-analysis' } ] },
+          { segments: [ { text: 'Algorithm design techniques', slug: 'algorithm-design' }, ': ', { text: 'greedy', slug: 'greedy' }, ', ', { text: 'dynamic programming', slug: 'dynamic-programming' }, ' and ', { text: 'divide\u2011and\u2011conquer', slug: 'divide-and-conquer' } ] },
+          { segments: [ { text: 'Graph traversals', slug: 'graph-traversals' }, ', ', { text: 'minimum spanning trees', slug: 'minimum-spanning-trees' }, ', ', { text: 'shortest paths', slug: 'shortest-paths' } ] },
         ],
       },
     ],
@@ -151,10 +151,10 @@ const syllabus: SyllabusSection[] = [
         name: 'Theory of Computation',
         slug: 'theory-of-computation',
         topics: [
-          { text: 'Regular expressions and finite automata', slug: 'regular-languages' },
-          { text: 'Context-free grammars and push-down automata', slug: 'context-free-languages' },
-          { text: 'Regular and context-free languages, pumping lemma', slug: 'pumping-lemma' },
-          { text: 'Turing machines and undecidability', slug: 'turing-machines' },
+          { segments: [ { text: 'Regular expressions', slug: 'regular-expressions' }, ' and ', { text: 'finite automata', slug: 'finite-automata' } ] },
+          { segments: [ { text: 'Context-free grammars', slug: 'context-free-grammars' }, ' and ', { text: 'push-down automata', slug: 'push-down-automata' } ] },
+          { segments: [ { text: 'Regular and context-free languages', slug: 'regular-cf-languages' }, ', ', { text: 'pumping lemma', slug: 'pumping-lemma' } ] },
+          { segments: [ { text: 'Turing machines', slug: 'turing-machines' }, ' and ', { text: 'undecidability', slug: 'undecidability' } ] },
         ],
       },
     ],
@@ -167,10 +167,10 @@ const syllabus: SyllabusSection[] = [
         name: 'Compiler Design',
         slug: 'compiler-design',
         topics: [
-          { text: 'Lexical analysis, parsing, syntax-directed translation', slug: 'lexical-analysis' },
-          { text: 'Runtime environments', slug: 'runtime-environments' },
-          { text: 'Intermediate code generation', slug: 'code-generation' },
-          { text: 'Local optimization, Data flow analyses: constant propagation, liveness analysis, common sub expression elimination', slug: 'optimization' },
+          { segments: [ { text: 'Lexical analysis', slug: 'lexical-analysis' }, ', ', { text: 'parsing', slug: 'parsing' }, ', ', { text: 'syntax-directed translation', slug: 'syntax-directed-translation' } ] },
+          { segments: [ { text: 'Runtime environments', slug: 'runtime-environments' } ] },
+          { segments: [ { text: 'Intermediate code generation', slug: 'code-generation' } ] },
+          { segments: [ { text: 'Local optimization', slug: 'local-optimization' }, ', ', { text: 'Data flow analyses', slug: 'data-flow-analyses' }, ': ', { text: 'constant propagation', slug: 'constant-propagation' }, ', ', { text: 'liveness analysis', slug: 'liveness-analysis' }, ', ', { text: 'common sub expression elimination', slug: 'common-subexpression-elimination' } ] },
         ],
       },
     ],
@@ -183,11 +183,11 @@ const syllabus: SyllabusSection[] = [
         name: 'Operating System',
         slug: 'operating-systems',
         topics: [
-          { text: 'System calls, processes, threads, inter\u2011process communication, concurrency and synchronization', slug: 'process-management' },
-          { text: 'Deadlock', slug: 'deadlock' },
-          { text: 'CPU and I/O scheduling', slug: 'scheduling' },
-          { text: 'Memory management and virtual memory', slug: 'memory-management' },
-          { text: 'File systems', slug: 'file-systems' },
+          { segments: [ { text: 'System calls', slug: 'system-calls' }, ', ', { text: 'processes', slug: 'processes' }, ', ', { text: 'threads', slug: 'threads' }, ', ', { text: 'inter\u2011process communication', slug: 'ipc' }, ', ', { text: 'concurrency', slug: 'concurrency' }, ' and ', { text: 'synchronization', slug: 'synchronization' } ] },
+          { segments: [ { text: 'Deadlock', slug: 'deadlock' } ] },
+          { segments: [ { text: 'CPU and I/O scheduling', slug: 'scheduling' } ] },
+          { segments: [ { text: 'Memory management', slug: 'memory-management' }, ' and ', { text: 'virtual memory', slug: 'virtual-memory' } ] },
+          { segments: [ { text: 'File systems', slug: 'file-systems' } ] },
         ],
       },
     ],
@@ -200,11 +200,11 @@ const syllabus: SyllabusSection[] = [
         name: 'Databases',
         slug: 'databases',
         topics: [
-          { text: 'ER\u2011model', slug: 'er-model' },
-          { text: 'Relational model: relational algebra, tuple calculus, SQL', slug: 'relational-model' },
-          { text: 'Integrity constraints, normal forms', slug: 'normalization' },
-          { text: 'File organization, indexing (e.g., B and B+ trees)', slug: 'indexing' },
-          { text: 'Transactions and concurrency control', slug: 'transactions' },
+          { segments: [ { text: 'ER\u2011model', slug: 'er-model' } ] },
+          { segments: [ { text: 'Relational model', slug: 'relational-model' }, ': ', { text: 'relational algebra', slug: 'relational-algebra' }, ', ', { text: 'tuple calculus', slug: 'tuple-calculus' }, ', ', { text: 'SQL', slug: 'sql' } ] },
+          { segments: [ { text: 'Integrity constraints', slug: 'integrity-constraints' }, ', ', { text: 'normal forms', slug: 'normalization' } ] },
+          { segments: [ { text: 'File organization', slug: 'file-organization' }, ', ', { text: 'indexing', slug: 'indexing' }, ' (e.g., B and B+ trees)' ] },
+          { segments: [ { text: 'Transactions', slug: 'transactions' }, ' and ', { text: 'concurrency control', slug: 'concurrency-control' } ] },
         ],
       },
     ],
@@ -235,16 +235,6 @@ export default function GateSyllabusPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Back to home */}
-      <div className="max-w-[900px] mx-auto px-6 sm:px-10 pt-4">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Home
-        </Link>
-      </div>
 
       {/* Document container */}
       <div className="max-w-[900px] mx-auto px-6 sm:px-10 py-6 font-serif">
@@ -306,7 +296,15 @@ export default function GateSyllabusPage() {
 
                     {/* Subject name link */}
                     <Link
-                      href={`/gate/${subj.slug}`}
+                      href={(() => {
+                        if (subj.topics.length > 0) {
+                          const firstLinkSegment = subj.topics[0].segments.find(s => typeof s !== 'string') as {text: string, slug: string} | undefined
+                          if (firstLinkSegment) {
+                            return `/gate/${subj.slug}/${firstLinkSegment.slug}`
+                          }
+                        }
+                        return `/gate/${subj.slug}`
+                      })()}
                       className="font-semibold hover:underline"
                       style={{ color: '#C0392B' }}
                     >
@@ -323,16 +321,25 @@ export default function GateSyllabusPage() {
                     {/* Colon separator */}
                     <span className="text-black">: </span>
 
-                    {/* Topic phrases — each is a clickable link */}
+                    {/* Topic phrases — each is a clickable link based on segments */}
                     {subj.topics.map((topic, idx) => (
-                      <span key={`${topic.slug}-${idx}`}>
-                        <Link
-                          href={`/gate/${subj.slug}/${topic.slug}`}
-                          className="text-black hover:text-[#4A235A] hover:underline transition-colors cursor-pointer"
-                          style={{ textDecorationColor: '#4A235A' }}
-                        >
-                          {topic.text}
-                        </Link>
+                      <span key={`topic-${idx}`}>
+                        {topic.segments.map((segment, sIdx) => {
+                          if (typeof segment === 'string') {
+                            return <span key={`seg-${sIdx}`} className="text-black">{segment}</span>
+                          } else {
+                            return (
+                              <Link
+                                key={`seg-${sIdx}`}
+                                href={`/gate/${subj.slug}/${segment.slug}`}
+                                className="text-black hover:text-[#4A235A] hover:underline transition-colors cursor-pointer"
+                                style={{ textDecorationColor: '#4A235A' }}
+                              >
+                                {segment.text}
+                              </Link>
+                            )
+                          }
+                        })}
                         {/* Period separator between topics */}
                         {idx < subj.topics.length - 1 ? (
                           <span className="text-black">. </span>

@@ -2,9 +2,6 @@ import { redirect } from 'next/navigation'
 
 async function getSubject(slug: string) {
   try {
-    // In server components we should query DB directly or use absolute fetch URL.
-    // For simplicity, since the layout handles fetching subject UI, we can just fetch here
-    // or query DB. Wait, this is a Server Component, so we can use MongoDB directly.
     const { connectDB } = await import('@/lib/mongodb')
     const SubjectModel = (await import('@/models/Subject')).default
     await connectDB()
@@ -20,19 +17,23 @@ export default async function SubjectIndexPage({ params }: { params: { subject: 
   const subject = await getSubject(params.subject)
   
   if (!subject) {
-    // The layout will show "Not Found / Coming Soon" anyway
-    return null
+    return (
+      <div className="bg-white rounded-xl border border-gray-200 text-center py-20">
+        <p className="text-gray-400 text-lg">Content coming soon for this subject.</p>
+      </div>
+    )
   }
+
+  const typedSubject = subject as any
   
-  const firstTopic = subject.topics?.[0]
-  if (firstTopic) {
-    redirect(`/gate/${subject.slug}/${firstTopic.slug}`)
+  if (!typedSubject.topics || typedSubject.topics.length === 0) {
+    return (
+      <div className="bg-white rounded-xl border border-gray-200 text-center py-20">
+        <p className="text-gray-400 text-lg">No topics available yet.</p>
+      </div>
+    )
   }
-  
-  // If subject exists but has no topics
-  return (
-    <div className="bg-white rounded-xl border border-gray-200 text-center py-20">
-      <p className="text-gray-400 text-lg">Content coming soon for this subject.</p>
-    </div>
-  )
+
+  // Redirect to full CCD at the top (using 'all' to avoid scrolling down to a specific topic)
+  redirect(`/gate/${params.subject}/all`)
 }

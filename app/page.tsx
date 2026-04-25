@@ -1,6 +1,8 @@
 'use client'
 
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
+import { CursorImageTrail } from "@/components/unlumen-ui/cursor-image-trail"
 
 interface ExamCard {
   name: string
@@ -36,31 +38,66 @@ const exams: ExamCard[] = [
   },
 ]
 
+// Educational / tech related local images
+const IMAGES = [
+  "/one.jpg",
+  "/two.jpg",
+  "/three.jpg",
+  "/four.jpg",
+  "/five.jpg",
+  "/six.jpg",
+  "/seven.jpg",
+  "/eight.jpg",
+];
+
+const ITEMS = IMAGES.map((src, idx) => (
+  // eslint-disable-next-line @next/next/no-img-element
+  <img key={idx} src={src} alt={`trail-${idx}`} className="rounded-lg object-cover w-full h-full" />
+));
+
 export default function HomePage() {
+  const { status } = useSession()
+  const router = useRouter()
+
+  const handleExamClick = (exam: ExamCard) => {
+    if (!exam.active) return
+    if (status === 'authenticated') {
+      router.push(exam.href)
+    } else {
+      // Both 'unauthenticated' and 'loading' → send to login
+      router.push('/login')
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center px-4">
+    <CursorImageTrail 
+      items={ITEMS} 
+      className="min-h-screen bg-white w-full flex flex-col items-center justify-center px-4"
+    >
       {/* Header */}
-      <div className="text-center mb-10 mt-[-10vh]">
+      <div className="text-center mb-10 mt-[-10vh] z-10 relative pointer-events-auto">
         <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 tracking-tight px-2">
           Swaseekh.com
         </h1>
       </div>
 
       {/* Exam Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl w-full px-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl w-full px-2" style={{ position: 'relative', zIndex: 50 }}>
         {exams.map((exam) =>
           exam.active ? (
-            <Link
+            <button
               key={exam.name}
-              href={exam.href}
-              className="group relative bg-white border-2 border-gray-200 rounded-xl p-6 sm:p-5 lg:p-6 text-center
+              type="button"
+              onClick={() => handleExamClick(exam)}
+              style={{ position: 'relative', zIndex: 51, pointerEvents: 'auto' }}
+              className="group bg-white border-2 border-gray-200 rounded-xl p-6 sm:p-5 lg:p-6 text-center
                          hover:border-[#4A235A] hover:shadow-lg transition-all duration-200 cursor-pointer flex flex-col justify-center"
             >
               <h2 className="text-2xl font-bold text-gray-900 mb-1 group-hover:text-[#4A235A] transition-colors">
                 {exam.name}
               </h2>
               <p className="text-sm text-gray-500">{exam.description}</p>
-            </Link>
+            </button>
           ) : (
             <div
               key={exam.name}
@@ -78,6 +115,6 @@ export default function HomePage() {
           )
         )}
       </div>
-    </div>
+    </CursorImageTrail>
   )
 }

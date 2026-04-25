@@ -1,10 +1,14 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
+
 interface FilterBarProps {
   years: number[]
   selectedYear: string
   selectedDifficulty: string
   selectedType: string
+  allSubjects?: any[]
+  currentSubjectSlug?: string
   onYearChange: (v: string) => void
   onDifficultyChange: (v: string) => void
   onTypeChange: (v: string) => void
@@ -15,16 +19,42 @@ export default function FilterBar({
   selectedYear,
   selectedDifficulty,
   selectedType,
+  allSubjects = [],
+  currentSubjectSlug = '',
   onYearChange,
   onDifficultyChange,
   onTypeChange,
 }: FilterBarProps) {
+  const router = useRouter()
   const selectClass =
     'px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-700 bg-white ' +
     'focus:outline-none focus:border-[#4A235A] focus:ring-1 focus:ring-[#4A235A]/20 transition-colors'
 
   return (
     <div className="flex flex-wrap gap-3">
+      {/* Subject Dropdown */}
+      {allSubjects.length > 0 && (
+        <select
+          value={currentSubjectSlug}
+          onChange={(e) => {
+            const newSlug = e.target.value
+            if (newSlug === '') {
+              router.push('/gate/questions')
+            } else {
+              router.push(`/gate/questions/${newSlug}`)
+            }
+          }}
+          className={selectClass}
+        >
+          <option value="">All Subjects</option>
+          {allSubjects.map((s) => (
+            <option key={s.slug} value={s.slug}>
+              {s.name}
+            </option>
+          ))}
+        </select>
+      )}
+
       {/* Year */}
       <select
         value={selectedYear}
