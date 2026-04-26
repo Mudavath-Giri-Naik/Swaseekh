@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
         couponCode,
         discountType,
         discountValue,
-        originalAmount: BASE_PRICE_INR * 100,
+        originalAmount: BASE_PRICE_INR,
         finalAmount: 0,
         couponUsedAt: couponCode ? new Date() : null,
         paidAt: new Date(),
@@ -157,7 +157,7 @@ export async function POST(request: NextRequest) {
       userId: user._id,
       razorpayOrderId: order.id,
       razorpayPaymentId: `pending_${order.id}`, // Temp unique ID to prevent E11000 dup key on null
-      amount: amountPaise,
+      amount: finalPriceINR,
       currency: 'INR',
       status: 'pending',
       gateway: 'razorpay',
@@ -165,8 +165,8 @@ export async function POST(request: NextRequest) {
       couponCode,
       discountType,
       discountValue,
-      originalAmount: BASE_PRICE_INR * 100,
-      finalAmount: amountPaise,
+      originalAmount: BASE_PRICE_INR,
+      finalAmount: finalPriceINR,
       couponUsedAt: couponCode ? new Date() : null,
     })
 
