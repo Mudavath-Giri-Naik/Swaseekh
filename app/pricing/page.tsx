@@ -105,7 +105,7 @@ export default function PricingPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="max-w-lg mx-auto py-16 px-4">
+      <div className="max-w-lg mx-auto py-8 sm:py-12 px-4">
         {/* Header */}
         <div className="text-center mb-10">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Upgrade to Pro</h1>
@@ -116,19 +116,19 @@ export default function PricingPage() {
 
         {/* Plan Card */}
         {isProActive ? (
-          <div className="border-2 border-green-500 bg-green-50 rounded-2xl p-8 text-center max-w-md mx-auto">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Check className="w-8 h-8 text-green-600" />
+          <div className="border-2 border-green-500 bg-green-50 rounded-2xl p-6 sm:p-8 text-center max-w-md mx-auto">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+              <Check className="w-6 h-6 sm:w-8 sm:h-8 text-green-600" />
             </div>
-            <h2 className="text-2xl font-bold text-green-800 mb-2">You're a Pro!</h2>
-            <p className="text-green-600 mb-6">
+            <h2 className="text-xl sm:text-2xl font-bold text-green-800 mb-1.5 sm:mb-2">You're a Pro!</h2>
+            <p className="text-sm sm:text-base text-green-600 mb-4 sm:mb-6">
               Congratulations, you have full access to all GATE preparation resources.
             </p>
             
             {paymentDetails && (
-              <div className="bg-white border border-green-200 rounded-xl p-6 text-left mb-6 shadow-sm">
-                <h3 className="font-semibold text-gray-900 border-b pb-3 mb-3">Subscription Receipt</h3>
-                <div className="space-y-3 text-sm">
+              <div className="bg-white border border-green-200 rounded-xl p-4 sm:p-6 text-left mb-4 sm:mb-6 shadow-sm">
+                <h3 className="font-semibold text-gray-900 border-b pb-2 sm:pb-3 mb-2 sm:mb-3 text-sm sm:text-base">Subscription Receipt</h3>
+                <div className="space-y-2.5 sm:space-y-3 text-xs sm:text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-500">Name</span>
                     <span className="font-medium text-gray-900">{session?.user?.name || 'User'}</span>
@@ -163,7 +163,7 @@ export default function PricingPage() {
             </a>
           </div>
         ) : (
-          <div className="border-2 border-[#4A235A] rounded-2xl p-8 relative overflow-hidden">
+          <div className="border-2 border-[#4A235A] rounded-2xl p-6 sm:p-8 relative overflow-hidden">
             <div className="absolute top-0 right-0 bg-[#4A235A] text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg">
               PRO
             </div>
@@ -189,7 +189,7 @@ export default function PricingPage() {
             </div>
 
             {/* Features */}
-            <ul className="space-y-3 mb-8">
+            <ul className="space-y-2.5 sm:space-y-3 mb-6 sm:mb-8">
               {proFeatures.map((f) => (
                 <li key={f} className="flex items-start gap-2.5 text-sm text-gray-700">
                   <Check className="w-4 h-4 text-[#4A235A] mt-0.5 shrink-0" />
