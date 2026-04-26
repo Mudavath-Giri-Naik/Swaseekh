@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { Check, Tag, X, Loader2 } from 'lucide-react'
 import PayButton from '@/components/PayButton'
@@ -15,7 +15,7 @@ const proFeatures = [
   'All subjects unlocked',
   'Concept documents & notes',
   'Priority support',
-  '30-day access',
+  '1-year access',
 ]
 
 interface CouponData {
@@ -36,6 +36,18 @@ export default function PricingPage() {
   const [appliedCoupon, setAppliedCoupon] = useState<CouponData | null>(null)
   const [couponError, setCouponError] = useState('')
   const [validating, setValidating] = useState(false)
+  const [paymentDetails, setPaymentDetails] = useState<any>(null)
+
+  useEffect(() => {
+    if (isProActive) {
+      fetch('/api/my-payment')
+        .then(res => res.json())
+        .then(data => {
+          if (data.payment) setPaymentDetails(data.payment)
+        })
+        .catch(console.error)
+    }
+  }, [isProActive])
 
   const discount = appliedCoupon?.discountAmount || 0
   const finalPrice = appliedCoupon?.finalPrice ?? BASE_PRICE
@@ -96,13 +108,13 @@ export default function PricingPage() {
         <div className="text-center mb-10">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Upgrade to Pro</h1>
           <p className="text-gray-500 text-sm">
-            Get full access to all GATE preparation resources for 30 days.
+            Get full access to all GATE preparation resources for 1 full year.
           </p>
         </div>
 
         {/* Plan Card */}
         {isProActive ? (
-          <div className="border-2 border-green-500 bg-green-50 rounded-2xl p-8 text-center">
+          <div className="border-2 border-green-500 bg-green-50 rounded-2xl p-8 text-center max-w-md mx-auto">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Check className="w-8 h-8 text-green-600" />
             </div>
@@ -110,6 +122,37 @@ export default function PricingPage() {
             <p className="text-green-600 mb-6">
               Congratulations, you have full access to all GATE preparation resources.
             </p>
+            
+            {paymentDetails && (
+              <div className="bg-white border border-green-200 rounded-xl p-6 text-left mb-6 shadow-sm">
+                <h3 className="font-semibold text-gray-900 border-b pb-3 mb-3">Subscription Receipt</h3>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Name</span>
+                    <span className="font-medium text-gray-900">{session?.user?.name || 'User'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Payment ID</span>
+                    <span className="font-medium text-gray-900 font-mono text-xs mt-0.5">{paymentDetails.razorpayPaymentId}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Status</span>
+                    <span className="font-medium text-green-600 uppercase tracking-wide text-xs mt-0.5">{paymentDetails.status}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Amount Paid</span>
+                    <span className="font-bold text-gray-900">₹{paymentDetails.finalAmount}</span>
+                  </div>
+                  <div className="flex justify-between pt-3 border-t">
+                    <span className="text-gray-500">Valid Until</span>
+                    <span className="font-medium text-[#4A235A]">
+                      {new Date((session?.user as any)?.subscriptionExpiresAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <a
               href="/gate"
               className="inline-block w-full py-3 px-6 rounded-xl font-semibold bg-green-600 text-white hover:bg-green-700 transition-colors"
@@ -134,7 +177,7 @@ export default function PricingPage() {
                 ) : (
                   <span className="text-4xl font-bold text-gray-900">₹{BASE_PRICE}</span>
                 )}
-                <span className="text-gray-400 text-sm">/30 days</span>
+                <span className="text-gray-400 text-sm">/year</span>
               </div>
               {appliedCoupon && (
                 <p className="text-green-600 text-sm mt-1 font-medium">
