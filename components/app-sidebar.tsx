@@ -221,7 +221,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                 <span className="truncate text-xs text-muted-foreground">{session?.user?.email || 'Free Plan'}</span>
                 {(session?.user as any)?.plan === 'pro' && (session?.user as any)?.subscriptionExpiresAt && (
                   <span className="truncate text-[10px] text-muted-foreground/80 mt-0.5">
-                    Valid till: {new Date((session.user as any).subscriptionExpiresAt).toLocaleDateString()}
+                    Valid till: {new Date((session?.user as any).subscriptionExpiresAt).toLocaleDateString()}
                   </span>
                 )}
               </div>
