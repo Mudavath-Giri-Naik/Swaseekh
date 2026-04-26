@@ -71,9 +71,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Payment record not found' }, { status: 404 })
     }
 
-    // 5. Upgrade user to Pro with 30-day subscription
+    // 5. Upgrade user to Pro with 365-day subscription
     const expiresAt = new Date()
-    expiresAt.setDate(expiresAt.getDate() + 30)
+    expiresAt.setDate(expiresAt.getDate() + 365)
 
     await UserModel.findOneAndUpdate(
       { email: session.user.email },

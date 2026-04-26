@@ -114,7 +114,7 @@ export async function POST(request: NextRequest) {
 
       // Upgrade user
       const expiresAt = new Date()
-      expiresAt.setDate(expiresAt.getDate() + 30)
+      expiresAt.setDate(expiresAt.getDate() + 365)
 
       await UserModel.findOneAndUpdate(
         { email: session.user.email },

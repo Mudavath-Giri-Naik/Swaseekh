@@ -45,6 +45,7 @@ export const authOptions: NextAuthOptions = {
         (session.user as any).id = token.dbUserId || token.sub
         ;(session.user as any).plan = token.plan || 'free'
         ;(session.user as any).subscriptionStatus = token.subscriptionStatus || 'inactive'
+        ;(session.user as any).subscriptionExpiresAt = token.subscriptionExpiresAt || null
       }
       return session
     },
@@ -64,6 +65,7 @@ export const authOptions: NextAuthOptions = {
             token.dbUserId = (dbUser._id as any).toString()
             token.plan = dbUser.plan || 'free'
             token.subscriptionStatus = dbUser.subscriptionStatus || 'inactive'
+            token.subscriptionExpiresAt = dbUser.subscriptionExpiresAt ? dbUser.subscriptionExpiresAt.toISOString() : null
           }
         } catch (err) {
           console.error('[NextAuth] jwt lookup error:', err)
