@@ -9,9 +9,6 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarMenuSub,
-  SidebarMenuSubItem,
-  SidebarMenuSubButton,
 } from "@/components/ui/sidebar"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
@@ -20,7 +17,7 @@ export function SidebarToc() {
   const { 
     subjectTopics, subjectName, activeSectionId, 
     isQuestionsMode, selectedTopicId, setSelectedTopicId, 
-    selectedSubtopicId, setSelectedSubtopicId, clearSubjectData,
+    clearSubjectData,
     subjectQuestionCount
   } = useSidebarData()
   const { isMobile, setOpenMobile } = useSidebar()
@@ -29,24 +26,19 @@ export function SidebarToc() {
 
   const handleClick = (id: string, slug: string, isSubtopic: boolean) => {
     if (isQuestionsMode) {
-      if (isSubtopic) {
-        setSelectedSubtopicId(id)
-      } else {
-        setSelectedTopicId(id)
-        setSelectedSubtopicId(null) // reset subtopic when topic changes
-      }
+      setSelectedTopicId(id)
     } else {
       if (isMobile) setOpenMobile(false)
-      const el = document.getElementById(isSubtopic ? `subtopic-${slug}` : `topic-${slug}`)
+      const el = document.getElementById(id) || document.getElementById(`topic-${slug}`)
       if (el) {
         el.scrollIntoView({ behavior: "smooth", block: "start" })
       }
     }
   }
 
-  const getIsActive = (id: string, isSubtopic: boolean) => {
+  const getIsActive = (id: string) => {
     if (isQuestionsMode) {
-      return isSubtopic ? selectedSubtopicId === id : selectedTopicId === id
+      return selectedTopicId === id
     }
     return activeSectionId === id
   }
@@ -82,7 +74,7 @@ export function SidebarToc() {
             {subjectTopics.map((topic) => (
               <SidebarMenuItem key={topic._id}>
                 <SidebarMenuButton
-                  isActive={getIsActive(topic._id, false)}
+                  isActive={getIsActive(topic._id)}
                   onClick={() => handleClick(topic._id, topic.slug, false)}
                   className="font-medium flex justify-between w-full"
                 >
@@ -91,36 +83,6 @@ export function SidebarToc() {
                     <span className="text-[10px] opacity-60 shrink-0">({topic.questionCount})</span>
                   )}
                 </SidebarMenuButton>
-                {topic.subtopics && topic.subtopics.length > 0 && (
-                  <SidebarMenuSub>
-                    {isQuestionsMode && (
-                      <SidebarMenuSubItem>
-                        <SidebarMenuSubButton
-                          isActive={getIsActive(topic._id, false) && selectedSubtopicId === null}
-                          onClick={() => { setSelectedSubtopicId(null); setSelectedTopicId(topic._id); }}
-                          className="cursor-pointer flex justify-between w-full"
-                        >
-                          <span className="truncate">All Subtopics</span>
-                          <span className="text-[10px] opacity-60 shrink-0">({topic.questionCount})</span>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    )}
-                    {topic.subtopics.map((sub) => (
-                      <SidebarMenuSubItem key={sub._id}>
-                        <SidebarMenuSubButton
-                          isActive={getIsActive(sub._id, true)}
-                          onClick={() => handleClick(sub._id, sub.slug, true)}
-                          className="cursor-pointer flex justify-between w-full"
-                        >
-                          <span className="truncate">{sub.name}</span>
-                          {isQuestionsMode && (
-                            <span className="text-[10px] opacity-60 shrink-0">({sub.questionCount})</span>
-                          )}
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    ))}
-                  </SidebarMenuSub>
-                )}
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
