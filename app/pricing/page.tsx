@@ -43,7 +43,9 @@ export default function PricingPage() {
       fetch('/api/my-payment')
         .then(res => res.json())
         .then(data => {
-          if (data.payment) setPaymentDetails(data.payment)
+          if (data.payment) {
+            setPaymentDetails({ ...data.payment, subscriptionExpiresAt: data.subscriptionExpiresAt })
+          }
         })
         .catch(console.error)
     }
@@ -146,7 +148,7 @@ export default function PricingPage() {
                   <div className="flex justify-between pt-3 border-t">
                     <span className="text-gray-500">Valid Until</span>
                     <span className="font-medium text-[#4A235A]">
-                      {new Date((session?.user as any)?.subscriptionExpiresAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
+                      {new Date(paymentDetails.subscriptionExpiresAt || (session?.user as any)?.subscriptionExpiresAt || Date.now()).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
                     </span>
                   </div>
                 </div>

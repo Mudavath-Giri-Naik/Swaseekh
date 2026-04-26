@@ -23,7 +23,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'No successful payment found' }, { status: 404 })
     }
 
-    return NextResponse.json({ payment })
+    const userModelImport = await import('@/models/User')
+    const UserModel = userModelImport.default
+    const dbUser = await UserModel.findById((session.user as any).id).lean()
+
+    return NextResponse.json({ 
+      payment, 
+      subscriptionExpiresAt: dbUser?.subscriptionExpiresAt 
+    })
   } catch (error) {
     console.error('[GET /api/my-payment]', error)
     return NextResponse.json({ error: 'Failed to fetch payment' }, { status: 500 })
