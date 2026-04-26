@@ -16,7 +16,7 @@ const BlockSchema = new Schema(
 
 // ─── Concept Document Interface ───────────────────────────────────────────
 
-export interface IConcept extends Document {
+export interface IConcept extends Document<string> {
   _id: string
   subjectId: string
   topicId: string

@@ -2,7 +2,7 @@ import mongoose, { Schema, Document, Model } from 'mongoose'
 
 // ─── Subject Document Interface ──────────────────────────────────────────
 
-export interface ISubject extends Document {
+export interface ISubject extends Document<string> {
   _id: string
   name: string
   code: string
