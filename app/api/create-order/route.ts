@@ -7,6 +7,8 @@ import PaymentModel from '@/models/Payment'
 import CouponModel from '@/models/Coupon'
 import Razorpay from 'razorpay'
 
+export const dynamic = 'force-dynamic'
+
 // Initialize Razorpay (server-side only)
 const razorpay = new Razorpay({
   key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!,

@@ -7,6 +7,8 @@ import PaymentModel from '@/models/Payment'
 import CouponModel from '@/models/Coupon'
 import crypto from 'crypto'
 
+export const dynamic = 'force-dynamic'
+
 /**
  * POST /api/verify-payment
  * 
