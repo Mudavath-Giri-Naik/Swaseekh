@@ -1,6 +1,6 @@
-import { connectDB } from './lib/mongodb.ts';
-import SubjectModel from './models/Subject.ts';
-import QuestionModel from './models/Question.ts';
+import { connectDB } from './lib/mongodb';
+import SubjectModel from './models/Subject';
+import QuestionModel from './models/Question';
 
 async function check() {
   await connectDB();
