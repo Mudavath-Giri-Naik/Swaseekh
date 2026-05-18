@@ -4,12 +4,12 @@ import MathRenderer from '../MathRenderer'
 
 interface QuestionHoverPopupProps {
   question: {
-    questionLatex: string
-    questionType: 'MCQ' | 'MSQ' | 'NAT'
-    optionsLatex: string[]
-    marks: 1 | 2
-    difficulty: 'easy' | 'medium' | 'hard'
-    examMeta: { year: number }
+    questionText: string
+    questionType: string
+    options: string[]
+    marks: number
+    difficulty: string
+    year: number
   }
   side: 'left' | 'right'
   onViewFull: () => void
@@ -17,8 +17,11 @@ interface QuestionHoverPopupProps {
 
 const diffColors: Record<string, { bg: string; text: string }> = {
   easy: { bg: '#DCFCE7', text: '#15803D' },
+  Easy: { bg: '#DCFCE7', text: '#15803D' },
   medium: { bg: '#FEF9C3', text: '#854D0E' },
+  Medium: { bg: '#FEF9C3', text: '#854D0E' },
   hard: { bg: '#FEE2E2', text: '#991B1B' },
+  Hard: { bg: '#FEE2E2', text: '#991B1B' },
 }
 
 const optionLabels = ['A', 'B', 'C', 'D', 'E', 'F']
@@ -58,7 +61,7 @@ export default function QuestionHoverPopup({ question, side, onViewFull }: Quest
             color: '#1D4ED8',
           }}
         >
-          GATE {question.examMeta.year}
+          GATE {question.year}
         </span>
         <span
           style={{
@@ -100,13 +103,13 @@ export default function QuestionHoverPopup({ question, side, onViewFull }: Quest
 
       {/* Full question text */}
       <div style={{ fontSize: '14px', lineHeight: 1.7, color: '#1F2937', marginBottom: '12px' }}>
-        <MathRenderer text={question.questionLatex} />
+        <MathRenderer text={question.questionText} />
       </div>
 
       {/* Options if MCQ/MSQ */}
-      {question.questionType !== 'NAT' && question.optionsLatex.length > 0 && (
+      {question.questionType !== 'NAT' && question.options.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '16px' }}>
-          {question.optionsLatex.map((opt, i) => (
+          {question.options.map((opt, i) => (
             <div
               key={i}
               style={{

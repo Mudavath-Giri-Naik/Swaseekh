@@ -12,25 +12,17 @@ import { useSidebarData } from '@/components/sidebar-context'
 
 interface Question {
   _id: string
-  questionLatex: string
-  questionType: 'MCQ' | 'MSQ' | 'NAT'
-  optionsLatex: string[]
-  correctAnswer: number | number[] | string
-  explanationLatex: string
-  marks: 1 | 2
-  difficulty: 'easy' | 'medium' | 'hard'
-  taxonomy: {
-    subjectId: string
-    topicId: string
-    subtopicId: string
-  }
-  examMeta: {
-    exam: string
-    stream: string
-    year: number
-    shift: string | null
-    questionNumber: number
-  }
+  questionText: string
+  questionType: string
+  options: string[]
+  correctAnswer: string
+  explanation: string
+  marks: number
+  difficulty: string
+  year: number
+  subjectId: string
+  topicId: string
+  conceptId: string
 }
 
 interface Subtopic {
@@ -97,22 +89,22 @@ export default function ThreeColumnLayout({
   // Years for filter
   const years = useMemo(() => {
     const set = new Set<number>()
-    questions.forEach((q) => set.add(q.examMeta.year))
+    questions.forEach((q) => set.add(q.year))
     return Array.from(set).sort((a, b) => b - a)
   }, [questions])
 
   // Filtered + sorted
   const filtered = useMemo(() => {
     return questions.filter((q) => {
-      if (selectedYear && q.examMeta.year !== Number(selectedYear)) return false
-      if (selectedDifficulty && q.difficulty !== selectedDifficulty) return false
+      if (selectedYear && q.year !== Number(selectedYear)) return false
+      if (selectedDifficulty && q.difficulty.toLowerCase() !== selectedDifficulty.toLowerCase()) return false
       if (selectedType && q.questionType !== selectedType) return false
       return true
     })
   }, [questions, selectedYear, selectedDifficulty, selectedType])
 
   const sorted = useMemo(() => {
-    return [...filtered].sort((a, b) => b.examMeta.year - a.examMeta.year)
+    return [...filtered].sort((a, b) => b.year - a.year)
   }, [filtered])
 
   // Group questions by section, then split left/right within each section
@@ -121,7 +113,7 @@ export default function ThreeColumnLayout({
     allSections.forEach((s) => bySection.set(s.id, []))
     
     sorted.forEach((q) => {
-      const sid = q.taxonomy.subtopicId || q.taxonomy.topicId
+      const sid = q.conceptId || q.topicId
       // If we don't have a section for this question, dump it in the first topic
       const targetId = bySection.has(sid) ? sid : (topics[0]?._id || '')
       if (targetId) {
@@ -530,7 +522,7 @@ export default function ThreeColumnLayout({
                 </div>
 
                 {topic.subtopics?.map((sub, sIdx) => {
-                  const sectionQuestions = sorted.filter(q => (q.taxonomy.subtopicId || q.taxonomy.topicId) === sub._id)
+                  const sectionQuestions = sorted.filter(q => (q.conceptId || q.topicId) === sub._id)
                   return (
                     <div key={sub._id} style={{ marginBottom: '40px' }}>
                       <ContentSection

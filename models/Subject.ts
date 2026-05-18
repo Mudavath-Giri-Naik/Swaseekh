@@ -27,7 +27,6 @@ const SubjectSchema = new Schema<ISubject>(
     totalConcepts: { type: Number, default: 0 },
   },
   {
-    _id: false,
     timestamps: true,
     collection: 'subjects',
   }

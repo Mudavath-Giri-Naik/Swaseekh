@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { slugify } from '@/lib/utils'
 
 /* ─── Types ──────────────────────────────────────────────────────────────── */
 
@@ -150,7 +151,7 @@ export default function GateSyllabusPage() {
                   
                   {/* Subject name link */}
                   <Link
-                    href={`/gate/${subject._id}`}
+                    href={`/gate/${slugify(subject.name)}`}
                     className="font-semibold hover:underline"
                     style={{ color: '#C0392B' }}
                   >
@@ -164,7 +165,7 @@ export default function GateSyllabusPage() {
                   {topics.map((topic, idx) => (
                     <span key={topic._id}>
                       <Link
-                        href={`/gate/${subject._id}#${topic._id}`}
+                        href={`/gate/${slugify(subject.name)}/${slugify(topic.name)}`}
                         className="text-black hover:text-[#4A235A] hover:underline transition-colors cursor-pointer"
                         style={{ textDecorationColor: '#4A235A' }}
                       >
@@ -177,7 +178,7 @@ export default function GateSyllabusPage() {
                           : {topic.concepts.map((concept, cIdx) => (
                             <span key={concept._id}>
                               <Link
-                                href={`/gate/${subject._id}#${concept._id}`}
+                                href={`/gate/${slugify(subject.name)}/${slugify(topic.name)}/${slugify(concept.title)}`}
                                 className="text-gray-700 hover:text-[#4A235A] hover:underline transition-colors cursor-pointer"
                                 style={{ textDecorationColor: '#4A235A' }}
                               >

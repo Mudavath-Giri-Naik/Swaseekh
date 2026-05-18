@@ -6,12 +6,12 @@ import QuestionHoverPopup from './QuestionHoverPopup'
 
 interface QuestionData {
   _id: string
-  questionLatex: string
-  questionType: 'MCQ' | 'MSQ' | 'NAT'
-  optionsLatex: string[]
-  marks: 1 | 2
-  difficulty: 'easy' | 'medium' | 'hard'
-  examMeta: { year: number }
+  questionText: string
+  questionType: string
+  options: string[]
+  marks: number
+  difficulty: string
+  year: number
 }
 
 interface QuestionSideCardProps {
@@ -28,8 +28,11 @@ interface QuestionSideCardProps {
 
 const diffDotColors: Record<string, string> = {
   easy: '#22C55E',
+  Easy: '#22C55E',
   medium: '#F59E0B',
+  Medium: '#F59E0B',
   hard: '#EF4444',
+  Hard: '#EF4444',
 }
 
 const QuestionSideCard = forwardRef<HTMLDivElement, QuestionSideCardProps>(
@@ -37,9 +40,9 @@ const QuestionSideCard = forwardRef<HTMLDivElement, QuestionSideCardProps>(
     { questionNumber, question, isActive, isDimmed, side, onClick, onViewFull, hoveredId, onHover },
     ref
   ) {
-    const preview = question.questionLatex.length > 120
-      ? question.questionLatex.slice(0, 120) + '…'
-      : question.questionLatex
+    const preview = question.questionText.length > 120
+      ? question.questionText.slice(0, 120) + '…'
+      : question.questionText
 
     const isHovered = hoveredId === question._id
     const cardRef = useRef<HTMLDivElement>(null)
@@ -110,7 +113,7 @@ const QuestionSideCard = forwardRef<HTMLDivElement, QuestionSideCardProps>(
                 fontFamily: "'Inter', system-ui, sans-serif",
               }}
             >
-              GATE {question.examMeta.year} · {question.marks} Mark{question.marks > 1 ? 's' : ''}
+              GATE {question.year} · {question.marks} Mark{question.marks > 1 ? 's' : ''}
             </span>
           </div>
         </div>

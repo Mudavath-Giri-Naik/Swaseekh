@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import Link from 'next/link'
 import FilterBar from '../FilterBar'
 import { useSidebarData } from '@/components/sidebar-context'
 import QuestionDrawer from './QuestionDrawer'
@@ -14,61 +15,50 @@ import {
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import MathRenderer from '../MathRenderer'
-import { CheckCircle2, XCircle, Bookmark, Circle } from "lucide-react"
+import { CheckCircle2, Circle } from "lucide-react"
 
 interface Question {
   _id: string
-  questionLatex: string
-  questionType: 'MCQ' | 'MSQ' | 'NAT'
-  optionsLatex: string[]
-  correctAnswer: number | number[] | string
-  explanationLatex: string
-  marks: 1 | 2
-  difficulty: 'easy' | 'medium' | 'hard'
-  taxonomy: {
-    subjectId: string
-    topicId: string
-    subtopicId: string
-  }
-  examMeta: {
-    exam: string
-    stream: string
-    year: number
-    shift: string | null
-    questionNumber: number
-  }
-}
-
-interface Subtopic {
-  _id: string
-  name: string
-  slug: string
-  questionCount: number
-}
-
-interface Topic {
-  _id: string
-  name: string
-  slug: string
-  subtopics: Subtopic[]
-  questionCount: number
+  questionText: string
+  questionType: string
+  options: string[]
+  correctAnswer: string
+  explanation: string
+  marks: number
+  difficulty: string
+  year: number
+  subjectId: string
+  topicId: string
+  conceptId: string
+  subjectName?: string
+  topicName?: string
+  conceptName?: string
 }
 
 interface TopicQuestionsViewProps {
   questions: Question[]
-  topics: Topic[]
   allSubjects?: any[]
   currentSubjectSlug?: string
 }
 
-const diffColors: Record<string, { bg: string; text: string; border: string }> = {
-  easy: { bg: 'bg-green-100', text: 'text-green-800', border: 'border-green-200' },
-  medium: { bg: 'bg-yellow-100', text: 'text-yellow-800', border: 'border-yellow-200' },
-  hard: { bg: 'bg-red-100', text: 'text-red-800', border: 'border-red-200' },
+function slugify(str: string) {
+  return str
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '')
 }
 
-export default function TopicQuestionsView({ questions, topics, allSubjects, currentSubjectSlug }: TopicQuestionsViewProps) {
-  const { selectedTopicId, selectedSubtopicId } = useSidebarData()
+const diffColors: Record<string, { bg: string; text: string; border: string }> = {
+  easy: { bg: 'bg-green-100', text: 'text-green-800', border: 'border-green-200' },
+  Easy: { bg: 'bg-green-100', text: 'text-green-800', border: 'border-green-200' },
+  medium: { bg: 'bg-yellow-100', text: 'text-yellow-800', border: 'border-yellow-200' },
+  Medium: { bg: 'bg-yellow-100', text: 'text-yellow-800', border: 'border-yellow-200' },
+  hard: { bg: 'bg-red-100', text: 'text-red-800', border: 'border-red-200' },
+  Hard: { bg: 'bg-red-100', text: 'text-red-800', border: 'border-red-200' },
+}
+
+export default function TopicQuestionsView({ questions, allSubjects, currentSubjectSlug }: TopicQuestionsViewProps) {
+  const { selectedTopicId } = useSidebarData()
   const [solvedStatuses, setSolvedStatuses] = useState<Record<string, boolean>>({})
 
   const [selectedYear, setSelectedYear] = useState('')
@@ -83,29 +73,21 @@ export default function TopicQuestionsView({ questions, topics, allSubjects, cur
 
   const years = useMemo(() => {
     const set = new Set<number>()
-    questions.forEach((q) => set.add(q.examMeta.year))
+    questions.forEach((q) => set.add(q.year))
     return Array.from(set).sort((a, b) => b - a)
   }, [questions])
 
   const filteredQuestions = useMemo(() => {
     return questions.filter((q) => {
       // Topic match
-      if (selectedTopicId && q.taxonomy.topicId !== selectedTopicId) return false
-      // Subtopic match
-      if (selectedSubtopicId && q.taxonomy.subtopicId !== selectedSubtopicId) return false
+      if (selectedTopicId && q.topicId !== selectedTopicId) return false
 
-      if (selectedYear && q.examMeta.year !== Number(selectedYear)) return false
-      if (selectedDifficulty && q.difficulty !== selectedDifficulty) return false
+      if (selectedYear && q.year !== Number(selectedYear)) return false
+      if (selectedDifficulty && q.difficulty.toLowerCase() !== selectedDifficulty.toLowerCase()) return false
       if (selectedType && q.questionType !== selectedType) return false
       return true
-    }).sort((a, b) => sortOrder === 'desc' ? b.examMeta.year - a.examMeta.year : a.examMeta.year - b.examMeta.year)
-  }, [questions, selectedTopicId, selectedSubtopicId, selectedYear, selectedDifficulty, selectedType, sortOrder])
-
-  // Helper to get topic name
-  const getTopicName = (topicId: string) => {
-    const t = topics.find(t => t._id === topicId)
-    return t ? t.name : 'Unknown Topic'
-  }
+    }).sort((a, b) => sortOrder === 'desc' ? b.year - a.year : a.year - b.year)
+  }, [questions, selectedTopicId, selectedYear, selectedDifficulty, selectedType, sortOrder])
 
   return (
     <div className="space-y-6">
@@ -153,7 +135,7 @@ export default function TopicQuestionsView({ questions, topics, allSubjects, cur
               </TableRow>
             ) : (
               filteredQuestions.map((q, idx) => {
-                const topicName = getTopicName(q.taxonomy.topicId)
+                const topicName = q.topicName || q.topicId
                 const dColor = diffColors[q.difficulty] || diffColors.medium
                 
                 return (
@@ -168,12 +150,12 @@ export default function TopicQuestionsView({ questions, topics, allSubjects, cur
                     
                     <TableCell>
                       <div className="line-clamp-1 max-w-[400px] text-gray-800 text-[14px]">
-                        <MathRenderer text={q.questionLatex} />
+                        <MathRenderer text={q.questionText} />
                       </div>
                     </TableCell>
                     
                     <TableCell className="text-gray-600 font-medium whitespace-nowrap">
-                      GATE {q.examMeta.year}
+                      GATE {q.year}
                     </TableCell>
                     
                     <TableCell>

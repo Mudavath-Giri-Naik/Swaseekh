@@ -41,7 +41,6 @@ const ConceptSchema = new Schema<IConcept>(
     blocks: { type: [BlockSchema], default: [] },
   },
   {
-    _id: false,
     timestamps: true,
     collection: 'concepts',
   }

@@ -1,116 +1,61 @@
 // ─── Question Types ────────────────────────────────────────────────────────
 
 export type QuestionType = 'MCQ' | 'MSQ' | 'NAT'
-export type Difficulty = 'easy' | 'medium' | 'hard'
+export type Difficulty = 'easy' | 'medium' | 'hard' | 'Easy' | 'Medium' | 'Hard'
 export type CCDStatus = 'completed' | 'in-progress' | 'not-started'
-
-export interface QuestionImage {
-  url: string
-  caption: string
-  position: string
-}
-
-export interface QuestionTaxonomy {
-  subjectId: string
-  topicId: string
-  subtopicId: string
-}
-
-export interface ExamMeta {
-  exam: string
-  stream: string
-  year: number
-  shift: string | null
-  questionNumber: number
-}
-
-export interface QuestionSource {
-  volume: number
-  page: number
-  questionNumberInPDF: string
-}
-
-export interface CCDMapping {
-  ccdId: string | null
-  sectionId: string | null
-  fundamentalQuestionId: string | null
-  mappingStatus: 'mapped' | 'unmapped'
-}
-
-export interface QuestionStats {
-  attempts: number
-  correctRate: number
-  avgTimeTaken: number
-  mostChosenWrongAnswer: string | null
-}
-
-export interface QuestionFlags {
-  isVerified: boolean
-  isPYQ: boolean
-  hasImage: boolean
-  isMSQ: boolean
-  isNAT: boolean
-}
 
 export interface Question {
   _id: string
-  questionLatex: string
-  questionType: QuestionType
-  optionsLatex: string[]
-  correctAnswer: number | number[] | string
-  explanationLatex: string
-  marks: 1 | 2
-  negativeMarks: 0 | 0.33 | 0.66
-  images: QuestionImage[]
-  taxonomy: QuestionTaxonomy
-  examMeta: ExamMeta
-  source: QuestionSource
-  ccdMapping: CCDMapping
-  similarQuestions: string[]
-  difficulty: Difficulty
-  tags: string[]
-  coreConceptTested: string
-  prerequisites: string[]
-  searchText: string
-  embedding: number[]
-  stats: QuestionStats
-  flags: QuestionFlags
-  createdAt: string
-  updatedAt: string
+  angle: string
+  cognitiveOperation: string
+  conceptId: string
+  correctAnswer: string
+  depthLevel: string
+  difficulty: string
+  distractorStrategy: string | null
+  explanation: string
+  keyConstraint: string | null
+  marks: number
+  options: string[]
+  questionText: string
+  questionType: string
+  statementStructure: string
+  subjectId: string
+  topicId: string
+  trap: string
+  year: number
+  // Resolved names (from API enrichment)
+  subjectName?: string
+  topicName?: string
+  conceptName?: string
 }
 
 // ─── Subject / Syllabus Types ──────────────────────────────────────────────
 
-export interface Subtopic {
-  _id: string
-  name: string
-  slug: string
-  questionCount: number
-  ccdStatus: CCDStatus
-  ccdId: string | null
-}
-
 export interface Topic {
   _id: string
+  subjectId: string
   name: string
-  slug: string
-  shortCode: string
-  questionCount: number
-  ccdStatus: CCDStatus
-  subtopics: Subtopic[]
+  order: number
+}
+
+export interface Concept {
+  _id: string
+  subjectId: string
+  topicId: string
+  title: string
+  order: number
+  tags: string[]
 }
 
 export interface Subject {
   _id: string
   name: string
-  slug: string
-  shortCode: string
-  exam: string
-  ccdStatus: CCDStatus
-  questionCount: number
-  topics: Topic[]
-  createdAt: string
-  updatedAt: string
+  code: string
+  order: number
+  section: string
+  totalTopics: number
+  totalConcepts: number
 }
 
 // ─── API Response Types ────────────────────────────────────────────────────
@@ -130,12 +75,12 @@ export interface SubjectsResponse {
 // ─── Filter Types ──────────────────────────────────────────────────────────
 
 export interface QuestionFilters {
-  subtopicId?: string
+  conceptId?: string
   topicId?: string
   subjectId?: string
   year?: number
-  difficulty?: Difficulty
-  type?: QuestionType
+  difficulty?: string
+  type?: string
   page?: number
   limit?: number
 }

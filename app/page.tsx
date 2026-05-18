@@ -77,7 +77,7 @@ export default function HomePage() {
       {/* Header */}
       <div className="text-center mb-10 mt-[-10vh] z-10 relative pointer-events-auto">
         <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 tracking-tight px-2">
-          Swaseekh.com
+          Swaseekh.in
         </h1>
       </div>
 

@@ -124,7 +124,7 @@ export default function PricingPage() {
             <p className="text-sm sm:text-base text-green-600 mb-4 sm:mb-6">
               Congratulations, you have full access to all GATE preparation resources.
             </p>
-            
+
             {paymentDetails && (
               <div className="bg-white border border-green-200 rounded-xl p-4 sm:p-6 text-left mb-4 sm:mb-6 shadow-sm">
                 <h3 className="font-semibold text-gray-900 border-b pb-2 sm:pb-3 mb-2 sm:mb-3 text-sm sm:text-base">Subscription Receipt</h3>

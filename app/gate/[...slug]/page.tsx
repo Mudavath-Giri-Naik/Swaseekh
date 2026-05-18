@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
+import { slugify } from '@/lib/utils'
 
 /* ─── Types ──────────────────────────────────────────────────────────────── */
 
@@ -43,8 +44,10 @@ interface APIResponse {
 /* ─── Document Page Component ────────────────────────────────────────────── */
 
 export default function SubjectDocumentPage() {
-  const params = useParams<{ subject: string }>()
-  const subjectId = params.subject // e.g. "sub_001"
+  const params = useParams<{ slug: string[] }>()
+  const subjectSlug = params.slug?.[0] // e.g. "discrete-mathematics"
+  const topicSlug = params.slug?.[1]
+  const conceptSlug = params.slug?.[2]
 
   const [data, setData] = useState<APIResponse | null>(null)
   const [loading, setLoading] = useState(true)
@@ -60,7 +63,7 @@ export default function SubjectDocumentPage() {
     setLoading(true)
     setError(false)
 
-    fetch(`/api/subjects/${subjectId}`)
+    fetch(`/api/subjects/${encodeURIComponent(subjectSlug)}`)
       .then((res) => {
         if (!res.ok) throw new Error('Not found')
         return res.json()
@@ -68,12 +71,12 @@ export default function SubjectDocumentPage() {
       .then((json: APIResponse) => {
         setData(json)
         if (json.topics.length > 0) {
-          setActiveTopicId(json.topics[0]._id)
+          setActiveTopicId(slugify(json.topics[0].name))
         }
       })
       .catch(() => setError(true))
       .finally(() => setLoading(false))
-  }, [subjectId])
+  }, [subjectSlug])
 
   /* ── IntersectionObserver for Active Topic ──────────────────────────── */
 
@@ -106,7 +109,7 @@ export default function SubjectDocumentPage() {
 
     // Observe all topic headings
     for (const topic of data.topics) {
-      const el = topicRefs.current[topic._id]
+      const el = topicRefs.current[slugify(topic.name)]
       if (el) observer.observe(el)
     }
 
@@ -115,26 +118,26 @@ export default function SubjectDocumentPage() {
 
   /* ── Scroll to topic ────────────────────────────────────────────────── */
 
-  const scrollToTopic = useCallback((topicId: string) => {
-    const el = topicRefs.current[topicId]
+  const scrollToTopic = useCallback((topicName: string) => {
+    const el = topicRefs.current[topicName]
     if (el) {
       el.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
   }, [])
 
-  /* ── Handle hash on initial load ────────────────────────────────────── */
+  /* ── Handle slug on initial load ────────────────────────────────────── */
 
   useEffect(() => {
     if (!data) return
-    const hash = window.location.hash.slice(1) // remove '#'
-    if (hash) {
+    const targetSlug = conceptSlug || topicSlug
+    if (targetSlug) {
       // Small delay so DOM is ready
       setTimeout(() => {
-        const el = document.getElementById(hash)
+        const el = document.getElementById(targetSlug)
         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
       }, 300)
     }
-  }, [data])
+  }, [data, topicSlug, conceptSlug])
 
   /* ── Loading State ──────────────────────────────────────────────────── */
 
@@ -203,7 +206,7 @@ export default function SubjectDocumentPage() {
           onChange={(e) => scrollToTopic(e.target.value)}
         >
           {topics.map((t) => (
-            <option key={t._id} value={t._id}>
+            <option key={t._id} value={slugify(t.name)}>
               {t.name}
             </option>
           ))}
@@ -227,8 +230,8 @@ export default function SubjectDocumentPage() {
             {topics.map((topic) => (
               <a
                 key={topic._id}
-                className={`doc-sidebar-link${activeTopicId === topic._id ? ' active' : ''}`}
-                onClick={() => scrollToTopic(topic._id)}
+                className={`doc-sidebar-link${activeTopicId === slugify(topic.name) ? ' active' : ''}`}
+                onClick={() => scrollToTopic(slugify(topic.name))}
               >
                 {topic.name}
               </a>
@@ -252,9 +255,9 @@ export default function SubjectDocumentPage() {
 
               {/* Topic Heading */}
               <h2
-                id={topic._id}
+                id={slugify(topic.name)}
                 className="doc-topic-heading"
-                ref={(el) => { topicRefs.current[topic._id] = el }}
+                ref={(el) => { topicRefs.current[slugify(topic.name)] = el }}
               >
                 {topic.name}
               </h2>
@@ -265,7 +268,7 @@ export default function SubjectDocumentPage() {
               ) : (
                 topic.concepts.map((concept) => (
                   <div key={concept._id} style={{ marginBottom: 24 }}>
-                    <h3 id={concept._id} className="doc-concept-title">{concept.title}</h3>
+                    <h3 id={slugify(concept.title)} className="doc-concept-title">{concept.title}</h3>
 
                     {concept.blocks.length === 0 ? (
                       <p className="doc-coming-soon">Coming soon...</p>

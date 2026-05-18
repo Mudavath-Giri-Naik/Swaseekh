@@ -6,12 +6,12 @@ import QuestionHoverPopup from './QuestionHoverPopup'
 
 interface QuestionData {
   _id: string
-  questionLatex: string
-  questionType: 'MCQ' | 'MSQ' | 'NAT'
-  optionsLatex: string[]
-  marks: 1 | 2
-  difficulty: 'easy' | 'medium' | 'hard'
-  examMeta: { year: number }
+  questionText: string
+  questionType: string
+  options: string[]
+  marks: number
+  difficulty: string
+  year: number
 }
 
 interface QuestionTextRowProps {
@@ -65,7 +65,7 @@ const QuestionTextRow = forwardRef<HTMLDivElement, QuestionTextRowProps>(
         }}
       >
         <span style={{ fontWeight: 600, marginRight: '4px' }}>{questionNumber}.</span>
-        <MathRenderer text={question.questionLatex} />
+        <MathRenderer text={question.questionText} />
 
         {/* Hover popup */}
         {isHovered && (

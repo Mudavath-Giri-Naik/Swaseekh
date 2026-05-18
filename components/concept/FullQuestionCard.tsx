@@ -6,22 +6,25 @@ import MathRenderer from '../MathRenderer'
 interface FullQuestionCardProps {
   question: {
     _id: string
-    questionLatex: string
-    questionType: 'MCQ' | 'MSQ' | 'NAT'
-    optionsLatex: string[]
-    correctAnswer: number | number[] | string
-    explanationLatex: string
-    marks: 1 | 2
-    difficulty: 'easy' | 'medium' | 'hard'
-    examMeta: { year: number; questionNumber: number }
+    questionText: string
+    questionType: string
+    options: string[]
+    correctAnswer: string
+    explanation: string
+    marks: number
+    difficulty: string
+    year: number
   }
   index: number
 }
 
 const diffColors: Record<string, { bg: string; text: string }> = {
   easy: { bg: '#DCFCE7', text: '#15803D' },
+  Easy: { bg: '#DCFCE7', text: '#15803D' },
   medium: { bg: '#FEF9C3', text: '#854D0E' },
+  Medium: { bg: '#FEF9C3', text: '#854D0E' },
   hard: { bg: '#FEE2E2', text: '#991B1B' },
+  Hard: { bg: '#FEE2E2', text: '#991B1B' },
 }
 
 const optionLabels = ['A', 'B', 'C', 'D', 'E', 'F']
@@ -30,11 +33,8 @@ export default function FullQuestionCard({ question, index }: FullQuestionCardPr
   const [showAnswer, setShowAnswer] = useState(false)
   const d = diffColors[question.difficulty] || diffColors.medium
 
-  const correctIndices: number[] = Array.isArray(question.correctAnswer)
-    ? (question.correctAnswer as number[])
-    : typeof question.correctAnswer === 'number'
-      ? [question.correctAnswer]
-      : []
+  const correctAnswerLetter = question.correctAnswer?.trim()?.toUpperCase()
+  const correctIndex = optionLabels.indexOf(correctAnswerLetter)
 
   return (
     <div
@@ -51,7 +51,7 @@ export default function FullQuestionCard({ question, index }: FullQuestionCardPr
       {/* Badges */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '16px' }}>
         <span style={{ fontSize: '11px', fontWeight: 600, padding: '3px 10px', borderRadius: '20px', background: '#DBEAFE', color: '#1D4ED8' }}>
-          GATE {question.examMeta.year}
+          GATE {question.year}
         </span>
         <span style={{ fontSize: '11px', fontWeight: 600, padding: '3px 10px', borderRadius: '20px', background: '#F3F4F6', color: '#374151' }}>
           {question.marks} Mark{question.marks > 1 ? 's' : ''}
@@ -70,15 +70,15 @@ export default function FullQuestionCard({ question, index }: FullQuestionCardPr
           Q{index + 1}
         </span>
         <div style={{ fontSize: '15px', lineHeight: 1.7, color: '#1F2937' }}>
-          <MathRenderer text={question.questionLatex} />
+          <MathRenderer text={question.questionText} />
         </div>
       </div>
 
       {/* Options */}
-      {question.questionType !== 'NAT' && question.optionsLatex.length > 0 && (
+      {question.questionType !== 'NAT' && question.options.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '16px' }}>
-          {question.optionsLatex.map((opt, i) => {
-            const isCorrect = correctIndices.includes(i)
+          {question.options.map((opt, i) => {
+            const isCorrect = i === correctIndex
             const highlighted = showAnswer && isCorrect
             return (
               <div
@@ -131,18 +131,16 @@ export default function FullQuestionCard({ question, index }: FullQuestionCardPr
       {/* Answer + Explanation */}
       {showAnswer && (
         <div style={{ marginTop: '16px' }}>
-          {question.questionType === 'NAT' && (
-            <div style={{ fontSize: '14px', fontWeight: 600, color: '#15803D', background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: '8px', padding: '10px 16px', marginBottom: '12px' }}>
-              Answer: {String(question.correctAnswer)}
-            </div>
-          )}
-          {question.explanationLatex && (
+          <div style={{ fontSize: '14px', fontWeight: 600, color: '#15803D', background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: '8px', padding: '10px 16px', marginBottom: '12px' }}>
+            Answer: {question.correctAnswer}
+          </div>
+          {question.explanation && (
             <div style={{ background: '#F9FAFB', border: '1px solid #F3F4F6', borderRadius: '8px', padding: '16px' }}>
               <p style={{ fontSize: '11px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
                 Explanation
               </p>
               <div style={{ fontSize: '14px', lineHeight: 1.7, color: '#374151' }}>
-                <MathRenderer text={question.explanationLatex} />
+                <MathRenderer text={question.explanation} />
               </div>
             </div>
           )}

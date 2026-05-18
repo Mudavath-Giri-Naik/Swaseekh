@@ -5,17 +5,14 @@ import MathRenderer from './MathRenderer'
 
 interface Question {
   _id: string
-  questionLatex: string
-  questionType: 'MCQ' | 'MSQ' | 'NAT'
-  optionsLatex: string[]
-  correctAnswer: number | number[] | string
-  explanationLatex: string
-  marks: 1 | 2
-  difficulty: 'easy' | 'medium' | 'hard'
-  examMeta: {
-    year: number
-    questionNumber: number
-  }
+  questionText: string
+  questionType: string
+  options: string[]
+  correctAnswer: string
+  explanation: string
+  marks: number
+  difficulty: string
+  year: number
 }
 
 interface QuestionCardProps {
@@ -25,8 +22,11 @@ interface QuestionCardProps {
 
 const difficultyColors: Record<string, { bg: string; text: string }> = {
   easy: { bg: 'bg-green-50', text: 'text-green-700' },
+  Easy: { bg: 'bg-green-50', text: 'text-green-700' },
   medium: { bg: 'bg-yellow-50', text: 'text-yellow-700' },
+  Medium: { bg: 'bg-yellow-50', text: 'text-yellow-700' },
   hard: { bg: 'bg-red-50', text: 'text-red-700' },
+  Hard: { bg: 'bg-red-50', text: 'text-red-700' },
 }
 
 const optionLabels = ['A', 'B', 'C', 'D', 'E', 'F']
@@ -35,12 +35,9 @@ export default function QuestionCard({ question, index }: QuestionCardProps) {
   const [showAnswer, setShowAnswer] = useState(false)
   const diff = difficultyColors[question.difficulty] ?? difficultyColors.medium
 
-  // Determine correct option index(es) for highlighting
-  const correctIndices: number[] = Array.isArray(question.correctAnswer)
-    ? (question.correctAnswer as number[])
-    : typeof question.correctAnswer === 'number'
-      ? [question.correctAnswer]
-      : []
+  // Determine correct option index from the letter answer
+  const correctAnswerLetter = question.correctAnswer?.trim()?.toUpperCase()
+  const correctIndex = optionLabels.indexOf(correctAnswerLetter)
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-5 sm:p-6">
@@ -48,7 +45,7 @@ export default function QuestionCard({ question, index }: QuestionCardProps) {
       <div className="flex flex-wrap items-center gap-2 mb-4">
         {/* Year */}
         <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-blue-50 text-blue-700">
-          GATE {question.examMeta.year}
+          GATE {question.year}
         </span>
         {/* Marks */}
         <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-gray-100 text-gray-600">
@@ -73,15 +70,15 @@ export default function QuestionCard({ question, index }: QuestionCardProps) {
           Q{index + 1}
         </span>
         <div className="text-base leading-[1.7] text-black">
-          <MathRenderer text={question.questionLatex} />
+          <MathRenderer text={question.questionText} />
         </div>
       </div>
 
       {/* Options (MCQ / MSQ) */}
-      {question.questionType !== 'NAT' && question.optionsLatex.length > 0 && (
+      {question.questionType !== 'NAT' && question.options.length > 0 && (
         <div className="space-y-2 mb-4">
-          {question.optionsLatex.map((opt, i) => {
-            const isCorrect = correctIndices.includes(i)
+          {question.options.map((opt, i) => {
+            const isCorrect = i === correctIndex
             const highlighted = showAnswer && isCorrect
 
             return (
@@ -116,21 +113,19 @@ export default function QuestionCard({ question, index }: QuestionCardProps) {
       {/* Answer + Explanation */}
       {showAnswer && (
         <div className="mt-4 space-y-3">
-          {/* NAT answer display */}
-          {question.questionType === 'NAT' && (
-            <div className="text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-lg px-4 py-2">
-              Answer: {String(question.correctAnswer)}
-            </div>
-          )}
+          {/* Answer display */}
+          <div className="text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-lg px-4 py-2">
+            Answer: {question.correctAnswer}
+          </div>
 
           {/* Explanation */}
-          {question.explanationLatex && (
+          {question.explanation && (
             <div className="bg-gray-50 border border-gray-100 rounded-lg p-4">
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
                 Explanation
               </p>
               <div className="text-sm leading-[1.7] text-gray-700">
-                <MathRenderer text={question.explanationLatex} />
+                <MathRenderer text={question.explanation} />
               </div>
             </div>
           )}

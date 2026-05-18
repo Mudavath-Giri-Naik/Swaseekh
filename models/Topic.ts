@@ -21,7 +21,6 @@ const TopicSchema = new Schema<ITopic>(
     order: { type: Number, required: true },
   },
   {
-    _id: false,
     timestamps: true,
     collection: 'topics',
   }

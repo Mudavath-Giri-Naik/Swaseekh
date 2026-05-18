@@ -4,12 +4,12 @@ import QuestionTextRow from './QuestionTextRow'
 
 interface QuestionData {
   _id: string
-  questionLatex: string
-  questionType: 'MCQ' | 'MSQ' | 'NAT'
-  optionsLatex: string[]
-  marks: 1 | 2
-  difficulty: 'easy' | 'medium' | 'hard'
-  examMeta: { year: number }
+  questionText: string
+  questionType: string
+  options: string[]
+  marks: number
+  difficulty: string
+  year: number
 }
 
 interface QuestionGroupProps {
