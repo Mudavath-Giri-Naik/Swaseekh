@@ -61,7 +61,8 @@ const config: Config = {
       },
       fontFamily: {
         serif: ['"Times New Roman"', "Times", "serif"],
-        sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
+        sans: ["var(--font-inter)", "Inter", "system-ui", "-apple-system", "sans-serif"],
+        display: ["var(--font-display)", "DM Sans", "Inter", "system-ui", "sans-serif"],
       },
       borderRadius: {
         lg: "var(--radius)",
