@@ -204,52 +204,45 @@ function StreakCard() {
 function BigPyqCard() {
   return (
     <div className="flex h-full flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-indigo-50 to-white px-4 py-2.5">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-100 px-2.5 py-0.5 text-[10px] font-bold tracking-wide text-indigo-700">
-          <BookOpen size={11} /> GATE 2024 · Algorithms
+      <div className="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-indigo-50 to-white px-3.5 py-2">
+        <span className="inline-flex items-center gap-1 rounded-full bg-indigo-100 px-2 py-0.5 text-[9px] font-bold tracking-wide text-indigo-700">
+          <BookOpen size={10} /> GATE 2024 · Algorithms
         </span>
-        <span className="text-[10px] font-semibold text-slate-400">
-          2 marks
-        </span>
+        <span className="text-[9px] font-semibold text-slate-400">2 marks</span>
       </div>
 
-      <div className="flex flex-1 flex-col px-4 py-3">
-        {/* Eyebrow row */}
-        <div className="mb-2 flex items-center justify-between">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+      <div className="flex flex-1 flex-col px-3.5 py-2.5">
+        <div className="mb-1.5 flex items-center justify-between">
+          <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400">
             Question 12
           </span>
-          <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[9px] font-bold text-amber-700">
+          <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-1.5 py-0.5 text-[8px] font-bold text-amber-700">
             <span className="h-1 w-1 rounded-full bg-amber-500" /> Medium
           </span>
         </div>
 
-        {/* Question */}
-        <p className="text-[13px] font-semibold leading-snug text-slate-900">
+        <p className="text-[12px] font-semibold leading-snug text-slate-900">
           Time complexity of inserting{' '}
           <span className="font-mono text-indigo-600">n</span> elements into a
           balanced BST is:
         </p>
 
-        {/* 4 options */}
-        <div className="mt-3 space-y-1.5">
+        <div className="mt-2 space-y-1">
           {[
             { label: 'A', text: 'O(n)' },
             { label: 'B', text: 'O(n log n)', selected: true },
             { label: 'C', text: 'O(n²)' },
-            { label: 'D', text: 'O(log n)' },
           ].map((o) => (
             <div
               key={o.label}
-              className={`flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-[11px] ${
+              className={`flex items-center gap-2 rounded-md border px-2 py-1 text-[10px] ${
                 o.selected
                   ? 'border-indigo-500 bg-indigo-50 font-semibold text-indigo-700'
                   : 'border-slate-200 text-slate-600'
               }`}
             >
               <span
-                className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[9px] font-bold ${
+                className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full text-[8px] font-bold ${
                   o.selected
                     ? 'bg-indigo-600 text-white'
                     : 'bg-slate-100 text-slate-400'
@@ -262,40 +255,24 @@ function BigPyqCard() {
           ))}
         </div>
 
-        {/* Hint */}
-        <div className="mt-3 flex items-start gap-1.5 rounded-lg border border-amber-100 bg-amber-50/50 px-2.5 py-1.5">
-          <Lightbulb size={11} className="mt-0.5 shrink-0 text-amber-500" />
-          <span className="text-[10px] leading-snug text-amber-800">
-            <span className="font-bold">Hint:</span> Each insertion in a
-            balanced BST takes log n time.
-          </span>
+        <div className="mt-2 flex flex-wrap gap-1">
+          {['BST', 'AVL Trees', 'Time Complexity'].map((c) => (
+            <span
+              key={c}
+              className="rounded bg-indigo-50 px-1.5 py-0.5 text-[9px] font-semibold text-indigo-700"
+            >
+              {c}
+            </span>
+          ))}
         </div>
 
-        {/* Related concepts */}
-        <div className="mt-3">
-          <div className="mb-1.5 text-[9px] font-bold uppercase tracking-wider text-slate-400">
-            Concepts mapped
-          </div>
-          <div className="flex flex-wrap gap-1">
-            {['BST', 'AVL Trees', 'Insertion', 'Time Complexity'].map((c) => (
-              <span
-                key={c}
-                className="rounded-md border border-indigo-200 bg-indigo-50/60 px-1.5 py-0.5 text-[9px] font-semibold text-indigo-700"
-              >
-                {c}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="mt-auto flex items-center justify-between border-t border-slate-100 pt-2.5">
-          <span className="text-[11px] font-bold text-indigo-600">
-            View full solution →
+        <div className="mt-auto flex items-center justify-between border-t border-slate-100 pt-2">
+          <span className="text-[10px] font-bold text-indigo-600">
+            View solution →
           </span>
-          <div className="flex items-center gap-2 text-slate-400">
-            <Bookmark size={13} />
-            <Share2 size={13} />
+          <div className="flex items-center gap-1.5 text-slate-400">
+            <Bookmark size={11} />
+            <Share2 size={11} />
           </div>
         </div>
       </div>
@@ -305,7 +282,7 @@ function BigPyqCard() {
 
 function BigMockCard() {
   const value = 78
-  const r = 38
+  const r = 32
   const c = 2 * Math.PI * r
   const dashOffset = c - (value / 100) * c
   const bars = [40, 50, 45, 55, 60, 72, 78]
@@ -313,39 +290,37 @@ function BigMockCard() {
     { name: 'Algorithms', pct: 88 },
     { name: 'OS', pct: 75 },
     { name: 'DBMS', pct: 82 },
-    { name: 'CN', pct: 68 },
   ]
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-rose-50 to-white px-4 py-2.5">
-        <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-700">
-          <Target size={12} className="text-rose-500" />
-          Mock Test #14 · Full Length
+      <div className="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-rose-50 to-white px-3.5 py-2">
+        <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-slate-700">
+          <Target size={11} className="text-rose-500" />
+          Mock Test #14
         </span>
         <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[9px] font-bold text-emerald-700">
           Top 8%
         </span>
       </div>
 
-      <div className="flex flex-1 flex-col px-4 py-3">
-        {/* Ring + stats */}
-        <div className="flex items-center gap-4">
-          <div className="relative h-24 w-24 shrink-0">
-            <svg className="h-24 w-24 -rotate-90" viewBox="0 0 100 100">
+      <div className="flex flex-1 flex-col px-3.5 py-2.5">
+        <div className="flex items-center gap-3">
+          <div className="relative h-[72px] w-[72px] shrink-0">
+            <svg className="h-[72px] w-[72px] -rotate-90" viewBox="0 0 80 80">
               <circle
-                cx="50"
-                cy="50"
+                cx="40"
+                cy="40"
                 r={r}
                 stroke="#fce7f3"
-                strokeWidth="7"
+                strokeWidth="6"
                 fill="none"
               />
               <circle
-                cx="50"
-                cy="50"
+                cx="40"
+                cy="40"
                 r={r}
                 stroke="url(#bigMockGrad)"
-                strokeWidth="7"
+                strokeWidth="6"
                 strokeLinecap="round"
                 fill="none"
                 strokeDasharray={c}
@@ -359,73 +334,60 @@ function BigMockCard() {
               </defs>
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-2xl font-extrabold text-rose-600">
+              <span className="text-lg font-extrabold text-rose-600">
                 {value}%
               </span>
-              <span className="text-[9px] font-medium text-slate-400">
+              <span className="text-[8px] font-medium text-slate-400">
                 accuracy
               </span>
             </div>
           </div>
-          <div className="flex-1 space-y-1.5">
+          <div className="flex-1 space-y-1">
             <div>
-              <div className="text-[9px] font-bold uppercase tracking-wide text-slate-400">
+              <div className="text-[8px] font-bold uppercase tracking-wide text-slate-400">
                 Correct
               </div>
-              <div className="text-[13px] font-bold text-slate-900">
+              <div className="text-[12px] font-bold text-slate-900">
                 39 / 50
               </div>
             </div>
             <div className="flex items-center gap-1 text-[10px] text-slate-600">
-              <Clock size={10} className="text-slate-400" />
+              <Clock size={9} className="text-slate-400" />
               <span className="font-semibold text-slate-900">2h 18m</span>
-              <span className="text-slate-400">/ 3h</span>
             </div>
-            <div className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
-              <TrendingUp size={10} /> +6 from last
+            <div className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[9px] font-bold text-emerald-700">
+              <TrendingUp size={9} /> +6 from last
             </div>
           </div>
         </div>
 
-        {/* Subject breakdown */}
-        <div className="mt-3">
-          <div className="mb-1.5 flex items-center justify-between">
-            <span className="text-[9px] font-bold uppercase tracking-wide text-slate-400">
-              Subject breakdown
-            </span>
-            <span className="text-[9px] font-bold text-rose-600">
-              avg 78%
-            </span>
-          </div>
-          <div className="space-y-1.5">
-            {subjects.map((s) => (
-              <div key={s.name}>
-                <div className="mb-0.5 flex items-center justify-between text-[10px]">
-                  <span className="font-medium text-slate-700">{s.name}</span>
-                  <span className="font-bold text-rose-600">{s.pct}%</span>
-                </div>
-                <div className="h-1 overflow-hidden rounded-full bg-slate-100">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-rose-400 to-pink-500"
-                    style={{ width: `${s.pct}%` }}
-                  />
-                </div>
+        <div className="mt-2 space-y-1">
+          {subjects.map((s) => (
+            <div key={s.name}>
+              <div className="mb-0.5 flex items-center justify-between text-[10px]">
+                <span className="font-medium text-slate-700">{s.name}</span>
+                <span className="font-bold text-rose-600">{s.pct}%</span>
               </div>
-            ))}
-          </div>
+              <div className="h-1 overflow-hidden rounded-full bg-slate-100">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-rose-400 to-pink-500"
+                  style={{ width: `${s.pct}%` }}
+                />
+              </div>
+            </div>
+          ))}
         </div>
 
-        {/* Last 7 mocks bar chart */}
-        <div className="mt-auto border-t border-slate-100 pt-2.5">
+        <div className="mt-auto border-t border-slate-100 pt-2">
           <div className="mb-1 flex items-center justify-between">
-            <span className="text-[9px] font-bold uppercase tracking-wide text-slate-400">
+            <span className="text-[8px] font-bold uppercase tracking-wide text-slate-400">
               Last 7 mocks
             </span>
             <span className="text-[9px] font-bold text-rose-600">
               ↗ improving
             </span>
           </div>
-          <div className="flex h-6 items-end gap-1">
+          <div className="flex h-4 items-end gap-1">
             {bars.map((v, i) => (
               <div
                 key={i}
@@ -443,12 +405,12 @@ function BigMockCard() {
 function BigTestimonialCard() {
   return (
     <div className="flex h-full flex-col bg-gradient-to-br from-amber-50 via-white to-orange-50">
-      <div className="flex items-center justify-between border-b border-amber-100/60 px-4 py-2.5">
+      <div className="flex items-center justify-between border-b border-amber-100/60 px-3.5 py-2">
         <div className="flex gap-0.5">
           {[1, 2, 3, 4, 5].map((i) => (
             <Star
               key={i}
-              size={12}
+              size={11}
               className="fill-amber-400 stroke-amber-400"
             />
           ))}
@@ -458,66 +420,47 @@ function BigTestimonialCard() {
         </span>
       </div>
 
-      <div className="flex flex-1 flex-col px-4 py-3">
-        <Quote size={20} className="mb-1 text-amber-400" />
-        <p className="text-[12px] font-medium italic leading-relaxed text-slate-700">
-          “Swaseekh&apos;s concept maps cracked TOC for me. I went from
-          confused to confident in two weeks. The PYQ tagging is{' '}
+      <div className="flex flex-1 flex-col px-3.5 py-2.5">
+        <Quote size={16} className="mb-1 text-amber-400" />
+        <p className="text-[11px] font-medium italic leading-snug text-slate-700">
+          “Swaseekh&apos;s concept maps cracked TOC for me — confused to
+          confident in 2 weeks. The PYQ tagging is{' '}
           <span className="not-italic font-bold text-slate-900">
             brilliant
           </span>
           .”
         </p>
 
-        {/* Stat highlights */}
-        <div className="mt-3 grid grid-cols-3 gap-2">
+        <div className="mt-2 grid grid-cols-3 gap-1.5">
           {[
             { label: 'Rank', value: '47', icon: Trophy },
             { label: 'Mock avg', value: '82%', icon: Target },
-            { label: 'Prep time', value: '6 mo', icon: Clock },
+            { label: 'Prep', value: '6 mo', icon: Clock },
           ].map((s) => (
             <div
               key={s.label}
-              className="rounded-lg border border-amber-100 bg-white/70 px-2 py-1.5 text-center"
+              className="rounded-md border border-amber-100 bg-white/70 px-1.5 py-1 text-center"
             >
-              <s.icon size={12} className="mx-auto text-amber-500" />
-              <div className="mt-0.5 text-[12px] font-extrabold text-slate-900">
+              <s.icon size={10} className="mx-auto text-amber-500" />
+              <div className="text-[11px] font-extrabold text-slate-900">
                 {s.value}
               </div>
-              <div className="text-[8px] font-semibold uppercase tracking-wide text-slate-400">
+              <div className="text-[7px] font-semibold uppercase tracking-wide text-slate-400">
                 {s.label}
               </div>
             </div>
           ))}
         </div>
 
-        {/* Key wins bullets */}
-        <ul className="mt-3 space-y-1">
-          {[
-            'Mastered TOC in 2 weeks flat',
-            'Solved 1,200+ tagged PYQs',
-            'Joined IIT Bombay M.Tech CSE',
-          ].map((k) => (
-            <li
-              key={k}
-              className="flex items-center gap-1.5 text-[10px] text-slate-700"
-            >
-              <CheckCircle2 size={10} className="shrink-0 text-emerald-500" />
-              {k}
-            </li>
-          ))}
-        </ul>
-
-        {/* Author */}
-        <div className="mt-auto flex items-center gap-3 border-t border-amber-100/60 pt-2.5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-amber-400 to-orange-500 text-sm font-bold text-white shadow-sm">
+        <div className="mt-auto flex items-center gap-2.5 border-t border-amber-100/60 pt-2">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-amber-400 to-orange-500 text-xs font-bold text-white shadow-sm">
             R
           </span>
           <div className="leading-tight">
-            <div className="text-[12px] font-bold text-slate-900">
+            <div className="text-[11px] font-bold text-slate-900">
               Riya Patel
             </div>
-            <div className="text-[10px] text-slate-500">
+            <div className="text-[9px] text-slate-500">
               IIT Bombay · M.Tech CSE
             </div>
           </div>
@@ -534,13 +477,12 @@ function BigSubjectCard() {
     { name: 'Deadlocks', progress: 65 },
     { name: 'Memory Management', progress: 40 },
     { name: 'File Systems', progress: 22 },
-    { name: 'I/O Systems', progress: 0 },
   ]
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-emerald-50 to-white px-4 py-2.5">
-        <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-700">
-          <Layers size={12} className="text-emerald-600" />
+      <div className="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-emerald-50 to-white px-3.5 py-2">
+        <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-slate-700">
+          <Layers size={11} className="text-emerald-600" />
           Operating Systems
         </span>
         <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[9px] font-bold text-emerald-700">
@@ -548,12 +490,11 @@ function BigSubjectCard() {
         </span>
       </div>
 
-      <div className="flex flex-1 flex-col px-4 py-3">
-        {/* Topic list with progress */}
-        <div className="space-y-2">
+      <div className="flex flex-1 flex-col px-3.5 py-2.5">
+        <div className="space-y-1.5">
           {topics.map((t) => (
             <div key={t.name}>
-              <div className="mb-1 flex items-center justify-between text-[11px]">
+              <div className="mb-0.5 flex items-center justify-between text-[10px]">
                 <span className="font-medium text-slate-700">{t.name}</span>
                 <span
                   className={`font-bold ${
@@ -563,7 +504,7 @@ function BigSubjectCard() {
                   {t.progress}%
                 </span>
               </div>
-              <div className="h-1.5 overflow-hidden rounded-full bg-slate-100">
+              <div className="h-1 overflow-hidden rounded-full bg-slate-100">
                 <div
                   className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-teal-500"
                   style={{ width: `${t.progress}%` }}
@@ -573,40 +514,32 @@ function BigSubjectCard() {
           ))}
         </div>
 
-        {/* Stats row */}
-        <div className="mt-3 grid grid-cols-3 gap-2">
-          <div className="rounded-lg bg-emerald-50/60 px-2 py-1.5 text-center">
-            <div className="text-[13px] font-extrabold text-emerald-700">
-              42
+        <div className="mt-2 grid grid-cols-3 gap-1.5">
+          {[
+            { v: '42', l: 'concepts' },
+            { v: '128', l: 'PYQs' },
+            { v: '14h', l: 'spent' },
+          ].map((s) => (
+            <div
+              key={s.l}
+              className="rounded-md bg-emerald-50/60 px-1.5 py-1 text-center"
+            >
+              <div className="text-[11px] font-extrabold text-emerald-700">
+                {s.v}
+              </div>
+              <div className="text-[8px] font-semibold uppercase tracking-wide text-slate-500">
+                {s.l}
+              </div>
             </div>
-            <div className="text-[8px] font-semibold uppercase tracking-wide text-slate-500">
-              concepts
-            </div>
-          </div>
-          <div className="rounded-lg bg-emerald-50/60 px-2 py-1.5 text-center">
-            <div className="text-[13px] font-extrabold text-emerald-700">
-              128
-            </div>
-            <div className="text-[8px] font-semibold uppercase tracking-wide text-slate-500">
-              PYQs
-            </div>
-          </div>
-          <div className="rounded-lg bg-emerald-50/60 px-2 py-1.5 text-center">
-            <div className="text-[13px] font-extrabold text-emerald-700">
-              14h
-            </div>
-            <div className="text-[8px] font-semibold uppercase tracking-wide text-slate-500">
-              spent
-            </div>
-          </div>
+          ))}
         </div>
 
-        {/* Footer */}
-        <div className="mt-auto flex items-center justify-between border-t border-slate-100 pt-2.5">
-          <span className="text-[10px] font-medium text-slate-500">
-            Last opened: <span className="font-semibold text-slate-700">2h ago</span>
+        <div className="mt-auto flex items-center justify-between border-t border-slate-100 pt-2">
+          <span className="text-[9px] font-medium text-slate-500">
+            Last opened:{' '}
+            <span className="font-semibold text-slate-700">2h ago</span>
           </span>
-          <span className="text-[11px] font-bold text-emerald-600">
+          <span className="text-[10px] font-bold text-emerald-600">
             Continue →
           </span>
         </div>
@@ -659,14 +592,14 @@ export function RightCardStack() {
   )
 }
 
-/** Mobile-only big stack — taller, content-rich faces */
+/** Mobile-only big stack — compact, content-rich faces (fits in one viewport) */
 export function MobileCardStack() {
   return (
     <CardStack
       items={MOBILE_BIG_ITEMS}
       interval={2000}
-      offset={10}
-      className="h-[28rem] w-full sm:h-[30rem]"
+      offset={8}
+      className="h-[18rem] w-full sm:h-[19rem]"
     />
   )
 }

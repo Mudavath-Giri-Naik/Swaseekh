@@ -102,7 +102,7 @@ export default function HomePage() {
             <div className="order-5 mt-5 flex items-center gap-2.5 rounded-full border border-slate-200 bg-white/80 px-2.5 py-1 shadow-sm backdrop-blur md:order-4 md:mt-5 md:px-3 md:py-1.5">
               <AvatarGroup />
               <span className="pr-1.5 text-[11px] font-medium text-slate-600 sm:text-sm">
-                Trusted by 50,000+ GATE aspirants
+                Trusted by 20+ GATE aspirants
               </span>
             </div>
           </div>
@@ -110,7 +110,7 @@ export default function HomePage() {
 
         {/* ─── Bottom showcase: stack on mobile, big card on tablet+ ──────── */}
         {/* Mobile: auto-cycling stack matching the big card's footprint */}
-        <div className="relative z-10 mt-24 px-4 pb-16 md:hidden">
+        <div className="relative z-10 mt-10 px-4 pb-10 md:hidden">
           <div className="mx-auto w-full max-w-md">
             <MobileCardStack />
           </div>
