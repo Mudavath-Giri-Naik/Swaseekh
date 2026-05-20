@@ -28,9 +28,8 @@ export default function Navbar() {
           aria-label="Swaseekh home"
           className="relative flex shrink-0 items-center"
         >
-          <span className="font-display text-xl font-extrabold tracking-[-0.04em] sm:text-[1.5rem]">
-            <span className="text-indigo-600">Swa</span>
-            <span className="text-red-600">seekh</span>
+          <span className="font-display text-xl font-extrabold tracking-[-0.04em] text-blue-500 sm:text-[1.5rem]">
+            Swaseekh
           </span>
 
           <svg
@@ -104,10 +103,9 @@ export default function Navbar() {
           <Link
             href="/"
             aria-label="Swaseekh home"
-            className="font-display text-xl font-extrabold tracking-[-0.04em]"
+            className="font-display text-xl font-extrabold tracking-[-0.04em] text-blue-500"
           >
-            <span className="text-indigo-600">Swa</span>
-            <span className="text-red-600">seekh</span>
+            Swaseekh
           </Link>
 
           <div className="flex items-center gap-2.5">
