@@ -12,10 +12,10 @@ import ProductPreview from '@/components/ProductPreview'
 export default function HomePage() {
   return (
     <div className="relative min-h-screen bg-[#FAFAFB] font-sans">
-      {/* Dotted pattern — only the initial viewport, doesn't follow the scroll */}
+      {/* Dotted pattern — strongest at the top, fades to nothing at the bottom */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-screen [mask-image:radial-gradient(ellipse_55%_55%_at_50%_38%,transparent_0%,transparent_22%,black_72%,black_100%)]"
+        className="pointer-events-none absolute inset-x-0 top-0 h-screen [mask-image:linear-gradient(to_bottom,black_0%,black_35%,transparent_95%)]"
         style={{
           backgroundImage:
             'radial-gradient(circle, rgb(99 102 241 / 0.22) 1.1px, transparent 1.3px)',
@@ -28,7 +28,7 @@ export default function HomePage() {
       {/* ─── Hero ───────────────────────────────────────────────────────── */}
       <section className="relative">
         {/* Content zone — bigger gap on mobile, tighter on desktop */}
-        <div className="relative px-4 pt-16 md:pt-8 lg:pt-10">
+        <div className="relative px-4 pt-10 md:pt-4 lg:pt-6">
           {/* Tilted card stack — LEFT (xl+) */}
           <div
             className="pointer-events-none absolute top-[55%] hidden xl:block"
@@ -51,10 +51,10 @@ export default function HomePage() {
             <RightCardStack />
           </div>
 
-          {/* Center column — uses CSS order so mobile shows CTA above the trust row */}
+          {/* Center column — pill, headline, subhead, trust row, then CTA */}
           <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center text-center">
             {/* 1 — Slot indicator pill */}
-            <div className="order-1 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-medium text-slate-700 shadow-sm md:px-3.5 md:py-1.5 md:text-xs">
+            <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-medium text-slate-700 shadow-sm md:px-3.5 md:py-1.5 md:text-xs">
               <span className="relative flex h-1.5 w-1.5">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
@@ -63,20 +63,28 @@ export default function HomePage() {
             </div>
 
             {/* 2 — Headline (longer wording wraps to ~3 lines on mobile, like CodeDale) */}
-            <h1 className="order-2 mt-4 font-display font-bold leading-[1.1] tracking-[-0.02em] text-slate-900 text-[clamp(1.7rem,4.6vw,3.25rem)] md:mt-5">
+            <h1 className="mt-4 font-display font-bold leading-[1.1] tracking-[-0.02em] text-slate-900 text-[clamp(1.7rem,4.6vw,3.25rem)] md:mt-5">
               Your AI Co-Pilot, <br className="hidden sm:inline" />
               built to crack <span className="text-indigo-600">GATE</span> CSE
               smarter
             </h1>
 
             {/* 3 — Subheading */}
-            <p className="order-3 mt-3 max-w-xl text-sm leading-relaxed text-slate-600 md:mt-4 md:text-[15px]">
+            <p className="mt-3 max-w-xl text-sm leading-relaxed text-slate-600 md:mt-4 md:text-[15px]">
               Every PYQ, organised. Mapped to concepts, theory, and solutions —
               all in one place. Crack GATE smarter, not harder.
             </p>
 
-            {/* 4 — CTA (mobile shows CTA before trust; desktop swaps via md:order) */}
-            <div className="order-4 mt-5 flex w-full flex-col items-center px-4 sm:w-auto sm:px-0 md:order-5 md:mt-5">
+            {/* 4 — Trust row (above CTA on every breakpoint) */}
+            <div className="mt-5 flex items-center gap-2.5 rounded-full border border-slate-200 bg-white/80 px-2.5 py-1 shadow-sm backdrop-blur md:px-3 md:py-1.5">
+              <AvatarGroup />
+              <span className="pr-1.5 text-[11px] font-medium text-slate-600 sm:text-sm">
+                Trusted by 20+ GATE aspirants
+              </span>
+            </div>
+
+            {/* 5 — CTA */}
+            <div className="mt-5 flex w-full flex-col items-center px-4 sm:w-auto sm:px-0">
               <NoiseBackground
                 containerClassName="w-full sm:w-fit p-2 rounded-full transition-transform duration-200 hover:scale-[1.02]"
                 gradientColors={[
@@ -96,14 +104,6 @@ export default function HomePage() {
               <p className="mt-2 text-[11px] text-slate-400">
                 No sign-up required to browse PYQs
               </p>
-            </div>
-
-            {/* 5 — Trust row (mobile after CTA; desktop appears between subhead and CTA) */}
-            <div className="order-5 mt-5 flex items-center gap-2.5 rounded-full border border-slate-200 bg-white/80 px-2.5 py-1 shadow-sm backdrop-blur md:order-4 md:mt-5 md:px-3 md:py-1.5">
-              <AvatarGroup />
-              <span className="pr-1.5 text-[11px] font-medium text-slate-600 sm:text-sm">
-                Trusted by 20+ GATE aspirants
-              </span>
             </div>
           </div>
         </div>
