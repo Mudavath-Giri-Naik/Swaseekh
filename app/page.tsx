@@ -27,8 +27,8 @@ export default function HomePage() {
 
       {/* ─── Hero ───────────────────────────────────────────────────────── */}
       <section className="relative">
-        {/* Content zone — bigger gap on mobile, tighter on desktop */}
-        <div className="relative px-4 pt-10 md:pt-4 lg:pt-6">
+        {/* Content zone — airier mobile spacing, tighter on desktop */}
+        <div className="relative px-4 pt-20 md:pt-4 lg:pt-6">
           {/* Tilted card stack — LEFT (xl+) */}
           <div
             className="pointer-events-none absolute top-[68%] hidden animate-hero-fade xl:block"
@@ -54,7 +54,7 @@ export default function HomePage() {
           </div>
 
           {/* Center column — pill, headline, subhead, trust row, then CTA */}
-          <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center text-center">
+          <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center text-center">
             {/* 1 — Slot indicator pill */}
             <div
               className="inline-flex animate-hero-in items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-medium text-slate-700 shadow-sm md:px-3.5 md:py-1.5 md:text-xs"
@@ -67,28 +67,33 @@ export default function HomePage() {
               <span>GATE 2026 · 2000+ PYQs mapped &amp; ready</span>
             </div>
 
-            {/* 2 — Headline */}
+            {/* 2 — Headline (bigger on mobile, original size on desktop) */}
             <h1
-              className="mt-4 animate-hero-in font-display font-bold leading-[1.1] tracking-[-0.02em] text-slate-900 text-[clamp(1.7rem,4.6vw,3.25rem)] md:mt-5"
+              className="mt-7 animate-hero-in font-display font-bold leading-[1.1] tracking-[-0.02em] text-slate-900 text-[clamp(1.6rem,4.4vw,3.5rem)] md:mt-5"
               style={{ animationDelay: '120ms' }}
             >
-              Every <span className="text-indigo-600">GATE</span> question,{' '}
-              <br className="hidden sm:inline" />
-              traced back to its concept.
+              <span className="block whitespace-nowrap">Cut the noise.</span>
+              <span className="block whitespace-nowrap">
+                Study what <span className="text-indigo-600">GATE</span> asks.
+              </span>
+              <span className="block whitespace-nowrap">
+                Nothing more, nothing less.
+              </span>
             </h1>
 
             {/* 3 — Subheading */}
             <p
-              className="mt-3 max-w-xl animate-hero-in text-sm leading-relaxed text-slate-600 md:mt-4 md:text-[15px]"
+              className="mt-6 max-w-xs animate-hero-in text-[15px] leading-relaxed text-slate-600 sm:max-w-xl md:mt-4 md:text-[15px]"
               style={{ animationDelay: '240ms' }}
             >
-              2000+ PYQs from 1989–2025, mapped to every concept. See what GATE
-              really tests, how deep it goes, and exactly where you stand.
+              2000+ PYQs mapped to every concept in the GATE CSE syllabus. Know
+              exactly what gets asked, how deep it goes, and what you still
+              haven&apos;t covered.
             </p>
 
             {/* 4 — Trust row (above CTA on every breakpoint) */}
             <div
-              className="mt-5 flex animate-hero-in items-center gap-2.5 rounded-full border border-slate-200 bg-white/80 px-2.5 py-1 shadow-sm backdrop-blur md:px-3 md:py-1.5"
+              className="mt-7 flex animate-hero-in items-center gap-2.5 rounded-full border border-slate-200 bg-white/80 px-2.5 py-1 shadow-sm backdrop-blur md:mt-5 md:px-3 md:py-1.5"
               style={{ animationDelay: '360ms' }}
             >
               <AvatarGroup />
@@ -99,7 +104,7 @@ export default function HomePage() {
 
             {/* 5 — CTA */}
             <div
-              className="mt-5 flex animate-hero-in flex-col items-center"
+              className="mt-7 flex animate-hero-in flex-col items-center md:mt-5"
               style={{ animationDelay: '480ms' }}
             >
               <NoiseBackground
@@ -128,7 +133,7 @@ export default function HomePage() {
         {/* ─── Bottom showcase: stack on mobile, big card on tablet+ ──────── */}
         {/* Mobile: auto-cycling stack matching the big card's footprint */}
         <div
-          className="relative z-10 mt-10 animate-hero-rise px-4 pb-10 md:hidden"
+          className="relative z-10 mt-20 animate-hero-rise px-4 pb-12 md:hidden"
           style={{ animationDelay: '600ms' }}
         >
           <div className="mx-auto w-full max-w-md">
