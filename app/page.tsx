@@ -31,10 +31,11 @@ export default function HomePage() {
         <div className="relative px-4 pt-10 md:pt-4 lg:pt-6">
           {/* Tilted card stack — LEFT (xl+) */}
           <div
-            className="pointer-events-none absolute top-[68%] hidden xl:block"
+            className="pointer-events-none absolute top-[68%] hidden animate-hero-fade xl:block"
             style={{
               left: 'max(0.75rem, calc(50% - 42rem))',
               transform: 'translateY(-50%) rotate(-9deg)',
+              animationDelay: '700ms',
             }}
           >
             <LeftCardStack />
@@ -42,10 +43,11 @@ export default function HomePage() {
 
           {/* Tilted card stack — RIGHT (xl+) */}
           <div
-            className="pointer-events-none absolute top-[68%] hidden xl:block"
+            className="pointer-events-none absolute top-[68%] hidden animate-hero-fade xl:block"
             style={{
               right: 'max(0.75rem, calc(50% - 42rem))',
               transform: 'translateY(-50%) rotate(9deg)',
+              animationDelay: '850ms',
             }}
           >
             <RightCardStack />
@@ -54,7 +56,10 @@ export default function HomePage() {
           {/* Center column — pill, headline, subhead, trust row, then CTA */}
           <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center text-center">
             {/* 1 — Slot indicator pill */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-medium text-slate-700 shadow-sm md:px-3.5 md:py-1.5 md:text-xs">
+            <div
+              className="inline-flex animate-hero-in items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-medium text-slate-700 shadow-sm md:px-3.5 md:py-1.5 md:text-xs"
+              style={{ animationDelay: '0ms' }}
+            >
               <span className="relative flex h-1.5 w-1.5">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
@@ -63,20 +68,29 @@ export default function HomePage() {
             </div>
 
             {/* 2 — Headline */}
-            <h1 className="mt-4 font-display font-bold leading-[1.1] tracking-[-0.02em] text-slate-900 text-[clamp(1.7rem,4.6vw,3.25rem)] md:mt-5">
+            <h1
+              className="mt-4 animate-hero-in font-display font-bold leading-[1.1] tracking-[-0.02em] text-slate-900 text-[clamp(1.7rem,4.6vw,3.25rem)] md:mt-5"
+              style={{ animationDelay: '120ms' }}
+            >
               Every <span className="text-indigo-600">GATE</span> question,{' '}
               <br className="hidden sm:inline" />
               traced back to its concept.
             </h1>
 
             {/* 3 — Subheading */}
-            <p className="mt-3 max-w-xl text-sm leading-relaxed text-slate-600 md:mt-4 md:text-[15px]">
+            <p
+              className="mt-3 max-w-xl animate-hero-in text-sm leading-relaxed text-slate-600 md:mt-4 md:text-[15px]"
+              style={{ animationDelay: '240ms' }}
+            >
               2000+ PYQs from 1989–2025, mapped to every concept. See what GATE
               really tests, how deep it goes, and exactly where you stand.
             </p>
 
             {/* 4 — Trust row (above CTA on every breakpoint) */}
-            <div className="mt-5 flex items-center gap-2.5 rounded-full border border-slate-200 bg-white/80 px-2.5 py-1 shadow-sm backdrop-blur md:px-3 md:py-1.5">
+            <div
+              className="mt-5 flex animate-hero-in items-center gap-2.5 rounded-full border border-slate-200 bg-white/80 px-2.5 py-1 shadow-sm backdrop-blur md:px-3 md:py-1.5"
+              style={{ animationDelay: '360ms' }}
+            >
               <AvatarGroup />
               <span className="pr-1.5 text-[11px] font-medium text-slate-600 sm:text-sm">
                 Trusted by 500+ GATE CSE 2027 aspirants
@@ -84,9 +98,12 @@ export default function HomePage() {
             </div>
 
             {/* 5 — CTA */}
-            <div className="mt-5 flex w-full flex-col items-center px-4 sm:w-auto sm:px-0">
+            <div
+              className="mt-5 flex animate-hero-in flex-col items-center"
+              style={{ animationDelay: '480ms' }}
+            >
               <NoiseBackground
-                containerClassName="w-full sm:w-fit p-2 rounded-full transition-transform duration-200 hover:scale-[1.02]"
+                containerClassName="w-fit p-2 rounded-full transition-transform duration-200 hover:scale-[1.02]"
                 gradientColors={[
                   'rgb(255, 100, 150)',
                   'rgb(100, 150, 255)',
@@ -110,14 +127,20 @@ export default function HomePage() {
 
         {/* ─── Bottom showcase: stack on mobile, big card on tablet+ ──────── */}
         {/* Mobile: auto-cycling stack matching the big card's footprint */}
-        <div className="relative z-10 mt-10 px-4 pb-10 md:hidden">
+        <div
+          className="relative z-10 mt-10 animate-hero-rise px-4 pb-10 md:hidden"
+          style={{ animationDelay: '600ms' }}
+        >
           <div className="mx-auto w-full max-w-md">
             <MobileCardStack />
           </div>
         </div>
 
         {/* Tablet+: full product-preview card */}
-        <div className="relative z-10 mt-12 hidden px-4 pb-24 md:block">
+        <div
+          className="relative z-10 mt-12 hidden animate-hero-rise px-4 pb-24 md:block"
+          style={{ animationDelay: '650ms' }}
+        >
           <ProductPreview />
         </div>
       </section>
