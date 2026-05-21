@@ -33,7 +33,10 @@ export default function FullQuestionCard({ question, index }: FullQuestionCardPr
   const [showAnswer, setShowAnswer] = useState(false)
   const d = diffColors[question.difficulty] || diffColors.medium
 
-  const correctAnswerLetter = question.correctAnswer?.trim()?.toUpperCase()
+  // Coerce to string — API/DB may return a number or null.
+  const correctAnswerLetter = String(question.correctAnswer ?? '')
+    .trim()
+    .toUpperCase()
   const correctIndex = optionLabels.indexOf(correctAnswerLetter)
 
   return (

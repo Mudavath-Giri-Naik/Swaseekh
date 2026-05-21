@@ -35,8 +35,11 @@ export default function QuestionCard({ question, index }: QuestionCardProps) {
   const [showAnswer, setShowAnswer] = useState(false)
   const diff = difficultyColors[question.difficulty] ?? difficultyColors.medium
 
-  // Determine correct option index from the letter answer
-  const correctAnswerLetter = question.correctAnswer?.trim()?.toUpperCase()
+  // Determine correct option index from the letter answer.
+  // Coerce to string first — API/DB may return a number or null.
+  const correctAnswerLetter = String(question.correctAnswer ?? '')
+    .trim()
+    .toUpperCase()
   const correctIndex = optionLabels.indexOf(correctAnswerLetter)
 
   return (

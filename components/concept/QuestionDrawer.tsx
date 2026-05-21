@@ -40,7 +40,10 @@ export default function QuestionDrawer({ question, isOpen, onClose, topicName }:
   const d = diffColors[question.difficulty] || diffColors.medium
 
   // For the new schema, correctAnswer is a string like "A", "B", etc.
-  const correctAnswerLetter = question.correctAnswer?.trim()?.toUpperCase()
+  // Coerce defensively — older records can be numbers or null.
+  const correctAnswerLetter = String(question.correctAnswer ?? '')
+    .trim()
+    .toUpperCase()
   const correctIndex = optionLabels.indexOf(correctAnswerLetter)
 
   return (
