@@ -28,31 +28,21 @@ export default function Navbar() {
           aria-label="Swaseekh home"
           className="relative flex shrink-0 items-center"
         >
-          <span className="font-display text-xl font-extrabold tracking-[-0.04em] text-blue-500 sm:text-[1.5rem]">
+          <span className="relative font-display text-xl font-extrabold tracking-[-0.04em] text-blue-500 sm:text-[1.5rem]">
             Swaseekh
+            {/* Calligraphy brush-stroke underline — filled shape, tapered ends */}
+            <svg
+              aria-hidden
+              viewBox="0 0 100 10"
+              preserveAspectRatio="none"
+              className="pointer-events-none absolute -bottom-1.5 left-[20%] h-2 w-[60%]"
+            >
+              <path
+                d="M 2 5 C 25 1, 75 1, 98 5 C 75 7, 25 7, 2 5 Z"
+                fill="#ef4444"
+              />
+            </svg>
           </span>
-
-          <svg
-            aria-hidden
-            viewBox="0 0 90 110"
-            fill="none"
-            className="pointer-events-none absolute left-full top-1 ml-0.5 hidden h-12 w-12 overflow-visible md:block"
-          >
-            <circle cx="8" cy="8" r="3.2" fill="#ef4444" />
-            <path
-              d="M 11 10 C 38 4, 60 32, 60 92"
-              stroke="#22c55e"
-              strokeWidth="2.4"
-              strokeLinecap="round"
-            />
-            <path
-              d="M 52 80 L 60 94 L 70 82"
-              stroke="#0f172a"
-              strokeWidth="2.4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
         </Link>
 
         {/* Center pill nav */}

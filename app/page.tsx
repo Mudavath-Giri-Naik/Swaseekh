@@ -31,7 +31,7 @@ export default function HomePage() {
         <div className="relative px-4 pt-10 md:pt-4 lg:pt-6">
           {/* Tilted card stack — LEFT (xl+) */}
           <div
-            className="pointer-events-none absolute top-[55%] hidden xl:block"
+            className="pointer-events-none absolute top-[68%] hidden xl:block"
             style={{
               left: 'max(0.75rem, calc(50% - 42rem))',
               transform: 'translateY(-50%) rotate(-9deg)',
@@ -42,7 +42,7 @@ export default function HomePage() {
 
           {/* Tilted card stack — RIGHT (xl+) */}
           <div
-            className="pointer-events-none absolute top-[55%] hidden xl:block"
+            className="pointer-events-none absolute top-[68%] hidden xl:block"
             style={{
               right: 'max(0.75rem, calc(50% - 42rem))',
               transform: 'translateY(-50%) rotate(9deg)',
@@ -59,27 +59,27 @@ export default function HomePage() {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
               </span>
-              <span>GATE 2026 syllabus mapped &amp; ready</span>
+              <span>GATE 2026 · 2000+ PYQs mapped &amp; ready</span>
             </div>
 
-            {/* 2 — Headline (longer wording wraps to ~3 lines on mobile, like CodeDale) */}
+            {/* 2 — Headline */}
             <h1 className="mt-4 font-display font-bold leading-[1.1] tracking-[-0.02em] text-slate-900 text-[clamp(1.7rem,4.6vw,3.25rem)] md:mt-5">
-              Your AI Co-Pilot, <br className="hidden sm:inline" />
-              built to crack <span className="text-indigo-600">GATE</span> CSE
-              smarter
+              Every <span className="text-indigo-600">GATE</span> question,{' '}
+              <br className="hidden sm:inline" />
+              traced back to its concept.
             </h1>
 
             {/* 3 — Subheading */}
             <p className="mt-3 max-w-xl text-sm leading-relaxed text-slate-600 md:mt-4 md:text-[15px]">
-              Every PYQ, organised. Mapped to concepts, theory, and solutions —
-              all in one place. Crack GATE smarter, not harder.
+              2000+ PYQs from 1989–2025, mapped to every concept. See what GATE
+              really tests, how deep it goes, and exactly where you stand.
             </p>
 
             {/* 4 — Trust row (above CTA on every breakpoint) */}
             <div className="mt-5 flex items-center gap-2.5 rounded-full border border-slate-200 bg-white/80 px-2.5 py-1 shadow-sm backdrop-blur md:px-3 md:py-1.5">
               <AvatarGroup />
               <span className="pr-1.5 text-[11px] font-medium text-slate-600 sm:text-sm">
-                Trusted by 20+ GATE aspirants
+                Trusted by 500+ GATE CSE 2027 aspirants
               </span>
             </div>
 
@@ -97,12 +97,12 @@ export default function HomePage() {
                   href="/gate"
                   className="block h-full w-full cursor-pointer rounded-full bg-gradient-to-r from-neutral-100 via-neutral-100 to-white px-7 py-3 text-center text-sm font-semibold text-black shadow-[0px_2px_0px_0px_rgba(250,250,250,1)_inset,0px_0.5px_1px_0px_rgba(163,163,163,1)] transition-all duration-100 active:scale-[0.98] md:px-8 md:py-3.5 md:text-base"
                 >
-                  Start Preparing now &rarr;
+                  Explore the syllabus &rarr;
                 </Link>
               </NoiseBackground>
 
               <p className="mt-2 text-[11px] text-slate-400">
-                No sign-up required to browse PYQs
+                No sign-up needed · Free to start
               </p>
             </div>
           </div>
