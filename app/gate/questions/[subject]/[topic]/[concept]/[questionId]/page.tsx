@@ -94,8 +94,13 @@ export default function QuestionDetailPage() {
 
   const d = diffColors[question.difficulty] || diffColors.medium
 
-  // Check which option is the correct answer
-  const correctAnswerLetter = question.correctAnswer?.trim()?.toUpperCase()
+  // Check which option is the correct answer.
+  // `correctAnswer` may come back from the API as a number, null, or other
+  // non-string types (e.g. when the DB stores it as an index), so coerce
+  // to string before calling .trim() to avoid runtime errors.
+  const correctAnswerLetter = String(question.correctAnswer ?? '')
+    .trim()
+    .toUpperCase()
   const correctIndex = optionLabels.indexOf(correctAnswerLetter)
 
   return (
