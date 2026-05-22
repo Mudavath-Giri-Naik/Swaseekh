@@ -67,6 +67,23 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const [showLogout, setShowLogout] = React.useState(false)
   const isCCDMode = subjectTopics !== null && subjectTopics.length > 0
 
+  // Total question count for the "Questions" nav label
+  const [questionCount, setQuestionCount] = React.useState<number | null>(null)
+  React.useEffect(() => {
+    let cancelled = false
+    fetch('/api/questions?limit=1')
+      .then((r) => r.json())
+      .then((d) => {
+        if (!cancelled && typeof d?.total === 'number') {
+          setQuestionCount(d.total)
+        }
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       {/* ─── Header: Branding ──────────────────────────────────── */}
@@ -118,7 +135,14 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                     <SidebarMenuButton asChild isActive={pathname.startsWith("/gate/questions")}>
                       <Link href="/gate/questions">
                         <ClipboardList className="h-4 w-4" />
-                        <span>Questions</span>
+                        <span>
+                          Questions
+                          {questionCount !== null && (
+                            <span className="ml-1 text-xs text-muted-foreground">
+                              ({questionCount})
+                            </span>
+                          )}
+                        </span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>

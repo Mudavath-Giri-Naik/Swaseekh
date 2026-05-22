@@ -13,7 +13,22 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { CheckCircle2, Circle, Search, Filter, ChevronDown } from "lucide-react"
+import { CheckCircle2, Circle, Search, ChevronDown } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group"
+import { SidebarTrigger } from "@/components/ui/sidebar"
+import { Separator } from "@/components/ui/separator"
 
 interface Question {
   _id: string
@@ -68,10 +83,30 @@ export default function QuestionsListPage() {
   // Filters
   const [selectedSubject, setSelectedSubject] = useState('')
   const [selectedTopic, setSelectedTopic] = useState('')
+  const [selectedConcept, setSelectedConcept] = useState('')
   const [selectedYear, setSelectedYear] = useState('')
   const [selectedDifficulty, setSelectedDifficulty] = useState('')
   const [selectedType, setSelectedType] = useState('')
-  const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc')
+  // Unified sort state — tracks which column is active and the direction
+  const [sort, setSort] = useState<{
+    by: 'year' | 'marks' | 'difficulty'
+    order: 'asc' | 'desc'
+  }>({ by: 'year', order: 'desc' })
+
+  const toggleSort = (col: 'year' | 'marks' | 'difficulty') => {
+    setSort((prev) =>
+      prev.by === col
+        ? { by: col, order: prev.order === 'desc' ? 'asc' : 'desc' }
+        : { by: col, order: 'desc' }
+    )
+  }
+
+  // Difficulty rank for ordering: easy < medium < hard
+  const difficultyRank: Record<string, number> = {
+    easy: 1,
+    medium: 2,
+    hard: 3,
+  }
 
   // Set sidebar state
   useEffect(() => {
@@ -113,6 +148,16 @@ export default function QuestionsListPage() {
     return Array.from(map.entries()).map(([id, name]) => ({ id, name }))
   }, [questions, selectedSubject])
 
+  // Concepts cascade from subject + topic
+  const concepts = useMemo(() => {
+    const map = new Map<string, string>()
+    questions
+      .filter((q) => !selectedSubject || q.subjectId === selectedSubject)
+      .filter((q) => !selectedTopic || q.topicId === selectedTopic)
+      .forEach((q) => map.set(q.conceptId, q.conceptName))
+    return Array.from(map.entries()).map(([id, name]) => ({ id, name }))
+  }, [questions, selectedSubject, selectedTopic])
+
   const years = useMemo(() => {
     const set = new Set<number>()
     questions.forEach((q) => set.add(q.year))
@@ -125,6 +170,7 @@ export default function QuestionsListPage() {
       .filter((q) => {
         if (selectedSubject && q.subjectId !== selectedSubject) return false
         if (selectedTopic && q.topicId !== selectedTopic) return false
+        if (selectedConcept && q.conceptId !== selectedConcept) return false
         if (selectedYear && q.year !== Number(selectedYear)) return false
         if (selectedDifficulty && q.difficulty.toLowerCase() !== selectedDifficulty.toLowerCase()) return false
         if (selectedType && q.questionType !== selectedType) return false
@@ -139,12 +185,24 @@ export default function QuestionsListPage() {
         }
         return true
       })
-      .sort((a, b) => sortOrder === 'desc' ? b.year - a.year : a.year - b.year)
-  }, [questions, selectedSubject, selectedTopic, selectedYear, selectedDifficulty, selectedType, searchQuery, sortOrder])
+      .sort((a, b) => {
+        const dir = sort.order === 'desc' ? -1 : 1
+        if (sort.by === 'year') return dir * (a.year - b.year)
+        if (sort.by === 'marks') return dir * (a.marks - b.marks)
+        if (sort.by === 'difficulty') {
+          return (
+            dir *
+            ((difficultyRank[a.difficulty.toLowerCase()] || 0) -
+              (difficultyRank[b.difficulty.toLowerCase()] || 0))
+          )
+        }
+        return 0
+      })
+  }, [questions, selectedSubject, selectedTopic, selectedConcept, selectedYear, selectedDifficulty, selectedType, searchQuery, sort])
 
-  const selectClass =
-    'px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-700 bg-white ' +
-    'focus:outline-none focus:border-[#4A235A] focus:ring-1 focus:ring-[#4A235A]/20 transition-colors appearance-none'
+  // Filter trigger style — compact pill that opens the DropdownMenu
+  const filterTriggerClass =
+    'inline-flex h-9 shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-md border border-slate-200 bg-white px-3 text-[15px] font-medium text-slate-700 transition-colors hover:border-slate-300 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200 data-[state=open]:border-slate-400 data-[state=open]:text-slate-900 sm:h-8 sm:px-2.5 sm:text-sm'
 
   if (loading) {
     return (
@@ -155,120 +213,230 @@ export default function QuestionsListPage() {
   }
 
   return (
-    <div style={{ background: '#F8F7FF', minHeight: 'calc(100vh - 48px)' }}>
-      <div className="max-w-[1100px] mx-auto py-6 px-4">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-1">Questions Bank</h1>
-          <p className="text-sm text-gray-500">
-            {filteredQuestions.length} question{filteredQuestions.length !== 1 ? 's' : ''} found
-          </p>
+    <div style={{ background: '#F8F7FF', minHeight: '100vh' }}>
+      {/* ─── Sticky page header: sidebar trigger + filter chips ─────────── */}
+      <header className="sticky top-0 z-40 flex h-14 items-center gap-2 border-b border-slate-200 bg-white/90 px-3 backdrop-blur sm:h-12 sm:px-4">
+        <SidebarTrigger className="-ml-1 shrink-0" />
+        <Separator
+          orientation="vertical"
+          className="mr-1 h-4 shrink-0 bg-slate-200"
+        />
+        {/* Horizontally scrollable filter chip row */}
+        <div className="flex flex-1 items-center gap-2 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <FilterMenu
+            label="Subject"
+            value={selectedSubject}
+            triggerClass={filterTriggerClass}
+            options={[
+              { value: '', label: 'All Subjects' },
+              ...subjects.map((s) => ({ value: s.id, label: s.name })),
+            ]}
+            onChange={(val) => {
+              setSelectedSubject(val)
+              setSelectedTopic('')
+              setSelectedConcept('')
+            }}
+          />
+          <FilterMenu
+            label="Topic"
+            value={selectedTopic}
+            triggerClass={filterTriggerClass}
+            options={[
+              { value: '', label: 'All Topics' },
+              ...topics.map((t) => ({ value: t.id, label: t.name })),
+            ]}
+            onChange={(val) => {
+              setSelectedTopic(val)
+              setSelectedConcept('')
+            }}
+          />
+          <FilterMenu
+            label="Concept"
+            value={selectedConcept}
+            triggerClass={filterTriggerClass}
+            options={[
+              { value: '', label: 'All Concepts' },
+              ...concepts.map((c) => ({ value: c.id, label: c.name })),
+            ]}
+            onChange={setSelectedConcept}
+          />
+          <FilterMenu
+            label="Year"
+            value={selectedYear}
+            triggerClass={filterTriggerClass}
+            options={[
+              { value: '', label: 'All Years' },
+              ...years.map((y) => ({
+                value: String(y),
+                label: `GATE ${y}`,
+              })),
+            ]}
+            onChange={setSelectedYear}
+          />
+          <FilterMenu
+            label="Difficulty"
+            value={selectedDifficulty}
+            triggerClass={filterTriggerClass}
+            options={[
+              { value: '', label: 'All Difficulties' },
+              { value: 'easy', label: 'Easy' },
+              { value: 'medium', label: 'Medium' },
+              { value: 'hard', label: 'Hard' },
+            ]}
+            onChange={setSelectedDifficulty}
+          />
+          <FilterMenu
+            label="Type"
+            value={selectedType}
+            triggerClass={filterTriggerClass}
+            options={[
+              { value: '', label: 'All Types' },
+              { value: 'MCQ', label: 'MCQ' },
+              { value: 'MSQ', label: 'MSQ' },
+              { value: 'NAT', label: 'NAT' },
+            ]}
+            onChange={setSelectedType}
+          />
         </div>
+      </header>
 
-        {/* Search + Filters */}
-        <div className="space-y-3 mb-6">
-          {/* Search bar */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search questions..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm bg-white
-                         focus:outline-none focus:border-[#4A235A] focus:ring-1 focus:ring-[#4A235A]/20 transition-colors"
-            />
-          </div>
+      <div className="max-w-[1100px] mx-auto px-4 py-4 sm:py-6">
+        {/* ─── Search bar — stays in its original position, full width ── */}
+        <InputGroup className="mb-5 w-full">
+          <InputGroupAddon>
+            <Search />
+          </InputGroupAddon>
+          <InputGroupInput
+            type="text"
+            placeholder="Search questions..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <InputGroupAddon align="inline-end">
+            {filteredQuestions.length} result
+            {filteredQuestions.length !== 1 ? 's' : ''}
+          </InputGroupAddon>
+        </InputGroup>
 
-          {/* Filter row */}
-          <div className="flex flex-wrap gap-3">
-            {/* Subject */}
-            <select
-              value={selectedSubject}
-              onChange={(e) => { setSelectedSubject(e.target.value); setSelectedTopic('') }}
-              className={selectClass}
-            >
-              <option value="">All Subjects</option>
-              {subjects.map((s) => (
-                <option key={s.id} value={s.id}>{s.name}</option>
-              ))}
-            </select>
+        {/* ─── Mobile card list (< md) ─────────────────────────────── */}
+        <ul className="space-y-3 md:hidden">
+          {filteredQuestions.length === 0 ? (
+            <li className="rounded-2xl border border-slate-200 bg-white px-4 py-12 text-center text-sm text-slate-500">
+              No questions found for this selection.
+            </li>
+          ) : (
+            filteredQuestions.map((q, idx) => {
+              const dColor = diffColors[q.difficulty] || diffColors.medium
+              const questionUrl = `/gate/questions/${slugify(q.subjectName)}/${slugify(q.topicName)}/${slugify(q.conceptName)}/${q._id}`
+              const isSolved = !!solvedStatuses[q._id]
+              return (
+                <li key={q._id}>
+                  <Link
+                    href={questionUrl}
+                    className="group relative block rounded-2xl border border-slate-200 bg-white p-5 transition-colors hover:border-slate-300 active:bg-slate-50"
+                  >
+                    {/* Top meta row */}
+                    <div className="mb-3 flex items-start justify-between gap-3">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-sm font-bold text-slate-400">
+                          #{idx + 1}
+                        </span>
+                        <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-bold tracking-wide text-slate-700">
+                          GATE {q.year}
+                        </span>
+                        <span
+                          className={`rounded-md px-2 py-0.5 text-xs font-bold uppercase tracking-wide ${dColor.bg} ${dColor.text}`}
+                        >
+                          {q.difficulty}
+                        </span>
+                        <span className="rounded-md border border-slate-200 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-slate-500">
+                          {q.questionType}
+                        </span>
+                        <span className="text-xs font-semibold text-slate-500">
+                          {q.marks} mark{q.marks > 1 ? 's' : ''}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          setSolvedStatuses((prev) => ({
+                            ...prev,
+                            [q._id]: !prev[q._id],
+                          }))
+                        }}
+                        className="shrink-0"
+                        aria-label={isSolved ? 'Mark as unsolved' : 'Mark as solved'}
+                      >
+                        {isSolved ? (
+                          <CheckCircle2 className="h-6 w-6 text-emerald-500" />
+                        ) : (
+                          <Circle className="h-6 w-6 text-slate-300" />
+                        )}
+                      </button>
+                    </div>
 
-            {/* Topic */}
-            <select
-              value={selectedTopic}
-              onChange={(e) => setSelectedTopic(e.target.value)}
-              className={selectClass}
-            >
-              <option value="">All Topics</option>
-              {topics.map((t) => (
-                <option key={t.id} value={t.id}>{t.name}</option>
-              ))}
-            </select>
+                    {/* Question preview — generous body type */}
+                    <div className="line-clamp-3 text-[16px] leading-7 text-slate-900 group-hover:text-[#4A235A]">
+                      <MathRenderer text={q.questionText} />
+                    </div>
 
-            {/* Year */}
-            <select
-              value={selectedYear}
-              onChange={(e) => setSelectedYear(e.target.value)}
-              className={selectClass}
-            >
-              <option value="">All Years</option>
-              {years.map((y) => (
-                <option key={y} value={String(y)}>GATE {y}</option>
-              ))}
-            </select>
+                    {/* Breadcrumb */}
+                    <div className="mt-4 flex flex-wrap items-center gap-1.5 border-t border-slate-100 pt-3 text-[13px] text-slate-500">
+                      <span className="font-semibold text-slate-700">
+                        {q.subjectName}
+                      </span>
+                      <span className="text-slate-300">›</span>
+                      <span>{q.topicName}</span>
+                      <span className="text-slate-300">›</span>
+                      <span className="font-medium text-indigo-600">
+                        {q.conceptName}
+                      </span>
+                    </div>
+                  </Link>
+                </li>
+              )
+            })
+          )}
+        </ul>
 
-            {/* Difficulty */}
-            <select
-              value={selectedDifficulty}
-              onChange={(e) => setSelectedDifficulty(e.target.value)}
-              className={selectClass}
-            >
-              <option value="">All Difficulties</option>
-              <option value="easy">Easy</option>
-              <option value="medium">Medium</option>
-              <option value="hard">Hard</option>
-            </select>
-
-            {/* Type */}
-            <select
-              value={selectedType}
-              onChange={(e) => setSelectedType(e.target.value)}
-              className={selectClass}
-            >
-              <option value="">All Types</option>
-              <option value="MCQ">MCQ</option>
-              <option value="MSQ">MSQ</option>
-              <option value="NAT">NAT</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Questions Table */}
-        <div className="bg-white border rounded-xl shadow-sm overflow-hidden">
+        {/* ─── Desktop table (md+) ─────────────────────────────────── */}
+        <div className="hidden overflow-hidden rounded-xl border bg-white shadow-sm md:block">
           <Table>
             <TableHeader>
               <TableRow className="bg-gray-50/50 hover:bg-gray-50/50">
                 <TableHead className="w-12 text-center">#</TableHead>
                 <TableHead className="min-w-[280px] max-w-[400px]">Question</TableHead>
-                <TableHead
-                  className="cursor-pointer hover:text-gray-900 select-none whitespace-nowrap group"
-                  onClick={() => setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc')}
-                >
-                  Year <span className="text-gray-400 group-hover:text-gray-700">{sortOrder === 'desc' ? '↓' : '↑'}</span>
-                </TableHead>
-                <TableHead>Marks</TableHead>
+                <SortableTableHead
+                  label="Year"
+                  active={sort.by === 'year'}
+                  order={sort.order}
+                  onClick={() => toggleSort('year')}
+                />
+                <SortableTableHead
+                  label="Marks"
+                  active={sort.by === 'marks'}
+                  order={sort.order}
+                  onClick={() => toggleSort('marks')}
+                />
                 <TableHead>Type</TableHead>
-                <TableHead>Difficulty</TableHead>
+                <SortableTableHead
+                  label="Difficulty"
+                  active={sort.by === 'difficulty'}
+                  order={sort.order}
+                  onClick={() => toggleSort('difficulty')}
+                />
                 <TableHead>Subject</TableHead>
                 <TableHead>Topic</TableHead>
+                <TableHead>Concept</TableHead>
                 <TableHead>Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredQuestions.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center py-12 text-gray-500">
+                  <TableCell colSpan={10} className="text-center py-12 text-gray-500">
                     No questions found for this selection.
                   </TableCell>
                 </TableRow>
@@ -328,6 +496,12 @@ export default function QuestionsListPage() {
                         </div>
                       </TableCell>
 
+                      <TableCell>
+                        <div className="text-xs text-gray-500 truncate max-w-[140px]" title={q.conceptName}>
+                          {q.conceptName}
+                        </div>
+                      </TableCell>
+
                       <TableCell
                         className="whitespace-nowrap cursor-pointer hover:bg-gray-100/50 transition-colors"
                         onClick={(e) => {
@@ -356,5 +530,77 @@ export default function QuestionsListPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+/* ─── Sortable column header (used for Year / Marks / Difficulty) ──── */
+
+function SortableTableHead({
+  label,
+  active,
+  order,
+  onClick,
+}: {
+  label: string
+  active: boolean
+  order: 'asc' | 'desc'
+  onClick: () => void
+}) {
+  return (
+    <TableHead
+      onClick={onClick}
+      className="group cursor-pointer select-none whitespace-nowrap hover:text-gray-900"
+    >
+      {label}{' '}
+      <span
+        className={
+          active
+            ? 'text-gray-700'
+            : 'text-gray-300 group-hover:text-gray-500'
+        }
+      >
+        {active ? (order === 'desc' ? '↓' : '↑') : '↕'}
+      </span>
+    </TableHead>
+  )
+}
+
+/* ─── FilterMenu — pill trigger + radio dropdown for one filter ─────── */
+
+function FilterMenu({
+  label,
+  value,
+  options,
+  onChange,
+  triggerClass,
+}: {
+  label: string
+  value: string
+  options: { value: string; label: string }[]
+  onChange: (v: string) => void
+  triggerClass: string
+}) {
+  const current = options.find((o) => o.value === value) ?? options[0]
+  const isFiltered = value !== ''
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger className={triggerClass}>
+        <span className={isFiltered ? 'font-semibold text-slate-900' : ''}>
+          {current?.label}
+        </span>
+        <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="max-h-72 min-w-[12rem] overflow-y-auto">
+        <DropdownMenuLabel>{label}</DropdownMenuLabel>
+        <DropdownMenuRadioGroup value={value} onValueChange={onChange}>
+          {options.map((o) => (
+            <DropdownMenuRadioItem key={o.value || '__all'} value={o.value}>
+              {o.label}
+            </DropdownMenuRadioItem>
+          ))}
+        </DropdownMenuRadioGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }

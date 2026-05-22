@@ -23,6 +23,13 @@ function GateHeader() {
   const pathname = usePathname()
   const { subjectName, subjectSlug, conceptName } = useSidebarData()
 
+  // Pages with their own top bar (back link / filters / etc.) suppress the
+  // layout's default GateHeader to avoid double-stacking.
+  const isQuestionDetail =
+    /^\/gate\/questions\/[^/]+\/[^/]+\/[^/]+\/[^/]+$/.test(pathname)
+  const isQuestionsList = pathname === '/gate/questions'
+  if (isQuestionDetail || isQuestionsList) return null
+
   const isSyllabus = pathname === "/gate"
   const isQuestions = pathname.startsWith("/gate/questions/")
   const isCCD = !isSyllabus && !isQuestions && pathname.startsWith("/gate/")
