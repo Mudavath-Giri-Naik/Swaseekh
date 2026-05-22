@@ -14,8 +14,11 @@ interface ConceptData {
   topicId: string
   title: string
   order: number
-  tags: string[]
-  blocks: { type: string; content: unknown }[]
+  tags?: string[]
+  blocks?: { type: string; content: unknown }[]
+  /** Optional confidence indicator: "green" | "yellow" | "red". Drives the
+   *  concept title's text colour via the `guarantee-*` class. */
+  guaranteeLevel?: 'green' | 'yellow' | 'red' | string
 }
 
 interface TopicData {
@@ -23,7 +26,7 @@ interface TopicData {
   subjectId: string
   name: string
   order: number
-  concepts: ConceptData[]
+  concepts?: ConceptData[]
 }
 
 interface SubjectData {
@@ -38,7 +41,23 @@ interface SubjectData {
 
 interface APIResponse {
   subject: SubjectData
-  topics: TopicData[]
+  topics?: TopicData[]
+}
+
+/* Map an optional guaranteeLevel value to a CSS class name. Falls back to
+   no extra class when the value is missing or unrecognised — the default
+   slate text colour applies. */
+function guaranteeClass(level?: string): string {
+  switch (level) {
+    case 'green':
+      return 'guarantee-green'
+    case 'yellow':
+      return 'guarantee-yellow'
+    case 'red':
+      return 'guarantee-red'
+    default:
+      return ''
+  }
 }
 
 /* ─── Document Page Component ────────────────────────────────────────────── */
@@ -69,9 +88,12 @@ export default function SubjectDocumentPage() {
         return res.json()
       })
       .then((json: APIResponse) => {
-        setData(json)
-        if (json.topics.length > 0) {
-          setActiveTopicId(slugify(json.topics[0].name))
+        // Normalise: always ensure topics is an array so downstream code
+        // can safely call .length / .map without optional checks.
+        const safe: APIResponse = { ...json, topics: json.topics ?? [] }
+        setData(safe)
+        if ((safe.topics?.length ?? 0) > 0) {
+          setActiveTopicId(slugify(safe.topics![0].name))
         }
       })
       .catch(() => setError(true))
@@ -108,7 +130,7 @@ export default function SubjectDocumentPage() {
     observerRef.current = observer
 
     // Observe all topic headings
-    for (const topic of data.topics) {
+    for (const topic of data.topics ?? []) {
       const el = topicRefs.current[slugify(topic.name)]
       if (el) observer.observe(el)
     }
@@ -192,7 +214,10 @@ export default function SubjectDocumentPage() {
     )
   }
 
-  const { subject, topics } = data
+  // Defensive: API may return undefined or null for these fields. Always
+  // operate on a normalised, never-undefined array so .map/.length are safe.
+  const { subject } = data
+  const topics: TopicData[] = data.topics ?? []
 
   /* ── Render ─────────────────────────────────────────────────────────── */
 
@@ -248,38 +273,52 @@ export default function SubjectDocumentPage() {
           <hr className="doc-divider" />
 
           {/* Topics & Concepts */}
-          {topics.map((topic, topicIdx) => (
-            <section key={topic._id}>
-              {/* Topic separator (not before first) */}
-              {topicIdx > 0 && <hr className="doc-topic-rule" />}
+          {topics.map((topic, topicIdx) => {
+            // Normalise the concept list once so we don't repeat optional chaining
+            const concepts = topic.concepts ?? []
+            return (
+              <section key={topic._id}>
+                {/* Topic separator (not before first) */}
+                {topicIdx > 0 && <hr className="doc-topic-rule" />}
 
-              {/* Topic Heading */}
-              <h2
-                id={slugify(topic.name)}
-                className="doc-topic-heading"
-                ref={(el) => { topicRefs.current[slugify(topic.name)] = el }}
-              >
-                {topic.name}
-              </h2>
+                {/* Topic Heading */}
+                <h2
+                  id={slugify(topic.name)}
+                  className="doc-topic-heading"
+                  ref={(el) => { topicRefs.current[slugify(topic.name)] = el }}
+                >
+                  {topic.name}
+                </h2>
 
-              {/* Concepts */}
-              {topic.concepts.length === 0 ? (
-                <p className="doc-coming-soon">Coming soon...</p>
-              ) : (
-                topic.concepts.map((concept) => (
-                  <div key={concept._id} style={{ marginBottom: 24 }}>
-                    <h3 id={slugify(concept.title)} className="doc-concept-title">{concept.title}</h3>
+                {/* Concepts */}
+                {concepts.length === 0 ? (
+                  <p className="doc-coming-soon">Coming soon...</p>
+                ) : (
+                  concepts.map((concept) => {
+                    // Treat a missing `blocks` field the same as an empty array
+                    const blockCount = concept.blocks?.length ?? 0
+                    const gClass = guaranteeClass(concept.guaranteeLevel)
+                    return (
+                      <div key={concept._id} style={{ marginBottom: 24 }}>
+                        <h3
+                          id={slugify(concept.title)}
+                          className={`doc-concept-title${gClass ? ` ${gClass}` : ''}`}
+                        >
+                          {concept.title}
+                        </h3>
 
-                    {concept.blocks.length === 0 ? (
-                      <p className="doc-coming-soon">Coming soon...</p>
-                    ) : (
-                      <p className="doc-content-loaded">Content loaded.</p>
-                    )}
-                  </div>
-                ))
-              )}
-            </section>
-          ))}
+                        {blockCount === 0 ? (
+                          <p className="doc-coming-soon">Coming soon...</p>
+                        ) : (
+                          <p className="doc-content-loaded">Content loaded.</p>
+                        )}
+                      </div>
+                    )
+                  })
+                )}
+              </section>
+            )
+          })}
 
           {/* Bottom spacer for scroll */}
           <div style={{ height: 200 }} />

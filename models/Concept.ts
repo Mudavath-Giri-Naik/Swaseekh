@@ -24,6 +24,9 @@ export interface IConcept extends Document<string> {
   order: number
   tags: string[]
   blocks: { type: string; content: unknown }[]
+  /** Optional confidence indicator that drives the concept title's text colour
+   *  in the UI. Allowed values: "green" | "yellow" | "red". */
+  guaranteeLevel?: 'green' | 'yellow' | 'red'
   createdAt: Date
   updatedAt: Date
 }
@@ -39,6 +42,11 @@ const ConceptSchema = new Schema<IConcept>(
     order: { type: Number, required: true },
     tags: { type: [String], default: [] },
     blocks: { type: [BlockSchema], default: [] },
+    guaranteeLevel: {
+      type: String,
+      enum: ['green', 'yellow', 'red'],
+      required: false,
+    },
   },
   {
     timestamps: true,

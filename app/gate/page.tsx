@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { slugify } from '@/lib/utils'
+import SyllabusLegend from '@/components/SyllabusLegend'
 
 /* ─── Types ──────────────────────────────────────────────────────────────── */
 
@@ -16,12 +17,37 @@ interface SubjectFromDB {
   totalConcepts: number
 }
 
+interface ConceptFromDB {
+  _id: string
+  title: string
+  /** Optional confidence indicator: drives the concept title's text colour. */
+  guaranteeLevel?: 'green' | 'yellow' | 'red' | string
+}
+
 interface TopicFromDB {
   _id: string
   subjectId: string
   name: string
   order: number
-  concepts?: { _id: string; title: string }[]
+  concepts?: ConceptFromDB[]
+}
+
+/* Map a guaranteeLevel to a Tailwind text-colour class.
+   - green  → emerald (readable on white)
+   - yellow → dark amber #b58900 (NEVER bright yellow on white)
+   - red    → red-700
+   - missing/unknown → default slate gray */
+function guaranteeTextClass(level?: string): string {
+  switch (level) {
+    case 'green':
+      return 'text-emerald-700'
+    case 'yellow':
+      return 'text-[#b58900]'
+    case 'red':
+      return 'text-red-700'
+    default:
+      return 'text-gray-700'
+  }
 }
 
 interface SyllabusSection {
@@ -57,7 +83,11 @@ export default function GateSyllabusPage() {
                 subjectId: t.subjectId,
                 name: t.name,
                 order: t.order,
-                concepts: (t.concepts || []).map((c: any) => ({ _id: c._id, title: c.title }))
+                concepts: (t.concepts || []).map((c: any) => ({
+                  _id: c._id,
+                  title: c.title,
+                  guaranteeLevel: c.guaranteeLevel,
+                })),
               })) as TopicFromDB[],
             }))
             .catch(() => ({ subject: s, topics: [] as TopicFromDB[] }))
@@ -106,7 +136,7 @@ export default function GateSyllabusPage() {
 
         {/* Purple header bar */}
         <div
-          className="flex items-center gap-0 mb-8 rounded-sm overflow-hidden"
+          className="flex items-center gap-0 mb-4 rounded-sm overflow-hidden"
           style={{ backgroundColor: '#4A235A' }}
         >
           <div className="px-4 py-3 border-r border-white/20">
@@ -125,6 +155,9 @@ export default function GateSyllabusPage() {
             <div className="w-6 h-6 border-2 border-gray-300 border-t-[#4A235A] rounded-full animate-spin" />
           </div>
         )}
+
+        {/* Legend + Know more dialog (shown once syllabus is loaded) */}
+        {!loading && sections.length > 0 && <SyllabusLegend />}
 
         {/* Syllabus sections */}
         {!loading &&
@@ -149,11 +182,11 @@ export default function GateSyllabusPage() {
                     {Number(subject._id.replace(/\D/g, ''))}.{" "}
                   </span>
                   
-                  {/* Subject name link */}
+                  {/* Subject name link — always black */}
                   <Link
                     href={`/gate/${slugify(subject.name)}`}
-                    className="font-semibold hover:underline"
-                    style={{ color: '#C0392B' }}
+                    className="font-semibold text-black hover:underline"
+                    style={{ textDecorationColor: '#4A235A' }}
                   >
                     {subject.name}
                   </Link>
@@ -179,8 +212,8 @@ export default function GateSyllabusPage() {
                             <span key={concept._id}>
                               <Link
                                 href={`/gate/${slugify(subject.name)}/${slugify(topic.name)}/${slugify(concept.title)}`}
-                                className="text-gray-700 hover:text-[#4A235A] hover:underline transition-colors cursor-pointer"
-                                style={{ textDecorationColor: '#4A235A' }}
+                                className={`${guaranteeTextClass(concept.guaranteeLevel)} hover:underline cursor-pointer`}
+                                style={{ textDecorationColor: 'currentColor' }}
                               >
                                 {concept.title}
                               </Link>
