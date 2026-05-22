@@ -107,7 +107,9 @@ export default function SyllabusLegend() {
 
 /* ─── Small primitives ──────────────────────────────────────────────── */
 
-/* Pill badge — colored bg + matching text, used for each legend chip. */
+/* Pill badge — colored bg + matching text, used for each legend chip.
+   Uses variant="outline" so the default Badge hover (which uses the
+   project's purple primary colour) doesn't override the chip's own colour. */
 function LegendBadge({
   className,
   children,
@@ -117,6 +119,7 @@ function LegendBadge({
 }) {
   return (
     <Badge
+      variant="outline"
       className={`shrink-0 whitespace-nowrap rounded-full px-1.5 py-0.5 text-[9px] font-semibold sm:px-2.5 sm:text-xs ${className ?? ''}`}
     >
       {children}
