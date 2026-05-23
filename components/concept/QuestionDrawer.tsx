@@ -148,7 +148,7 @@ export default function QuestionDrawer({ question, isOpen, onClose, topicName }:
                     </div>
                     {question.formulaUsed.termsExplained?.length > 0 && (
                       <ul className="mt-2 ml-4 list-disc space-y-0.5 text-[12.5px] text-slate-700">
-                        {question.formulaUsed.termsExplained.map((t, i) => (
+                        {question.formulaUsed.termsExplained.map((t: string, i: number) => (
                           <li key={i}>
                             <MathRenderer text={t} />
                           </li>
@@ -161,7 +161,7 @@ export default function QuestionDrawer({ question, isOpen, onClose, topicName }:
                 {question.solutionSteps && question.solutionSteps.length > 0 && (
                   <Section label="Solution">
                     <ol className="space-y-2">
-                      {question.solutionSteps.map((step, i) => (
+                      {question.solutionSteps.map((step: string, i: number) => (
                         <li key={i} className="flex gap-2 text-[13px] leading-6 text-gray-800">
                           <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-900 text-[10px] font-bold text-white">
                             {i + 1}
