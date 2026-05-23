@@ -12,11 +12,14 @@ export interface IQuestion extends Document<string> {
   difficulty: string
   distractorStrategy: string | null
   explanation: string
+  formulaId: string | null
+  formulaIds: string[]
   keyConstraint: string | null
   marks: number
   options: string[]
   questionText: string
   questionType: string
+  simpleExplanation: string | null
   statementStructure: string
   subjectId: string
   topicId: string
@@ -37,11 +40,14 @@ const QuestionSchema = new Schema<IQuestion>(
     difficulty: { type: String, required: true, index: true },
     distractorStrategy: { type: String, default: null },
     explanation: { type: String, required: true },
+    formulaId: { type: String, default: null },
+    formulaIds: { type: [String], default: [] },
     keyConstraint: { type: String, default: null },
     marks: { type: Number, required: true },
     options: { type: [String], default: [] },
     questionText: { type: String, required: true },
     questionType: { type: String, required: true, index: true },
+    simpleExplanation: { type: String, default: null },
     statementStructure: { type: String, required: true },
     subjectId: { type: String, required: true, index: true },
     topicId: { type: String, required: true, index: true },

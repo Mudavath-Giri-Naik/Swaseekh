@@ -5,6 +5,8 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { slugify } from '@/lib/utils'
+import ConceptContent from '@/components/concept/ConceptContent'
+import ConceptInline from '@/components/concept/ConceptInline'
 
 /* ─── Types ──────────────────────────────────────────────────────────────── */
 
@@ -219,6 +221,32 @@ export default function SubjectDocumentPage() {
   const { subject } = data
   const topics: TopicData[] = data.topics ?? []
 
+  /* ── Concept-detail mode ────────────────────────────────────────────── */
+  // When the URL has a concept slug (3rd segment), render the rich
+  // long-form ConceptContent view instead of the syllabus reader.
+  if (conceptSlug) {
+    // Find the matching concept inside the loaded subject so we can
+    // resolve the slug -> conceptId and pass a friendly fallback title.
+    let matched: { _id: string; title: string } | null = null
+    outer: for (const topic of topics) {
+      for (const c of topic.concepts ?? []) {
+        if (slugify(c.title) === conceptSlug) {
+          matched = { _id: c._id, title: c.title }
+          break outer
+        }
+      }
+    }
+
+    return (
+      <ConceptContent
+        conceptId={matched?._id ?? conceptSlug}
+        fallbackTitle={matched?.title}
+        backHref={`/gate/${subjectSlug}`}
+        backLabel={`Back to ${subject.name}`}
+      />
+    )
+  }
+
   /* ── Render ─────────────────────────────────────────────────────────── */
 
   return (
@@ -295,8 +323,6 @@ export default function SubjectDocumentPage() {
                   <p className="doc-coming-soon">Coming soon...</p>
                 ) : (
                   concepts.map((concept) => {
-                    // Treat a missing `blocks` field the same as an empty array
-                    const blockCount = concept.blocks?.length ?? 0
                     const gClass = guaranteeClass(concept.guaranteeLevel)
                     return (
                       <div key={concept._id} style={{ marginBottom: 24 }}>
@@ -307,11 +333,10 @@ export default function SubjectDocumentPage() {
                           {concept.title}
                         </h3>
 
-                        {blockCount === 0 ? (
-                          <p className="doc-coming-soon">Coming soon...</p>
-                        ) : (
-                          <p className="doc-content-loaded">Content loaded.</p>
-                        )}
+                        {/* Lazily fetch this concept's long-form content.
+                            Renders the notebook-style formula sheet inline
+                            if present, otherwise shows "Coming soon..." */}
+                        <ConceptInline conceptId={concept._id} />
                       </div>
                     )
                   })

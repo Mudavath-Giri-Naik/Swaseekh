@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useSidebarData } from '@/components/sidebar-context'
 import MathRenderer from '@/components/MathRenderer'
@@ -13,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { CheckCircle2, Circle, Search, ChevronDown } from "lucide-react"
+import { CheckCircle2, Circle, Search, ChevronDown, FlaskConical } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -50,10 +51,19 @@ interface Question {
   keyConstraint: string | null
   statementStructure: string
   trap: string
+  formulaId: string | null
+  formulaIds: string[]
+  simpleExplanation: string | null
   // Resolved names
   subjectName: string
   topicName: string
   conceptName: string
+}
+
+/** Minimal formula metadata we derive from the questions data */
+interface FormulaInfo {
+  formulaId: string
+  name: string
 }
 
 // Helpers
@@ -62,6 +72,14 @@ function slugify(str: string) {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '')
+}
+
+/** Turn a formulaId like "r-combination-no-rep" into a readable name */
+function formulaIdToName(id: string): string {
+  return id
+    .split('-')
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ')
 }
 
 const diffColors: Record<string, { bg: string; text: string; border: string }> = {
@@ -74,7 +92,20 @@ const diffColors: Record<string, { bg: string; text: string; border: string }> =
 }
 
 export default function QuestionsListPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-[80vh]">
+        <div className="w-8 h-8 border-2 border-gray-200 border-t-[#4A235A] rounded-full animate-spin" />
+      </div>
+    }>
+      <QuestionsListPageInner />
+    </Suspense>
+  )
+}
+
+function QuestionsListPageInner() {
   const sidebarData = useSidebarData()
+  const searchParams = useSearchParams()
   const [questions, setQuestions] = useState<Question[]>([])
   const [loading, setLoading] = useState(true)
   const [solvedStatuses, setSolvedStatuses] = useState<Record<string, boolean>>({})
@@ -87,6 +118,11 @@ export default function QuestionsListPage() {
   const [selectedYear, setSelectedYear] = useState('')
   const [selectedDifficulty, setSelectedDifficulty] = useState('')
   const [selectedType, setSelectedType] = useState('')
+  const [selectedFormula, setSelectedFormula] = useState('')
+
+  // Formula name map — built from content API or derived from IDs
+  const [formulaNameMap, setFormulaNameMap] = useState<Record<string, string>>({})
+
   // Unified sort state — tracks which column is active and the direction
   const [sort, setSort] = useState<{
     by: 'year' | 'marks' | 'difficulty'
@@ -108,6 +144,14 @@ export default function QuestionsListPage() {
     hard: 3,
   }
 
+  // Read formula filter from URL search params (for deep-linking from concept page)
+  useEffect(() => {
+    const formulaParam = searchParams.get('formula')
+    if (formulaParam) {
+      setSelectedFormula(formulaParam)
+    }
+  }, [searchParams])
+
   // Set sidebar state
   useEffect(() => {
     sidebarData.setIsQuestionsMode(true)
@@ -127,11 +171,71 @@ export default function QuestionsListPage() {
     fetch(`/api/questions?${qs.toString()}`)
       .then((res) => res.json())
       .then((data) => {
-        setQuestions(data.questions ?? [])
+        const qs = (data.questions ?? []) as Question[]
+        // Ensure formulaIds is always an array
+        qs.forEach((q) => {
+          if (!Array.isArray(q.formulaIds)) q.formulaIds = []
+          if (!q.formulaId) q.formulaId = null
+        })
+        setQuestions(qs)
         setLoading(false)
       })
       .catch(() => setLoading(false))
   }, [])
+
+  // Build formula name map from all unique formula IDs across questions
+  // Try to fetch names from the content API, fall back to humanized IDs
+  useEffect(() => {
+    if (questions.length === 0) return
+
+    // Collect all unique formula IDs
+    const allIds = new Set<string>()
+    questions.forEach((q) => {
+      if (q.formulaId) allIds.add(q.formulaId)
+      q.formulaIds?.forEach((id) => allIds.add(id))
+    })
+
+    if (allIds.size === 0) return
+
+    // Collect unique concept IDs that have formulas
+    const conceptsWithFormulas = new Set<string>()
+    questions.forEach((q) => {
+      if (q.formulaIds?.length > 0 || q.formulaId) {
+        conceptsWithFormulas.add(q.conceptId)
+      }
+    })
+
+    // Fetch content for each concept to get formula names
+    const fetchPromises = Array.from(conceptsWithFormulas).map((cId) =>
+      fetch(`/api/content/${encodeURIComponent(cId)}`)
+        .then((res) => (res.ok ? res.json() : null))
+        .catch(() => null)
+    )
+
+    Promise.all(fetchPromises).then((results) => {
+      const nameMap: Record<string, string> = {}
+
+      results.forEach((data) => {
+        if (!data?.content?.groups) return
+        for (const group of data.content.groups) {
+          for (const f of group.formulas ?? []) {
+            if (f.formulaId && f.name) {
+              nameMap[f.formulaId] = f.name
+            }
+          }
+        }
+      })
+
+      // Fill any remaining formula IDs with humanized fallbacks
+      allIds.forEach((id) => {
+        if (!nameMap[id]) {
+          nameMap[id] = formulaIdToName(id)
+        }
+      })
+
+      setFormulaNameMap(nameMap)
+    })
+  }, [questions])
 
   // Derived filter options
   const subjects = useMemo(() => {
@@ -164,6 +268,21 @@ export default function QuestionsListPage() {
     return Array.from(set).sort((a, b) => b - a)
   }, [questions])
 
+  // Unique formulas present across all questions
+  const formulaOptions = useMemo((): FormulaInfo[] => {
+    const map = new Map<string, string>()
+    questions.forEach((q) => {
+      q.formulaIds?.forEach((fId) => {
+        if (!map.has(fId)) {
+          map.set(fId, formulaNameMap[fId] || formulaIdToName(fId))
+        }
+      })
+    })
+    return Array.from(map.entries())
+      .map(([id, name]) => ({ formulaId: id, name }))
+      .sort((a, b) => a.name.localeCompare(b.name))
+  }, [questions, formulaNameMap])
+
   // Filtered questions
   const filteredQuestions = useMemo(() => {
     return questions
@@ -174,6 +293,7 @@ export default function QuestionsListPage() {
         if (selectedYear && q.year !== Number(selectedYear)) return false
         if (selectedDifficulty && q.difficulty.toLowerCase() !== selectedDifficulty.toLowerCase()) return false
         if (selectedType && q.questionType !== selectedType) return false
+        if (selectedFormula && !(q.formulaIds ?? []).includes(selectedFormula)) return false
         if (searchQuery) {
           const query = searchQuery.toLowerCase()
           if (
@@ -198,7 +318,7 @@ export default function QuestionsListPage() {
         }
         return 0
       })
-  }, [questions, selectedSubject, selectedTopic, selectedConcept, selectedYear, selectedDifficulty, selectedType, searchQuery, sort])
+  }, [questions, selectedSubject, selectedTopic, selectedConcept, selectedYear, selectedDifficulty, selectedType, selectedFormula, searchQuery, sort])
 
   // Filter trigger style — compact pill that opens the DropdownMenu
   const filterTriggerClass =
@@ -297,6 +417,22 @@ export default function QuestionsListPage() {
             ]}
             onChange={setSelectedType}
           />
+          {formulaOptions.length > 0 && (
+            <FilterMenu
+              label="Formula"
+              value={selectedFormula}
+              triggerClass={filterTriggerClass}
+              icon={<FlaskConical className="h-3.5 w-3.5 text-violet-500" />}
+              options={[
+                { value: '', label: 'All Formulas' },
+                ...formulaOptions.map((f) => ({
+                  value: f.formulaId,
+                  label: f.name,
+                })),
+              ]}
+              onChange={setSelectedFormula}
+            />
+          )}
         </div>
       </header>
 
@@ -382,6 +518,38 @@ export default function QuestionsListPage() {
                       <MathRenderer text={q.questionText} />
                     </div>
 
+                    {/* Formula badges */}
+                    {q.formulaIds && q.formulaIds.length > 0 && (
+                      <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                        {q.formulaIds.map((fId) => {
+                          const isPrimary = fId === q.formulaId
+                          const fName = formulaNameMap[fId] || formulaIdToName(fId)
+                          return (
+                            <button
+                              key={fId}
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                setSelectedFormula((prev) => prev === fId ? '' : fId)
+                              }}
+                              className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-semibold transition-colors
+                                ${isPrimary
+                                  ? 'bg-violet-600 text-white hover:bg-violet-700'
+                                  : 'border border-violet-300 text-violet-700 bg-violet-50 hover:bg-violet-100'
+                                }
+                                ${selectedFormula === fId ? 'ring-2 ring-violet-400 ring-offset-1' : ''}
+                              `}
+                              title={isPrimary ? `Primary formula: ${fName}` : fName}
+                            >
+                              <FlaskConical className="h-2.5 w-2.5" />
+                              {fName}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    )}
+
                     {/* Breadcrumb */}
                     <div className="mt-4 flex flex-wrap items-center gap-1.5 border-t border-slate-100 pt-3 text-[13px] text-slate-500">
                       <span className="font-semibold text-slate-700">
@@ -427,6 +595,7 @@ export default function QuestionsListPage() {
                   order={sort.order}
                   onClick={() => toggleSort('difficulty')}
                 />
+                <TableHead>Formula</TableHead>
                 <TableHead>Subject</TableHead>
                 <TableHead>Topic</TableHead>
                 <TableHead>Concept</TableHead>
@@ -436,7 +605,7 @@ export default function QuestionsListPage() {
             <TableBody>
               {filteredQuestions.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={10} className="text-center py-12 text-gray-500">
+                  <TableCell colSpan={11} className="text-center py-12 text-gray-500">
                     No questions found for this selection.
                   </TableCell>
                 </TableRow>
@@ -482,6 +651,40 @@ export default function QuestionsListPage() {
                         <Badge variant="outline" className={`${dColor.bg} ${dColor.text} ${dColor.border} text-[10px] uppercase font-bold border shadow-none`}>
                           {q.difficulty}
                         </Badge>
+                      </TableCell>
+
+                      <TableCell>
+                        {q.formulaIds && q.formulaIds.length > 0 ? (
+                          <div className="flex flex-wrap gap-1 max-w-[200px]">
+                            {q.formulaIds.map((fId) => {
+                              const isPrimary = fId === q.formulaId
+                              const fName = formulaNameMap[fId] || formulaIdToName(fId)
+                              return (
+                                <button
+                                  key={fId}
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    setSelectedFormula((prev) => prev === fId ? '' : fId)
+                                  }}
+                                  className={`inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[10px] font-semibold transition-colors truncate max-w-[120px]
+                                    ${isPrimary
+                                      ? 'bg-violet-600 text-white hover:bg-violet-700'
+                                      : 'border border-violet-300 text-violet-700 bg-violet-50 hover:bg-violet-100'
+                                    }
+                                    ${selectedFormula === fId ? 'ring-2 ring-violet-400 ring-offset-1' : ''}
+                                  `}
+                                  title={isPrimary ? `Primary: ${fName}` : fName}
+                                >
+                                  <FlaskConical className="h-2.5 w-2.5 shrink-0" />
+                                  <span className="truncate">{fName}</span>
+                                </button>
+                              )
+                            })}
+                          </div>
+                        ) : (
+                          <span className="text-xs text-gray-300">—</span>
+                        )}
                       </TableCell>
 
                       <TableCell>
@@ -573,12 +776,14 @@ function FilterMenu({
   options,
   onChange,
   triggerClass,
+  icon,
 }: {
   label: string
   value: string
   options: { value: string; label: string }[]
   onChange: (v: string) => void
   triggerClass: string
+  icon?: React.ReactNode
 }) {
   const current = options.find((o) => o.value === value) ?? options[0]
   const isFiltered = value !== ''
@@ -586,6 +791,7 @@ function FilterMenu({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className={triggerClass}>
+        {icon && <span className="shrink-0">{icon}</span>}
         <span className={isFiltered ? 'font-semibold text-slate-900' : ''}>
           {current?.label}
         </span>

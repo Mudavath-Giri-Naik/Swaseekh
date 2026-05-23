@@ -10,6 +10,8 @@ import {
   ChevronDown,
   SlidersHorizontal,
   Check,
+  FlaskConical,
+  Lightbulb,
 } from 'lucide-react'
 import MathRenderer from '@/components/MathRenderer'
 import { slugify, cn } from '@/lib/utils'
@@ -46,9 +48,20 @@ interface QuestionDetail {
   keyConstraint?: string | null
   statementStructure?: string
   trap?: string
+  formulaId?: string | null
+  formulaIds?: string[]
+  simpleExplanation?: string | null
   subjectName: string
   topicName: string
   conceptName: string
+}
+
+/** Turn a formulaId like "r-combination-no-rep" into a readable name */
+function formulaIdToName(id: string): string {
+  return id
+    .split('-')
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ')
 }
 
 interface SubjectLite {
@@ -314,6 +327,34 @@ export default function QuestionDetailPage() {
         {question.subjectName} · {question.topicName}
       </p>
 
+      {/* Formula badges */}
+      {question.formulaIds && question.formulaIds.length > 0 && (
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+            Formulas
+          </span>
+          {question.formulaIds.map((fId) => {
+            const isPrimary = fId === question.formulaId
+            return (
+              <Link
+                key={fId}
+                href={`/gate/questions?formula=${encodeURIComponent(fId)}`}
+                className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold transition-colors
+                  ${isPrimary
+                    ? 'bg-violet-600 text-white hover:bg-violet-700'
+                    : 'border border-violet-300 bg-violet-50 text-violet-700 hover:bg-violet-100'
+                  }
+                `}
+                title={isPrimary ? `Primary formula: ${formulaIdToName(fId)}` : formulaIdToName(fId)}
+              >
+                <FlaskConical className="h-3 w-3" />
+                {formulaIdToName(fId)}
+              </Link>
+            )
+          })}
+        </div>
+      )}
+
       {/* Question text — prefixed with the numeric ID extracted from question._id */}
       <div className="mt-8 text-[17px] leading-7 text-slate-900 [&_p]:mt-6 [&_p:first-child]:mt-0">
         <span className="mr-2 font-bold text-slate-900">
@@ -396,6 +437,24 @@ export default function QuestionDetailPage() {
               {question.correctAnswer}
             </span>
           </p>
+
+          {/* H2 — Simple Explanation */}
+          {question.simpleExplanation && (
+            <>
+              <h2 className="mt-10 scroll-m-20 border-b border-slate-200 pb-2 text-2xl font-semibold tracking-tight text-slate-900">
+                Simple Explanation
+              </h2>
+              <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50/60 px-5 py-4">
+                <div className="mb-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-amber-700">
+                  <Lightbulb className="h-3.5 w-3.5" />
+                  Step-by-step
+                </div>
+                <div className="text-[16px] leading-7 text-amber-950">
+                  <MathRenderer text={question.simpleExplanation} />
+                </div>
+              </div>
+            </>
+          )}
 
           {/* H2 — Explanation */}
           {question.explanation && (
