@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/input-group"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
-import { formulaBadgePalette } from "@/lib/formula-palette"
+import FormulaBadge from "@/components/concept/FormulaBadge"
 
 interface Question {
   _id: string
@@ -38,23 +38,14 @@ interface Question {
   questionType: string
   options: string[]
   correctAnswer: string
-  explanation: string
   marks: number
   difficulty: string
   year: number
   subjectId: string
   topicId: string
   conceptId: string
-  angle: string
-  cognitiveOperation: string
-  depthLevel: string
-  distractorStrategy: string | null
-  keyConstraint: string | null
-  statementStructure: string
-  trap: string
   formulaId: string | null
   formulaIds: string[]
-  simpleExplanation: string | null
   // Resolved names
   subjectName: string
   topicName: string
@@ -123,6 +114,10 @@ function QuestionsListPageInner() {
 
   // Formula name map — built from content API or derived from IDs
   const [formulaNameMap, setFormulaNameMap] = useState<Record<string, string>>({})
+  // Richer info for hover-card previews ({ name, latex, plain } per ID)
+  const [formulaInfoMap, setFormulaInfoMap] = useState<
+    Record<string, { name?: string; latex?: string; plain?: string }>
+  >({})
 
   // Unified sort state — tracks which column is active and the direction
   const [sort, setSort] = useState<{
@@ -215,13 +210,18 @@ function QuestionsListPageInner() {
 
     Promise.all(fetchPromises).then((results) => {
       const nameMap: Record<string, string> = {}
+      const infoMap: Record<string, { name?: string; latex?: string; plain?: string }> = {}
 
       results.forEach((data) => {
         if (!data?.content?.groups) return
         for (const group of data.content.groups) {
           for (const f of group.formulas ?? []) {
-            if (f.formulaId && f.name) {
-              nameMap[f.formulaId] = f.name
+            if (!f.formulaId) continue
+            if (f.name) nameMap[f.formulaId] = f.name
+            infoMap[f.formulaId] = {
+              name: f.name,
+              latex: f.latex,
+              plain: f.plain,
             }
           }
         }
@@ -235,6 +235,7 @@ function QuestionsListPageInner() {
       })
 
       setFormulaNameMap(nameMap)
+      setFormulaInfoMap(infoMap)
     })
   }, [questions])
 
@@ -343,7 +344,7 @@ function QuestionsListPageInner() {
           className="mr-1 h-4 shrink-0 bg-slate-200"
         />
         {/* Horizontally scrollable filter chip row */}
-        <div className="flex flex-1 items-center gap-2 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <FilterMenu
             label="Subject"
             value={selectedSubject}
@@ -523,27 +524,21 @@ function QuestionsListPageInner() {
                     {q.formulaIds && q.formulaIds.length > 0 && (
                       <div className="mt-3 flex flex-wrap items-center gap-1.5">
                         {q.formulaIds.map((fId) => {
-                          const isPrimary = fId === q.formulaId
                           const fName = formulaNameMap[fId] || formulaIdToName(fId)
-                          const palette = formulaBadgePalette(fId)
                           return (
-                            <button
+                            <FormulaBadge
                               key={fId}
-                              type="button"
+                              formulaId={fId}
+                              name={fName}
+                              info={formulaInfoMap[fId]}
+                              primary={fId === q.formulaId}
+                              selected={selectedFormula === fId}
                               onClick={(e) => {
                                 e.preventDefault()
                                 e.stopPropagation()
                                 setSelectedFormula((prev) => prev === fId ? '' : fId)
                               }}
-                              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium transition-colors
-                                ${palette.bg} ${palette.text} ${palette.hover}
-                                ${isPrimary ? 'ring-1 ring-inset ' + palette.ring : ''}
-                                ${selectedFormula === fId ? 'outline outline-2 outline-offset-1 outline-violet-400' : ''}
-                              `}
-                              title={isPrimary ? `Primary formula: ${fName}` : fName}
-                            >
-                              {fName}
-                            </button>
+                            />
                           )
                         })}
                       </div>
@@ -569,7 +564,7 @@ function QuestionsListPageInner() {
         </ul>
 
         {/* ─── Desktop table (md+) ─────────────────────────────────── */}
-        <div className="hidden overflow-hidden rounded-xl border bg-white shadow-sm md:block">
+        <div className="hidden overflow-x-auto rounded-xl border bg-white shadow-sm md:block">
           <Table>
             <TableHeader>
               <TableRow className="bg-gray-50/50 hover:bg-gray-50/50">
@@ -655,26 +650,20 @@ function QuestionsListPageInner() {
                         {q.formulaIds && q.formulaIds.length > 0 ? (
                           <div className="flex flex-nowrap items-center gap-1.5 whitespace-nowrap">
                             {q.formulaIds.map((fId) => {
-                              const isPrimary = fId === q.formulaId
                               const fName = formulaNameMap[fId] || formulaIdToName(fId)
-                              const palette = formulaBadgePalette(fId)
                               return (
-                                <button
+                                <FormulaBadge
                                   key={fId}
-                                  type="button"
+                                  formulaId={fId}
+                                  name={fName}
+                                  info={formulaInfoMap[fId]}
+                                  primary={fId === q.formulaId}
+                                  selected={selectedFormula === fId}
                                   onClick={(e) => {
                                     e.stopPropagation()
                                     setSelectedFormula((prev) => prev === fId ? '' : fId)
                                   }}
-                                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium transition-colors
-                                    ${palette.bg} ${palette.text} ${palette.hover}
-                                    ${isPrimary ? 'ring-1 ring-inset ' + palette.ring : ''}
-                                    ${selectedFormula === fId ? 'outline outline-2 outline-offset-1 outline-violet-400' : ''}
-                                  `}
-                                  title={isPrimary ? `Primary: ${fName}` : fName}
-                                >
-                                  {fName}
-                                </button>
+                                />
                               )
                             })}
                           </div>

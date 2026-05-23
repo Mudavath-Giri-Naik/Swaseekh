@@ -4,26 +4,39 @@ export type QuestionType = 'MCQ' | 'MSQ' | 'NAT'
 export type Difficulty = 'easy' | 'medium' | 'hard' | 'Easy' | 'Medium' | 'Hard'
 export type CCDStatus = 'completed' | 'in-progress' | 'not-started'
 
+export interface FormulaUsed {
+  formulaId: string
+  name: string
+  plain: string
+  termsExplained: string[]
+}
+
 export interface Question {
   _id: string
-  angle: string
-  cognitiveOperation: string
-  conceptId: string
-  correctAnswer: string
-  depthLevel: string
-  difficulty: string
-  distractorStrategy: string | null
-  explanation: string
-  keyConstraint: string | null
-  marks: number
-  options: string[]
-  questionText: string
-  questionType: string
-  statementStructure: string
   subjectId: string
   topicId: string
-  trap: string
+  conceptId: string
   year: number
+  questionType: string
+  marks: number
+  difficulty: string
+  questionText: string
+  options: string[]
+  correctAnswer: string
+  formulaId?: string | null
+  formulaIds?: string[]
+
+  // Rich explanation block (new schema)
+  whatToFind?: string
+  plainRestatement?: string
+  realWorldScenario?: string
+  formulaUsed?: FormulaUsed | null
+  solutionSteps?: string[]
+  finalAnswer?: string
+  commonTrap?: string
+  /** Optional flag — only render when non-empty. */
+  formulaNote?: string
+
   // Resolved names (from API enrichment)
   subjectName?: string
   topicName?: string

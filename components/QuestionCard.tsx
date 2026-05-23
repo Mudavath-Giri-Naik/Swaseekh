@@ -9,10 +9,23 @@ interface Question {
   questionType: string
   options: string[]
   correctAnswer: string
-  explanation: string
   marks: number
   difficulty: string
   year: number
+  // New rich-explanation fields (all optional — render only when present)
+  whatToFind?: string
+  plainRestatement?: string
+  realWorldScenario?: string
+  formulaUsed?: {
+    formulaId: string
+    name: string
+    plain: string
+    termsExplained: string[]
+  } | null
+  solutionSteps?: string[]
+  finalAnswer?: string
+  commonTrap?: string
+  formulaNote?: string
 }
 
 interface QuestionCardProps {
@@ -121,19 +134,102 @@ export default function QuestionCard({ question, index }: QuestionCardProps) {
             Answer: {question.correctAnswer}
           </div>
 
-          {/* Explanation */}
-          {question.explanation && (
-            <div className="bg-gray-50 border border-gray-100 rounded-lg p-4">
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-                Explanation
-              </p>
-              <div className="text-sm leading-[1.7] text-gray-700">
-                <MathRenderer text={question.explanation} />
+          {question.whatToFind && (
+            <QCBlock label="What to find">
+              <MathRenderer text={question.whatToFind} />
+            </QCBlock>
+          )}
+          {question.plainRestatement && (
+            <QCBlock label="In plain words">
+              <MathRenderer text={question.plainRestatement} />
+            </QCBlock>
+          )}
+          {question.realWorldScenario && (
+            <QCBlock label="Real-world scenario" tone="sky">
+              <MathRenderer text={question.realWorldScenario} />
+            </QCBlock>
+          )}
+          {question.formulaUsed && (
+            <QCBlock label="Formula used" tone="violet">
+              <div className="text-sm font-semibold text-violet-900">
+                {question.formulaUsed.name}
               </div>
-            </div>
+              <div className="mt-2 rounded bg-white px-2.5 py-1.5 font-mono text-[13px] text-slate-900 ring-1 ring-violet-100">
+                <MathRenderer text={question.formulaUsed.plain} />
+              </div>
+              {question.formulaUsed.termsExplained?.length > 0 && (
+                <ul className="mt-2 ml-4 list-disc space-y-0.5 text-[12.5px] text-slate-700">
+                  {question.formulaUsed.termsExplained.map((t, i) => (
+                    <li key={i}>
+                      <MathRenderer text={t} />
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </QCBlock>
+          )}
+          {question.solutionSteps && question.solutionSteps.length > 0 && (
+            <QCBlock label="Solution">
+              <ol className="space-y-2">
+                {question.solutionSteps.map((step, i) => (
+                  <li key={i} className="flex gap-2 text-sm leading-6 text-gray-800">
+                    <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-900 text-[10px] font-bold text-white">
+                      {i + 1}
+                    </span>
+                    <span className="flex-1">
+                      <MathRenderer text={step} />
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </QCBlock>
+          )}
+          {question.finalAnswer && (
+            <QCBlock label="Final answer" tone="emerald">
+              <div className="text-[15px] font-semibold text-emerald-900">
+                <MathRenderer text={question.finalAnswer} />
+              </div>
+            </QCBlock>
+          )}
+          {question.commonTrap && (
+            <QCBlock label="Common trap" tone="amber">
+              <MathRenderer text={question.commonTrap} />
+            </QCBlock>
+          )}
+          {question.formulaNote && question.formulaNote.trim() !== '' && (
+            <p className="mt-2 text-xs italic text-slate-500">
+              Note: {question.formulaNote}
+            </p>
           )}
         </div>
       )}
+    </div>
+  )
+}
+
+const QC_TONES: Record<string, string> = {
+  gray:    'bg-gray-50 border-gray-200 [&_p.label]:text-gray-500',
+  sky:     'bg-sky-50/60 border-sky-200 [&_p.label]:text-sky-700',
+  violet:  'bg-violet-50/60 border-violet-200 [&_p.label]:text-violet-700',
+  emerald: 'bg-emerald-50 border-emerald-200 [&_p.label]:text-emerald-700',
+  amber:   'bg-amber-50 border-amber-200 [&_p.label]:text-amber-700',
+}
+
+function QCBlock({
+  label,
+  tone = 'gray',
+  children,
+}: {
+  label: string
+  tone?: keyof typeof QC_TONES
+  children: React.ReactNode
+}) {
+  return (
+    <div className={`rounded-lg border p-4 ${QC_TONES[tone] ?? QC_TONES.gray}`}>
+      <p className="label mb-2 text-xs font-semibold uppercase tracking-wider">
+        {label}
+      </p>
+      <div className="text-sm leading-[1.7] text-gray-800">{children}</div>
     </div>
   )
 }

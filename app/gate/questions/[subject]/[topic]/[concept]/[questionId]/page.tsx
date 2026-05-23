@@ -10,11 +10,12 @@ import {
   ChevronDown,
   SlidersHorizontal,
   Check,
-  Lightbulb,
+  AlertTriangle,
+  Info,
 } from 'lucide-react'
 import MathRenderer from '@/components/MathRenderer'
 import { slugify, cn } from '@/lib/utils'
-import { formulaBadgePalette } from '@/lib/formula-palette'
+import FormulaBadge from '@/components/concept/FormulaBadge'
 import {
   Drawer,
   DrawerClose,
@@ -28,29 +29,38 @@ import {
 
 /* ─── Types ─────────────────────────────────────────────────────────── */
 
+interface FormulaUsed {
+  formulaId: string
+  name: string
+  plain: string
+  termsExplained: string[]
+}
+
 interface QuestionDetail {
   _id: string
   questionText: string
   questionType: string
   options: string[]
   correctAnswer: string
-  explanation: string
   marks: number
   difficulty: string
   year: number
   subjectId: string
   topicId: string
   conceptId: string
-  angle?: string
-  cognitiveOperation?: string
-  depthLevel?: string
-  distractorStrategy?: string | null
-  keyConstraint?: string | null
-  statementStructure?: string
-  trap?: string
   formulaId?: string | null
   formulaIds?: string[]
-  simpleExplanation?: string | null
+
+  // Rich explanation block (new schema)
+  whatToFind?: string
+  plainRestatement?: string
+  realWorldScenario?: string
+  formulaUsed?: FormulaUsed | null
+  solutionSteps?: string[]
+  finalAnswer?: string
+  commonTrap?: string
+  formulaNote?: string
+
   subjectName: string
   topicName: string
   conceptName: string
@@ -96,6 +106,10 @@ export default function QuestionDetailPage() {
   const [subjects, setSubjects] = useState<SubjectLite[]>([])
   const [topics, setTopics] = useState<TopicWithConcepts[]>([])
   const [siblings, setSiblings] = useState<{ _id: string }[]>([])
+  // Formula info ({ name, latex, plain } per formulaId) for hover preview
+  const [formulaInfoMap, setFormulaInfoMap] = useState<
+    Record<string, { name?: string; latex?: string; plain?: string }>
+  >({})
 
   /* Fetch the question itself */
   useEffect(() => {
@@ -145,6 +159,25 @@ export default function QuestionDetailPage() {
             data.questions.map((q: { _id: string }) => ({ _id: q._id }))
           )
         }
+      })
+      .catch(() => {})
+  }, [question?.conceptId])
+
+  /* Fetch concept content to build the formula hover-preview info map */
+  useEffect(() => {
+    if (!question?.conceptId) return
+    fetch(`/api/content/${encodeURIComponent(question.conceptId)}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!data?.content?.groups) return
+        const map: Record<string, { name?: string; latex?: string; plain?: string }> = {}
+        for (const group of data.content.groups) {
+          for (const f of group.formulas ?? []) {
+            if (!f.formulaId) continue
+            map[f.formulaId] = { name: f.name, latex: f.latex, plain: f.plain }
+          }
+        }
+        setFormulaInfoMap(map)
       })
       .catch(() => {})
   }, [question?.conceptId])
@@ -334,20 +367,18 @@ export default function QuestionDetailPage() {
             Formulas
           </span>
           {question.formulaIds.map((fId) => {
-            const isPrimary = fId === question.formulaId
-            const palette = formulaBadgePalette(fId)
+            const info = formulaInfoMap[fId]
+            const name = info?.name ?? formulaIdToName(fId)
             return (
-              <Link
+              <FormulaBadge
                 key={fId}
+                formulaId={fId}
+                name={name}
+                info={info}
+                primary={fId === question.formulaId}
                 href={`/gate/questions?formula=${encodeURIComponent(fId)}`}
-                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium transition-colors
-                  ${palette.bg} ${palette.text} ${palette.hover}
-                  ${isPrimary ? 'ring-1 ring-inset ' + palette.ring : ''}
-                `}
-                title={isPrimary ? `Primary formula: ${formulaIdToName(fId)}` : formulaIdToName(fId)}
-              >
-                {formulaIdToName(fId)}
-              </Link>
+                size="md"
+              />
             )
           })}
         </div>
@@ -426,102 +457,133 @@ export default function QuestionDetailPage() {
 
       {showAnswer && (
         <>
-          {/* H2 — Answer */}
-          <h2 className="mt-10 scroll-m-20 border-b border-slate-200 pb-2 text-2xl font-semibold tracking-tight text-slate-900 first:mt-0">
-            Answer
-          </h2>
-          <p className="mt-4 leading-7 text-slate-800">
-            <span className="font-semibold text-emerald-700">
-              {question.correctAnswer}
-            </span>
-          </p>
+          {/* H2 — What to find */}
+          {question.whatToFind && (
+            <>
+              <h2 className="mt-10 scroll-m-20 border-b border-slate-200 pb-2 text-2xl font-semibold tracking-tight text-slate-900 first:mt-0">
+                What to find
+              </h2>
+              <p className="mt-4 text-[17px] leading-7 text-slate-800">
+                <MathRenderer text={question.whatToFind} />
+              </p>
+            </>
+          )}
 
-          {/* H2 — Simple Explanation */}
-          {question.simpleExplanation && (
+          {/* H2 — Plain restatement */}
+          {question.plainRestatement && (
             <>
               <h2 className="mt-10 scroll-m-20 border-b border-slate-200 pb-2 text-2xl font-semibold tracking-tight text-slate-900">
-                Simple Explanation
+                In plain words
               </h2>
-              <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50/60 px-5 py-4">
-                <div className="mb-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-amber-700">
-                  <Lightbulb className="h-3.5 w-3.5" />
-                  Step-by-step
+              <p className="mt-4 text-[17px] leading-7 text-slate-700">
+                <MathRenderer text={question.plainRestatement} />
+              </p>
+            </>
+          )}
+
+          {/* H2 — Real-world scenario */}
+          {question.realWorldScenario && (
+            <>
+              <h2 className="mt-10 scroll-m-20 border-b border-slate-200 pb-2 text-2xl font-semibold tracking-tight text-slate-900">
+                Real-world scenario
+              </h2>
+              <div className="mt-4 rounded-xl border border-sky-200 bg-sky-50/60 px-5 py-4 text-[16px] leading-7 text-slate-800 [&_p]:mt-4 [&_p:first-child]:mt-0">
+                <MathRenderer text={question.realWorldScenario} />
+              </div>
+            </>
+          )}
+
+          {/* H2 — Formula used */}
+          {question.formulaUsed && (
+            <>
+              <h2 className="mt-10 scroll-m-20 border-b border-slate-200 pb-2 text-2xl font-semibold tracking-tight text-slate-900">
+                Formula used
+              </h2>
+              <div className="mt-4 rounded-xl border border-violet-200 bg-violet-50/40 px-5 py-4">
+                <div className="text-[17px] font-semibold text-violet-900">
+                  {question.formulaUsed.name}
                 </div>
-                <div className="text-[16px] leading-7 text-amber-950">
-                  <MathRenderer text={question.simpleExplanation} />
+                <div className="mt-2 rounded-md bg-white px-3 py-2 font-mono text-[15px] text-slate-900 ring-1 ring-violet-100">
+                  <MathRenderer text={question.formulaUsed.plain} />
+                </div>
+                {question.formulaUsed.termsExplained &&
+                  question.formulaUsed.termsExplained.length > 0 && (
+                    <ul className="mt-3 ml-5 list-disc space-y-1 text-[15px] leading-6 text-slate-700">
+                      {question.formulaUsed.termsExplained.map((line, i) => (
+                        <li key={i}>
+                          <MathRenderer text={line} />
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+              </div>
+            </>
+          )}
+
+          {/* H2 — Solution steps */}
+          {question.solutionSteps && question.solutionSteps.length > 0 && (
+            <>
+              <h2 className="mt-10 scroll-m-20 border-b border-slate-200 pb-2 text-2xl font-semibold tracking-tight text-slate-900">
+                Solution
+              </h2>
+              <ol className="mt-4 space-y-4">
+                {question.solutionSteps.map((step, i) => (
+                  <li key={i} className="flex gap-3">
+                    <span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-900 text-xs font-bold text-white">
+                      {i + 1}
+                    </span>
+                    <span className="flex-1 text-[16px] leading-7 text-slate-800">
+                      <MathRenderer text={step} />
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </>
+          )}
+
+          {/* H2 — Final answer */}
+          {(question.finalAnswer || question.correctAnswer != null) && (
+            <>
+              <h2 className="mt-10 scroll-m-20 border-b border-slate-200 pb-2 text-2xl font-semibold tracking-tight text-slate-900">
+                Final answer
+              </h2>
+              <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-[18px] font-semibold leading-7 text-emerald-900">
+                <MathRenderer
+                  text={String(
+                    question.finalAnswer || question.correctAnswer || ''
+                  )}
+                />
+              </div>
+            </>
+          )}
+
+          {/* H2 — Common trap */}
+          {question.commonTrap && (
+            <>
+              <h2 className="mt-10 scroll-m-20 border-b border-slate-200 pb-2 text-2xl font-semibold tracking-tight text-slate-900">
+                Common trap
+              </h2>
+              <div className="mt-4 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-[16px] leading-7 text-amber-900">
+                <AlertTriangle
+                  className="mt-0.5 h-5 w-5 shrink-0 text-amber-700"
+                  strokeWidth={2.25}
+                />
+                <div className="flex-1">
+                  <MathRenderer text={question.commonTrap} />
                 </div>
               </div>
             </>
           )}
 
-          {/* H2 — Explanation */}
-          {question.explanation && (
-            <>
-              <h2 className="mt-10 scroll-m-20 border-b border-slate-200 pb-2 text-2xl font-semibold tracking-tight text-slate-900">
-                Explanation
-              </h2>
-              <div className="mt-4 text-[17px] leading-7 text-slate-800 [&_p]:mt-6 [&_p:first-child]:mt-0">
-                <MathRenderer text={question.explanation} />
+          {/* Formula note — only render when non-empty */}
+          {question.formulaNote && question.formulaNote.trim() !== '' && (
+            <div className="mt-8 flex items-start gap-2 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-[13px] leading-6 text-slate-600">
+              <Info className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
+              <div className="flex-1">
+                <span className="font-semibold text-slate-700">Note: </span>
+                {question.formulaNote}
               </div>
-            </>
-          )}
-
-          {/* H2 — Notes (meta) */}
-          {(question.cognitiveOperation ||
-            question.angle ||
-            question.trap ||
-            question.keyConstraint ||
-            question.depthLevel ||
-            question.statementStructure ||
-            question.distractorStrategy) && (
-            <>
-              <h2 className="mt-10 scroll-m-20 border-b border-slate-200 pb-2 text-2xl font-semibold tracking-tight text-slate-900">
-                Notes
-              </h2>
-              <ul className="my-6 ml-6 list-disc leading-7 text-slate-800 [&>li]:mt-2">
-                {question.cognitiveOperation && (
-                  <li>
-                    <span className="font-semibold">Cognitive operation:</span>{' '}
-                    {question.cognitiveOperation}
-                  </li>
-                )}
-                {question.angle && (
-                  <li>
-                    <span className="font-semibold">Angle:</span>{' '}
-                    {question.angle}
-                  </li>
-                )}
-                {question.trap && (
-                  <li>
-                    <span className="font-semibold">Trap:</span> {question.trap}
-                  </li>
-                )}
-                {question.keyConstraint && (
-                  <li>
-                    <span className="font-semibold">Key constraint:</span>{' '}
-                    {question.keyConstraint}
-                  </li>
-                )}
-                {question.depthLevel && (
-                  <li>
-                    <span className="font-semibold">Depth level:</span>{' '}
-                    {question.depthLevel}
-                  </li>
-                )}
-                {question.statementStructure && (
-                  <li>
-                    <span className="font-semibold">Statement structure:</span>{' '}
-                    {question.statementStructure}
-                  </li>
-                )}
-                {question.distractorStrategy && (
-                  <li>
-                    <span className="font-semibold">Distractor strategy:</span>{' '}
-                    {question.distractorStrategy}
-                  </li>
-                )}
-              </ul>
-            </>
+            </div>
           )}
         </>
       )}

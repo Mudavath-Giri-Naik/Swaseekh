@@ -10,10 +10,23 @@ interface FullQuestionCardProps {
     questionType: string
     options: string[]
     correctAnswer: string
-    explanation: string
     marks: number
     difficulty: string
     year: number
+    // New rich-explanation fields (all optional — older docs may omit them)
+    whatToFind?: string
+    plainRestatement?: string
+    realWorldScenario?: string
+    formulaUsed?: {
+      formulaId: string
+      name: string
+      plain: string
+      termsExplained: string[]
+    } | null
+    solutionSteps?: string[]
+    finalAnswer?: string
+    commonTrap?: string
+    formulaNote?: string
   }
   index: number
 }
@@ -137,18 +150,96 @@ export default function FullQuestionCard({ question, index }: FullQuestionCardPr
           <div style={{ fontSize: '14px', fontWeight: 600, color: '#15803D', background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: '8px', padding: '10px 16px', marginBottom: '12px' }}>
             Answer: {question.correctAnswer}
           </div>
-          {question.explanation && (
-            <div style={{ background: '#F9FAFB', border: '1px solid #F3F4F6', borderRadius: '8px', padding: '16px' }}>
-              <p style={{ fontSize: '11px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
-                Explanation
-              </p>
-              <div style={{ fontSize: '14px', lineHeight: 1.7, color: '#374151' }}>
-                <MathRenderer text={question.explanation} />
+          {question.whatToFind && (
+            <FQSection label="What to find">
+              <MathRenderer text={question.whatToFind} />
+            </FQSection>
+          )}
+          {question.plainRestatement && (
+            <FQSection label="In plain words">
+              <MathRenderer text={question.plainRestatement} />
+            </FQSection>
+          )}
+          {question.realWorldScenario && (
+            <FQSection label="Real-world scenario" bg="#F0F9FF" border="#BAE6FD">
+              <MathRenderer text={question.realWorldScenario} />
+            </FQSection>
+          )}
+          {question.formulaUsed && (
+            <FQSection label="Formula used" bg="#FAF5FF" border="#E9D5FF">
+              <div style={{ fontSize: '14px', fontWeight: 600, color: '#5B21B6' }}>
+                {question.formulaUsed.name}
               </div>
-            </div>
+              <div style={{ marginTop: 8, background: '#FFFFFF', borderRadius: 6, padding: '6px 10px', fontFamily: 'monospace', fontSize: '13px' }}>
+                <MathRenderer text={question.formulaUsed.plain} />
+              </div>
+              {question.formulaUsed.termsExplained?.length > 0 && (
+                <ul style={{ marginTop: 8, marginLeft: 18, listStyle: 'disc', fontSize: '13px', color: '#475569' }}>
+                  {question.formulaUsed.termsExplained.map((t: string, i: number) => (
+                    <li key={i}><MathRenderer text={t} /></li>
+                  ))}
+                </ul>
+              )}
+            </FQSection>
+          )}
+          {question.solutionSteps && question.solutionSteps.length > 0 && (
+            <FQSection label="Solution">
+              <ol style={{ margin: 0, paddingLeft: 0, listStyle: 'none' }}>
+                {question.solutionSteps.map((step: string, i: number) => (
+                  <li key={i} style={{ display: 'flex', gap: 8, marginTop: i === 0 ? 0 : 10 }}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 20, height: 20, borderRadius: 999, background: '#0F172A', color: '#fff', fontSize: 10, fontWeight: 700, flexShrink: 0, marginTop: 2 }}>
+                      {i + 1}
+                    </span>
+                    <span style={{ flex: 1, fontSize: '13.5px', lineHeight: 1.65 }}>
+                      <MathRenderer text={step} />
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </FQSection>
+          )}
+          {question.finalAnswer && (
+            <FQSection label="Final answer" bg="#ECFDF5" border="#A7F3D0">
+              <div style={{ fontSize: '15px', fontWeight: 600, color: '#065F46' }}>
+                <MathRenderer text={question.finalAnswer} />
+              </div>
+            </FQSection>
+          )}
+          {question.commonTrap && (
+            <FQSection label="Common trap" bg="#FFFBEB" border="#FDE68A">
+              <MathRenderer text={question.commonTrap} />
+            </FQSection>
+          )}
+          {question.formulaNote && question.formulaNote.trim() !== '' && (
+            <p style={{ marginTop: 12, fontSize: 12, fontStyle: 'italic', color: '#64748B' }}>
+              Note: {question.formulaNote}
+            </p>
           )}
         </div>
       )}
+    </div>
+  )
+}
+
+function FQSection({
+  label,
+  children,
+  bg = '#F9FAFB',
+  border = '#F3F4F6',
+}: {
+  label: string
+  children: React.ReactNode
+  bg?: string
+  border?: string
+}) {
+  return (
+    <div style={{ marginTop: 12, background: bg, border: `1px solid ${border}`, borderRadius: 8, padding: 16 }}>
+      <p style={{ fontSize: 11, fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>
+        {label}
+      </p>
+      <div style={{ fontSize: 14, lineHeight: 1.65, color: '#1F2937' }}>
+        {children}
+      </div>
     </div>
   )
 }

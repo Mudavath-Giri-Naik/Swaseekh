@@ -120,41 +120,114 @@ export default function QuestionDrawer({ question, isOpen, onClose, topicName }:
                   Correct Answer: {question.correctAnswer}
                 </div>
 
-                {question.explanation && (
-                  <div className="bg-gray-50 border border-gray-100 rounded-lg p-5">
-                    <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-3">
-                      Explanation
-                    </p>
-                    <div className="text-[14px] leading-relaxed text-gray-700">
-                      <MathRenderer text={question.explanation} />
-                    </div>
-                  </div>
+                {question.whatToFind && (
+                  <Section label="What to find">
+                    <MathRenderer text={question.whatToFind} />
+                  </Section>
                 )}
 
-                {/* Extra metadata */}
-                {(question.trap || question.angle || question.cognitiveOperation) && (
-                  <div className="mt-4 space-y-2">
-                    {question.trap && (
-                      <div className="text-[13px] text-gray-600">
-                        <span className="font-semibold text-amber-700">Trap:</span> {question.trap}
-                      </div>
+                {question.plainRestatement && (
+                  <Section label="In plain words">
+                    <MathRenderer text={question.plainRestatement} />
+                  </Section>
+                )}
+
+                {question.realWorldScenario && (
+                  <Section label="Real-world scenario" tone="sky">
+                    <MathRenderer text={question.realWorldScenario} />
+                  </Section>
+                )}
+
+                {question.formulaUsed && (
+                  <Section label="Formula used" tone="violet">
+                    <div className="text-[14px] font-semibold text-violet-900">
+                      {question.formulaUsed.name}
+                    </div>
+                    <div className="mt-2 rounded bg-white px-2.5 py-1.5 font-mono text-[13px] text-slate-900 ring-1 ring-violet-100">
+                      <MathRenderer text={question.formulaUsed.plain} />
+                    </div>
+                    {question.formulaUsed.termsExplained?.length > 0 && (
+                      <ul className="mt-2 ml-4 list-disc space-y-0.5 text-[12.5px] text-slate-700">
+                        {question.formulaUsed.termsExplained.map((t, i) => (
+                          <li key={i}>
+                            <MathRenderer text={t} />
+                          </li>
+                        ))}
+                      </ul>
                     )}
-                    {question.angle && (
-                      <div className="text-[13px] text-gray-600">
-                        <span className="font-semibold text-blue-700">Angle:</span> {question.angle}
-                      </div>
-                    )}
-                    {question.cognitiveOperation && (
-                      <div className="text-[13px] text-gray-600">
-                        <span className="font-semibold text-purple-700">Cognitive Op:</span> {question.cognitiveOperation}
-                      </div>
-                    )}
-                  </div>
+                  </Section>
+                )}
+
+                {question.solutionSteps && question.solutionSteps.length > 0 && (
+                  <Section label="Solution">
+                    <ol className="space-y-2">
+                      {question.solutionSteps.map((step, i) => (
+                        <li key={i} className="flex gap-2 text-[13px] leading-6 text-gray-800">
+                          <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-900 text-[10px] font-bold text-white">
+                            {i + 1}
+                          </span>
+                          <span className="flex-1">
+                            <MathRenderer text={step} />
+                          </span>
+                        </li>
+                      ))}
+                    </ol>
+                  </Section>
+                )}
+
+                {question.finalAnswer && (
+                  <Section label="Final answer" tone="emerald">
+                    <div className="text-[15px] font-semibold text-emerald-900">
+                      <MathRenderer text={question.finalAnswer} />
+                    </div>
+                  </Section>
+                )}
+
+                {question.commonTrap && (
+                  <Section label="Common trap" tone="amber">
+                    <MathRenderer text={question.commonTrap} />
+                  </Section>
+                )}
+
+                {question.formulaNote && question.formulaNote.trim() !== '' && (
+                  <p className="mt-3 text-[12px] italic text-slate-500">
+                    Note: {question.formulaNote}
+                  </p>
                 )}
               </div>
             )}
           </div>
       </SheetContent>
     </Sheet>
+  )
+}
+
+/* ─── Section helper: labelled card used for each explanation block ──── */
+
+const TONES: Record<string, { card: string; label: string }> = {
+  gray:    { card: 'bg-gray-50 border-gray-200',         label: 'text-gray-500' },
+  sky:     { card: 'bg-sky-50/60 border-sky-200',        label: 'text-sky-700' },
+  violet:  { card: 'bg-violet-50/60 border-violet-200',  label: 'text-violet-700' },
+  emerald: { card: 'bg-emerald-50 border-emerald-200',   label: 'text-emerald-700' },
+  amber:   { card: 'bg-amber-50 border-amber-200',       label: 'text-amber-700' },
+}
+
+function Section({
+  label,
+  tone = 'gray',
+  children,
+}: {
+  label: string
+  tone?: keyof typeof TONES
+  children: React.ReactNode
+}) {
+  const t = TONES[tone] ?? TONES.gray
+  return (
+    <div className={`mt-4 rounded-lg border px-4 py-3 ${t.card}`}>
+      <p className={`mb-2 text-[11px] font-semibold uppercase tracking-wider ${t.label}`}>
+        {label}
+      </p>
+      <div className="text-[14px] leading-relaxed text-gray-800">{children}</div>
+    </div>
   )
 }
