@@ -18,9 +18,10 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, ChevronDown, AlertTriangle, MessageSquareText } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import 'katex/dist/katex.min.css'
 import { InlineMath, BlockMath } from 'react-katex'
+import FormulaStoryDialog, { type StoryFormula } from './FormulaStoryDialog'
 
 /* ─── Types ────────────────────────────────────────────────────────── */
 
@@ -67,15 +68,27 @@ interface Props {
   questionCounts?: Record<string, number>
 }
 
-/* ─── Highlighter palette — blue family only, cycles per group ──────── */
+/* ─── Poster palette — pastel cards, one per group, cycled ─────────── */
 
-const HIGHLIGHT = [
-  '#bae6fd', // sky-200 (light)
-  '#93c5fd', // blue-300 (medium)
-  '#a5f3fc', // cyan-200
-  '#bfdbfe', // blue-200
-  '#c7d2fe', // indigo-200
-  '#7dd3fc', // sky-300 (medium-dark)
+type Palette = {
+  card: string      // soft tinted background for the card body
+  border: string    // matching subtle border
+  headerText: string
+  headerBar: string // tint behind the card header
+  num: string       // numbered circle (bg+text)
+  accent: string    // accent text color
+}
+
+const POSTER_PALETTES: Palette[] = [
+  { card: 'bg-blue-50',    border: 'border-blue-200',    headerText: 'text-blue-800',    headerBar: 'bg-blue-100',    num: 'bg-blue-500',    accent: 'text-blue-600' },
+  { card: 'bg-orange-50',  border: 'border-orange-200',  headerText: 'text-orange-800',  headerBar: 'bg-orange-100',  num: 'bg-orange-500',  accent: 'text-orange-600' },
+  { card: 'bg-emerald-50', border: 'border-emerald-200', headerText: 'text-emerald-800', headerBar: 'bg-emerald-100', num: 'bg-emerald-500', accent: 'text-emerald-600' },
+  { card: 'bg-amber-50',   border: 'border-amber-200',   headerText: 'text-amber-800',   headerBar: 'bg-amber-100',   num: 'bg-amber-500',   accent: 'text-amber-600' },
+  { card: 'bg-rose-50',    border: 'border-rose-200',    headerText: 'text-rose-800',    headerBar: 'bg-rose-100',    num: 'bg-rose-500',    accent: 'text-rose-600' },
+  { card: 'bg-violet-50',  border: 'border-violet-200',  headerText: 'text-violet-800',  headerBar: 'bg-violet-100',  num: 'bg-violet-500',  accent: 'text-violet-600' },
+  { card: 'bg-sky-50',     border: 'border-sky-200',     headerText: 'text-sky-800',     headerBar: 'bg-sky-100',     num: 'bg-sky-500',     accent: 'text-sky-600' },
+  { card: 'bg-pink-50',    border: 'border-pink-200',    headerText: 'text-pink-800',    headerBar: 'bg-pink-100',    num: 'bg-pink-500',    accent: 'text-pink-600' },
+  { card: 'bg-teal-50',    border: 'border-teal-200',    headerText: 'text-teal-800',    headerBar: 'bg-teal-100',    num: 'bg-teal-500',    accent: 'text-teal-600' },
 ]
 
 /* ─── Component ────────────────────────────────────────────────────── */
@@ -122,67 +135,89 @@ export default function ConceptFormulaSheet({
 
   const questionCounts = externalCounts ?? fetchedCounts ?? {}
 
-  const Body = (
-    <>
-      {!inline && (
-        <header className="mt-4 text-center">
-          <h1
-            className="text-balance text-[1.85rem] font-bold leading-[1.05] text-sky-700 sm:text-[2.2rem]"
-            style={{ fontFamily: 'var(--font-handwriting), Caveat, cursive' }}
-          >
-            ✦ {conceptTitle || 'Untitled concept'} ✦
-          </h1>
-          {reference && (
-            <p className="mt-1 text-[10.5px] italic text-slate-400 sm:text-[11px]">
-              {reference}
-            </p>
-          )}
-        </header>
-      )}
+  // Story dialog state — shared across all groups so each tap can open
+  // a fullscreen carousel of just that group's formulas.
+  const [storyOpen, setStoryOpen] = useState(false)
+  const [storyFormulas, setStoryFormulas] = useState<StoryFormula[]>([])
+  const [storyIndex, setStoryIndex] = useState(0)
+  const openStory = (formulas: StoryFormula[], index: number) => {
+    setStoryFormulas(formulas)
+    setStoryIndex(index)
+    setStoryOpen(true)
+  }
 
-      {/* Top counts strip */}
-      <p className="mt-2 text-center text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
-        {groupList.length} group{groupList.length !== 1 ? 's' : ''} ·{' '}
-        {totalFormulas} formula{totalFormulas !== 1 ? 's' : ''}
-      </p>
+  // Always 2 columns for the poster grid — keeps the 9:16 layout dense
+  // and readable. Larger group counts simply stack into more rows.
+  const numCols = 2
 
-      {decisionGuide && <DecisionGuidePanel guide={decisionGuide} />}
+  const Poster = (
+    <div
+      className="poster mx-auto flex w-full max-w-[440px] flex-col overflow-hidden rounded-2xl bg-white shadow-[0_4px_24px_-8px_rgba(0,0,0,0.12)] ring-1 ring-slate-200"
+    >
+      {/* ── Banner ─────────────────────────────────────────────────── */}
+      <div className="relative shrink-0 bg-gradient-to-br from-indigo-50 via-sky-50 to-blue-100 px-3 py-2 text-center">
+        <h1
+          className="text-balance text-[1.35rem] font-extrabold leading-[1.05] text-indigo-900"
+          style={{ fontFamily: 'var(--font-handwriting), Caveat, cursive' }}
+        >
+          {conceptTitle || 'Untitled concept'}
+        </h1>
+      </div>
 
-      {groupList.map((group, gIdx) => (
-        <GroupSection
-          key={group.groupId ?? gIdx}
-          group={group}
-          colourIndex={gIdx}
-          groupIndex={gIdx + 1}
-          totalGroups={groupList.length}
-          questionCounts={questionCounts}
-        />
-      ))}
+      {/* ── Decision strip ────────────────────────────────────────── */}
+      {decisionGuide && <DecisionStrip guide={decisionGuide} />}
 
-      {!inline && reference && (
-        <p className="mt-7 border-t border-slate-200 pt-3 text-center text-[10.5px] italic text-slate-400">
-          {reference}
-        </p>
-      )}
-    </>
+      {/* ── Group grid (masonry — cards take only the height they need) ── */}
+      <div className="min-h-0 flex-1 p-1.5">
+        <div className="columns-2 gap-1.5 [column-fill:balance]">
+          {groupList.map((group, gIdx) => (
+            <div key={group.groupId ?? gIdx} className="mb-1.5 break-inside-avoid">
+              <PosterCard
+                group={group}
+                number={gIdx + 1}
+                palette={POSTER_PALETTES[gIdx % POSTER_PALETTES.length]}
+                onOpenStory={openStory}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Footer ────────────────────────────────────────────────── */}
+      <div className="flex shrink-0 items-center justify-between gap-2 border-t border-slate-100 bg-slate-50/70 px-3 py-1.5 text-[9px] font-medium text-slate-500">
+        <span>
+          {groupList.length} groups · {totalFormulas} formulas
+        </span>
+        <span className="italic">Tap any formula for details</span>
+      </div>
+    </div>
   )
 
-  // ─── Inline mode: a single bordered notebook box, graph-paper inside ──
+  const StoryHost = (
+    <FormulaStoryDialog
+      open={storyOpen}
+      onOpenChange={setStoryOpen}
+      formulas={storyFormulas}
+      startIndex={storyIndex}
+      questionCounts={questionCounts}
+    />
+  )
+
+  // ─── Inline mode ─────────────────────────────────────────────────────
   if (inline) {
     return (
       <div className="cc-sheet-inline mt-2">
-        <div className="notebook-bg rounded-2xl border-2 border-sky-300/70 p-3 shadow-[0_2px_10px_-4px_rgba(56,132,226,0.18)] sm:p-4">
-          {Body}
-        </div>
+        {Poster}
         <FormulaSheetStyles />
+        {StoryHost}
       </div>
     )
   }
 
-  // ─── Full-page mode: white outside, bordered notebook box inside ─────
+  // ─── Full-page mode ──────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-white">
-      <article className="mx-auto max-w-[760px] px-3 py-3 sm:px-5 sm:py-5">
+    <div className="min-h-screen bg-slate-50">
+      <article className="mx-auto max-w-[480px] px-3 py-3 sm:px-5 sm:py-5">
         <Link
           href={backHref}
           className="inline-flex items-center gap-1.5 text-[12px] text-slate-500 transition-colors hover:text-slate-900"
@@ -190,275 +225,97 @@ export default function ConceptFormulaSheet({
           <ArrowLeft className="h-3.5 w-3.5" />
           {backLabel}
         </Link>
-        <div className="notebook-bg mt-3 rounded-2xl border-2 border-sky-300/70 p-4 shadow-[0_4px_18px_-6px_rgba(56,132,226,0.22)] sm:p-5">
-          {Body}
-        </div>
+        <div className="mt-3">{Poster}</div>
+        {reference && (
+          <p className="mt-3 text-center text-[10.5px] italic text-slate-400">
+            {reference}
+          </p>
+        )}
       </article>
       <FormulaSheetStyles />
+      {StoryHost}
     </div>
   )
 }
 
-/* ─── Decision-guide panel ──────────────────────────────────────────── */
+/* ─── Decision strip — compact horizontal panel under the banner ───── */
 
-function DecisionGuidePanel({ guide }: { guide: DecisionGuide }) {
-  const { title, questions, map } = guide
+function DecisionStrip({ guide }: { guide: DecisionGuide }) {
+  const { title, map } = guide
   return (
-    <section className="mt-3">
-      <HighlightedHeading color="#7dd3fc" extraIcon="⭐">
-        {title || 'Decision guide'}
-      </HighlightedHeading>
-
-      {questions && questions.length > 0 && (
-        <ul className="mt-1.5 space-y-0.5 text-[12.5px] text-slate-700 sm:text-[13px]">
-          {questions.map((q, i) => (
-            <li key={i} className="flex gap-1.5">
-              <span className="font-bold text-sky-700">Q{i + 1}.</span>
-              <span className="flex-1">{q}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-
+    <div className="shrink-0 border-y border-slate-100 bg-slate-50/60 px-2.5 py-1.5">
+      <div className="text-center text-[8px] font-bold uppercase tracking-[0.18em] text-slate-500">
+        {title || 'Which formula do I use?'}
+      </div>
       {map && map.length > 0 && (
-        <div className="mt-2 grid gap-x-4 gap-y-1 sm:grid-cols-2">
+        <div className="mt-1 grid grid-cols-2 gap-x-2 gap-y-0.5">
           {map.map((row, i) => (
-            <div
-              key={i}
-              className="flex items-baseline gap-1.5 text-[12.5px] sm:text-[13px]"
-            >
-              <span aria-hidden className="text-sky-500">★</span>
-              <span className="flex-1 text-slate-700">{row.condition}</span>
-              <span aria-hidden className="text-slate-400">→</span>
-              <span className="inline-block max-w-full overflow-hidden rounded-md border border-sky-300/70 bg-white/60 px-1.5 py-0.5">
+            <div key={i} className="flex items-baseline gap-1 text-[8.5px] leading-tight text-slate-700">
+              <span className="flex-1 truncate">{row.condition}</span>
+              <span aria-hidden className="text-slate-300">→</span>
+              <span className="cc-decision-mini shrink-0">
                 {row.use ? <SafeMath latex={row.use} inline /> : null}
               </span>
             </div>
           ))}
         </div>
       )}
-    </section>
-  )
-}
-
-/* ─── Group section ────────────────────────────────────────────────── */
-
-function GroupSection({
-  group,
-  colourIndex,
-  groupIndex,
-  totalGroups,
-  questionCounts,
-}: {
-  group: Group
-  colourIndex: number
-  groupIndex: number
-  totalGroups: number
-  questionCounts: Record<string, number>
-}) {
-  const color = HIGHLIGHT[colourIndex % HIGHLIGHT.length]
-  const formulas = group.formulas ?? []
-  return (
-    <section className="mt-4">
-      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-        <HighlightedHeading color={color}>
-          {groupIndex}. {group.groupTitle ?? 'Group'}
-        </HighlightedHeading>
-        <span className="text-[10.5px] font-medium text-slate-500 sm:text-[11px]">
-          {groupIndex} / {totalGroups} · {formulas.length} formula
-          {formulas.length !== 1 ? 's' : ''}
-        </span>
-      </div>
-
-      <div className="mt-1.5 grid gap-x-5 gap-y-2 sm:grid-cols-2">
-        {formulas.map((f, fIdx) => (
-          <FormulaRow
-            key={f.formulaId ?? fIdx}
-            formula={f}
-            number={fIdx + 1}
-            total={formulas.length}
-            questionCount={f.formulaId ? (questionCounts[f.formulaId] ?? 0) : 0}
-          />
-        ))}
-      </div>
-    </section>
-  )
-}
-
-/* ─── Formula row — flows on the page, no card background ──────────── */
-
-function FormulaRow({
-  formula,
-  number,
-  total,
-  questionCount,
-}: {
-  formula: Formula
-  number: number
-  total: number
-  questionCount: number
-}) {
-  const [open, setOpen] = useState(false)
-  const hasExtras =
-    (formula.terms && formula.terms.length > 0) || !!formula.trap
-
-  const hasQuestions = questionCount > 0
-  const countLabel = `${questionCount} question${questionCount !== 1 ? 's' : ''}`
-
-  return (
-    <div data-formula-id={formula.formulaId ?? undefined} className="py-0.5">
-      <button
-        type="button"
-        onClick={() => hasExtras && setOpen((v) => !v)}
-        disabled={!hasExtras}
-        aria-expanded={open}
-        className="block w-full text-left"
-      >
-        {/* Name row: star bullet + number + name + question count badge */}
-        <div className="flex items-baseline gap-1.5">
-          <span aria-hidden className="text-sky-500">★</span>
-          <span
-            className="flex-1 text-[14px] font-semibold leading-tight text-slate-800 sm:text-[15px]"
-            style={{ fontFamily: 'var(--font-handwriting), Caveat, cursive' }}
-          >
-            {number}. {formula.name}
-          </span>
-          <span className="shrink-0 text-[10px] font-medium text-slate-400">
-            {number}/{total}
-          </span>
-        </div>
-
-        {/* Formula expression — thin blue-tinted full-width frame.
-            Uses overflow-hidden so wide formulas never show a scrollbar;
-            we rely on the smaller KaTeX font size (set globally below)
-            to ensure formulas fit inside the column. */}
-        {formula.latex && (
-          <div className="cc-formula-frame mt-1 block w-full overflow-hidden rounded-md border border-sky-300/70 bg-white/50 px-2 py-1 text-center">
-            <SafeMath latex={formula.latex} fallback={formula.plain} />
-          </div>
-        )}
-
-        {/* When-to-use line */}
-        {formula.whenToUse && (
-          <div className="mt-1 flex items-start gap-1 pl-4 text-[11.5px] leading-[1.45] text-slate-600 sm:text-[12px]">
-            <span aria-hidden className="mt-px text-slate-400">→</span>
-            <span className="flex-1">{formula.whenToUse}</span>
-          </div>
-        )}
-
-        {/* Question count badge — clickable, navigates to /gate/questions?formula=X */}
-        {formula.formulaId && (
-          <div className="mt-1 pl-4">
-            <Link
-              href={`/gate/questions?formula=${encodeURIComponent(formula.formulaId)}`}
-              onClick={(e) => e.stopPropagation()}
-              className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10.5px] font-semibold transition-all
-                ${hasQuestions
-                  ? 'border border-violet-300 bg-violet-50 text-violet-700 hover:bg-violet-100 hover:border-violet-400 hover:shadow-sm'
-                  : 'border border-slate-200 bg-slate-50 text-slate-400 cursor-default'
-                }
-              `}
-              title={hasQuestions ? `View ${countLabel} using this formula` : 'No linked questions yet'}
-            >
-              <MessageSquareText className={`h-3 w-3 ${hasQuestions ? 'text-violet-500' : 'text-slate-300'}`} />
-              {countLabel}
-            </Link>
-          </div>
-        )}
-
-        {/* Expand affordance — tiny, only when there are details */}
-        {hasExtras && (
-          <div className="mt-0.5 flex items-center gap-0.5 pl-4 text-[10.5px] font-medium text-slate-400">
-            <ChevronDown
-              className={`h-3 w-3 transition-transform ${open ? 'rotate-180' : ''}`}
-            />
-            <span>{open ? 'hide' : 'tap for terms'}</span>
-          </div>
-        )}
-      </button>
-
-      {/* Expandable body */}
-      <div
-        className={`grid overflow-hidden transition-[grid-template-rows] duration-200 ease-out ${
-          open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
-        }`}
-      >
-        <div className="min-h-0">
-          <div className="mt-1 space-y-1.5 pl-4">
-            {formula.terms && formula.terms.length > 0 && (
-              <dl className="space-y-0.5">
-                {formula.terms.map((t, i) => (
-                  <div
-                    key={i}
-                    className="flex items-baseline gap-1.5 text-[11.5px] sm:text-[12px]"
-                  >
-                    <dt className="shrink-0">
-                      {t.symbol ? <SafeMath latex={t.symbol} inline /> : '?'}
-                    </dt>
-                    <dd className="text-slate-400">=</dd>
-                    <dd className="flex-1 leading-[1.45] text-slate-600">
-                      {t.means}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-            )}
-
-            {formula.trap && (
-              <div className="flex items-start gap-1 text-[11.5px] text-amber-800 sm:text-[12px]">
-                <AlertTriangle
-                  className="mt-0.5 h-3 w-3 shrink-0 text-amber-600"
-                  strokeWidth={2.5}
-                />
-                <div className="leading-[1.45]">
-                  <span className="font-semibold">Watch out:</span>{' '}
-                  {formula.trap}
-                </div>
-              </div>
-            )}
-
-            {formula.reference && (
-              <p className="text-[10px] italic text-slate-400">
-                {formula.reference}
-              </p>
-            )}
-          </div>
-        </div>
-      </div>
     </div>
   )
 }
 
-/* ─── HighlightedHeading — handwriting text with pastel swash behind ── */
+/* ─── Poster card — one colored group card ─────────────────────────── */
 
-function HighlightedHeading({
-  children,
-  color,
-  extraIcon,
+function PosterCard({
+  group,
+  number,
+  palette,
+  onOpenStory,
 }: {
-  children: React.ReactNode
-  color: string
-  extraIcon?: string
+  group: Group
+  number: number
+  palette: Palette
+  onOpenStory: (formulas: StoryFormula[], index: number) => void
 }) {
+  const formulas = group.formulas ?? []
   return (
-    <h3 className="relative inline-block">
-      <span
-        aria-hidden
-        className="absolute -inset-x-1.5 inset-y-0.5 -z-0 rounded"
-        style={{
-          background: color,
-          transform: 'rotate(-1.2deg)',
-          opacity: 0.7,
-        }}
-      />
-      <span
-        className="relative z-10 px-1.5 text-[1.2rem] font-bold leading-tight text-slate-900 sm:text-[1.4rem]"
-        style={{ fontFamily: 'var(--font-handwriting), Caveat, cursive' }}
+    <div
+      className={`overflow-hidden rounded-lg border ${palette.card} ${palette.border}`}
+    >
+      <div
+        className={`px-1.5 py-0.5 text-center text-[8.5px] font-extrabold uppercase leading-tight tracking-[0.06em] ${palette.headerText} ${palette.headerBar}`}
       >
-        {extraIcon ? `${extraIcon} ` : ''}
-        {children}
-      </span>
-    </h3>
+        {number}. {group.groupTitle ?? 'Group'}
+      </div>
+      <ol className="space-y-0.5 px-1.5 pb-1.5 pt-1">
+        {formulas.map((f, fIdx) => (
+          <li key={f.formulaId ?? fIdx}>
+            <button
+              type="button"
+              onClick={() => onOpenStory(formulas, fIdx)}
+              data-formula-id={f.formulaId ?? undefined}
+              className="group block w-full rounded text-left transition-colors hover:bg-white/70"
+            >
+              <div className="flex items-baseline gap-1">
+                <span
+                  className={`mt-px inline-flex h-3 w-3 shrink-0 items-center justify-center rounded-full text-[7px] font-bold leading-none text-white ${palette.num}`}
+                >
+                  {fIdx + 1}
+                </span>
+                <span className="flex-1 text-[8.5px] font-semibold leading-tight text-slate-800">
+                  {f.name}
+                </span>
+              </div>
+              {f.latex && (
+                <div className="cc-poster-formula pl-3.5 leading-none text-slate-700">
+                  <SafeMath latex={f.latex} fallback={f.plain} inline />
+                </div>
+              )}
+            </button>
+          </li>
+        ))}
+      </ol>
+    </div>
   )
 }
 
@@ -467,36 +324,17 @@ function HighlightedHeading({
 function FormulaSheetStyles() {
   return (
     <style jsx global>{`
-      .notebook-bg {
-        background-color: #fdfcf7;
-        background-image:
-          linear-gradient(
-            to right,
-            rgba(56, 132, 226, 0.08) 1px,
-            transparent 1px
-          ),
-          linear-gradient(
-            to bottom,
-            rgba(56, 132, 226, 0.08) 1px,
-            transparent 1px
-          );
-        background-size: 22px 22px;
+      /* Poster: ultra-compact KaTeX so formulas fit inside the small cards */
+      .poster .cc-poster-formula .katex {
+        font-size: 0.72em;
+        line-height: 1;
       }
-      /* Shrink KaTeX inside the formula sheet so most formulas fit
-         within the column width without needing to scroll. */
-      .cc-sheet-inline .katex,
-      .notebook-bg .katex {
-        font-size: 0.85em;
+      .poster .cc-poster-formula {
+        overflow: hidden;
+        white-space: nowrap;
       }
-      .cc-sheet-inline .katex-display,
-      .notebook-bg .katex-display {
-        font-size: 0.85em;
-        margin: 0;
-      }
-      /* Hide any KaTeX-rendered scroll affordance just in case */
-      .cc-sheet-inline .katex-display > .katex,
-      .notebook-bg .katex-display > .katex {
-        white-space: normal;
+      .poster .cc-decision-mini .katex {
+        font-size: 0.68em;
       }
     `}</style>
   )

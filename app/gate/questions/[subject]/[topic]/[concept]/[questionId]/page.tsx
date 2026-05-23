@@ -10,11 +10,11 @@ import {
   ChevronDown,
   SlidersHorizontal,
   Check,
-  FlaskConical,
   Lightbulb,
 } from 'lucide-react'
 import MathRenderer from '@/components/MathRenderer'
 import { slugify, cn } from '@/lib/utils'
+import { formulaBadgePalette } from '@/lib/formula-palette'
 import {
   Drawer,
   DrawerClose,
@@ -335,19 +335,17 @@ export default function QuestionDetailPage() {
           </span>
           {question.formulaIds.map((fId) => {
             const isPrimary = fId === question.formulaId
+            const palette = formulaBadgePalette(fId)
             return (
               <Link
                 key={fId}
                 href={`/gate/questions?formula=${encodeURIComponent(fId)}`}
-                className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold transition-colors
-                  ${isPrimary
-                    ? 'bg-violet-600 text-white hover:bg-violet-700'
-                    : 'border border-violet-300 bg-violet-50 text-violet-700 hover:bg-violet-100'
-                  }
+                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium transition-colors
+                  ${palette.bg} ${palette.text} ${palette.hover}
+                  ${isPrimary ? 'ring-1 ring-inset ' + palette.ring : ''}
                 `}
                 title={isPrimary ? `Primary formula: ${formulaIdToName(fId)}` : formulaIdToName(fId)}
               >
-                <FlaskConical className="h-3 w-3" />
                 {formulaIdToName(fId)}
               </Link>
             )

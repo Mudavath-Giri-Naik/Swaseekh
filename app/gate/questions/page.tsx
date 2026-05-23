@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/input-group"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
+import { formulaBadgePalette } from "@/lib/formula-palette"
 
 interface Question {
   _id: string
@@ -524,6 +525,7 @@ function QuestionsListPageInner() {
                         {q.formulaIds.map((fId) => {
                           const isPrimary = fId === q.formulaId
                           const fName = formulaNameMap[fId] || formulaIdToName(fId)
+                          const palette = formulaBadgePalette(fId)
                           return (
                             <button
                               key={fId}
@@ -533,16 +535,13 @@ function QuestionsListPageInner() {
                                 e.stopPropagation()
                                 setSelectedFormula((prev) => prev === fId ? '' : fId)
                               }}
-                              className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-semibold transition-colors
-                                ${isPrimary
-                                  ? 'bg-violet-600 text-white hover:bg-violet-700'
-                                  : 'border border-violet-300 text-violet-700 bg-violet-50 hover:bg-violet-100'
-                                }
-                                ${selectedFormula === fId ? 'ring-2 ring-violet-400 ring-offset-1' : ''}
+                              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium transition-colors
+                                ${palette.bg} ${palette.text} ${palette.hover}
+                                ${isPrimary ? 'ring-1 ring-inset ' + palette.ring : ''}
+                                ${selectedFormula === fId ? 'outline outline-2 outline-offset-1 outline-violet-400' : ''}
                               `}
                               title={isPrimary ? `Primary formula: ${fName}` : fName}
                             >
-                              <FlaskConical className="h-2.5 w-2.5" />
                               {fName}
                             </button>
                           )
@@ -583,29 +582,28 @@ function QuestionsListPageInner() {
                   onClick={() => toggleSort('year')}
                 />
                 <SortableTableHead
+                  label="Difficulty"
+                  active={sort.by === 'difficulty'}
+                  order={sort.order}
+                  onClick={() => toggleSort('difficulty')}
+                />
+                <SortableTableHead
                   label="Marks"
                   active={sort.by === 'marks'}
                   order={sort.order}
                   onClick={() => toggleSort('marks')}
                 />
                 <TableHead>Type</TableHead>
-                <SortableTableHead
-                  label="Difficulty"
-                  active={sort.by === 'difficulty'}
-                  order={sort.order}
-                  onClick={() => toggleSort('difficulty')}
-                />
                 <TableHead>Formula</TableHead>
                 <TableHead>Subject</TableHead>
                 <TableHead>Topic</TableHead>
                 <TableHead>Concept</TableHead>
-                <TableHead>Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredQuestions.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={11} className="text-center py-12 text-gray-500">
+                  <TableCell colSpan={10} className="text-center py-12 text-gray-500">
                     No questions found for this selection.
                   </TableCell>
                 </TableRow>
@@ -636,6 +634,12 @@ function QuestionsListPageInner() {
                       </TableCell>
 
                       <TableCell>
+                        <Badge variant="outline" className={`${dColor.bg} ${dColor.text} ${dColor.border} text-[10px] uppercase font-bold border shadow-none`}>
+                          {q.difficulty}
+                        </Badge>
+                      </TableCell>
+
+                      <TableCell>
                         <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-gray-100 text-gray-600 whitespace-nowrap">
                           {q.marks} Mark{q.marks > 1 ? 's' : ''}
                         </span>
@@ -648,17 +652,12 @@ function QuestionsListPageInner() {
                       </TableCell>
 
                       <TableCell>
-                        <Badge variant="outline" className={`${dColor.bg} ${dColor.text} ${dColor.border} text-[10px] uppercase font-bold border shadow-none`}>
-                          {q.difficulty}
-                        </Badge>
-                      </TableCell>
-
-                      <TableCell>
                         {q.formulaIds && q.formulaIds.length > 0 ? (
-                          <div className="flex flex-wrap gap-1 max-w-[200px]">
+                          <div className="flex flex-nowrap items-center gap-1.5 whitespace-nowrap">
                             {q.formulaIds.map((fId) => {
                               const isPrimary = fId === q.formulaId
                               const fName = formulaNameMap[fId] || formulaIdToName(fId)
+                              const palette = formulaBadgePalette(fId)
                               return (
                                 <button
                                   key={fId}
@@ -667,17 +666,14 @@ function QuestionsListPageInner() {
                                     e.stopPropagation()
                                     setSelectedFormula((prev) => prev === fId ? '' : fId)
                                   }}
-                                  className={`inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[10px] font-semibold transition-colors truncate max-w-[120px]
-                                    ${isPrimary
-                                      ? 'bg-violet-600 text-white hover:bg-violet-700'
-                                      : 'border border-violet-300 text-violet-700 bg-violet-50 hover:bg-violet-100'
-                                    }
-                                    ${selectedFormula === fId ? 'ring-2 ring-violet-400 ring-offset-1' : ''}
+                                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium transition-colors
+                                    ${palette.bg} ${palette.text} ${palette.hover}
+                                    ${isPrimary ? 'ring-1 ring-inset ' + palette.ring : ''}
+                                    ${selectedFormula === fId ? 'outline outline-2 outline-offset-1 outline-violet-400' : ''}
                                   `}
                                   title={isPrimary ? `Primary: ${fName}` : fName}
                                 >
-                                  <FlaskConical className="h-2.5 w-2.5 shrink-0" />
-                                  <span className="truncate">{fName}</span>
+                                  {fName}
                                 </button>
                               )
                             })}
@@ -705,25 +701,6 @@ function QuestionsListPageInner() {
                         </div>
                       </TableCell>
 
-                      <TableCell
-                        className="whitespace-nowrap cursor-pointer hover:bg-gray-100/50 transition-colors"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSolvedStatuses(prev => ({ ...prev, [q._id]: !prev[q._id] }));
-                        }}
-                      >
-                        <div className="flex items-center h-full">
-                          {solvedStatuses[q._id] ? (
-                            <span className="flex items-center gap-1.5 text-green-600 text-xs font-medium leading-none">
-                              <CheckCircle2 className="w-[14px] h-[14px]" /> Solved
-                            </span>
-                          ) : (
-                            <span className="flex items-center gap-1.5 text-gray-400 text-xs font-medium leading-none">
-                              <Circle className="w-[14px] h-[14px]" /> Unsolved
-                            </span>
-                          )}
-                        </div>
-                      </TableCell>
                     </TableRow>
                   )
                 })

@@ -266,34 +266,80 @@ export default function SubjectDocumentPage() {
         </select>
       </div>
 
-      {/* ── Desktop Layout: Sidebar + Content ─────────────────────────── */}
+      {/* ── Top Chips Bar (Desktop) ───────────────────────────────────── */}
+      <div
+        className="doc-chips-bar"
+        style={{
+          position: 'sticky',
+          top: 48,
+          zIndex: 20,
+          background: 'rgba(250, 250, 248, 0.92)',
+          backdropFilter: 'saturate(140%) blur(8px)',
+          WebkitBackdropFilter: 'saturate(140%) blur(8px)',
+          borderBottom: '1px solid #ececea',
+        }}
+      >
+        <div
+          style={{
+            maxWidth: 1080,
+            margin: '0 auto',
+            padding: '10px 24px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            flexWrap: 'wrap',
+          }}
+        >
+          <span
+            style={{
+              fontSize: 13,
+              fontWeight: 600,
+              color: '#111',
+              marginRight: 6,
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {subject.name}
+          </span>
+          <span style={{ color: '#d4d4d2' }}>·</span>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            {topics.map((topic) => {
+              const isActive = activeTopicId === slugify(topic.name)
+              return (
+                <button
+                  key={topic._id}
+                  type="button"
+                  onClick={() => scrollToTopic(slugify(topic.name))}
+                  style={{
+                    padding: '5px 11px',
+                    borderRadius: 999,
+                    fontSize: 12.5,
+                    fontWeight: 500,
+                    border: isActive ? '1px solid #111' : '1px solid #e5e5e3',
+                    background: isActive ? '#111' : '#fff',
+                    color: isActive ? '#fff' : '#555',
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  {topic.name}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Main Content ──────────────────────────────────────────────── */}
       <div
         style={{
-          display: 'flex',
-          gap: 40,
           maxWidth: 1080,
           margin: '0 auto',
           padding: '32px 24px',
         }}
       >
-        {/* ─── Left Sidebar (Desktop only) ─────────────────────────── */}
-        <aside className="doc-sidebar" style={{ flexShrink: 0 }}>
-          <div className="doc-sidebar-title">{subject.name}</div>
-          <nav>
-            {topics.map((topic) => (
-              <a
-                key={topic._id}
-                className={`doc-sidebar-link${activeTopicId === slugify(topic.name) ? ' active' : ''}`}
-                onClick={() => scrollToTopic(slugify(topic.name))}
-              >
-                {topic.name}
-              </a>
-            ))}
-          </nav>
-        </aside>
-
-        {/* ─── Main Content ────────────────────────────────────────── */}
-        <main className="doc-reader" style={{ flex: 1, minWidth: 0, maxWidth: 720 }}>
+        <main className="doc-reader" style={{ margin: '0 auto', maxWidth: 760 }}>
 
           {/* Subject Header */}
           <h1>{subject.name}</h1>
@@ -350,10 +396,10 @@ export default function SubjectDocumentPage() {
         </main>
       </div>
 
-      {/* ── Responsive: show mobile dropdown, hide desktop sidebar ──── */}
+      {/* ── Responsive: show mobile dropdown, hide chips on mobile ──── */}
       <style>{`
         @media (max-width: 768px) {
-          .doc-sidebar { display: none !important; }
+          .doc-chips-bar { display: none !important; }
           .doc-mobile-dropdown { display: block !important; }
         }
         @media (min-width: 769px) {
