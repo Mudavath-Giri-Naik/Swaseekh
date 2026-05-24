@@ -1,44 +1,58 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import QuestionModel from '@/models/Question'
-import SubjectModel from '@/models/Subject'
-import TopicModel from '@/models/Topic'
-import ConceptModel from '@/models/Concept'
 
 export const dynamic = 'force-dynamic'
 
+/**
+ * GET /api/questions
+ *
+ * The schema is now nested under `meta` / `solution` / `understand` / etc.
+ * This handler:
+ *   1. Accepts both the new query params (subject, topic, subtopic, year,
+ *      difficulty, type, formula) and the legacy ones (subjectId, topicId,
+ *      conceptId, difficulty, type) — legacy params are mapped onto the
+ *      corresponding `meta.*` fields.
+ *   2. Flattens the nested doc into a backwards-compatible response shape
+ *      so existing list/sort/route code keeps working (subjectName,
+ *      topicName, conceptName, year, marks, questionText, etc.).
+ *
+ * Mapping note: the new schema uses meta.subject > meta.subtopic > meta.topic
+ * which corresponds to the old subject > topic > concept hierarchy.
+ */
 export async function GET(request: NextRequest) {
   try {
     await connectDB()
 
     const { searchParams } = new URL(request.url)
-
-    const subjectId = searchParams.get('subjectId')
-    const topicId = searchParams.get('topicId')
-    const conceptId = searchParams.get('conceptId')
-    const year = searchParams.get('year')
-    const difficulty = searchParams.get('difficulty')
-    const type = searchParams.get('type')
     const page = parseInt(searchParams.get('page') ?? '1', 10)
     const limit = parseInt(searchParams.get('limit') ?? '1000', 10)
 
-    // Build query object
+    // Build query against the new nested fields
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const query: Record<string, any> = {}
 
-    if (conceptId) query['conceptId'] = conceptId
-    else if (topicId) query['topicId'] = topicId
-    else if (subjectId) query['subjectId'] = subjectId
+    const subject = searchParams.get('subject') ?? searchParams.get('subjectId')
+    const subtopic = searchParams.get('subtopic') ?? searchParams.get('topicId')
+    const topic = searchParams.get('topic') ?? searchParams.get('conceptId')
+    const year = searchParams.get('year')
+    const difficulty = searchParams.get('difficulty')
+    const type = searchParams.get('type')
+    const formula = searchParams.get('formula')
 
-    if (year) query['year'] = parseInt(year, 10)
-    if (difficulty) query['difficulty'] = difficulty
-    if (type) query['questionType'] = type
+    if (subject) query['meta.subject'] = subject
+    if (subtopic) query['meta.subtopic'] = subtopic
+    if (topic) query['meta.topic'] = topic
+    if (year) query['meta.year'] = parseInt(year, 10)
+    if (difficulty) query['meta.difficulty'] = difficulty
+    if (type) query['meta.type'] = type
+    if (formula) query['formula_ids_used'] = formula
 
     const skip = (page - 1) * limit
 
-    const [questions, total] = await Promise.all([
+    const [docs, total] = await Promise.all([
       QuestionModel.find(query)
-        .sort({ year: -1 })
+        .sort({ 'meta.year': -1 })
         .skip(skip)
         .limit(limit)
         .lean()
@@ -46,49 +60,11 @@ export async function GET(request: NextRequest) {
       QuestionModel.countDocuments(query),
     ])
 
-    // Resolve names from IDs
-    const subjectIds = questions.map((q: any) => q.subjectId).filter((value: string, index: number, self: string[]) => self.indexOf(value) === index)
-    const topicIds = questions.map((q: any) => q.topicId).filter((value: string, index: number, self: string[]) => self.indexOf(value) === index)
-    const conceptIds = questions.map((q: any) => q.conceptId).filter((value: string, index: number, self: string[]) => self.indexOf(value) === index)
-
-    // Handle sub_XX vs sub_0XX mismatch
-    const querySubjectIds = subjectIds.flatMap((id: string) => {
-      if (id.match(/^sub_\d{2}$/)) return [id, id.replace('sub_', 'sub_0')]
-      return [id]
-    })
-
-    const [subjects, topics, concepts] = await Promise.all([
-      SubjectModel.find({ _id: { $in: querySubjectIds } }).lean().exec(),
-      TopicModel.find({ _id: { $in: topicIds } }).lean().exec(),
-      ConceptModel.find({ _id: { $in: conceptIds } }).select('_id title').lean().exec(),
-    ])
-
-    const subjectMap: Record<string, string> = {}
-    subjects.forEach((s: any) => { 
-      subjectMap[s._id] = s.name 
-      // Also map the original unpadded ID (sub_0XX -> sub_XX)
-      if (s._id.match(/^sub_0\d{2}$/)) {
-        subjectMap[s._id.replace('sub_0', 'sub_')] = s.name
-      }
-    })
-
-    const topicMap: Record<string, string> = {}
-    topics.forEach((t: any) => { topicMap[t._id] = t.name })
-
-    const conceptMap: Record<string, string> = {}
-    concepts.forEach((c: any) => { conceptMap[c._id] = c.title })
-
-    // Enrich questions with resolved names
-    const enrichedQuestions = questions.map((q: any) => ({
-      ...q,
-      subjectName: subjectMap[q.subjectId] || q.subjectId,
-      topicName: topicMap[q.topicId] || q.topicId,
-      conceptName: conceptMap[q.conceptId] || q.conceptId,
-    }))
+    const questions = docs.map((q) => enrichQuestion(q))
 
     return NextResponse.json(
       {
-        questions: enrichedQuestions,
+        questions,
         total,
         page,
         limit,
@@ -102,5 +78,36 @@ export async function GET(request: NextRequest) {
       { error: 'Failed to fetch questions' },
       { status: 500 }
     )
+  }
+}
+
+/* ─── Flatten nested doc → list-friendly shape ──────────────────────────── */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function enrichQuestion(q: any) {
+  const meta = q.meta ?? {}
+  const formulaIds: string[] = Array.isArray(q.formula_ids_used)
+    ? q.formula_ids_used
+    : []
+  const primaryFormulaId =
+    Array.isArray(q.solution?.steps) && q.solution.steps.length > 0
+      ? q.solution.steps[0]?.formula_id ?? null
+      : formulaIds[0] ?? null
+
+  return {
+    ...q,
+    // Backwards-compatible flattened fields
+    year: meta.year,
+    marks: meta.marks,
+    difficulty: meta.difficulty,
+    questionType: meta.type,
+    questionText: q.question,
+    correctAnswer: q.answer,
+    formulaId: primaryFormulaId,
+    formulaIds,
+    // Display-name aliases — keep the same URL hierarchy as before:
+    //   subject > topic > concept  ==  meta.subject > meta.subtopic > meta.topic
+    subjectName: meta.subject ?? '',
+    topicName: meta.subtopic ?? '',
+    conceptName: meta.topic ?? '',
   }
 }

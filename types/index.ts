@@ -4,40 +4,83 @@ export type QuestionType = 'MCQ' | 'MSQ' | 'NAT'
 export type Difficulty = 'easy' | 'medium' | 'hard' | 'Easy' | 'Medium' | 'Hard'
 export type CCDStatus = 'completed' | 'in-progress' | 'not-started'
 
-export interface FormulaUsed {
-  formulaId: string
-  name: string
+// ─── New nested-shape sub-types ────────────────────────────────────────────
+
+export interface QuestionMeta {
+  exam: string
+  year: number
+  marks: number
+  difficulty: string
+  type: string
+  subject: string
+  topic: string
+  subtopic: string
+}
+
+export interface QuestionKeyword {
+  term: string
+  explain: string
+  example: string
+}
+
+export interface QuestionUnderstand {
   plain: string
-  termsExplained: string[]
+  keywords: QuestionKeyword[]
+  visual_svg: string
+  visual_alt: string
+}
+
+export interface QuestionGivenTerm {
+  term: string
+  meaning: string
+  example: string
+  connects: string
+}
+
+export interface QuestionGiven {
+  aim: string
+  terms: QuestionGivenTerm[]
+  plan: string
+}
+
+export interface QuestionSolutionStep {
+  step: number
+  title: string
+  formula_id: string
+  formula_raw: string
+  apply: string
+  note: string
+}
+
+export interface QuestionSolution {
+  steps: QuestionSolutionStep[]
+  result: string
 }
 
 export interface Question {
   _id: string
-  subjectId: string
-  topicId: string
-  conceptId: string
-  year: number
-  questionType: string
-  marks: number
-  difficulty: string
-  questionText: string
-  options: string[]
-  correctAnswer: string
-  formulaId?: string | null
+  id?: string
+  meta: QuestionMeta
+  question: string
+  answer: string
+  understand?: QuestionUnderstand
+  given?: QuestionGiven
+  to_find?: string
+  solution?: QuestionSolution
+  formula_ids_used?: string[]
+  /** Optional caveat — render only when non-empty. */
+  formula_note?: string
+
+  // Flattened / enriched fields the API also exposes for list views and
+  // legacy callers (sorting, filtering, routing). They mirror meta.*
+  year?: number
+  marks?: number
+  difficulty?: string
+  questionType?: string
+  questionText?: string
+  correctAnswer?: string
   formulaIds?: string[]
-
-  // Rich explanation block (new schema)
-  whatToFind?: string
-  plainRestatement?: string
-  realWorldScenario?: string
-  formulaUsed?: FormulaUsed | null
-  solutionSteps?: string[]
-  finalAnswer?: string
-  commonTrap?: string
-  /** Optional flag — only render when non-empty. */
-  formulaNote?: string
-
-  // Resolved names (from API enrichment)
+  formulaId?: string | null
   subjectName?: string
   topicName?: string
   conceptName?: string

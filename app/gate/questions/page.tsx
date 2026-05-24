@@ -36,17 +36,13 @@ interface Question {
   _id: string
   questionText: string
   questionType: string
-  options: string[]
   correctAnswer: string
   marks: number
   difficulty: string
   year: number
-  subjectId: string
-  topicId: string
-  conceptId: string
   formulaId: string | null
   formulaIds: string[]
-  // Resolved names
+  // Resolved display names (flattened from meta.* by the API enricher)
   subjectName: string
   topicName: string
   conceptName: string
@@ -193,11 +189,11 @@ function QuestionsListPageInner() {
 
     if (allIds.size === 0) return
 
-    // Collect unique concept IDs that have formulas
+    // Collect unique concept names that have formulas
     const conceptsWithFormulas = new Set<string>()
     questions.forEach((q) => {
       if (q.formulaIds?.length > 0 || q.formulaId) {
-        conceptsWithFormulas.add(q.conceptId)
+        conceptsWithFormulas.add(q.conceptName)
       }
     })
 
@@ -242,15 +238,15 @@ function QuestionsListPageInner() {
   // Derived filter options
   const subjects = useMemo(() => {
     const map = new Map<string, string>()
-    questions.forEach((q) => map.set(q.subjectId, q.subjectName))
+    questions.forEach((q) => map.set(q.subjectName, q.subjectName))
     return Array.from(map.entries()).map(([id, name]) => ({ id, name }))
   }, [questions])
 
   const topics = useMemo(() => {
     const map = new Map<string, string>()
     questions
-      .filter((q) => !selectedSubject || q.subjectId === selectedSubject)
-      .forEach((q) => map.set(q.topicId, q.topicName))
+      .filter((q) => !selectedSubject || q.subjectName === selectedSubject)
+      .forEach((q) => map.set(q.topicName, q.topicName))
     return Array.from(map.entries()).map(([id, name]) => ({ id, name }))
   }, [questions, selectedSubject])
 
@@ -258,9 +254,9 @@ function QuestionsListPageInner() {
   const concepts = useMemo(() => {
     const map = new Map<string, string>()
     questions
-      .filter((q) => !selectedSubject || q.subjectId === selectedSubject)
-      .filter((q) => !selectedTopic || q.topicId === selectedTopic)
-      .forEach((q) => map.set(q.conceptId, q.conceptName))
+      .filter((q) => !selectedSubject || q.subjectName === selectedSubject)
+      .filter((q) => !selectedTopic || q.topicName === selectedTopic)
+      .forEach((q) => map.set(q.conceptName, q.conceptName))
     return Array.from(map.entries()).map(([id, name]) => ({ id, name }))
   }, [questions, selectedSubject, selectedTopic])
 
@@ -289,9 +285,9 @@ function QuestionsListPageInner() {
   const filteredQuestions = useMemo(() => {
     return questions
       .filter((q) => {
-        if (selectedSubject && q.subjectId !== selectedSubject) return false
-        if (selectedTopic && q.topicId !== selectedTopic) return false
-        if (selectedConcept && q.conceptId !== selectedConcept) return false
+        if (selectedSubject && q.subjectName !== selectedSubject) return false
+        if (selectedTopic && q.topicName !== selectedTopic) return false
+        if (selectedConcept && q.conceptName !== selectedConcept) return false
         if (selectedYear && q.year !== Number(selectedYear)) return false
         if (selectedDifficulty && q.difficulty.toLowerCase() !== selectedDifficulty.toLowerCase()) return false
         if (selectedType && q.questionType !== selectedType) return false

@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import QuestionModel from '@/models/Question'
-import SubjectModel from '@/models/Subject'
-import TopicModel from '@/models/Topic'
-import ConceptModel from '@/models/Concept'
+import { enrichQuestion } from '../route'
 
 export async function GET(
   _request: NextRequest,
@@ -21,32 +19,15 @@ export async function GET(
       return NextResponse.json({ error: 'Question not found' }, { status: 404 })
     }
 
-    const q = question as any
-
-    // Handle sub_XX vs sub_0XX mismatch
-    const querySubjectId = q.subjectId.match(/^sub_\d{2}$/) 
-      ? q.subjectId.replace('sub_', 'sub_0') 
-      : q.subjectId
-
-    // Resolve names
-    const [subject, topic, concept] = await Promise.all([
-      SubjectModel.findOne({ _id: querySubjectId }).lean().exec(),
-      TopicModel.findOne({ _id: q.topicId }).lean().exec(),
-      ConceptModel.findOne({ _id: q.conceptId }).select('_id title').lean().exec(),
-    ])
-
-    const enriched = {
-      ...q,
-      subjectName: (subject as any)?.name || q.subjectId,
-      topicName: (topic as any)?.name || q.topicId,
-      conceptName: (concept as any)?.title || q.conceptId,
-    }
+    // Re-use the same enricher the list API uses — flattens meta.* into
+    // backwards-compatible top-level fields (year, marks, subjectName, etc.)
+    const enriched = enrichQuestion(question)
 
     return NextResponse.json({ question: enriched }, { status: 200 })
   } catch (error: any) {
     console.error('[GET /api/questions/[id]]', error)
     return NextResponse.json(
-      { error: 'Failed to fetch question', details: error.message, stack: error.stack },
+      { error: 'Failed to fetch question', details: error.message },
       { status: 500 }
     )
   }

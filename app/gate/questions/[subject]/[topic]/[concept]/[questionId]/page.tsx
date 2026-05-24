@@ -10,8 +10,11 @@ import {
   ChevronDown,
   SlidersHorizontal,
   Check,
-  AlertTriangle,
   Info,
+  Target,
+  Lightbulb,
+  BookOpen,
+  Crosshair,
 } from 'lucide-react'
 import MathRenderer from '@/components/MathRenderer'
 import { slugify, cn } from '@/lib/utils'
@@ -27,46 +30,87 @@ import {
   DrawerTrigger,
 } from '@/components/ui/drawer'
 
-/* ─── Types ─────────────────────────────────────────────────────────── */
+/* ─── Types matching the new schema ─────────────────────────────── */
 
-interface FormulaUsed {
-  formulaId: string
-  name: string
+interface Keyword {
+  term: string
+  explain: string
+  example: string
+}
+
+interface Understand {
   plain: string
-  termsExplained: string[]
+  keywords: Keyword[]
+  visual_svg: string
+  visual_alt: string
+}
+
+interface GivenTerm {
+  term: string
+  meaning: string
+  example: string
+  connects: string
+}
+
+interface Given {
+  aim: string
+  terms: GivenTerm[]
+  plan: string
+}
+
+interface SolutionStep {
+  step: number
+  title: string
+  formula_id: string
+  formula_raw: string
+  apply: string
+  note: string
+}
+
+interface Solution {
+  steps: SolutionStep[]
+  result: string
+}
+
+interface QuestionMeta {
+  exam: string
+  year: number
+  marks: number
+  difficulty: string
+  type: string
+  subject: string
+  topic: string
+  subtopic: string
 }
 
 interface QuestionDetail {
   _id: string
-  questionText: string
-  questionType: string
-  options: string[]
-  correctAnswer: string
-  marks: number
-  difficulty: string
-  year: number
-  subjectId: string
-  topicId: string
-  conceptId: string
+  id?: string
+  meta: QuestionMeta
+  question: string
+  answer: string
+  understand?: Understand
+  given?: Given
+  to_find?: string
+  solution?: Solution
+  formula_ids_used?: string[]
+  formula_note?: string
+
+  // Flattened by enrichQuestion()
+  year?: number
+  marks?: number
+  difficulty?: string
+  questionType?: string
+  questionText?: string
+  correctAnswer?: string
   formulaId?: string | null
   formulaIds?: string[]
-
-  // Rich explanation block (new schema)
-  whatToFind?: string
-  plainRestatement?: string
-  realWorldScenario?: string
-  formulaUsed?: FormulaUsed | null
-  solutionSteps?: string[]
-  finalAnswer?: string
-  commonTrap?: string
-  formulaNote?: string
-
-  subjectName: string
-  topicName: string
-  conceptName: string
+  subjectName?: string
+  topicName?: string
+  conceptName?: string
 }
 
-/** Turn a formulaId like "r-combination-no-rep" into a readable name */
+/** Turn a formulaId like "product-rule" into "Product Rule" */
 function formulaIdToName(id: string): string {
   return id
     .split('-')
@@ -78,15 +122,8 @@ interface SubjectLite {
   _id: string
   name: string
 }
-interface TopicWithConcepts {
-  _id: string
-  name: string
-  concepts: { _id: string; title: string }[]
-}
 
-const optionLabels = ['A', 'B', 'C', 'D', 'E', 'F']
-
-/* ─── Page ──────────────────────────────────────────────────────────── */
+/* ─── Page ──────────────────────────────────────────────────────── */
 
 export default function QuestionDetailPage() {
   const params = useParams<{
@@ -100,11 +137,9 @@ export default function QuestionDetailPage() {
   const [question, setQuestion] = useState<QuestionDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [showAnswer, setShowAnswer] = useState(false)
-  const [selectedOption, setSelectedOption] = useState<number | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
 
   const [subjects, setSubjects] = useState<SubjectLite[]>([])
-  const [topics, setTopics] = useState<TopicWithConcepts[]>([])
   const [siblings, setSiblings] = useState<{ _id: string }[]>([])
   // Formula info ({ name, latex, plain } per formulaId) for hover preview
   const [formulaInfoMap, setFormulaInfoMap] = useState<
@@ -116,8 +151,7 @@ export default function QuestionDetailPage() {
     if (!params.questionId) return
     setLoading(true)
     setShowAnswer(false)
-    setSelectedOption(null)
-    setDrawerOpen(false) // auto-close filter drawer on navigation
+    setDrawerOpen(false)
 
     fetch(`/api/questions/${params.questionId}`)
       .then((res) => res.json())
@@ -136,22 +170,11 @@ export default function QuestionDetailPage() {
       .catch(() => {})
   }, [])
 
-  /* Fetch topics + concepts for the current subject.
-     Use the URL slug (params.subject) instead of question.subjectId because
-     subject IDs can be padded ("sub_02" vs "sub_002") and the API resolves
-     slugs reliably via name match. */
+  /* Fetch sibling questions (same topic/subtopic for prev/next nav).
+     New schema: filter by meta.topic which maps to conceptName. */
   useEffect(() => {
-    if (!params.subject) return
-    fetch(`/api/subjects/${params.subject}`)
-      .then((res) => res.json())
-      .then((data) => setTopics(data.topics || []))
-      .catch(() => {})
-  }, [params.subject])
-
-  /* Fetch sibling questions in the same concept for prev/next nav */
-  useEffect(() => {
-    if (!question?.conceptId) return
-    fetch(`/api/questions?conceptId=${question.conceptId}&limit=500`)
+    if (!question?.meta?.topic) return
+    fetch(`/api/questions?topic=${encodeURIComponent(question.meta.topic)}&limit=500`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data.questions)) {
@@ -161,12 +184,19 @@ export default function QuestionDetailPage() {
         }
       })
       .catch(() => {})
-  }, [question?.conceptId])
+  }, [question?.meta?.topic])
 
-  /* Fetch concept content to build the formula hover-preview info map */
+  /* Fetch formula info from content API to build hover-preview map */
   useEffect(() => {
-    if (!question?.conceptId) return
-    fetch(`/api/content/${encodeURIComponent(question.conceptId)}`)
+    if (!question?.formula_ids_used?.length) return
+
+    // Fetch the formulas content doc — it's a single doc in the 'content' collection.
+    // We try to find it via a known conceptId or fetch all content docs.
+    // Since formulas are in the content collection, let's fetch by a known concept.
+    const conceptId = question.meta?.subtopic || question.meta?.topic
+    if (!conceptId) return
+
+    fetch(`/api/content/${encodeURIComponent(conceptId)}`)
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (!data?.content?.groups) return
@@ -180,7 +210,7 @@ export default function QuestionDetailPage() {
         setFormulaInfoMap(map)
       })
       .catch(() => {})
-  }, [question?.conceptId])
+  }, [question?.formula_ids_used, question?.meta?.subtopic, question?.meta?.topic])
 
   /* Derive prev/next */
   const { prevId, nextId, currentIndex, total } = useMemo(() => {
@@ -203,14 +233,12 @@ export default function QuestionDetailPage() {
     )
   }
 
-  /* When the user changes a dropdown, fetch the first matching question and jump */
+  /* When the user changes subject dropdown, jump to first matching question */
   const jumpToFirstQuestion = async (
-    filter: { subjectId?: string; topicId?: string; conceptId?: string }
+    filter: { subjectId?: string }
   ) => {
     const qs = new URLSearchParams()
-    if (filter.conceptId) qs.set('conceptId', filter.conceptId)
-    else if (filter.topicId) qs.set('topicId', filter.topicId)
-    else if (filter.subjectId) qs.set('subjectId', filter.subjectId)
+    if (filter.subjectId) qs.set('subject', filter.subjectId)
     qs.set('limit', '1')
 
     try {
@@ -227,7 +255,8 @@ export default function QuestionDetailPage() {
     }
   }
 
-  /* Loading / not-found states */
+  /* ─── Loading / not-found ──────────────────────────────────────── */
+
   if (loading) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
@@ -250,20 +279,24 @@ export default function QuestionDetailPage() {
     )
   }
 
-  /* Correct answer normalisation (handles number/null/undefined safely) */
-  const correctAnswerLetter = String(question.correctAnswer ?? '')
-    .trim()
-    .toUpperCase()
-  const correctIndex = optionLabels.indexOf(correctAnswerLetter)
+  /* Convenience accessors */
+  const meta = question.meta ?? ({} as QuestionMeta)
+  const year = question.year ?? meta.year
+  const marks = question.marks ?? meta.marks
+  const difficulty = question.difficulty ?? meta.difficulty
+  const questionType = question.questionType ?? meta.type
+  const subjectName = question.subjectName ?? meta.subject ?? ''
+  const topicName = question.topicName ?? meta.subtopic ?? ''
+  const conceptName = question.conceptName ?? meta.topic ?? ''
+  const questionText = question.questionText ?? question.question ?? ''
+  const answer = question.correctAnswer ?? question.answer ?? ''
+  const formulaIdsUsed = question.formula_ids_used ?? question.formulaIds ?? []
 
-  const currentTopic = topics.find((t) => t._id === question.topicId)
-  const conceptsForTopic = currentTopic?.concepts ?? []
-
-  /* ─── Render ──────────────────────────────────────────────────────── */
+  /* ─── Render ──────────────────────────────────────────────────── */
 
   return (
     <article className="mx-auto max-w-3xl px-4 pb-12 sm:px-6 sm:pb-16">
-      {/* Sticky top bar — replaces the layout's header on this page */}
+      {/* Sticky top bar */}
       <div className="sticky top-0 z-30 -mx-4 flex items-center justify-between border-b border-slate-200 bg-white/85 px-4 py-2.5 backdrop-blur sm:-mx-6 sm:px-6">
         <Link
           href="/gate/questions"
@@ -288,35 +321,19 @@ export default function QuestionDetailPage() {
               <DrawerHeader>
                 <DrawerTitle>Filter questions</DrawerTitle>
                 <DrawerDescription>
-                  Pick a subject, topic, or concept to jump to the first
-                  question that matches.
+                  Pick a subject to jump to the first question that matches.
                 </DrawerDescription>
               </DrawerHeader>
 
               <div className="space-y-4 px-4 pb-2">
                 <DrawerOption
                   label="Subject"
-                  value={question.subjectId}
+                  value={meta.subject}
                   options={subjects.map((s) => ({
-                    value: s._id,
+                    value: s.name,
                     label: s.name,
                   }))}
                   onChange={(val) => jumpToFirstQuestion({ subjectId: val })}
-                />
-                <DrawerOption
-                  label="Topic"
-                  value={question.topicId}
-                  options={topics.map((t) => ({ value: t._id, label: t.name }))}
-                  onChange={(val) => jumpToFirstQuestion({ topicId: val })}
-                />
-                <DrawerOption
-                  label="Concept"
-                  value={question.conceptId}
-                  options={conceptsForTopic.map((c) => ({
-                    value: c._id,
-                    label: c.title,
-                  }))}
-                  onChange={(val) => jumpToFirstQuestion({ conceptId: val })}
                 />
               </div>
 
@@ -337,9 +354,8 @@ export default function QuestionDetailPage() {
 
       {/* Eyebrow meta */}
       <p className="mt-10 text-sm text-slate-500">
-        GATE {question.year} · {question.marks} mark
-        {question.marks > 1 ? 's' : ''} · {question.difficulty} ·{' '}
-        {question.questionType}
+        {meta.exam || `GATE ${year}`} · {marks} mark
+        {marks > 1 ? 's' : ''} · {difficulty} · {questionType}
         {currentIndex >= 0 && total > 0 && (
           <>
             {' · '}
@@ -350,23 +366,23 @@ export default function QuestionDetailPage() {
         )}
       </p>
 
-      {/* H1 — concept title */}
+      {/* H1 — concept/topic title */}
       <h1 className="mt-2 scroll-m-20 text-3xl font-extrabold tracking-tight text-balance text-slate-900 sm:text-4xl">
-        {question.conceptName}
+        {conceptName}
       </h1>
 
-      {/* Lead — topic / subject breadcrumb-style line */}
+      {/* Subject / topic breadcrumb */}
       <p className="mt-3 text-base text-slate-500 sm:text-lg">
-        {question.subjectName} · {question.topicName}
+        {subjectName} · {topicName}
       </p>
 
-      {/* Formula badges */}
-      {question.formulaIds && question.formulaIds.length > 0 && (
+      {/* Formula badges — from formula_ids_used */}
+      {formulaIdsUsed.length > 0 && (
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
             Formulas
           </span>
-          {question.formulaIds.map((fId) => {
+          {formulaIdsUsed.map((fId) => {
             const info = formulaInfoMap[fId]
             const name = info?.name ?? formulaIdToName(fId)
             return (
@@ -375,7 +391,7 @@ export default function QuestionDetailPage() {
                 formulaId={fId}
                 name={name}
                 info={info}
-                primary={fId === question.formulaId}
+                primary={fId === formulaIdsUsed[0]}
                 href={`/gate/questions?formula=${encodeURIComponent(fId)}`}
                 size="md"
               />
@@ -384,67 +400,13 @@ export default function QuestionDetailPage() {
         </div>
       )}
 
-      {/* Question text — prefixed with the numeric ID extracted from question._id */}
+      {/* Question text */}
       <div className="mt-8 text-[17px] leading-7 text-slate-900 [&_p]:mt-6 [&_p:first-child]:mt-0">
         <span className="mr-2 font-bold text-slate-900">
-          {String(question._id).replace(/\D/g, '') || ''}.
+          {String(question._id).replace(/\D/g, '') || ''}. 
         </span>
-        <MathRenderer text={question.questionText} />
+        <MathRenderer text={questionText} />
       </div>
-
-      {/* Options (MCQ only) */}
-      {question.questionType !== 'NAT' &&
-        question.options &&
-        question.options.length > 0 && (
-          <ol className="mt-8 space-y-3">
-            {question.options.map((opt, i) => {
-              const isCorrect = showAnswer && i === correctIndex
-              const isWrongSelected =
-                showAnswer && selectedOption === i && i !== correctIndex
-              const isSelected = selectedOption === i && !showAnswer
-
-              const tone = isCorrect
-                ? 'text-emerald-700'
-                : isWrongSelected
-                  ? 'text-rose-700'
-                  : isSelected
-                    ? 'text-indigo-700'
-                    : 'text-slate-800'
-
-              return (
-                <li key={i}>
-                  <button
-                    type="button"
-                    onClick={() => !showAnswer && setSelectedOption(i)}
-                    disabled={showAnswer}
-                    className={`flex w-full items-start gap-3 text-left leading-7 transition-colors ${tone} ${
-                      !showAnswer
-                        ? 'cursor-pointer hover:text-indigo-700'
-                        : 'cursor-default'
-                    }`}
-                  >
-                    <span
-                      className={`mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-                        isCorrect
-                          ? 'bg-emerald-100 text-emerald-700'
-                          : isWrongSelected
-                            ? 'bg-rose-100 text-rose-700'
-                            : isSelected
-                              ? 'bg-indigo-100 text-indigo-700'
-                              : 'bg-slate-100 text-slate-500'
-                      }`}
-                    >
-                      {optionLabels[i]}
-                    </span>
-                    <span className="flex-1 text-[17px]">
-                      <MathRenderer text={opt} />
-                    </span>
-                  </button>
-                </li>
-              )
-            })}
-          </ol>
-        )}
 
       {/* Show / hide answer */}
       <button
@@ -457,131 +419,237 @@ export default function QuestionDetailPage() {
 
       {showAnswer && (
         <>
-          {/* H2 — What to find */}
-          {question.whatToFind && (
-            <>
-              <h2 className="mt-10 scroll-m-20 border-b border-slate-200 pb-2 text-2xl font-semibold tracking-tight text-slate-900 first:mt-0">
-                What to find
-              </h2>
-              <p className="mt-4 text-[17px] leading-7 text-slate-800">
-                <MathRenderer text={question.whatToFind} />
-              </p>
-            </>
-          )}
+          {/* ═══ SECTION 1: Understand the Problem ═══════════════════ */}
+          {question.understand && (
+            <section className="mt-10">
+              <SectionHeading icon={<Lightbulb className="h-5 w-5" />} title="Understand the Problem" />
 
-          {/* H2 — Plain restatement */}
-          {question.plainRestatement && (
-            <>
-              <h2 className="mt-10 scroll-m-20 border-b border-slate-200 pb-2 text-2xl font-semibold tracking-tight text-slate-900">
-                In plain words
-              </h2>
-              <p className="mt-4 text-[17px] leading-7 text-slate-700">
-                <MathRenderer text={question.plainRestatement} />
-              </p>
-            </>
-          )}
+              {/* Plain restatement */}
+              {question.understand.plain && (
+                <p className="mt-4 text-[17px] leading-7 text-slate-800">
+                  <MathRenderer text={question.understand.plain} />
+                </p>
+              )}
 
-          {/* H2 — Real-world scenario */}
-          {question.realWorldScenario && (
-            <>
-              <h2 className="mt-10 scroll-m-20 border-b border-slate-200 pb-2 text-2xl font-semibold tracking-tight text-slate-900">
-                Real-world scenario
-              </h2>
-              <div className="mt-4 rounded-xl border border-sky-200 bg-sky-50/60 px-5 py-4 text-[16px] leading-7 text-slate-800 [&_p]:mt-4 [&_p:first-child]:mt-0">
-                <MathRenderer text={question.realWorldScenario} />
-              </div>
-            </>
-          )}
+              {/* Visual SVG */}
+              {question.understand.visual_svg && (
+                <div
+                  className="svg-visual-container mt-6 flex justify-center overflow-x-auto rounded-xl border border-slate-200 bg-slate-50/60 p-4"
+                  role="img"
+                  aria-label={question.understand.visual_alt || 'Visual diagram'}
+                  dangerouslySetInnerHTML={{ __html: question.understand.visual_svg }}
+                />
+              )}
 
-          {/* H2 — Formula used */}
-          {question.formulaUsed && (
-            <>
-              <h2 className="mt-10 scroll-m-20 border-b border-slate-200 pb-2 text-2xl font-semibold tracking-tight text-slate-900">
-                Formula used
-              </h2>
-              <div className="mt-4 rounded-xl border border-violet-200 bg-violet-50/40 px-5 py-4">
-                <div className="text-[17px] font-semibold text-violet-900">
-                  {question.formulaUsed.name}
+              {/* Keywords */}
+              {question.understand.keywords && question.understand.keywords.length > 0 && (
+                <div className="mt-6 flex flex-wrap gap-3">
+                  {question.understand.keywords.map((kw, i) => (
+                    <div
+                      key={i}
+                      className="rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm"
+                    >
+                      <span className="text-[15px] font-bold text-slate-900">{kw.term}</span>
+                      <span className="mx-1.5 text-slate-300">—</span>
+                      <span className="text-[15px] text-slate-700">{kw.explain}</span>
+                      {kw.example && (
+                        <span className="ml-2 text-[13px] italic text-slate-400">
+                          e.g. {kw.example}
+                        </span>
+                      )}
+                    </div>
+                  ))}
                 </div>
-                <div className="mt-2 rounded-md bg-white px-3 py-2 font-mono text-[15px] text-slate-900 ring-1 ring-violet-100">
-                  <MathRenderer text={question.formulaUsed.plain} />
-                </div>
-                {question.formulaUsed.termsExplained &&
-                  question.formulaUsed.termsExplained.length > 0 && (
-                    <ul className="mt-3 ml-5 list-disc space-y-1 text-[15px] leading-6 text-slate-700">
-                      {question.formulaUsed.termsExplained.map((line, i) => (
-                        <li key={i}>
-                          <MathRenderer text={line} />
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-              </div>
-            </>
+              )}
+            </section>
           )}
 
-          {/* H2 — Solution steps */}
-          {question.solutionSteps && question.solutionSteps.length > 0 && (
-            <>
-              <h2 className="mt-10 scroll-m-20 border-b border-slate-200 pb-2 text-2xl font-semibold tracking-tight text-slate-900">
-                Solution
-              </h2>
-              <ol className="mt-4 space-y-4">
-                {question.solutionSteps.map((step, i) => (
-                  <li key={i} className="flex gap-3">
-                    <span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-900 text-xs font-bold text-white">
-                      {i + 1}
+          {/* ═══ SECTION 2: Given ═══════════════════════════════════ */}
+          {question.given && (
+            <section className="mt-10">
+              <SectionHeading icon={<BookOpen className="h-5 w-5" />} title="Given" />
+
+              {/* Aim */}
+              {question.given.aim && (
+                <div className="mt-4 rounded-xl border border-indigo-200 bg-indigo-50/50 px-5 py-4">
+                  <div className="text-[11px] font-semibold uppercase tracking-wider text-indigo-500">
+                    Goal
+                  </div>
+                  <p className="mt-1 text-[17px] font-medium leading-7 text-indigo-900">
+                    {question.given.aim}
+                  </p>
+                </div>
+              )}
+
+              {/* Terms grid */}
+              {question.given.terms && question.given.terms.length > 0 && (
+                <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                  {question.given.terms.map((t, i) => (
+                    <div
+                      key={i}
+                      className="rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm"
+                    >
+                      <div className="text-[16px] font-bold text-slate-900">{t.term}</div>
+                      <div className="mt-1 text-[14px] text-slate-600">{t.meaning}</div>
+                      {t.example && (
+                        <div className="mt-1.5 text-[13px] text-slate-400">
+                          <span className="font-medium text-slate-500">e.g.</span> {t.example}
+                        </div>
+                      )}
+                      {t.connects && (
+                        <div className="mt-2 border-t border-slate-100 pt-2 text-[13px] text-slate-500">
+                          <span className="font-medium text-slate-600">↗ </span>
+                          {t.connects}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Plan */}
+              {question.given.plan && (
+                <div className="mt-5 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50/50 px-5 py-3">
+                  <Target className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+                  <div>
+                    <div className="text-[11px] font-semibold uppercase tracking-wider text-amber-600">
+                      Strategy
+                    </div>
+                    <p className="mt-0.5 text-[15px] leading-6 text-amber-900">
+                      {question.given.plan}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* To find */}
+              {question.to_find && (
+                <div className="mt-5 flex items-start gap-3 rounded-xl border border-violet-200 bg-violet-50/50 px-5 py-3">
+                  <Crosshair className="mt-0.5 h-4 w-4 shrink-0 text-violet-600" />
+                  <div>
+                    <div className="text-[11px] font-semibold uppercase tracking-wider text-violet-600">
+                      What we need to find
+                    </div>
+                    <p className="mt-0.5 text-[15px] font-medium leading-6 text-violet-900">
+                      <MathRenderer text={question.to_find} />
+                    </p>
+                  </div>
+                </div>
+              )}
+            </section>
+          )}
+
+          {/* ═══ SECTION 3: Step-by-step Solution ═══════════════════ */}
+          {question.solution && question.solution.steps && question.solution.steps.length > 0 && (
+            <section className="mt-10">
+              <SectionHeading
+                icon={<span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-900 text-[11px] font-bold text-white">S</span>}
+                title="Step-by-step Solution"
+              />
+
+              <ol className="mt-6 space-y-6">
+                {question.solution.steps.map((step) => (
+                  <li key={step.step} className="relative pl-10">
+                    {/* Step number */}
+                    <span className="absolute left-0 top-0 inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-900 text-xs font-bold text-white">
+                      {step.step}
                     </span>
-                    <span className="flex-1 text-[16px] leading-7 text-slate-800">
-                      <MathRenderer text={step} />
-                    </span>
+
+                    {/* Title */}
+                    <div className="text-[16px] font-semibold text-slate-900">
+                      {step.title}
+                    </div>
+
+                    {/* Formula chip (clickable) */}
+                    {step.formula_id && (
+                      <div className="mt-2">
+                        <FormulaBadge
+                          formulaId={step.formula_id}
+                          name={formulaInfoMap[step.formula_id]?.name ?? formulaIdToName(step.formula_id)}
+                          info={formulaInfoMap[step.formula_id]}
+                          primary
+                          href={`/gate/questions?formula=${encodeURIComponent(step.formula_id)}`}
+                          size="sm"
+                        />
+                      </div>
+                    )}
+
+                    {/* Raw formula (no values) */}
+                    {step.formula_raw && (
+                      <div className="mt-2 rounded-lg bg-slate-100 px-4 py-2 font-mono text-[14px] text-slate-700">
+                        <MathRenderer text={step.formula_raw} />
+                      </div>
+                    )}
+
+                    {/* Applied formula (with values) */}
+                    {step.apply && (
+                      <div className="mt-2 rounded-lg border border-emerald-200 bg-emerald-50/50 px-4 py-2 text-[15px] text-emerald-900">
+                        <MathRenderer text={step.apply} />
+                      </div>
+                    )}
+
+                    {/* Note */}
+                    {step.note && (
+                      <p className="mt-2 text-[13px] leading-5 text-slate-500 italic">
+                        {step.note}
+                      </p>
+                    )}
                   </li>
                 ))}
               </ol>
-            </>
-          )}
 
-          {/* H2 — Final answer */}
-          {(question.finalAnswer || question.correctAnswer != null) && (
-            <>
-              <h2 className="mt-10 scroll-m-20 border-b border-slate-200 pb-2 text-2xl font-semibold tracking-tight text-slate-900">
-                Final answer
-              </h2>
-              <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-[18px] font-semibold leading-7 text-emerald-900">
-                <MathRenderer
-                  text={String(
-                    question.finalAnswer || question.correctAnswer || ''
-                  )}
-                />
-              </div>
-            </>
-          )}
-
-          {/* H2 — Common trap */}
-          {question.commonTrap && (
-            <>
-              <h2 className="mt-10 scroll-m-20 border-b border-slate-200 pb-2 text-2xl font-semibold tracking-tight text-slate-900">
-                Common trap
-              </h2>
-              <div className="mt-4 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-[16px] leading-7 text-amber-900">
-                <AlertTriangle
-                  className="mt-0.5 h-5 w-5 shrink-0 text-amber-700"
-                  strokeWidth={2.25}
-                />
-                <div className="flex-1">
-                  <MathRenderer text={question.commonTrap} />
+              {/* Final result */}
+              {question.solution.result && (
+                <div className="mt-8 rounded-xl border-2 border-emerald-300 bg-emerald-50 px-5 py-4 text-center">
+                  <div className="text-[11px] font-semibold uppercase tracking-wider text-emerald-600">
+                    Final Answer
+                  </div>
+                  <div className="mt-1 text-xl font-bold text-emerald-900">
+                    <MathRenderer text={question.solution.result} />
+                  </div>
                 </div>
+              )}
+            </section>
+          )}
+
+          {/* Standalone answer fallback (if no solution section) */}
+          {(!question.solution || !question.solution.result) && answer && (
+            <div className="mt-8 rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4">
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-emerald-600">
+                Answer
               </div>
-            </>
+              <div className="mt-1 text-[18px] font-semibold text-emerald-900">
+                <MathRenderer text={answer} />
+              </div>
+            </div>
+          )}
+
+          {/* Formulas used summary (from formula_ids_used) */}
+          {formulaIdsUsed.length > 0 && (
+            <div className="mt-8 flex flex-wrap items-center gap-2">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                Formulas used
+              </span>
+              {formulaIdsUsed.map((fId) => (
+                <FormulaBadge
+                  key={fId}
+                  formulaId={fId}
+                  name={formulaInfoMap[fId]?.name ?? formulaIdToName(fId)}
+                  info={formulaInfoMap[fId]}
+                  href={`/gate/questions?formula=${encodeURIComponent(fId)}`}
+                  size="sm"
+                />
+              ))}
+            </div>
           )}
 
           {/* Formula note — only render when non-empty */}
-          {question.formulaNote && question.formulaNote.trim() !== '' && (
-            <div className="mt-8 flex items-start gap-2 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-[13px] leading-6 text-slate-600">
+          {question.formula_note && question.formula_note.trim() !== '' && (
+            <div className="mt-6 flex items-start gap-2 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-[13px] leading-6 text-slate-600">
               <Info className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
               <div className="flex-1">
                 <span className="font-semibold text-slate-700">Note: </span>
-                {question.formulaNote}
+                {question.formula_note}
               </div>
             </div>
           )}
@@ -630,7 +698,18 @@ export default function QuestionDetailPage() {
   )
 }
 
-/* ─── Drawer option row: label on top, expandable list of choices below ── */
+/* ─── Section heading component ─────────────────────────────────── */
+
+function SectionHeading({ icon, title }: { icon: React.ReactNode; title: string }) {
+  return (
+    <h2 className="flex items-center gap-2.5 scroll-m-20 border-b border-slate-200 pb-2 text-2xl font-semibold tracking-tight text-slate-900">
+      <span className="text-indigo-600">{icon}</span>
+      {title}
+    </h2>
+  )
+}
+
+/* ─── Drawer option row: label on top, expandable list of choices ── */
 
 function DrawerOption({
   label,
