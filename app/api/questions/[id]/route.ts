@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { connectDB } from '@/lib/mongodb'
 import QuestionModel from '@/models/Question'
-import { enrichQuestion } from '../route'
+import { enrichQuestion } from '@/lib/enrich-question'
 
 export async function GET(
   _request: NextRequest,
