@@ -26,15 +26,18 @@ export async function GET(request: NextRequest) {
     const pipeline: any[] = []
 
     if (conceptId) {
-      pipeline.push({ $match: { conceptId } })
+      // `conceptId` here is the URL-decoded meta.topic name in the new schema
+      pipeline.push({ $match: { 'meta.topic': conceptId } })
     }
 
-    // Only include documents that have at least one formulaId
-    pipeline.push({ $match: { formulaIds: { $exists: true, $ne: [] } } })
-    pipeline.push({ $unwind: '$formulaIds' })
+    // Only include documents that have at least one formula_ids_used
+    pipeline.push({
+      $match: { formula_ids_used: { $exists: true, $ne: [] } },
+    })
+    pipeline.push({ $unwind: '$formula_ids_used' })
     pipeline.push({
       $group: {
-        _id: '$formulaIds',
+        _id: '$formula_ids_used',
         count: { $sum: 1 },
       },
     })

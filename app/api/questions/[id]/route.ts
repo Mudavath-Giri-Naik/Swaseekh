@@ -10,8 +10,10 @@ export async function GET(
   try {
     await connectDB()
 
-    // Use findOne with _id string match instead of findById (which casts to ObjectId)
-    const question = await QuestionModel.findOne({ _id: params.id })
+    // _id and id are the same value in the new schema; match on either.
+    const question = await QuestionModel.findOne({
+      $or: [{ _id: params.id }, { id: params.id }],
+    })
       .lean()
       .exec()
 

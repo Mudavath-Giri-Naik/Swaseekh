@@ -11,14 +11,17 @@ import {
   SlidersHorizontal,
   Check,
   Info,
-  Target,
-  Lightbulb,
-  BookOpen,
-  Crosshair,
 } from 'lucide-react'
 import MathRenderer from '@/components/MathRenderer'
 import { slugify, cn } from '@/lib/utils'
 import FormulaBadge from '@/components/concept/FormulaBadge'
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from '@/components/ui/hover-card'
+import 'katex/dist/katex.min.css'
+import { InlineMath } from 'react-katex'
 import {
   Drawer,
   DrawerClose,
@@ -118,6 +121,106 @@ function formulaIdToName(id: string): string {
     .join(' ')
 }
 
+/**
+ * Pre-process an inline SVG string so it always renders its full content:
+ *   1. Strip any inline `width=` / `height=` attributes so our CSS controls
+ *      sizing (without them clashing).
+ *   2. Add `overflow="visible"` + `preserveAspectRatio="xMidYMid meet"` so
+ *      labels drawn just past the viewBox edge remain visible instead of
+ *      being clipped by the SVG box.
+ *   3. Pad the viewBox by ~6% horizontally and ~4% vertically so long
+ *      text labels (e.g. captions wider than the diagram itself) have
+ *      breathing room inside the displayed area.
+ */
+function prepSvg(raw: string | undefined | null): string {
+  if (!raw) return ''
+  let svg = raw
+
+  // Match the opening <svg ...> tag and operate on it.
+  const openMatch = svg.match(/<svg\b[^>]*>/i)
+  if (!openMatch) return svg
+  let openTag = openMatch[0]
+
+  // Strip fixed width/height
+  openTag = openTag.replace(/\s(width|height)="[^"]*"/gi, '')
+
+  // Pad the viewBox a bit so labels just outside it stay visible
+  openTag = openTag.replace(
+    /\bviewBox=(['"])([^'"]+)\1/i,
+    (_full, q, vb: string) => {
+      const parts = vb.trim().split(/[\s,]+/).map(Number)
+      if (parts.length !== 4 || parts.some((n) => Number.isNaN(n))) {
+        return `viewBox=${q}${vb}${q}`
+      }
+      const [minX, minY, w, h] = parts
+      const padX = w * 0.06
+      const padY = h * 0.04
+      const next = [
+        minX - padX,
+        minY - padY,
+        w + padX * 2,
+        h + padY * 2,
+      ]
+        .map((n) => +n.toFixed(2))
+        .join(' ')
+      return `viewBox=${q}${next}${q}`
+    }
+  )
+
+  // Force overflow + preserveAspectRatio
+  if (!/\soverflow=/i.test(openTag)) {
+    openTag = openTag.replace(/<svg\b/i, `<svg overflow="visible"`)
+  }
+  if (!/\spreserveAspectRatio=/i.test(openTag)) {
+    openTag = openTag.replace(
+      /<svg\b/i,
+      `<svg preserveAspectRatio="xMidYMid meet"`
+    )
+  }
+
+  return svg.replace(/<svg\b[^>]*>/i, openTag)
+}
+
+/**
+ * Pull inline MCQ/MSQ options out of a question stem like
+ *   "... How many? A. n! B. C(n,2k) C. ... D. ..."
+ * Returns the stem with the options stripped + the option strings in order.
+ * Falls back to `{ stem: text, options: [] }` when no valid A→B→C sequence
+ * is detected (prevents false matches on things like "1. A. block first").
+ */
+function splitInlineOptions(text: string): { stem: string; options: string[] } {
+  const re = /(?:^|\s)([A-F])\.\s/g
+  const found: { letter: string; idx: number; afterMarker: number }[] = []
+  let m: RegExpExecArray | null
+  while ((m = re.exec(text)) !== null) {
+    const letterIdx = m.index + (m[0].startsWith(' ') ? 1 : 0)
+    found.push({ letter: m[1], idx: letterIdx, afterMarker: re.lastIndex })
+  }
+  if (found.length < 2) return { stem: text, options: [] }
+
+  const EXPECTED = ['A', 'B', 'C', 'D', 'E', 'F']
+  // Walk from each A-occurrence (latest first) and grow the longest
+  // contiguous A,B,C,… sequence; pick the first start that yields ≥2 opts.
+  for (let start = found.length - 1; start >= 0; start--) {
+    if (found[start].letter !== 'A') continue
+    const seq = [found[start]]
+    for (let j = start + 1; j < found.length; j++) {
+      if (found[j].letter === EXPECTED[seq.length]) seq.push(found[j])
+    }
+    if (seq.length < 2) continue
+
+    const stem = text.slice(0, seq[0].idx).trim()
+    const options: string[] = []
+    for (let i = 0; i < seq.length; i++) {
+      const s = seq[i].afterMarker
+      const e = i + 1 < seq.length ? seq[i + 1].idx : text.length
+      options.push(text.slice(s, e).trim())
+    }
+    return { stem, options }
+  }
+  return { stem: text, options: [] }
+}
+
 interface SubjectLite {
   _id: string
   name: string
@@ -186,31 +289,14 @@ export default function QuestionDetailPage() {
       .catch(() => {})
   }, [question?.meta?.topic])
 
-  /* Fetch formula info from content API to build hover-preview map */
+  /* Fetch the global formula info map (id → { name, latex, plain }) once.
+     Used to power the hover-card preview on every formula chip on the page. */
   useEffect(() => {
-    if (!question?.formula_ids_used?.length) return
-
-    // Fetch the formulas content doc — it's a single doc in the 'content' collection.
-    // We try to find it via a known conceptId or fetch all content docs.
-    // Since formulas are in the content collection, let's fetch by a known concept.
-    const conceptId = question.meta?.subtopic || question.meta?.topic
-    if (!conceptId) return
-
-    fetch(`/api/content/${encodeURIComponent(conceptId)}`)
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (!data?.content?.groups) return
-        const map: Record<string, { name?: string; latex?: string; plain?: string }> = {}
-        for (const group of data.content.groups) {
-          for (const f of group.formulas ?? []) {
-            if (!f.formulaId) continue
-            map[f.formulaId] = { name: f.name, latex: f.latex, plain: f.plain }
-          }
-        }
-        setFormulaInfoMap(map)
-      })
+    fetch('/api/formulas/info')
+      .then((res) => (res.ok ? res.json() : {}))
+      .then((data) => setFormulaInfoMap(data ?? {}))
       .catch(() => {})
-  }, [question?.formula_ids_used, question?.meta?.subtopic, question?.meta?.topic])
+  }, [])
 
   /* Derive prev/next */
   const { prevId, nextId, currentIndex, total } = useMemo(() => {
@@ -400,13 +486,58 @@ export default function QuestionDetailPage() {
         </div>
       )}
 
-      {/* Question text */}
-      <div className="mt-8 text-[17px] leading-7 text-slate-900 [&_p]:mt-6 [&_p:first-child]:mt-0">
-        <span className="mr-2 font-bold text-slate-900">
-          {String(question._id).replace(/\D/g, '') || ''}. 
-        </span>
-        <MathRenderer text={questionText} />
-      </div>
+      {/* Question text — strip inline MCQ options out of the stem and
+          render them as a separate list (only for MCQ/MSQ types). */}
+      {(() => {
+        const isChoice =
+          (questionType ?? '').toUpperCase() === 'MCQ' ||
+          (questionType ?? '').toUpperCase() === 'MSQ'
+        const { stem, options } = isChoice
+          ? splitInlineOptions(questionText)
+          : { stem: questionText, options: [] as string[] }
+        const optionLabels = ['A', 'B', 'C', 'D', 'E', 'F']
+        const correctLetter = String(answer ?? '').trim().toUpperCase()
+
+        return (
+          <>
+            <div className="mt-8 text-[17px] leading-7 text-slate-900 [&_p]:mt-6 [&_p:first-child]:mt-0">
+              <span className="mr-2 font-bold text-slate-900">
+                {String(question._id).replace(/\D/g, '') || ''}.
+              </span>
+              <MathRenderer text={stem} />
+            </div>
+
+            {options.length > 0 && (
+              <ol className="mt-6 space-y-3">
+                {options.map((opt, i) => {
+                  const letter = optionLabels[i]
+                  const isCorrect = showAnswer && letter === correctLetter
+                  return (
+                    <li key={i} className="flex items-start gap-3">
+                      <span
+                        className={`mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[12px] font-bold ${
+                          isCorrect
+                            ? 'bg-emerald-100 text-emerald-700 ring-2 ring-emerald-300'
+                            : 'bg-slate-100 text-slate-600'
+                        }`}
+                      >
+                        {letter}
+                      </span>
+                      <span
+                        className={`flex-1 text-[16.5px] leading-7 ${
+                          isCorrect ? 'font-semibold text-emerald-800' : 'text-slate-800'
+                        }`}
+                      >
+                        <MathRenderer text={opt} />
+                      </span>
+                    </li>
+                  )
+                })}
+              </ol>
+            )}
+          </>
+        )
+      })()}
 
       {/* Show / hide answer */}
       <button
@@ -419,192 +550,185 @@ export default function QuestionDetailPage() {
 
       {showAnswer && (
         <>
-          {/* ═══ SECTION 1: Understand the Problem ═══════════════════ */}
+          {/* ═══ SECTION 1: Understand ═══════════════════════════════ */}
           {question.understand && (
-            <section className="mt-10">
-              <SectionHeading icon={<Lightbulb className="h-5 w-5" />} title="Understand the Problem" />
+            <section className="mt-12 sm:mt-14">
+              <NumberedHeading number={1} title="Understand" />
 
               {/* Plain restatement */}
               {question.understand.plain && (
-                <p className="mt-4 text-[17px] leading-7 text-slate-800">
+                <p className="mt-4 text-[16.5px] leading-[1.7] text-slate-800">
                   <MathRenderer text={question.understand.plain} />
                 </p>
               )}
 
-              {/* Visual SVG */}
+              {/* Visual SVG figure */}
               {question.understand.visual_svg && (
-                <div
-                  className="svg-visual-container mt-6 flex justify-center overflow-x-auto rounded-xl border border-slate-200 bg-slate-50/60 p-4"
-                  role="img"
-                  aria-label={question.understand.visual_alt || 'Visual diagram'}
-                  dangerouslySetInnerHTML={{ __html: question.understand.visual_svg }}
-                />
+                <figure className="mt-6">
+                  <div
+                    className="svg-visual-container -mx-1 overflow-x-auto rounded-lg bg-[#f5efe1] px-4 py-6 ring-1 ring-[#d6c8a6]/70 sm:mx-0 sm:px-6 sm:py-7"
+                    role="img"
+                    aria-label={question.understand.visual_alt || 'Visual diagram'}
+                    dangerouslySetInnerHTML={{
+                      __html: prepSvg(question.understand.visual_svg),
+                    }}
+                  />
+                </figure>
               )}
 
-              {/* Keywords */}
+              {/* Keywords — simple inline definitions */}
               {question.understand.keywords && question.understand.keywords.length > 0 && (
-                <div className="mt-6 flex flex-wrap gap-3">
+                <dl className="mt-6 space-y-2 text-[15px] leading-[1.6] text-slate-700">
                   {question.understand.keywords.map((kw, i) => (
-                    <div
-                      key={i}
-                      className="rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm"
-                    >
-                      <span className="text-[15px] font-bold text-slate-900">{kw.term}</span>
-                      <span className="mx-1.5 text-slate-300">—</span>
-                      <span className="text-[15px] text-slate-700">{kw.explain}</span>
-                      {kw.example && (
-                        <span className="ml-2 text-[13px] italic text-slate-400">
-                          e.g. {kw.example}
-                        </span>
-                      )}
+                    <div key={i} className="flex flex-wrap items-baseline gap-x-1.5">
+                      <dt className="font-bold text-slate-900">{kw.term}</dt>
+                      <dd className="text-slate-400">=</dd>
+                      <dd className="flex-1">
+                        {kw.explain}
+                        {kw.example && (
+                          <span className="text-slate-400"> ({kw.example})</span>
+                        )}
+                      </dd>
                     </div>
                   ))}
-                </div>
+                </dl>
               )}
             </section>
           )}
 
-          {/* ═══ SECTION 2: Given ═══════════════════════════════════ */}
+          {/* ═══ SECTION 2: Given ════════════════════════════════════ */}
           {question.given && (
-            <section className="mt-10">
-              <SectionHeading icon={<BookOpen className="h-5 w-5" />} title="Given" />
+            <section className="mt-12 sm:mt-14">
+              <NumberedHeading number={2} title="Given" />
 
-              {/* Aim */}
+              {/* Aim — small caption above the table (optional) */}
               {question.given.aim && (
-                <div className="mt-4 rounded-xl border border-indigo-200 bg-indigo-50/50 px-5 py-4">
-                  <div className="text-[11px] font-semibold uppercase tracking-wider text-indigo-500">
-                    Goal
-                  </div>
-                  <p className="mt-1 text-[17px] font-medium leading-7 text-indigo-900">
-                    {question.given.aim}
-                  </p>
-                </div>
+                <p className="mt-3 text-[15px] leading-[1.6] text-slate-700">
+                  <span className="font-semibold text-slate-900">Goal: </span>
+                  {question.given.aim}
+                </p>
               )}
 
-              {/* Terms grid */}
+              {/* Terms — clean textbook-style table */}
               {question.given.terms && question.given.terms.length > 0 && (
-                <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                  {question.given.terms.map((t, i) => (
-                    <div
-                      key={i}
-                      className="rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm"
-                    >
-                      <div className="text-[16px] font-bold text-slate-900">{t.term}</div>
-                      <div className="mt-1 text-[14px] text-slate-600">{t.meaning}</div>
-                      {t.example && (
-                        <div className="mt-1.5 text-[13px] text-slate-400">
-                          <span className="font-medium text-slate-500">e.g.</span> {t.example}
-                        </div>
-                      )}
-                      {t.connects && (
-                        <div className="mt-2 border-t border-slate-100 pt-2 text-[13px] text-slate-500">
-                          <span className="font-medium text-slate-600">↗ </span>
-                          {t.connects}
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                <div className="mt-5 -mx-4 overflow-x-auto sm:mx-0">
+                  <table className="w-full min-w-[560px] border-collapse text-left text-[14px] leading-[1.55] sm:text-[14.5px]">
+                    <thead>
+                      <tr className="border-b border-slate-300 text-[12.5px] font-bold text-slate-900">
+                        <th scope="col" className="px-3 py-2.5 sm:px-4 w-[14%]">Term</th>
+                        <th scope="col" className="px-3 py-2.5 sm:px-4 w-[24%]">Meaning</th>
+                        <th scope="col" className="px-3 py-2.5 sm:px-4 w-[28%]">Example</th>
+                        <th scope="col" className="px-3 py-2.5 sm:px-4 w-[34%]">In simple words</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-slate-700">
+                      {question.given.terms.map((t, i) => (
+                        <tr key={i} className="border-b border-slate-200/80 align-top">
+                          <td className="px-3 py-3 sm:px-4">
+                            <span className="font-bold text-slate-900">
+                              <MathRenderer text={t.term} />
+                            </span>
+                          </td>
+                          <td className="px-3 py-3 sm:px-4">{t.meaning}</td>
+                          <td className="px-3 py-3 sm:px-4 text-slate-600">
+                            <MathRenderer text={t.example ?? ''} />
+                          </td>
+                          <td className="px-3 py-3 sm:px-4">{t.connects}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               )}
 
-              {/* Plan */}
+              {/* Plan — small footnote line under the table */}
               {question.given.plan && (
-                <div className="mt-5 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50/50 px-5 py-3">
-                  <Target className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
-                  <div>
-                    <div className="text-[11px] font-semibold uppercase tracking-wider text-amber-600">
-                      Strategy
-                    </div>
-                    <p className="mt-0.5 text-[15px] leading-6 text-amber-900">
-                      {question.given.plan}
-                    </p>
-                  </div>
-                </div>
+                <p className="mt-5 border-l-2 border-slate-300 pl-3 text-[14.5px] leading-[1.6] italic text-slate-600">
+                  <span className="font-bold not-italic text-slate-800">Plan: </span>
+                  {question.given.plan}
+                </p>
               )}
 
-              {/* To find */}
+              {/* To find — sentence */}
               {question.to_find && (
-                <div className="mt-5 flex items-start gap-3 rounded-xl border border-violet-200 bg-violet-50/50 px-5 py-3">
-                  <Crosshair className="mt-0.5 h-4 w-4 shrink-0 text-violet-600" />
-                  <div>
-                    <div className="text-[11px] font-semibold uppercase tracking-wider text-violet-600">
-                      What we need to find
-                    </div>
-                    <p className="mt-0.5 text-[15px] font-medium leading-6 text-violet-900">
-                      <MathRenderer text={question.to_find} />
-                    </p>
-                  </div>
-                </div>
+                <p className="mt-4 text-[16px] leading-[1.6] text-slate-800">
+                  <span className="font-bold text-slate-900">To find: </span>
+                  <MathRenderer text={question.to_find} />
+                </p>
               )}
             </section>
           )}
 
-          {/* ═══ SECTION 3: Step-by-step Solution ═══════════════════ */}
+          {/* ═══ SECTION 3: Step-by-step solution ════════════════════ */}
           {question.solution && question.solution.steps && question.solution.steps.length > 0 && (
-            <section className="mt-10">
-              <SectionHeading
-                icon={<span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-900 text-[11px] font-bold text-white">S</span>}
-                title="Step-by-step Solution"
-              />
+            <section className="mt-12 sm:mt-14">
+              <NumberedHeading number={3} title="Step-by-step solution" />
 
-              <ol className="mt-6 space-y-6">
-                {question.solution.steps.map((step) => (
-                  <li key={step.step} className="relative pl-10">
-                    {/* Step number */}
-                    <span className="absolute left-0 top-0 inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-900 text-xs font-bold text-white">
-                      {step.step}
-                    </span>
+              <div className="mt-5 space-y-7">
+                {question.solution.steps.map((step) => {
+                  const fName = step.formula_id
+                    ? formulaInfoMap[step.formula_id]?.name ?? formulaIdToName(step.formula_id)
+                    : null
+                  return (
+                    <div key={step.step}>
+                      {/* Inline step heading: "Step N — Title (Formula Name)" */}
+                      <h3 className="text-[16px] font-bold leading-[1.45] text-slate-900 sm:text-[17px]">
+                        Step {step.step}
+                        <span className="mx-1.5 text-slate-400">—</span>
+                        <MathRenderer text={step.title} />
+                        {fName && (
+                          <span className="text-slate-600">
+                            {' '}({step.formula_id ? (
+                              <FormulaInlineLink
+                                formulaId={step.formula_id}
+                                name={fName}
+                                info={formulaInfoMap[step.formula_id]}
+                              />
+                            ) : fName})
+                          </span>
+                        )}
+                      </h3>
 
-                    {/* Title */}
-                    <div className="text-[16px] font-semibold text-slate-900">
-                      {step.title}
+                      {/* Raw + Apply monospace block */}
+                      {(step.formula_raw || step.apply) && (
+                        <div className="mt-3 overflow-x-auto rounded-md bg-[#fafaf7] px-4 py-3 font-mono text-[13.5px] leading-[1.85] text-slate-800 ring-1 ring-slate-200/80">
+                          {step.formula_raw && (
+                            <div className="flex gap-3">
+                              <span className="w-[52px] shrink-0 select-none text-slate-400">Raw:</span>
+                              <span className="flex-1">
+                                <MathRenderer text={step.formula_raw} />
+                              </span>
+                            </div>
+                          )}
+                          {step.apply && (
+                            <div className="flex gap-3">
+                              <span className="w-[52px] shrink-0 select-none text-slate-400">Apply:</span>
+                              <span className="flex-1 text-slate-900">
+                                <MathRenderer text={step.apply} />
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Note */}
+                      {step.note && (
+                        <p className="mt-3 text-[14px] leading-[1.65] text-slate-600">
+                          ({step.note})
+                        </p>
+                      )}
                     </div>
+                  )
+                })}
+              </div>
 
-                    {/* Formula chip (clickable) */}
-                    {step.formula_id && (
-                      <div className="mt-2">
-                        <FormulaBadge
-                          formulaId={step.formula_id}
-                          name={formulaInfoMap[step.formula_id]?.name ?? formulaIdToName(step.formula_id)}
-                          info={formulaInfoMap[step.formula_id]}
-                          primary
-                          href={`/gate/questions?formula=${encodeURIComponent(step.formula_id)}`}
-                          size="sm"
-                        />
-                      </div>
-                    )}
-
-                    {/* Raw formula (no values) */}
-                    {step.formula_raw && (
-                      <div className="mt-2 rounded-lg bg-slate-100 px-4 py-2 font-mono text-[14px] text-slate-700">
-                        <MathRenderer text={step.formula_raw} />
-                      </div>
-                    )}
-
-                    {/* Applied formula (with values) */}
-                    {step.apply && (
-                      <div className="mt-2 rounded-lg border border-emerald-200 bg-emerald-50/50 px-4 py-2 text-[15px] text-emerald-900">
-                        <MathRenderer text={step.apply} />
-                      </div>
-                    )}
-
-                    {/* Note */}
-                    {step.note && (
-                      <p className="mt-2 text-[13px] leading-5 text-slate-500 italic">
-                        {step.note}
-                      </p>
-                    )}
-                  </li>
-                ))}
-              </ol>
-
-              {/* Final result */}
+              {/* Result block */}
               {question.solution.result && (
-                <div className="mt-8 rounded-xl border-2 border-emerald-300 bg-emerald-50 px-5 py-4 text-center">
-                  <div className="text-[11px] font-semibold uppercase tracking-wider text-emerald-600">
-                    Final Answer
-                  </div>
-                  <div className="mt-1 text-xl font-bold text-emerald-900">
+                <div className="mt-8">
+                  <h3 className="text-[16px] font-bold text-slate-900 sm:text-[17px]">
+                    Result
+                  </h3>
+                  <div className="mt-2 overflow-x-auto rounded-md bg-[#fafaf7] px-4 py-3 font-mono text-[15px] font-semibold leading-[1.6] text-slate-900 ring-1 ring-slate-200/80">
                     <MathRenderer text={question.solution.result} />
                   </div>
                 </div>
@@ -698,13 +822,51 @@ export default function QuestionDetailPage() {
   )
 }
 
-/* ─── Section heading component ─────────────────────────────────── */
+/* ─── Inline formula link with a hover preview ──────────────────────── */
 
-function SectionHeading({ icon, title }: { icon: React.ReactNode; title: string }) {
+function FormulaInlineLink({
+  formulaId,
+  name,
+  info,
+}: {
+  formulaId: string
+  name: string
+  info?: { name?: string; latex?: string; plain?: string }
+}) {
   return (
-    <h2 className="flex items-center gap-2.5 scroll-m-20 border-b border-slate-200 pb-2 text-2xl font-semibold tracking-tight text-slate-900">
-      <span className="text-indigo-600">{icon}</span>
-      {title}
+    <HoverCard openDelay={80} closeDelay={120}>
+      <HoverCardTrigger asChild>
+        <Link
+          href={`/gate/questions?formula=${encodeURIComponent(formulaId)}`}
+          className="font-normal text-indigo-600 underline-offset-4 hover:underline"
+        >
+          {name}
+        </Link>
+      </HoverCardTrigger>
+      <HoverCardContent className="w-auto min-w-[14rem] max-w-sm" side="top">
+        <div className="text-[12px] font-semibold uppercase tracking-wider text-indigo-700">
+          {info?.name ?? name}
+        </div>
+        <div className="mt-1.5 overflow-x-auto rounded-md bg-slate-50 px-3 py-2 text-center text-[15px] text-slate-900">
+          {info?.latex ? (
+            <InlineMath math={info.latex} />
+          ) : (
+            <span className="font-mono text-[13px] text-slate-700">
+              {info?.plain ?? '—'}
+            </span>
+          )}
+        </div>
+      </HoverCardContent>
+    </HoverCard>
+  )
+}
+
+/* ─── Numbered section heading: "1. Understand", "2. Given", … ─────── */
+
+function NumberedHeading({ number, title }: { number: number; title: string }) {
+  return (
+    <h2 className="scroll-m-20 text-[18px] font-bold leading-[1.3] text-slate-900 sm:text-[19px]">
+      {number}. {title}
     </h2>
   )
 }

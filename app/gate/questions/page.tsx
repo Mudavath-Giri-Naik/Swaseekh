@@ -180,7 +180,7 @@ function QuestionsListPageInner() {
   useEffect(() => {
     if (questions.length === 0) return
 
-    // Collect all unique formula IDs
+    // Collect all unique formula IDs across questions
     const allIds = new Set<string>()
     questions.forEach((q) => {
       if (q.formulaId) allIds.add(q.formulaId)
@@ -189,50 +189,24 @@ function QuestionsListPageInner() {
 
     if (allIds.size === 0) return
 
-    // Collect unique concept names that have formulas
-    const conceptsWithFormulas = new Set<string>()
-    questions.forEach((q) => {
-      if (q.formulaIds?.length > 0 || q.formulaId) {
-        conceptsWithFormulas.add(q.conceptName)
-      }
-    })
-
-    // Fetch content for each concept to get formula names
-    const fetchPromises = Array.from(conceptsWithFormulas).map((cId) =>
-      fetch(`/api/content/${encodeURIComponent(cId)}`)
-        .then((res) => (res.ok ? res.json() : null))
-        .catch(() => null)
-    )
-
-    Promise.all(fetchPromises).then((results) => {
-      const nameMap: Record<string, string> = {}
-      const infoMap: Record<string, { name?: string; latex?: string; plain?: string }> = {}
-
-      results.forEach((data) => {
-        if (!data?.content?.groups) return
-        for (const group of data.content.groups) {
-          for (const f of group.formulas ?? []) {
-            if (!f.formulaId) continue
-            if (f.name) nameMap[f.formulaId] = f.name
-            infoMap[f.formulaId] = {
-              name: f.name,
-              latex: f.latex,
-              plain: f.plain,
-            }
-          }
-        }
+    // Fetch the single, app-wide formula info map. Cheaper + more reliable
+    // than scanning per-concept content docs (the new schema doesn't carry
+    // a conceptId on questions, so per-concept lookups would 404).
+    fetch('/api/formulas/info')
+      .then((res) => (res.ok ? res.json() : {}))
+      .then((info: Record<string, { name?: string; latex?: string; plain?: string }>) => {
+        const nameMap: Record<string, string> = {}
+        Object.entries(info ?? {}).forEach(([id, v]) => {
+          if (v?.name) nameMap[id] = v.name
+        })
+        // Fill any remaining IDs with humanized fallbacks
+        allIds.forEach((id) => {
+          if (!nameMap[id]) nameMap[id] = formulaIdToName(id)
+        })
+        setFormulaNameMap(nameMap)
+        setFormulaInfoMap(info ?? {})
       })
-
-      // Fill any remaining formula IDs with humanized fallbacks
-      allIds.forEach((id) => {
-        if (!nameMap[id]) {
-          nameMap[id] = formulaIdToName(id)
-        }
-      })
-
-      setFormulaNameMap(nameMap)
-      setFormulaInfoMap(infoMap)
-    })
+      .catch(() => {})
   }, [questions])
 
   // Derived filter options
