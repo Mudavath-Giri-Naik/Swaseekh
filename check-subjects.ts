@@ -9,7 +9,7 @@ async function check() {
   subjects.forEach(s => console.log(`_id: ${s._id}, name: ${s.name}`));
 
   const questions = await QuestionModel.find({}).limit(1).lean();
-  console.log('\nSample question subjectId:', questions[0]?.subjectId);
+  console.log('\nSample question subject:', (questions[0] as any)?.meta?.subject);
   
   process.exit(0);
 }
