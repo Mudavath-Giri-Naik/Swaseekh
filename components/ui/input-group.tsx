@@ -19,7 +19,9 @@ const InputGroup = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "flex h-10 items-center gap-2 rounded-md border border-slate-200 bg-white px-3 text-sm transition-colors focus-within:border-slate-400 focus-within:ring-2 focus-within:ring-slate-200",
+      // Light: card bg + soft border. Dark: borderless translucent chip.
+      "flex h-10 items-center gap-2 rounded-md border bg-card px-3 text-sm transition-colors focus-within:border-foreground/30 focus-within:ring-2 focus-within:ring-ring/20",
+      "dark:border-transparent dark:bg-white/[0.04] dark:focus-within:bg-white/[0.06] dark:focus-within:ring-white/10",
       className
     )}
     {...props}
@@ -34,7 +36,7 @@ const InputGroupInput = React.forwardRef<
   <input
     ref={ref}
     className={cn(
-      "min-w-0 flex-1 bg-transparent text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none",
+      "min-w-0 flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none",
       className
     )}
     {...props}
@@ -51,7 +53,7 @@ const InputGroupAddon = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "flex shrink-0 items-center text-slate-500 [&>svg]:h-4 [&>svg]:w-4",
+      "flex shrink-0 items-center text-muted-foreground [&>svg]:h-4 [&>svg]:w-4",
       align === "inline-end" ? "order-last text-xs" : "",
       className
     )}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
@@ -12,9 +12,10 @@ import {
   Check,
   Info,
 } from 'lucide-react'
-import MathRenderer from '@/components/MathRenderer'
 import { slugify, cn } from '@/lib/utils'
 import FormulaBadge from '@/components/concept/FormulaBadge'
+import { enhanceSvgMath } from '@/lib/svg-math'
+import { AsciiMath, SmartText } from '@/components/concept/SmartText'
 import {
   HoverCard,
   HoverCardContent,
@@ -346,7 +347,7 @@ export default function QuestionDetailPage() {
   if (loading) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-slate-200 border-t-slate-700" />
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border border-t-slate-700" />
       </div>
     )
   }
@@ -354,10 +355,10 @@ export default function QuestionDetailPage() {
   if (!question) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <p className="text-base text-slate-500">Question not found.</p>
+        <p className="text-base text-muted-foreground">Question not found.</p>
         <Link
           href="/gate/questions"
-          className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-slate-900 underline-offset-4 hover:underline"
+          className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline"
         >
           <ArrowLeft className="h-4 w-4" /> Back to all questions
         </Link>
@@ -383,10 +384,10 @@ export default function QuestionDetailPage() {
   return (
     <article className="mx-auto max-w-3xl px-4 pb-12 sm:px-6 sm:pb-16">
       {/* Sticky top bar */}
-      <div className="sticky top-0 z-30 -mx-4 flex items-center justify-between border-b border-slate-200 bg-white/85 px-4 py-2.5 backdrop-blur sm:-mx-6 sm:px-6">
+      <div className="sticky top-0 z-30 -mx-4 flex items-center justify-between border-b border-border/60 bg-background/85 px-4 py-2.5 backdrop-blur dark:border-transparent sm:-mx-6 sm:px-6">
         <Link
           href="/gate/questions"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 transition-colors hover:text-slate-900"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
           All questions
@@ -397,7 +398,7 @@ export default function QuestionDetailPage() {
             <button
               type="button"
               aria-label="Filter questions"
-              className="inline-flex h-8 w-8 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
             >
               <SlidersHorizontal className="h-4 w-4" />
             </button>
@@ -427,7 +428,7 @@ export default function QuestionDetailPage() {
                 <DrawerClose asChild>
                   <button
                     type="button"
-                    className="inline-flex h-10 w-full items-center justify-center rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
+                    className="inline-flex h-10 w-full items-center justify-center rounded-lg border border bg-card text-sm font-medium text-foreground/80 transition-colors hover:bg-accent"
                   >
                     Close
                   </button>
@@ -439,13 +440,13 @@ export default function QuestionDetailPage() {
       </div>
 
       {/* Eyebrow meta */}
-      <p className="mt-10 text-sm text-slate-500">
+      <p className="mt-10 text-sm text-muted-foreground">
         {meta.exam || `GATE ${year}`} · {marks} mark
         {marks > 1 ? 's' : ''} · {difficulty} · {questionType}
         {currentIndex >= 0 && total > 0 && (
           <>
             {' · '}
-            <span className="font-medium text-slate-700">
+            <span className="font-medium text-foreground/80">
               {currentIndex + 1} / {total}
             </span>
           </>
@@ -453,19 +454,19 @@ export default function QuestionDetailPage() {
       </p>
 
       {/* H1 — concept/topic title */}
-      <h1 className="mt-2 scroll-m-20 text-3xl font-extrabold tracking-tight text-balance text-slate-900 sm:text-4xl">
+      <h1 className="mt-2 scroll-m-20 text-3xl font-extrabold tracking-tight text-balance text-foreground sm:text-4xl">
         {conceptName}
       </h1>
 
       {/* Subject / topic breadcrumb */}
-      <p className="mt-3 text-base text-slate-500 sm:text-lg">
+      <p className="mt-3 text-base text-muted-foreground sm:text-lg">
         {subjectName} · {topicName}
       </p>
 
       {/* Formula badges — from formula_ids_used */}
       {formulaIdsUsed.length > 0 && (
         <div className="mt-4 flex flex-wrap items-center gap-2">
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
             Formulas
           </span>
           {formulaIdsUsed.map((fId) => {
@@ -500,11 +501,11 @@ export default function QuestionDetailPage() {
 
         return (
           <>
-            <div className="mt-8 text-[17px] leading-7 text-slate-900 [&_p]:mt-6 [&_p:first-child]:mt-0">
-              <span className="mr-2 font-bold text-slate-900">
+            <div className="mt-8 text-[17px] leading-7 text-foreground [&_p]:mt-6 [&_p:first-child]:mt-0">
+              <span className="mr-2 font-bold text-foreground">
                 {String(question._id).replace(/\D/g, '') || ''}.
               </span>
-              <MathRenderer text={stem} />
+              <SmartText text={stem} />
             </div>
 
             {options.length > 0 && (
@@ -518,17 +519,17 @@ export default function QuestionDetailPage() {
                         className={`mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[12px] font-bold ${
                           isCorrect
                             ? 'bg-emerald-100 text-emerald-700 ring-2 ring-emerald-300'
-                            : 'bg-slate-100 text-slate-600'
+                            : 'bg-muted text-muted-foreground'
                         }`}
                       >
                         {letter}
                       </span>
                       <span
                         className={`flex-1 text-[16.5px] leading-7 ${
-                          isCorrect ? 'font-semibold text-emerald-800' : 'text-slate-800'
+                          isCorrect ? 'font-semibold text-emerald-800' : 'text-foreground/90'
                         }`}
                       >
-                        <MathRenderer text={opt} />
+                        <SmartText text={opt} />
                       </span>
                     </li>
                   )
@@ -557,36 +558,34 @@ export default function QuestionDetailPage() {
 
               {/* Plain restatement */}
               {question.understand.plain && (
-                <p className="mt-4 text-[16.5px] leading-[1.7] text-slate-800">
-                  <MathRenderer text={question.understand.plain} />
+                <p className="mt-4 text-[16.5px] leading-[1.7] text-foreground/90">
+                  <SmartText text={question.understand.plain} />
                 </p>
               )}
 
               {/* Visual SVG figure */}
               {question.understand.visual_svg && (
-                <figure className="mt-6">
-                  <div
-                    className="svg-visual-container -mx-1 overflow-x-auto rounded-lg bg-[#f5efe1] px-4 py-6 ring-1 ring-[#d6c8a6]/70 sm:mx-0 sm:px-6 sm:py-7"
-                    role="img"
-                    aria-label={question.understand.visual_alt || 'Visual diagram'}
-                    dangerouslySetInnerHTML={{
-                      __html: prepSvg(question.understand.visual_svg),
-                    }}
+                <figure className="mt-6 flex justify-center">
+                  <PageSvgVisual
+                    svg={question.understand.visual_svg}
+                    alt={question.understand.visual_alt}
                   />
                 </figure>
               )}
 
               {/* Keywords — simple inline definitions */}
               {question.understand.keywords && question.understand.keywords.length > 0 && (
-                <dl className="mt-6 space-y-2 text-[15px] leading-[1.6] text-slate-700">
+                <dl className="mt-6 space-y-2 text-[15px] leading-[1.6] text-foreground/80">
                   {question.understand.keywords.map((kw, i) => (
                     <div key={i} className="flex flex-wrap items-baseline gap-x-1.5">
-                      <dt className="font-bold text-slate-900">{kw.term}</dt>
-                      <dd className="text-slate-400">=</dd>
+                      <dt className="font-bold text-foreground">{kw.term}</dt>
+                      <dd className="text-muted-foreground/70">=</dd>
                       <dd className="flex-1">
-                        {kw.explain}
+                        <SmartText text={kw.explain} />
                         {kw.example && (
-                          <span className="text-slate-400"> ({kw.example})</span>
+                          <span className="text-muted-foreground/70">
+                            {' '}(<SmartText text={kw.example} />)
+                          </span>
                         )}
                       </dd>
                     </div>
@@ -603,9 +602,9 @@ export default function QuestionDetailPage() {
 
               {/* Aim — small caption above the table (optional) */}
               {question.given.aim && (
-                <p className="mt-3 text-[15px] leading-[1.6] text-slate-700">
-                  <span className="font-semibold text-slate-900">Goal: </span>
-                  {question.given.aim}
+                <p className="mt-3 text-[15px] leading-[1.6] text-foreground/80">
+                  <span className="font-semibold text-foreground">Goal: </span>
+                  <SmartText text={question.given.aim} />
                 </p>
               )}
 
@@ -614,26 +613,30 @@ export default function QuestionDetailPage() {
                 <div className="mt-5 -mx-4 overflow-x-auto sm:mx-0">
                   <table className="w-full min-w-[560px] border-collapse text-left text-[14px] leading-[1.55] sm:text-[14.5px]">
                     <thead>
-                      <tr className="border-b border-slate-300 text-[12.5px] font-bold text-slate-900">
+                      <tr className="border-b border-border text-[12.5px] font-bold text-foreground">
                         <th scope="col" className="px-3 py-2.5 sm:px-4 w-[14%]">Term</th>
                         <th scope="col" className="px-3 py-2.5 sm:px-4 w-[24%]">Meaning</th>
                         <th scope="col" className="px-3 py-2.5 sm:px-4 w-[28%]">Example</th>
                         <th scope="col" className="px-3 py-2.5 sm:px-4 w-[34%]">In simple words</th>
                       </tr>
                     </thead>
-                    <tbody className="text-slate-700">
+                    <tbody className="text-foreground/80">
                       {question.given.terms.map((t, i) => (
-                        <tr key={i} className="border-b border-slate-200/80 align-top">
+                        <tr key={i} className="border-b border-border/60 align-top">
                           <td className="px-3 py-3 sm:px-4">
-                            <span className="font-bold text-slate-900">
-                              <MathRenderer text={t.term} />
+                            <span className="font-bold text-foreground">
+                              <SmartText text={t.term} />
                             </span>
                           </td>
-                          <td className="px-3 py-3 sm:px-4">{t.meaning}</td>
-                          <td className="px-3 py-3 sm:px-4 text-slate-600">
-                            <MathRenderer text={t.example ?? ''} />
+                          <td className="px-3 py-3 sm:px-4">
+                            <SmartText text={t.meaning} />
                           </td>
-                          <td className="px-3 py-3 sm:px-4">{t.connects}</td>
+                          <td className="px-3 py-3 sm:px-4 text-muted-foreground">
+                            <SmartText text={t.example ?? ''} />
+                          </td>
+                          <td className="px-3 py-3 sm:px-4">
+                            <SmartText text={t.connects} />
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -643,17 +646,17 @@ export default function QuestionDetailPage() {
 
               {/* Plan — small footnote line under the table */}
               {question.given.plan && (
-                <p className="mt-5 border-l-2 border-slate-300 pl-3 text-[14.5px] leading-[1.6] italic text-slate-600">
-                  <span className="font-bold not-italic text-slate-800">Plan: </span>
-                  {question.given.plan}
+                <p className="mt-5 border-l-2 border-border pl-3 text-[14.5px] leading-[1.6] italic text-muted-foreground">
+                  <span className="font-bold not-italic text-foreground/90">Plan: </span>
+                  <SmartText text={question.given.plan} />
                 </p>
               )}
 
               {/* To find — sentence */}
               {question.to_find && (
-                <p className="mt-4 text-[16px] leading-[1.6] text-slate-800">
-                  <span className="font-bold text-slate-900">To find: </span>
-                  <MathRenderer text={question.to_find} />
+                <p className="mt-4 text-[16px] leading-[1.6] text-foreground/90">
+                  <span className="font-bold text-foreground">To find: </span>
+                  <SmartText text={question.to_find} />
                 </p>
               )}
             </section>
@@ -672,12 +675,12 @@ export default function QuestionDetailPage() {
                   return (
                     <div key={step.step}>
                       {/* Inline step heading: "Step N — Title (Formula Name)" */}
-                      <h3 className="text-[16px] font-bold leading-[1.45] text-slate-900 sm:text-[17px]">
+                      <h3 className="text-[16px] font-bold leading-[1.45] text-foreground sm:text-[17px]">
                         Step {step.step}
-                        <span className="mx-1.5 text-slate-400">—</span>
-                        <MathRenderer text={step.title} />
+                        <span className="mx-1.5 text-muted-foreground/70">—</span>
+                        <SmartText text={step.title} />
                         {fName && (
-                          <span className="text-slate-600">
+                          <span className="text-muted-foreground">
                             {' '}({step.formula_id ? (
                               <FormulaInlineLink
                                 formulaId={step.formula_id}
@@ -689,22 +692,22 @@ export default function QuestionDetailPage() {
                         )}
                       </h3>
 
-                      {/* Raw + Apply monospace block */}
+                      {/* Raw + Apply block — KaTeX rendered */}
                       {(step.formula_raw || step.apply) && (
-                        <div className="mt-3 overflow-x-auto rounded-md bg-[#fafaf7] px-4 py-3 font-mono text-[13.5px] leading-[1.85] text-slate-800 ring-1 ring-slate-200/80">
+                        <div className="mt-3 overflow-x-auto rounded-md bg-muted/40 px-4 py-3 text-[14px] leading-[1.85] text-foreground/90 ring-1 ring-border sm:text-[15px]">
                           {step.formula_raw && (
-                            <div className="flex gap-3">
-                              <span className="w-[52px] shrink-0 select-none text-slate-400">Raw:</span>
+                            <div className="flex items-center gap-3">
+                              <span className="w-[52px] shrink-0 select-none font-mono text-[12px] text-muted-foreground/70">Raw:</span>
                               <span className="flex-1">
-                                <MathRenderer text={step.formula_raw} />
+                                <AsciiMath text={step.formula_raw} />
                               </span>
                             </div>
                           )}
                           {step.apply && (
-                            <div className="flex gap-3">
-                              <span className="w-[52px] shrink-0 select-none text-slate-400">Apply:</span>
-                              <span className="flex-1 text-slate-900">
-                                <MathRenderer text={step.apply} />
+                            <div className="flex items-center gap-3">
+                              <span className="w-[52px] shrink-0 select-none font-mono text-[12px] text-muted-foreground/70">Apply:</span>
+                              <span className="flex-1 text-foreground">
+                                <AsciiMath text={step.apply} />
                               </span>
                             </div>
                           )}
@@ -713,7 +716,7 @@ export default function QuestionDetailPage() {
 
                       {/* Note */}
                       {step.note && (
-                        <p className="mt-3 text-[14px] leading-[1.65] text-slate-600">
+                        <p className="mt-3 text-[14px] leading-[1.65] text-muted-foreground">
                           ({step.note})
                         </p>
                       )}
@@ -725,11 +728,11 @@ export default function QuestionDetailPage() {
               {/* Result block */}
               {question.solution.result && (
                 <div className="mt-8">
-                  <h3 className="text-[16px] font-bold text-slate-900 sm:text-[17px]">
+                  <h3 className="text-[16px] font-bold text-foreground sm:text-[17px]">
                     Result
                   </h3>
-                  <div className="mt-2 overflow-x-auto rounded-md bg-[#fafaf7] px-4 py-3 font-mono text-[15px] font-semibold leading-[1.6] text-slate-900 ring-1 ring-slate-200/80">
-                    <MathRenderer text={question.solution.result} />
+                  <div className="mt-2 overflow-x-auto rounded-md bg-muted/40 px-4 py-3 text-[16px] font-semibold leading-[1.6] text-foreground ring-1 ring-border sm:text-[17px]">
+                    <AsciiMath text={question.solution.result} />
                   </div>
                 </div>
               )}
@@ -743,7 +746,7 @@ export default function QuestionDetailPage() {
                 Answer
               </div>
               <div className="mt-1 text-[18px] font-semibold text-emerald-900">
-                <MathRenderer text={answer} />
+                <AsciiMath text={answer} />
               </div>
             </div>
           )}
@@ -751,7 +754,7 @@ export default function QuestionDetailPage() {
           {/* Formulas used summary (from formula_ids_used) */}
           {formulaIdsUsed.length > 0 && (
             <div className="mt-8 flex flex-wrap items-center gap-2">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
                 Formulas used
               </span>
               {formulaIdsUsed.map((fId) => (
@@ -769,10 +772,10 @@ export default function QuestionDetailPage() {
 
           {/* Formula note — only render when non-empty */}
           {question.formula_note && question.formula_note.trim() !== '' && (
-            <div className="mt-6 flex items-start gap-2 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-[13px] leading-6 text-slate-600">
-              <Info className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
+            <div className="mt-6 flex items-start gap-2 rounded-lg border bg-muted/50 px-4 py-3 text-[13px] leading-6 text-muted-foreground dark:border-transparent">
+              <Info className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
               <div className="flex-1">
-                <span className="font-semibold text-slate-700">Note: </span>
+                <span className="font-semibold text-foreground/80">Note: </span>
                 {question.formula_note}
               </div>
             </div>
@@ -782,17 +785,17 @@ export default function QuestionDetailPage() {
 
       {/* Prev / Next navigation */}
       {(prevId || nextId) && (
-        <nav className="mt-16 grid grid-cols-2 gap-3 border-t border-slate-200 pt-6 sm:gap-8">
+        <nav className="mt-16 grid grid-cols-2 gap-3 border-t border-border/60 pt-6 dark:border-transparent sm:gap-8">
           {prevId ? (
             <button
               type="button"
               onClick={() => goToQuestion(prevId)}
               className="group flex flex-col items-start gap-1 text-left transition-colors hover:text-indigo-700"
             >
-              <span className="inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-slate-500 group-hover:text-indigo-600">
+              <span className="inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground group-hover:text-indigo-600">
                 <ChevronLeft className="h-3.5 w-3.5" /> Previous
               </span>
-              <span className="text-sm font-semibold text-slate-900 group-hover:text-indigo-700">
+              <span className="text-sm font-semibold text-foreground group-hover:text-indigo-700">
                 Question {currentIndex}
               </span>
             </button>
@@ -806,10 +809,10 @@ export default function QuestionDetailPage() {
               onClick={() => goToQuestion(nextId)}
               className="group flex flex-col items-end gap-1 text-right transition-colors hover:text-indigo-700"
             >
-              <span className="inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-slate-500 group-hover:text-indigo-600">
+              <span className="inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground group-hover:text-indigo-600">
                 Next <ChevronRight className="h-3.5 w-3.5" />
               </span>
-              <span className="text-sm font-semibold text-slate-900 group-hover:text-indigo-700">
+              <span className="text-sm font-semibold text-foreground group-hover:text-indigo-700">
                 Question {currentIndex + 2}
               </span>
             </button>
@@ -819,6 +822,39 @@ export default function QuestionDetailPage() {
         </nav>
       )}
     </article>
+  )
+}
+
+/* ─── SVG visual with post-render KaTeX enhancement ─────────────────── */
+
+function PageSvgVisual({ svg, alt }: { svg: string; alt?: string }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const html = prepSvg(svg)
+
+  useEffect(() => {
+    if (!ref.current) return
+    // Re-run enhancement on mount AND on viewport resize so foreignObject
+    // positions reflect the latest layout. requestAnimationFrame ensures
+    // getBBox() is reliable.
+    const run = () => {
+      if (ref.current) enhanceSvgMath(ref.current)
+    }
+    const id = requestAnimationFrame(run)
+    window.addEventListener('resize', run)
+    return () => {
+      cancelAnimationFrame(id)
+      window.removeEventListener('resize', run)
+    }
+  }, [html])
+
+  return (
+    <div
+      ref={ref}
+      className="svg-visual-container w-full max-w-full overflow-x-auto rounded-xl bg-[#f5efe1] px-4 py-6 ring-1 ring-[#d6c8a6]/70 sm:max-w-[36rem] sm:px-7 sm:py-8 lg:max-w-[42rem]"
+      role="img"
+      aria-label={alt || 'Visual diagram'}
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
   )
 }
 
@@ -847,11 +883,11 @@ function FormulaInlineLink({
         <div className="text-[12px] font-semibold uppercase tracking-wider text-indigo-700">
           {info?.name ?? name}
         </div>
-        <div className="mt-1.5 overflow-x-auto rounded-md bg-slate-50 px-3 py-2 text-center text-[15px] text-slate-900">
+        <div className="mt-1.5 overflow-x-auto rounded-md bg-muted/50 px-3 py-2 text-center text-[15px] text-foreground">
           {info?.latex ? (
             <InlineMath math={info.latex} />
           ) : (
-            <span className="font-mono text-[13px] text-slate-700">
+            <span className="font-mono text-[13px] text-foreground/80">
               {info?.plain ?? '—'}
             </span>
           )}
@@ -865,7 +901,7 @@ function FormulaInlineLink({
 
 function NumberedHeading({ number, title }: { number: number; title: string }) {
   return (
-    <h2 className="scroll-m-20 text-[18px] font-bold leading-[1.3] text-slate-900 sm:text-[19px]">
+    <h2 className="scroll-m-20 text-[18px] font-bold leading-[1.3] text-foreground sm:text-[19px]">
       {number}. {title}
     </h2>
   )
@@ -888,24 +924,24 @@ function DrawerOption({
   const current = options.find((o) => o.value === value)
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white">
+    <div className="rounded-xl border border bg-card">
       {/* Header (always visible) */}
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between px-4 py-3 text-left transition-colors hover:bg-slate-50"
+        className="flex w-full items-center justify-between px-4 py-3 text-left transition-colors hover:bg-accent"
       >
         <div className="min-w-0 flex-1">
-          <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+          <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
             {label}
           </div>
-          <div className="mt-0.5 truncate text-sm font-medium text-slate-900">
+          <div className="mt-0.5 truncate text-sm font-medium text-foreground">
             {current?.label ?? '— Select —'}
           </div>
         </div>
         <ChevronDown
           className={cn(
-            'h-4 w-4 shrink-0 text-slate-400 transition-transform',
+            'h-4 w-4 shrink-0 text-muted-foreground/70 transition-transform',
             open && 'rotate-180'
           )}
         />
@@ -913,9 +949,9 @@ function DrawerOption({
 
       {/* Expanded option list */}
       {open && (
-        <ul className="max-h-56 overflow-y-auto border-t border-slate-100 py-1">
+        <ul className="max-h-56 overflow-y-auto border-t border-border/60 py-1">
           {options.length === 0 && (
-            <li className="px-4 py-2 text-sm text-slate-400">No options</li>
+            <li className="px-4 py-2 text-sm text-muted-foreground/70">No options</li>
           )}
           {options.map((o) => {
             const isActive = o.value === value
@@ -928,8 +964,8 @@ function DrawerOption({
                     if (!isActive) onChange(o.value)
                   }}
                   className={cn(
-                    'flex w-full items-center justify-between px-4 py-2 text-left text-sm transition-colors hover:bg-slate-50',
-                    isActive ? 'font-semibold text-indigo-600' : 'text-slate-700'
+                    'flex w-full items-center justify-between px-4 py-2 text-left text-sm transition-colors hover:bg-accent',
+                    isActive ? 'font-semibold text-indigo-600' : 'text-foreground/80'
                   )}
                 >
                   <span className="truncate pr-2">{o.label}</span>

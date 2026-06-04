@@ -97,13 +97,28 @@ export default function GateLayout({
 }) {
   return (
     <SidebarDataProvider>
-      <SidebarProvider>
-        <AppSidebar />
-        <SidebarInset>
-          <GateHeader />
-          <div className="flex-1">{children}</div>
-        </SidebarInset>
-      </SidebarProvider>
+      <GateShell>{children}</GateShell>
     </SidebarDataProvider>
   )
+}
+
+/** Inner component so we can read the persisted `sidebar:state` cookie
+ *  inside the SidebarProvider. Variant is locked to "floating". */
+function GateShell({ children }: { children: React.ReactNode }) {
+  const defaultOpen = readSidebarCookie()
+  return (
+    <SidebarProvider defaultOpen={defaultOpen}>
+      <AppSidebar variant="floating" />
+      <SidebarInset>
+        <GateHeader />
+        <div className="flex-1">{children}</div>
+      </SidebarInset>
+    </SidebarProvider>
+  )
+}
+
+function readSidebarCookie(): boolean {
+  if (typeof document === "undefined") return true
+  const m = document.cookie.match(/(?:^|; )sidebar:state=(true|false)/)
+  return !m ? true : m[1] === "true"
 }

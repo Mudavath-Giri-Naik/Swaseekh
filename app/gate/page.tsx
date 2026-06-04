@@ -46,7 +46,7 @@ function guaranteeTextClass(level?: string): string {
     case 'red':
       return 'text-red-700'
     default:
-      return 'text-gray-700'
+      return 'text-foreground/80'
   }
 }
 
@@ -120,16 +120,16 @@ export default function GateSyllabusPage() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
 
       {/* Document container */}
       <div className="max-w-[900px] mx-auto px-6 sm:px-10 py-6 font-serif">
         {/* Top bar */}
         <div className="flex items-center justify-between mb-4">
-          <span className="text-base font-bold text-black underline">
+          <span className="text-base font-bold text-foreground underline">
             GATE 2026
           </span>
-          <span className="text-sm text-black font-semibold">
+          <span className="text-sm text-foreground font-semibold">
             IIT Guwahati | Organizing Institute
           </span>
         </div>
@@ -152,7 +152,7 @@ export default function GateSyllabusPage() {
         {/* Loading */}
         {loading && (
           <div className="flex items-center justify-center py-12">
-            <div className="w-6 h-6 border-2 border-gray-300 border-t-[#4A235A] rounded-full animate-spin" />
+            <div className="w-6 h-6 border-2 border-border border-t-[#4A235A] rounded-full animate-spin" />
           </div>
         )}
 
@@ -175,7 +175,7 @@ export default function GateSyllabusPage() {
               {section.subjects.map(({ subject, topics }, subjectIdx) => (
                 <p
                   key={subject._id}
-                  className="text-[15px] leading-[1.8] text-black mb-3"
+                  className="text-[15px] leading-[1.8] text-foreground mb-3"
                 >
                   {/* Serial Number */}
                   <span className="font-semibold" style={{ color: '#C0392B' }}>
@@ -185,21 +185,21 @@ export default function GateSyllabusPage() {
                   {/* Subject name link — always black */}
                   <Link
                     href={`/gate/${slugify(subject.name)}`}
-                    className="font-semibold text-black hover:underline"
+                    className="font-semibold text-foreground hover:underline"
                     style={{ textDecorationColor: '#4A235A' }}
                   >
                     {subject.name}
                   </Link>
 
                   {/* Colon separator */}
-                  <span className="text-black">: </span>
+                  <span className="text-foreground">: </span>
 
                   {/* Topic names — each links to anchor in the document */}
                   {topics.map((topic, idx) => (
                     <span key={topic._id}>
                       <Link
                         href={`/gate/${slugify(subject.name)}/${slugify(topic.name)}`}
-                        className="text-black hover:text-[#4A235A] hover:underline transition-colors cursor-pointer"
+                        className="text-foreground hover:text-[#4A235A] hover:underline transition-colors cursor-pointer"
                         style={{ textDecorationColor: '#4A235A' }}
                       >
                         {topic.name}
@@ -207,7 +207,7 @@ export default function GateSyllabusPage() {
                       
                       {/* Concepts */}
                       {topic.concepts && topic.concepts.length > 0 && (
-                        <span className="text-black">
+                        <span className="text-foreground">
                           : {topic.concepts.map((concept, cIdx) => (
                             <span key={concept._id}>
                               <Link
@@ -218,7 +218,7 @@ export default function GateSyllabusPage() {
                                 {concept.title}
                               </Link>
                               {cIdx < topic.concepts!.length - 1 && (
-                                <span className="text-black">, </span>
+                                <span className="text-foreground">, </span>
                               )}
                             </span>
                           ))}
@@ -226,9 +226,9 @@ export default function GateSyllabusPage() {
                       )}
 
                       {idx < topics.length - 1 ? (
-                        <span className="text-black">. </span>
+                        <span className="text-foreground">. </span>
                       ) : (
-                        <span className="text-black">.</span>
+                        <span className="text-foreground">.</span>
                       )}
                     </span>
                   ))}

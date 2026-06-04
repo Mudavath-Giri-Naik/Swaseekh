@@ -26,7 +26,10 @@ const DrawerOverlay = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DrawerPrimitive.Overlay
     ref={ref}
-    className={cn("fixed inset-0 z-50 bg-black/40", className)}
+    className={cn(
+      "fixed inset-0 z-50 bg-black/40 backdrop-blur-sm",
+      className
+    )}
     {...props}
   />
 ))
@@ -41,12 +44,21 @@ const DrawerContent = React.forwardRef<
     <DrawerPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-2xl border border-slate-200 bg-white",
+        "fixed z-50 flex flex-col border border-slate-200 bg-white",
+        // Bottom (default)
+        "data-[vaul-drawer-direction=bottom]:inset-x-0 data-[vaul-drawer-direction=bottom]:bottom-0 data-[vaul-drawer-direction=bottom]:mt-24 data-[vaul-drawer-direction=bottom]:h-auto data-[vaul-drawer-direction=bottom]:max-h-[85vh] data-[vaul-drawer-direction=bottom]:rounded-t-2xl",
+        // Top
+        "data-[vaul-drawer-direction=top]:inset-x-0 data-[vaul-drawer-direction=top]:top-0 data-[vaul-drawer-direction=top]:max-h-[85vh] data-[vaul-drawer-direction=top]:rounded-b-2xl",
+        // Left
+        "data-[vaul-drawer-direction=left]:inset-y-0 data-[vaul-drawer-direction=left]:left-0 data-[vaul-drawer-direction=left]:w-full data-[vaul-drawer-direction=left]:max-w-md sm:data-[vaul-drawer-direction=left]:max-w-lg data-[vaul-drawer-direction=left]:rounded-r-2xl",
+        // Right
+        "data-[vaul-drawer-direction=right]:inset-y-0 data-[vaul-drawer-direction=right]:right-0 data-[vaul-drawer-direction=right]:w-full data-[vaul-drawer-direction=right]:max-w-md sm:data-[vaul-drawer-direction=right]:max-w-lg data-[vaul-drawer-direction=right]:rounded-l-2xl",
         className
       )}
       {...props}
     >
-      <div className="mx-auto mt-3 h-1.5 w-12 rounded-full bg-slate-200" />
+      {/* Drag handle: only the bottom variant shows the swipe-down pill */}
+      <div className="mx-auto mt-3 hidden h-1.5 w-12 rounded-full bg-slate-200 [[data-vaul-drawer-direction=bottom]_&]:block" />
       {children}
     </DrawerPrimitive.Content>
   </DrawerPortal>

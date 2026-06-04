@@ -61,10 +61,12 @@ export default function FormulaBadge({
       ? 'px-2.5 py-1 text-[12px]'
       : 'px-2.5 py-0.5 text-[11px]'
 
-  const className = `inline-flex items-center rounded-full font-medium transition-colors
+  // Primary formula gets a subtly bolder font (no ring/border — keeps
+  // the chip clean in dark mode where any outline reads as a white line).
+  const className = `inline-flex items-center rounded-full transition-colors
     ${sizeClass}
     ${palette.bg} ${palette.text} ${palette.hover}
-    ${primary ? 'ring-1 ring-inset ' + palette.ring : ''}
+    ${primary ? 'font-bold' : 'font-medium'}
     ${selected ? 'outline outline-2 outline-offset-1 outline-violet-400' : ''}
   `.replace(/\s+/g, ' ').trim()
 

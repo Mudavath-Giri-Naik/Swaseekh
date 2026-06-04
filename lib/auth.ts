@@ -2,6 +2,7 @@ import { NextAuthOptions } from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
 import { connectDB } from '@/lib/mongodb'
 import UserModel from '@/models/User'
+import { isAdminEmail } from '@/lib/admin'
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -46,6 +47,8 @@ export const authOptions: NextAuthOptions = {
         ;(session.user as any).plan = token.plan || 'free'
         ;(session.user as any).subscriptionStatus = token.subscriptionStatus || 'inactive'
         ;(session.user as any).subscriptionExpiresAt = token.subscriptionExpiresAt || null
+        // Surface admin flag (computed from the ADMIN_EMAILS env allowlist)
+        ;(session.user as any).isAdmin = isAdminEmail(session.user.email)
       }
       return session
     },

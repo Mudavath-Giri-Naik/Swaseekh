@@ -250,7 +250,7 @@ export default function SubjectDocumentPage() {
   /* ── Render ─────────────────────────────────────────────────────────── */
 
   return (
-    <div style={{ background: '#fafaf8', minHeight: 'calc(100vh - 48px)' }}>
+    <div className="bg-background" style={{ minHeight: 'calc(100vh - 48px)' }}>
 
       {/* ── Mobile Topic Dropdown ─────────────────────────────────────── */}
       <div className="doc-mobile-dropdown" style={{ display: 'none' }}>
@@ -268,16 +268,7 @@ export default function SubjectDocumentPage() {
 
       {/* ── Top Chips Bar (Desktop) ───────────────────────────────────── */}
       <div
-        className="doc-chips-bar"
-        style={{
-          position: 'sticky',
-          top: 48,
-          zIndex: 20,
-          background: 'rgba(250, 250, 248, 0.92)',
-          backdropFilter: 'saturate(140%) blur(8px)',
-          WebkitBackdropFilter: 'saturate(140%) blur(8px)',
-          borderBottom: '1px solid #ececea',
-        }}
+        className="doc-chips-bar sticky top-12 z-20 border-b border-border/60 bg-background/80 backdrop-blur dark:border-transparent"
       >
         <div
           style={{
@@ -290,18 +281,10 @@ export default function SubjectDocumentPage() {
             flexWrap: 'wrap',
           }}
         >
-          <span
-            style={{
-              fontSize: 13,
-              fontWeight: 600,
-              color: '#111',
-              marginRight: 6,
-              whiteSpace: 'nowrap',
-            }}
-          >
+          <span className="mr-1.5 whitespace-nowrap text-[13px] font-semibold text-foreground">
             {subject.name}
           </span>
-          <span style={{ color: '#d4d4d2' }}>·</span>
+          <span className="text-muted-foreground/60">·</span>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             {topics.map((topic) => {
               const isActive = activeTopicId === slugify(topic.name)
@@ -310,18 +293,11 @@ export default function SubjectDocumentPage() {
                   key={topic._id}
                   type="button"
                   onClick={() => scrollToTopic(slugify(topic.name))}
-                  style={{
-                    padding: '5px 11px',
-                    borderRadius: 999,
-                    fontSize: 12.5,
-                    fontWeight: 500,
-                    border: isActive ? '1px solid #111' : '1px solid #e5e5e3',
-                    background: isActive ? '#111' : '#fff',
-                    color: isActive ? '#fff' : '#555',
-                    cursor: 'pointer',
-                    whiteSpace: 'nowrap',
-                    transition: 'all 0.15s ease',
-                  }}
+                  className={
+                    isActive
+                      ? 'whitespace-nowrap rounded-full bg-foreground px-3 py-1 text-[12.5px] font-medium text-background transition-colors'
+                      : 'whitespace-nowrap rounded-full border bg-card px-3 py-1 text-[12.5px] font-medium text-foreground/70 transition-colors hover:bg-accent hover:text-foreground dark:border-transparent dark:bg-white/[0.04] dark:hover:bg-white/[0.07]'
+                  }
                 >
                   {topic.name}
                 </button>

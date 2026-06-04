@@ -70,20 +70,21 @@ function formulaIdToName(id: string): string {
     .join(' ')
 }
 
+/** Soft difficulty chips that read well in both light + dark. */
 const diffColors: Record<string, { bg: string; text: string; border: string }> = {
-  easy: { bg: 'bg-green-100', text: 'text-green-800', border: 'border-green-200' },
-  Easy: { bg: 'bg-green-100', text: 'text-green-800', border: 'border-green-200' },
-  medium: { bg: 'bg-yellow-100', text: 'text-yellow-800', border: 'border-yellow-200' },
-  Medium: { bg: 'bg-yellow-100', text: 'text-yellow-800', border: 'border-yellow-200' },
-  hard: { bg: 'bg-red-100', text: 'text-red-800', border: 'border-red-200' },
-  Hard: { bg: 'bg-red-100', text: 'text-red-800', border: 'border-red-200' },
+  easy:   { bg: 'bg-emerald-50 dark:bg-emerald-500/10', text: 'text-emerald-700 dark:text-emerald-300', border: 'border-emerald-200 dark:border-emerald-500/20' },
+  Easy:   { bg: 'bg-emerald-50 dark:bg-emerald-500/10', text: 'text-emerald-700 dark:text-emerald-300', border: 'border-emerald-200 dark:border-emerald-500/20' },
+  medium: { bg: 'bg-amber-50 dark:bg-amber-500/10',     text: 'text-amber-700 dark:text-amber-300',     border: 'border-amber-200 dark:border-amber-500/20' },
+  Medium: { bg: 'bg-amber-50 dark:bg-amber-500/10',     text: 'text-amber-700 dark:text-amber-300',     border: 'border-amber-200 dark:border-amber-500/20' },
+  hard:   { bg: 'bg-rose-50 dark:bg-rose-500/10',       text: 'text-rose-700 dark:text-rose-300',       border: 'border-rose-200 dark:border-rose-500/20' },
+  Hard:   { bg: 'bg-rose-50 dark:bg-rose-500/10',       text: 'text-rose-700 dark:text-rose-300',       border: 'border-rose-200 dark:border-rose-500/20' },
 }
 
 export default function QuestionsListPage() {
   return (
     <Suspense fallback={
       <div className="flex items-center justify-center h-[80vh]">
-        <div className="w-8 h-8 border-2 border-gray-200 border-t-[#4A235A] rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border border-t-[#4A235A] rounded-full animate-spin" />
       </div>
     }>
       <QuestionsListPageInner />
@@ -292,22 +293,25 @@ function QuestionsListPageInner() {
       })
   }, [questions, selectedSubject, selectedTopic, selectedConcept, selectedYear, selectedDifficulty, selectedType, selectedFormula, searchQuery, sort])
 
-  // Filter trigger style — compact pill that opens the DropdownMenu
+  // Filter trigger style — compact pill that opens the DropdownMenu.
+  // In dark mode we drop the border entirely (any border reads as a
+  // white line on the deep-blue body) and rely on a soft bg tint for
+  // shape.
   const filterTriggerClass =
-    'inline-flex h-9 shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-md border border-slate-200 bg-white px-3 text-[15px] font-medium text-slate-700 transition-colors hover:border-slate-300 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200 data-[state=open]:border-slate-400 data-[state=open]:text-slate-900 sm:h-8 sm:px-2.5 sm:text-sm'
+    'inline-flex h-10 shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-lg border bg-card px-3.5 text-[15px] font-medium text-foreground/80 transition-colors hover:bg-accent hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring/30 data-[state=open]:bg-accent data-[state=open]:text-foreground sm:h-8 sm:px-2.5 sm:text-sm dark:border-transparent dark:bg-white/[0.04] dark:hover:bg-white/[0.07] dark:data-[state=open]:bg-white/[0.07]'
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-[80vh]">
-        <div className="w-8 h-8 border-2 border-gray-200 border-t-[#4A235A] rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border border-t-[#4A235A] rounded-full animate-spin" />
       </div>
     )
   }
 
   return (
-    <div style={{ background: '#F8F7FF', minHeight: '100vh' }}>
+    <div className="min-h-screen bg-background">
       {/* ─── Sticky page header: sidebar trigger + filter chips ─────────── */}
-      <header className="sticky top-0 z-40 flex h-14 items-center gap-2 border-b border-slate-200 bg-white/90 px-3 backdrop-blur sm:h-12 sm:px-4">
+      <header className="sticky top-0 z-40 flex h-16 items-center gap-2 border-b bg-background/90 px-3 backdrop-blur sm:h-12 sm:px-4 dark:border-transparent">
         <SidebarTrigger className="-ml-1 shrink-0" />
         <Separator
           orientation="vertical"
@@ -408,9 +412,9 @@ function QuestionsListPageInner() {
         </div>
       </header>
 
-      <div className="max-w-[1100px] mx-auto px-4 py-4 sm:py-6">
+      <div className="max-w-[1100px] mx-auto px-2 py-3 sm:px-4 sm:py-6">
         {/* ─── Search bar — stays in its original position, full width ── */}
-        <InputGroup className="mb-5 w-full">
+        <InputGroup className="mb-4 w-full sm:mb-5">
           <InputGroupAddon>
             <Search />
           </InputGroupAddon>
@@ -427,9 +431,9 @@ function QuestionsListPageInner() {
         </InputGroup>
 
         {/* ─── Mobile card list (< md) ─────────────────────────────── */}
-        <ul className="space-y-3 md:hidden">
+        <ul className="space-y-4 md:hidden">
           {filteredQuestions.length === 0 ? (
-            <li className="rounded-2xl border border-slate-200 bg-white px-4 py-12 text-center text-sm text-slate-500">
+            <li className="rounded-2xl border bg-card px-4 py-16 text-center text-base text-muted-foreground">
               No questions found for this selection.
             </li>
           ) : (
@@ -441,27 +445,27 @@ function QuestionsListPageInner() {
                 <li key={q._id}>
                   <Link
                     href={questionUrl}
-                    className="group relative block rounded-2xl border border-slate-200 bg-white p-5 transition-colors hover:border-slate-300 active:bg-slate-50"
+                    className="group relative block w-full overflow-hidden rounded-2xl border bg-card px-4 py-5 transition-colors hover:border-foreground/20 active:bg-accent"
                   >
-                    {/* Top meta row */}
-                    <div className="mb-3 flex items-start justify-between gap-3">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-sm font-bold text-slate-400">
+                    {/* Meta row: badges left, solved button right */}
+                    <div className="mb-4 flex items-start justify-between gap-3">
+                      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+                        <span className="text-base font-extrabold text-slate-300 dark:text-slate-600">
                           #{idx + 1}
                         </span>
-                        <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-bold tracking-wide text-slate-700">
+                        <span className="rounded-lg bg-slate-100 px-3 py-1.5 text-[15px] font-bold tracking-wide text-slate-700 dark:bg-slate-800 dark:text-slate-200">
                           GATE {q.year}
                         </span>
                         <span
-                          className={`rounded-md px-2 py-0.5 text-xs font-bold uppercase tracking-wide ${dColor.bg} ${dColor.text}`}
+                          className={`rounded-lg px-3 py-1.5 text-[15px] font-bold uppercase tracking-wide ${dColor.bg} ${dColor.text}`}
                         >
                           {q.difficulty}
                         </span>
-                        <span className="rounded-md border border-slate-200 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-slate-500">
+                        <span className="rounded-lg border px-3 py-1.5 text-[15px] font-bold uppercase tracking-wide text-slate-500">
                           {q.questionType}
                         </span>
-                        <span className="text-xs font-semibold text-slate-500">
-                          {q.marks} mark{q.marks > 1 ? 's' : ''}
+                        <span className="text-[15px] font-semibold text-slate-500">
+                          {q.marks}M
                         </span>
                       </div>
                       <button
@@ -478,21 +482,21 @@ function QuestionsListPageInner() {
                         aria-label={isSolved ? 'Mark as unsolved' : 'Mark as solved'}
                       >
                         {isSolved ? (
-                          <CheckCircle2 className="h-6 w-6 text-emerald-500" />
+                          <CheckCircle2 className="h-8 w-8 text-emerald-500" />
                         ) : (
-                          <Circle className="h-6 w-6 text-slate-300" />
+                          <Circle className="h-8 w-8 text-slate-300" />
                         )}
                       </button>
                     </div>
 
-                    {/* Question preview — generous body type */}
-                    <div className="line-clamp-3 text-[16px] leading-7 text-slate-900 group-hover:text-[#4A235A]">
+                    {/* Question preview */}
+                    <div className="line-clamp-4 break-words text-[18px] leading-[1.8] text-foreground group-hover:text-[#4A235A] dark:group-hover:text-violet-300">
                       <MathRenderer text={q.questionText} />
                     </div>
 
                     {/* Formula badges */}
                     {q.formulaIds && q.formulaIds.length > 0 && (
-                      <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                      <div className="mt-4 flex flex-wrap items-center gap-2">
                         {q.formulaIds.map((fId) => {
                           const fName = formulaNameMap[fId] || formulaIdToName(fId)
                           return (
@@ -515,16 +519,18 @@ function QuestionsListPageInner() {
                     )}
 
                     {/* Breadcrumb */}
-                    <div className="mt-4 flex flex-wrap items-center gap-1.5 border-t border-slate-100 pt-3 text-[13px] text-slate-500">
-                      <span className="font-semibold text-slate-700">
-                        {q.subjectName}
-                      </span>
-                      <span className="text-slate-300">›</span>
-                      <span>{q.topicName}</span>
-                      <span className="text-slate-300">›</span>
-                      <span className="font-medium text-indigo-600">
-                        {q.conceptName}
-                      </span>
+                    <div className="mt-4 border-t border-border/60 pt-4">
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[15px]">
+                        <span className="font-semibold text-slate-700 dark:text-slate-300">
+                          {q.subjectName}
+                        </span>
+                        <span className="text-slate-300">›</span>
+                        <span className="text-slate-500">{q.topicName}</span>
+                        <span className="text-slate-300">›</span>
+                        <span className="font-medium text-indigo-600 dark:text-indigo-400">
+                          {q.conceptName}
+                        </span>
+                      </div>
                     </div>
                   </Link>
                 </li>
@@ -534,10 +540,11 @@ function QuestionsListPageInner() {
         </ul>
 
         {/* ─── Desktop table (md+) ─────────────────────────────────── */}
-        <div className="hidden overflow-x-auto rounded-xl border bg-white shadow-sm md:block">
+        <div className="hidden overflow-hidden rounded-xl border bg-card shadow-sm dark:border-transparent dark:shadow-none md:block [&_tr]:border-border/50 dark:[&_tr]:border-white/[0.04] [&_thead_tr]:border-b-0 dark:[&_thead_tr]:border-b-0">
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow className="bg-gray-50/50 hover:bg-gray-50/50">
+              <TableRow className="bg-muted/40 hover:bg-muted/40 dark:bg-white/[0.03] dark:hover:bg-white/[0.03]">
                 <TableHead className="w-12 text-center">#</TableHead>
                 <TableHead className="min-w-[280px] max-w-[400px]">Question</TableHead>
                 <SortableTableHead
@@ -568,7 +575,7 @@ function QuestionsListPageInner() {
             <TableBody>
               {filteredQuestions.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={10} className="text-center py-12 text-gray-500">
+                  <TableCell colSpan={10} className="text-center py-12 text-muted-foreground">
                     No questions found for this selection.
                   </TableCell>
                 </TableRow>
@@ -580,40 +587,40 @@ function QuestionsListPageInner() {
                   return (
                     <TableRow
                       key={q._id}
-                      className="cursor-pointer hover:bg-gray-50 group"
+                      className="cursor-pointer hover:bg-muted/60 dark:hover:bg-white/[0.045] group transition-colors"
                     >
-                      <TableCell className="text-center text-gray-500 font-medium">
+                      <TableCell className="text-center text-muted-foreground font-medium">
                         {idx + 1}
                       </TableCell>
 
                       <TableCell>
                         <Link href={questionUrl} className="block">
-                          <div className="line-clamp-1 max-w-[400px] text-gray-800 text-[14px] group-hover:text-[#4A235A] transition-colors">
+                          <div className="line-clamp-1 max-w-[400px] text-foreground text-[14px] group-hover:text-[#4A235A] dark:group-hover:text-violet-300 transition-colors">
                             <MathRenderer text={q.questionText} />
                           </div>
                         </Link>
                       </TableCell>
 
-                      <TableCell className="text-gray-600 font-medium whitespace-nowrap">
+                      <TableCell className="text-muted-foreground font-medium whitespace-nowrap">
                         GATE {q.year}
                       </TableCell>
 
                       <TableCell>
-                        <Badge variant="outline" className={`${dColor.bg} ${dColor.text} ${dColor.border} text-[10px] uppercase font-bold border shadow-none`}>
+                        <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${dColor.bg} ${dColor.text}`}>
                           {q.difficulty}
-                        </Badge>
+                        </span>
                       </TableCell>
 
                       <TableCell>
-                        <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-gray-100 text-gray-600 whitespace-nowrap">
+                        <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-muted text-muted-foreground whitespace-nowrap">
                           {q.marks} Mark{q.marks > 1 ? 's' : ''}
                         </span>
                       </TableCell>
 
                       <TableCell>
-                        <Badge variant="outline" className="text-[10px] uppercase font-semibold">
+                        <span className="rounded-md bg-muted/70 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-muted-foreground dark:bg-white/[0.06] dark:text-foreground/70">
                           {q.questionType}
-                        </Badge>
+                        </span>
                       </TableCell>
 
                       <TableCell>
@@ -638,24 +645,24 @@ function QuestionsListPageInner() {
                             })}
                           </div>
                         ) : (
-                          <span className="text-xs text-gray-300">—</span>
+                          <span className="text-xs text-muted-foreground/50">—</span>
                         )}
                       </TableCell>
 
                       <TableCell>
-                        <div className="text-xs text-gray-600 truncate max-w-[120px]" title={q.subjectName}>
+                        <div className="text-xs text-muted-foreground truncate max-w-[120px]" title={q.subjectName}>
                           {q.subjectName}
                         </div>
                       </TableCell>
 
                       <TableCell>
-                        <div className="text-xs text-gray-500 truncate max-w-[120px]" title={q.topicName}>
+                        <div className="text-xs text-muted-foreground truncate max-w-[120px]" title={q.topicName}>
                           {q.topicName}
                         </div>
                       </TableCell>
 
                       <TableCell>
-                        <div className="text-xs text-gray-500 truncate max-w-[140px]" title={q.conceptName}>
+                        <div className="text-xs text-muted-foreground truncate max-w-[140px]" title={q.conceptName}>
                           {q.conceptName}
                         </div>
                       </TableCell>
@@ -666,6 +673,7 @@ function QuestionsListPageInner() {
               )}
             </TableBody>
           </Table>
+          </div>
         </div>
       </div>
     </div>
@@ -688,14 +696,14 @@ function SortableTableHead({
   return (
     <TableHead
       onClick={onClick}
-      className="group cursor-pointer select-none whitespace-nowrap hover:text-gray-900"
+      className="group cursor-pointer select-none whitespace-nowrap hover:text-foreground"
     >
       {label}{' '}
       <span
         className={
           active
-            ? 'text-gray-700'
-            : 'text-gray-300 group-hover:text-gray-500'
+            ? 'text-foreground/80'
+            : 'text-muted-foreground/50 group-hover:text-muted-foreground'
         }
       >
         {active ? (order === 'desc' ? '↓' : '↑') : '↕'}
