@@ -40,7 +40,10 @@ export default function YearChart({
               fontSize: 12,
               color: 'hsl(var(--popover-foreground))',
             }}
-            formatter={(v: number) => [`${v} questions`, 'Total']}
+            formatter={(v: number | string | readonly (number | string)[] | undefined) => [
+              `${Number(v ?? 0).toLocaleString()} questions`,
+              'Total',
+            ]}
           />
           <Bar
             dataKey="total"

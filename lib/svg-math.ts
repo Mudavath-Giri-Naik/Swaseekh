@@ -139,7 +139,7 @@ export type InlinePart = { type: 'text' | 'math'; content: string }
 export function splitInlineMath(input: string): InlinePart[] {
   if (!input) return []
   // Union of math-fragment patterns. Order matters: longer/specific first.
-  const PATTERNS: RegExp[] = [
+  const PATTERNS: string[] = [
     // sub+super combined: word_{...}^{...} or word_{...}^word
     /[A-Za-z]+_\{[^{}]+\}\^\{[^{}]+\}/.source,
     /[A-Za-z]+_\{[^{}]+\}\^[A-Za-z0-9]+/.source,
