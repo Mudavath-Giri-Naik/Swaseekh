@@ -382,7 +382,7 @@ export default function QuestionDetailPage() {
   /* ─── Render ──────────────────────────────────────────────────── */
 
   return (
-    <article className="mx-auto max-w-3xl px-4 pb-12 sm:px-6 sm:pb-16">
+    <article className="mx-auto max-w-3xl px-4 pb-12 sm:px-6 sm:pb-16 w-full max-w-[100vw] overflow-x-hidden">
       {/* Sticky top bar */}
       <div className="sticky top-0 z-30 -mx-4 flex items-center justify-between border-b border-border/60 bg-background/85 px-4 py-2.5 backdrop-blur dark:border-transparent sm:-mx-6 sm:px-6">
         <Link
@@ -611,7 +611,7 @@ export default function QuestionDetailPage() {
               {/* Terms — clean textbook-style table */}
               {question.given.terms && question.given.terms.length > 0 && (
                 <div className="mt-5 -mx-4 overflow-x-auto sm:mx-0">
-                  <table className="w-full min-w-[560px] border-collapse text-left text-[14px] leading-[1.55] sm:text-[14.5px]">
+                  <table className="w-full border-collapse text-left text-[14px] leading-[1.55] sm:text-[14.5px]">
                     <thead>
                       <tr className="border-b border-border text-[12.5px] font-bold text-foreground">
                         <th scope="col" className="px-3 py-2.5 sm:px-4 w-[14%]">Term</th>

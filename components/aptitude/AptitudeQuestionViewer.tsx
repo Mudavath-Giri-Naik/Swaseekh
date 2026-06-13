@@ -40,6 +40,8 @@ interface Question {
 interface Props {
   question: Question
   index: number
+  hideHeader?: boolean
+  hideQuestionText?: boolean
 }
 
 /** Render text that may contain $...$ inline math */
@@ -84,7 +86,7 @@ const SOURCE_TYPE_META: Record<string, string> = {
   online: 'Online Practice',
 }
 
-export function AptitudeQuestionViewer({ question, index }: Props) {
+export function AptitudeQuestionViewer({ question, index, hideHeader, hideQuestionText }: Props) {
   const [selectedOption, setSelectedOption] = useState<string | null>(null)
   const [showSolution, setShowSolution] = useState(false)
   const [revealed, setRevealed] = useState(false)
@@ -99,41 +101,45 @@ export function AptitudeQuestionViewer({ question, index }: Props) {
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-card overflow-hidden">
+    <div className={`rounded-2xl border border-border bg-card overflow-hidden ${hideHeader && hideQuestionText ? 'border-none bg-transparent rounded-none' : ''}`}>
       {/* Header */}
-      <div className="flex items-start justify-between gap-3 px-5 py-4 border-b border-border/60">
-        <div className="flex items-start gap-3 min-w-0">
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-xs font-bold">
-            {index}
-          </span>
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-1.5 mb-1">
-              <span className={`text-xs px-2 py-0.5 rounded-full font-medium capitalize ${DIFFICULTY_STYLES[question.difficulty] ?? 'bg-muted text-muted-foreground'}`}>
-                {question.difficulty}
-              </span>
-              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${src.color}`}>
-                {src.label}
-              </span>
-              {question.sourceType && (
-                <span className="text-xs px-2 py-0.5 rounded-full bg-slate-500/10 text-slate-600 dark:text-slate-400">
-                  {SOURCE_TYPE_META[question.sourceType] ?? question.sourceType}
+      {!hideHeader && (
+        <div className="flex items-start justify-between gap-3 px-5 py-4 border-b border-border/60">
+          <div className="flex items-start gap-3 min-w-0">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-xs font-bold">
+              {index}
+            </span>
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-1.5 mb-1">
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium capitalize ${DIFFICULTY_STYLES[question.difficulty] ?? 'bg-muted text-muted-foreground'}`}>
+                  {question.difficulty}
                 </span>
-              )}
-              {question.sourcePage && (
-                <span className="text-xs text-muted-foreground">pg.{question.sourcePage}</span>
-              )}
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${src.color}`}>
+                  {src.label}
+                </span>
+                {question.sourceType && (
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-slate-500/10 text-slate-600 dark:text-slate-400">
+                    {SOURCE_TYPE_META[question.sourceType] ?? question.sourceType}
+                  </span>
+                )}
+                {question.sourcePage && (
+                  <span className="text-xs text-muted-foreground">pg.{question.sourcePage}</span>
+                )}
+              </div>
+              <p className="text-xs font-mono text-muted-foreground">{question.questionId}</p>
             </div>
-            <p className="text-xs font-mono text-muted-foreground">{question.questionId}</p>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Question text */}
-      <div className="px-5 py-4">
-        <p className="text-base font-medium leading-relaxed text-foreground">
-          <RichText text={question.questionText} />
-        </p>
-      </div>
+      {!hideQuestionText && (
+        <div className="px-5 py-4">
+          <p className="text-base font-medium leading-relaxed text-foreground">
+            <RichText text={question.questionText} />
+          </p>
+        </div>
+      )}
 
       {/* MCQ options */}
       {question.questionType === 'mcq' && question.options && (
