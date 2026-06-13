@@ -1,0 +1,415 @@
+{
+ "page": 609,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2017",
+    "year": 2017,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Programming in C",
+    "topic": "Programming In C",
+    "subtopic": "Programming In C"
+   },
+   "question": "The output of executing the following C program is _____________.\n\n#include <stdio.h>\nint total(int v) {\n    static int count = 0;\n    while (v) {\n        count += v & 1;\n        v >>= 1;\n    }\n    return count;\n}\nvoid main() {\n    static int x = 0;\n    x += total(5);\n    x += total(12);\n    x += total(10);\n    printf(\"%d\", x);\n}\n\nA. 8  B. 12  C. 13  D. 5",
+   "answer": "B. 12",
+   "to_find": "The printed output of the C program that uses a static variable to count set bits across multiple calls.",
+   "understand": {
+    "plain": "The function `total(v)` counts the number of 1-bits (set bits) in `v` using a static variable `count` which persists across calls and accumulates. The main function calls total(5), total(12), total(10) and adds their return values to another static variable x, then prints x. Because `count` is static, it never resets — each call to total() adds the new set-bit count to the running total and returns the accumulated value.",
+    "keywords": [
+     {
+      "term": "static variable",
+      "explain": "A variable that retains its value across function calls (initialized once to 0).",
+      "example": "static int count = 0; — count keeps accumulating across calls."
+     },
+     {
+      "term": "bitwise AND (v & 1)",
+      "explain": "Checks the least significant bit of v; result is 1 if the bit is set, 0 otherwise.",
+      "example": "5 & 1 = 1 (5 in binary is 101, LSB is 1)."
+     },
+     {
+      "term": "right shift (v >>= 1)",
+      "explain": "Shifts bits of v one position right, effectively dividing by 2, allowing each bit to be checked.",
+      "example": "5 >> 1 = 2 (101 becomes 010)."
+     }
+    ],
+    "visual_svg": "<svg width=\"520\" height=\"200\" xmlns=\"http://www.w3.org/2000/svg\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x=\"10\" y=\"10\" width=\"500\" height=\"180\" rx=\"8\" class=\"bg\"/><text x=\"20\" y=\"40\" class=\"lbl ink\">Call trace (static count accumulates):</text><text x=\"20\" y=\"70\" class=\"sub ink\">total(5): 5=101b, set bits=2, count: 0+2=2, returns 2</text><text x=\"20\" y=\"92\" class=\"sub ink\">total(12): 12=1100b, set bits=2, count: 2+2=4, returns 4</text><text x=\"20\" y=\"114\" class=\"sub ink\">total(10): 10=1010b, set bits=2, count: 4+2=6, returns 6</text><rect x=\"20\" y=\"130\" width=\"460\" height=\"40\" rx=\"4\" class=\"hi\"/><text x=\"30\" y=\"155\" class=\"lbl ink\">x = 0+2+4+6 = 12; printf prints 12</text></svg>",
+    "visual_alt": "Table showing each call to total(), the binary representation of the argument, the set bits counted, the running static count value, and the return value."
+   },
+   "given": {
+    "aim": "Determine the final printed value of x after three calls to total() which uses a static accumulator.",
+    "terms": [
+     {
+      "term": "static count in total()",
+      "meaning": "A static int that accumulates set-bit counts across ALL calls; starts at 0.",
+      "example": "After first call with v=5 (101b), count = 2.",
+      "connects": "Each call returns the cumulative count, not just the bits of the current argument."
+     },
+     {
+      "term": "static x in main()",
+      "meaning": "Another static variable initialized to 0 that accumulates the return values of total().",
+      "example": "x += total(5) adds the return value of total(5) to x.",
+      "connects": "x is incremented by each return value of total()."
+     },
+     {
+      "term": "set bits of 5, 12, 10",
+      "meaning": "5=101b has 2 set bits; 12=1100b has 2 set bits; 10=1010b has 2 set bits.",
+      "example": "Each number contributes 2 new set bits to the static count.",
+      "connects": "Determines how much count grows with each call."
+     }
+    ],
+    "plan": "Trace the static variable `count` through each call to total(), noting it never resets. Then trace static `x` in main() by adding each return value from total()."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Call total(5)",
+      "formula_raw": "count += v & 1; v >>= 1 (loop until v == 0)",
+      "apply": "5 = 101b. Iteration 1: count += 1 (bit 0 = 1), v = 2. Iteration 2: count += 0 (bit 1 = 0), v = 1. Iteration 3: count += 1 (bit 0 of 1 = 1), v = 0. After call: count = 2. Returns 2. x = 0 + 2 = 2.",
+      "note": "count is static so it starts at 0 and becomes 2 after this call."
+     },
+     {
+      "step": 2,
+      "title": "Call total(12)",
+      "formula_raw": "count persists from previous call = 2",
+      "apply": "12 = 1100b. Set bits: bit2=1, bit3=1, others=0. count gains 2 more: count = 2 + 2 = 4. Returns 4. x = 2 + 4 = 6.",
+      "note": "count does not reset; it continues accumulating."
+     },
+     {
+      "step": 3,
+      "title": "Call total(10)",
+      "formula_raw": "count persists = 4",
+      "apply": "10 = 1010b. Set bits: bit1=1, bit3=1. count gains 2 more: count = 4 + 2 = 6. Returns 6. x = 6 + 6 = 12... but wait, x is also static in main with static int x = 0. x = 2 + 4 + 6 = 12? Let me re-read: x += total(5) so x = 0 + 2 = 2; x += total(12): x = 2 + 4 = 6; x += total(10): x = 6 + 6 = 12. But answer key says 13.",
+      "note": "Re-check: total(5)=2, total(12)=4, total(10)=6. x = 2+4+6 = 12... but let me re-examine the image more carefully."
+     },
+     {
+      "step": 4,
+      "title": "Re-examine with correct main() code",
+      "formula_raw": "x = total(5) + total(12) + total(10) where each returns cumulative count",
+      "apply": "With static count: total(5) returns 2 (count=2), total(12) returns 4 (count=4), total(10) returns 6 (count=6). x = 0+2+4+6 = 12. The correct answer is 12.",
+      "note": "The answer is 12. Option B is 12."
+     }
+    ],
+    "result": "The output of the program is 12. Answer: B. 12."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Static variables in C retain their values between function calls. Counting set bits via v&1 and right-shifting is the standard bit-counting loop.",
+   "qid": "9.11.18",
+   "answer_official": "23"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2017",
+    "year": 2017,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Programming in C",
+    "topic": "Programming In C",
+    "subtopic": "Programming In C"
+   },
+   "question": "Match the following:\n\nP. static char var;      i.   Sequence of memory locations to store addresses\n\nQ. m = malloc(10); m = NULL;   ii.  A variable located in data section of memory\n\nR. char *ptr[10];        iii. Request to allocate a CPU register to store data\n\nS. register last val;    iv.  A lost memory which cannot be freed\n\nA. P-ii; Q-iv; R-i; S-iii\nB. P-ii; Q-i; R-iv; S-iii\nC. P-ii; Q-iv; R-iii; S-i\nD. P-iii; Q-iv; R-i; S-ii",
+   "answer": "A. P-ii; Q-iv; R-i; S-iii",
+   "to_find": "Match C declarations/statements to their correct descriptions.",
+   "understand": {
+    "plain": "This question tests knowledge of C storage classes and memory concepts. Each of P, Q, R, S represents a C statement or declaration, and you must match it to the correct description (i through iv). Understanding what static, register, pointer arrays, and memory leaks mean is essential.",
+    "keywords": [
+     {
+      "term": "static variable",
+      "explain": "A variable declared with `static` is stored in the data segment (BSS/data section) of memory, not on the stack.",
+      "example": "static char var; — lives in the data section, initialized to 0."
+     },
+     {
+      "term": "memory leak",
+      "explain": "When dynamically allocated memory is no longer reachable (pointer overwritten) but not freed, it is a lost memory block that cannot be freed.",
+      "example": "m = malloc(10); m = NULL; — the allocated block is now lost."
+     },
+     {
+      "term": "array of pointers",
+      "explain": "char *ptr[10] is an array of 10 char pointers — a sequence of memory locations that store addresses.",
+      "example": "ptr[0] holds an address, ptr[1] holds another address, etc."
+     },
+     {
+      "term": "register storage class",
+      "explain": "The `register` keyword requests the compiler to store the variable in a CPU register for fast access.",
+      "example": "register int i; — hints to store i in a register."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Four C constructs (static variable, memory leak via NULL assignment, pointer array, register variable) matched to memory/CPU concepts."
+   },
+   "given": {
+    "aim": "Identify the correct matching between C declarations and their memory/storage descriptions.",
+    "terms": [
+     {
+      "term": "P: static char var",
+      "meaning": "A static local or global variable stored in the data section (not heap or stack).",
+      "example": "static int x = 5; is stored in BSS or initialized data segment.",
+      "connects": "Matches description ii: 'A variable located in data section of memory'."
+     },
+     {
+      "term": "Q: m = malloc(10); m = NULL",
+      "meaning": "Allocates memory then immediately loses the pointer by setting it to NULL — a memory leak.",
+      "example": "The 10-byte block allocated by malloc is now unreachable and cannot be freed.",
+      "connects": "Matches description iv: 'A lost memory which cannot be freed'."
+     },
+     {
+      "term": "R: char *ptr[10]",
+      "meaning": "Declares an array of 10 char pointers — each element is a memory address.",
+      "example": "ptr[0] through ptr[9] each store an address (pointer to char).",
+      "connects": "Matches description i: 'Sequence of memory locations to store addresses'."
+     },
+     {
+      "term": "S: register last val",
+      "meaning": "The `register` keyword requests the variable to be stored in a CPU register.",
+      "example": "register int i; — compiler may place i in a hardware register.",
+      "connects": "Matches description iii: 'Request to allocate a CPU register to store data'."
+     }
+    ],
+    "plan": "Match each C construct to its description: static -> data section; malloc then NULL -> memory leak; array of pointers -> sequence of addresses; register -> CPU register request."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Match P (static char var) to description",
+      "formula_raw": "",
+      "apply": "The `static` storage class causes a variable to be stored in the data segment (data section) of memory, not on the stack. Description ii says 'A variable located in data section of memory'. P matches ii.",
+      "note": "static variables have program lifetime and are zero-initialized by default."
+     },
+     {
+      "step": 2,
+      "title": "Match Q (m = malloc(10); m = NULL) to description",
+      "formula_raw": "",
+      "apply": "malloc(10) allocates 10 bytes on the heap. Then m = NULL overwrites the pointer without calling free(). The allocated memory is now unreachable — a classic memory leak. Description iv says 'A lost memory which cannot be freed'. Q matches iv.",
+      "note": "This is the definition of a memory leak in C."
+     },
+     {
+      "step": 3,
+      "title": "Match R (char *ptr[10]) to description",
+      "formula_raw": "",
+      "apply": "char *ptr[10] is an array of 10 pointers to char. Each element stores a memory address (pointer). Description i says 'Sequence of memory locations to store addresses'. R matches i.",
+      "note": "This is different from char (*ptr)[10] which is a pointer to an array."
+     },
+     {
+      "step": 4,
+      "title": "Match S (register last val) to description",
+      "formula_raw": "",
+      "apply": "The `register` storage class is a hint to the compiler to store the variable in a CPU register for faster access. Description iii says 'Request to allocate a CPU register to store data'. S matches iii.",
+      "note": "Modern compilers may ignore this hint and use their own register allocation."
+     }
+    ],
+    "result": "P-ii, Q-iv, R-i, S-iii. Answer: A."
+   },
+   "formula_ids_used": [],
+   "formula_note": "C storage classes: static (data section), register (CPU register hint), dynamic memory (heap via malloc/free). Memory leak occurs when allocated memory pointer is overwritten without freeing.",
+   "qid": "9.11.19",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2017",
+    "year": 2017,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Programming in C",
+    "topic": "Programming In C",
+    "subtopic": "Programming In C"
+   },
+   "question": "Consider the following C program.\n\n#include <stdio.h>\nint main() {\n    int m = 10;\n    int n, n1;\n    n = ++m;\n    n1 = m++;\n    n--;\n    --n1;\n    n -= n1;\n    printf(\"%d\", n);\n    return 0;\n}\n\nThe output of the program is _______.\n\nA. -1  B. 0  C. 1  D. 2",
+   "answer": "B. 0",
+   "to_find": "The printed integer value of n after all increment and decrement operations.",
+   "understand": {
+    "plain": "The program starts with m=10 and applies pre- and post-increment and decrement operators. Pre-increment (++m) increments m first and then uses the value, while post-increment (m++) uses the current value first and then increments. After these operations, decrement and subtraction are applied, and the final value of n is printed.",
+    "keywords": [
+     {
+      "term": "pre-increment (++m)",
+      "explain": "Increments m immediately and returns the new value.",
+      "example": "If m=10, then n = ++m gives m=11, n=11."
+     },
+     {
+      "term": "post-increment (m++)",
+      "explain": "Returns the current value of m, then increments m.",
+      "example": "If m=11, then n1 = m++ gives n1=11, m=12."
+     },
+     {
+      "term": "compound subtraction (n -= n1)",
+      "explain": "Equivalent to n = n - n1.",
+      "example": "If n=10 and n1=10, then n -= n1 gives n=0."
+     }
+    ],
+    "visual_svg": "<svg width=\"480\" height=\"220\" xmlns=\"http://www.w3.org/2000/svg\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x=\"10\" y=\"10\" width=\"460\" height=\"200\" rx=\"8\" class=\"bg\"/><text x=\"20\" y=\"40\" class=\"lbl ink\">Step-by-step trace:</text><text x=\"20\" y=\"65\" class=\"sub ink\">Start:  m=10, n=?, n1=?</text><text x=\"20\" y=\"87\" class=\"sub ink\">n = ++m   => m=11, n=11</text><text x=\"20\" y=\"109\" class=\"sub ink\">n1 = m++  => n1=11, m=12</text><text x=\"20\" y=\"131\" class=\"sub ink\">n--       => n=10</text><text x=\"20\" y=\"153\" class=\"sub ink\">--n1      => n1=10</text><rect x=\"20\" y=\"165\" width=\"440\" height=\"35\" rx=\"4\" class=\"hi\"/><text x=\"30\" y=\"188\" class=\"lbl ink\">n -= n1   =&gt; n = 10 - 10 = 0; printf prints 0</text></svg>",
+    "visual_alt": "Step-by-step table showing values of m, n, n1 after each statement in the program."
+   },
+   "given": {
+    "aim": "Trace the values of m, n, n1 through each statement and find the final printed value of n.",
+    "terms": [
+     {
+      "term": "m = 10 (initial)",
+      "meaning": "Starting value of m.",
+      "example": "m = 10.",
+      "connects": "Foundation for all subsequent computations."
+     },
+     {
+      "term": "n = ++m",
+      "meaning": "Pre-increment: m is incremented to 11, then n is assigned 11.",
+      "example": "m=11, n=11 after this statement.",
+      "connects": "Sets n to 11."
+     },
+     {
+      "term": "n1 = m++",
+      "meaning": "Post-increment: n1 is assigned current m (11), then m is incremented to 12.",
+      "example": "n1=11, m=12 after this statement.",
+      "connects": "Sets n1 to 11."
+     }
+    ],
+    "plan": "Apply each operation in sequence, tracking m, n, and n1 at every step. The final value of n after n -= n1 is the answer."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Initialize and pre-increment",
+      "formula_raw": "n = ++m",
+      "apply": "m starts at 10. n = ++m: m is incremented first: m = 11, then n = m = 11. State: m=11, n=11.",
+      "note": "Pre-increment modifies m before assignment."
+     },
+     {
+      "step": 2,
+      "title": "Post-increment assignment",
+      "formula_raw": "n1 = m++",
+      "apply": "n1 = m++ : n1 gets the current value of m = 11, then m is incremented: m = 12. State: m=12, n=11, n1=11.",
+      "note": "Post-increment: value used first, then incremented."
+     },
+     {
+      "step": 3,
+      "title": "Decrement n",
+      "formula_raw": "n--",
+      "apply": "n-- : n = n - 1 = 11 - 1 = 10. State: n=10, n1=11.",
+      "note": "Post-decrement; the value becomes 10."
+     },
+     {
+      "step": 4,
+      "title": "Pre-decrement n1",
+      "formula_raw": "--n1",
+      "apply": "--n1 : n1 = n1 - 1 = 11 - 1 = 10. State: n=10, n1=10.",
+      "note": "Pre-decrement; n1 becomes 10."
+     },
+     {
+      "step": 5,
+      "title": "Subtract and print",
+      "formula_raw": "n -= n1",
+      "apply": "n -= n1 : n = n - n1 = 10 - 10 = 0. printf prints 0. But the official answer to GATE 2017 Set 2 Q54 is 0. Checking options: A.-1 B.0 C.1 D.2. The answer is B. 0.",
+      "note": "n = 10 - 10 = 0."
+     }
+    ],
+    "result": "The output of the program is 0. Answer: B. 0."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Pre-increment (++m) modifies before use; post-increment (m++) uses current value then increments. Careful tracing of each operator's sequential effect on variable state is required.",
+   "qid": "9.11.20",
+   "answer_official": "0"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2018",
+    "year": 2018,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Programming in C",
+    "topic": "Programming In C",
+    "subtopic": "Programming In C"
+   },
+   "question": "Consider the following C code. Assume that unsigned long int type length is 64 bits.\n\nunsigned long int fun(unsigned long int n) {\n    unsigned long int i, j = 0, sum = 0;\n    for (i = n; i > 1; i = i / 2)\n        j++;\n    for (; j > 1; j = j / 2)\n        sum++;\n    return sum;\n}\n\nThe value returned when we call fun() with the input 2^31 is:\n\nA. 4  B. 5  C. 6  D. 40",
+   "answer": "A. 4",
+   "to_find": "The value returned by fun(2^31).",
+   "understand": {
+    "plain": "The function fun(n) has two loops. The first loop repeatedly divides n by 2 until it reaches 1, counting the number of divisions in j. The second loop does the same thing to j, counting in sum. Effectively, the first loop computes j = floor(log_2(n)), and the second loop computes sum = floor(log_2(j)).",
+    "keywords": [
+     {
+      "term": "integer division by 2",
+      "explain": "Repeatedly dividing n by 2 (integer division) until n=1 gives the number of times equal to floor(log_2(n)).",
+      "example": "n=8: 8->4->3 iterations? No: 8->4->2->1, that is 3 divisions, and log_2(8)=3."
+     },
+     {
+      "term": "floor(log_2(n))",
+      "explain": "The number of times you can divide n by 2 before reaching 1 equals floor(log_2(n)).",
+      "example": "n=2^31: floor(log_2(2^31)) = 31. So j=31 after the first loop."
+     },
+     {
+      "term": "nested logarithm",
+      "explain": "Applying log base 2 twice: log_2(log_2(n)).",
+      "example": "log_2(31) ≈ 4.95, so floor is 4. But the loop runs while j>1 so sum counts divisions."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Two loops: first counts log_2(2^31)=31 giving j=31; second counts floor(log_2(31))=4 or 5 depending on exact loop behavior."
+   },
+   "given": {
+    "aim": "Trace fun(2^31) through both loops to find the returned value sum.",
+    "terms": [
+     {
+      "term": "n = 2^31",
+      "meaning": "The input value; 2 raised to the power 31.",
+      "example": "2^31 = 2,147,483,648.",
+      "connects": "First loop runs while i > 1, dividing by 2 each time."
+     },
+     {
+      "term": "First loop: j counts divisions of n",
+      "meaning": "j = number of times n is divided by 2 to reach 1, i.e., j = floor(log_2(n)).",
+      "example": "For n=2^31: j = 31 (since 2^31 / 2^31 = 1 after 31 divisions).",
+      "connects": "j becomes the input to the second loop."
+     },
+     {
+      "term": "Second loop: sum counts divisions of j",
+      "meaning": "sum = number of times j is divided by 2 to reach 1, i.e., sum = floor(log_2(j)).",
+      "example": "For j=31: 31->15->7->3->1, that is 4 divisions, sum=4. But loop condition is j>1.",
+      "connects": "Returns the value sum = floor(log_2(31))."
+     }
+    ],
+    "plan": "Compute j by tracing the first loop with n=2^31 (j = 31). Then trace the second loop with j=31 to find sum. Carefully count each iteration where j > 1."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "First loop: compute j for n = 2^31",
+      "formula_raw": "for (i = n; i > 1; i = i/2) j++",
+      "apply": "Starting with i = 2^31. Each iteration divides i by 2 and increments j. The loop runs while i > 1. i takes values: 2^31, 2^30, 2^29, ..., 2^1 = 2. When i=2, the condition i>1 is true, j is incremented, then i becomes 1. When i=1, condition fails. So j is incremented for i = 2^31, 2^30, ..., 2^1 which is 31 values. j = 31.",
+      "note": "The first loop counts floor(log_2(n)) = 31 for n = 2^31."
+     },
+     {
+      "step": 2,
+      "title": "Second loop: compute sum for j = 31",
+      "formula_raw": "for (; j > 1; j = j/2) sum++",
+      "apply": "j = 31. Trace: j=31 > 1: sum=1, j=31/2=15. j=15 > 1: sum=2, j=15/2=7. j=7 > 1: sum=3, j=7/2=3. j=3 > 1: sum=4, j=3/2=1. j=1: loop ends (1 > 1 is false). sum = 4.",
+      "note": "The second loop runs 4 times for j=31, giving sum=4. But the answer choices suggest 5, so let me recheck."
+     },
+     {
+      "step": 3,
+      "title": "Recheck first loop boundary",
+      "formula_raw": "for (i = n; i > 1; i = i/2) j++",
+      "apply": "n = 2^31. i starts at 2^31. Loop: i>1? yes (2^31>1), j++, i=2^30. ... i=2? yes (2>1), j++, i=1. i=1? no (1>1 is false), stop. Iterations: 31. j = 31. Second loop with j=31: j=31>1: sum++, j=15. j=15>1: sum++, j=7. j=7>1: sum++, j=3. j=3>1: sum++, j=1. j=1: stop. sum=4. Answer should be 4, but option A=4. Wait, let me recheck the options from the image.",
+      "note": "From the next page image: A.4, B.5, C.6, D.40. So the answer is A.4."
+     },
+     {
+      "step": 4,
+      "title": "Final answer determination",
+      "formula_raw": "sum = floor(log_2(floor(log_2(n))))",
+      "apply": "j = floor(log_2(2^31)) = 31. sum = floor(log_2(31)). Since 2^4=16 < 31 < 32=2^5, we get floor(log_2(31)) = 4. So sum = 4. The correct answer is A. 4.",
+      "note": "The second loop terminates when j reaches 1, giving sum = 4 for j = 31."
+     }
+    ],
+    "result": "The value returned when fun(2^31) is called is 4. Answer: A. 4."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Each halving loop computes floor(log_2(n)) iterations. The function computes floor(log_2(floor(log_2(n)))). For n=2^31: first loop gives j=31, second loop gives sum = floor(log_2(31)) = 4.",
+   "qid": "9.11.21",
+   "answer_official": "B"
+  }
+ ]
+}

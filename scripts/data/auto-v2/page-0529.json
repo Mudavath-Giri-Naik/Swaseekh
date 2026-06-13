@@ -1,0 +1,491 @@
+{
+ "page": 529,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2015",
+    "year": 2015,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Data Structures",
+    "topic": "Array",
+    "subtopic": "Array"
+   },
+   "question": "A Young tableau is a 2D array of integers increasing from left to right and from top to bottom. Any unfilled entries are marked with infinity (inf), and hence there cannot be any entry to the right of, or below a inf. The following Young tableau consists of unique entries.\n\n 1  2  5 14\n 3  4  6 23\n10 12 18 25\n31 inf inf inf\n\nWhen an element is removed from a Young tableau, other elements should be moved into its place so that the resulting array is still a Young tableau (unfilled entries are marked with inf). The minimum number of entries (other than 1) to be shifted, to remove 1 from the given Young tableau is ___.",
+   "answer": "5",
+   "to_find": "Minimum number of entries to be shifted when removing element 1 from the Young tableau",
+   "understand": {
+    "plain": "A Young tableau is a 2D matrix where values increase left-to-right and top-to-bottom, with infinity for empty spots. When we remove the minimum element (top-left corner), we need to fill the gap by repeatedly pulling in the smaller of the right or below neighbor, like a sift-down operation. We count how many elements must move.",
+    "keywords": [
+     {
+      "term": "Young Tableau",
+      "explain": "A 2D array where each row and each column is sorted in increasing order; unfilled spots hold infinity.",
+      "example": "A 2x2 tableau: [[1,3],[2,4]] — rows 1<3, 2<4 and columns 1<2, 3<4."
+     },
+     {
+      "term": "Sift-down (tableau restore)",
+      "explain": "After removing the top-left element, replace the gap with the smaller of its right or bottom neighbor, then repeat until no more moves needed.",
+      "example": "Remove 1 from [[1,5],[3,7]]: compare 5 and 3, move 3 up; then that cell is gap, right is inf, below is inf so stop."
+     }
+    ],
+    "visual_svg": "<svg width='320' height='200' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='55' height='40' class='hi'/><text x='37' y='36' text-anchor='middle' class='lbl ink'>1</text><rect x='65' y='10' width='55' height='40' class='bg'/><text x='92' y='36' text-anchor='middle' class='lbl ink'>2</text><rect x='120' y='10' width='55' height='40' class='bg'/><text x='147' y='36' text-anchor='middle' class='lbl ink'>5</text><rect x='175' y='10' width='55' height='40' class='bg'/><text x='202' y='36' text-anchor='middle' class='lbl ink'>14</text><rect x='10' y='50' width='55' height='40' class='bg'/><text x='37' y='76' text-anchor='middle' class='lbl ink'>3</text><rect x='65' y='50' width='55' height='40' class='bg'/><text x='92' y='76' text-anchor='middle' class='lbl ink'>4</text><rect x='120' y='50' width='55' height='40' class='bg'/><text x='147' y='76' text-anchor='middle' class='lbl ink'>6</text><rect x='175' y='50' width='55' height='40' class='bg'/><text x='202' y='76' text-anchor='middle' class='lbl ink'>23</text><rect x='10' y='90' width='55' height='40' class='bg'/><text x='37' y='116' text-anchor='middle' class='lbl ink'>10</text><rect x='65' y='90' width='55' height='40' class='bg'/><text x='92' y='116' text-anchor='middle' class='lbl ink'>12</text><rect x='120' y='90' width='55' height='40' class='bg'/><text x='147' y='116' text-anchor='middle' class='lbl ink'>18</text><rect x='175' y='90' width='55' height='40' class='bg'/><text x='202' y='116' text-anchor='middle' class='lbl ink'>25</text><rect x='10' y='130' width='55' height='40' class='bg'/><text x='37' y='156' text-anchor='middle' class='lbl ink'>31</text><rect x='65' y='130' width='55' height='40' class='bg'/><text x='92' y='156' text-anchor='middle' class='sub mut'>inf</text><rect x='120' y='130' width='55' height='40' class='bg'/><text x='147' y='156' text-anchor='middle' class='sub mut'>inf</text><rect x='175' y='130' width='55' height='40' class='bg'/><text x='202' y='156' text-anchor='middle' class='sub mut'>inf</text><text x='160' y='195' text-anchor='middle' class='sub mut'>Remove 1 (top-left) and restore tableau</text></svg>",
+    "visual_alt": "4x4 Young tableau with values 1,2,5,14 / 3,4,6,23 / 10,12,18,25 / 31,inf,inf,inf. Element 1 at top-left is highlighted for removal."
+   },
+   "given": {
+    "aim": "Find the minimum number of entries that must shift to restore Young tableau property after removing the minimum element 1.",
+    "terms": [
+     {
+      "term": "Young tableau",
+      "meaning": "A 2D array with rows and columns sorted in increasing order; infinity marks empty spots.",
+      "example": "[[1,2],[3,4]] is a valid Young tableau.",
+      "connects": "The removal and restoration algorithm is specific to Young tableaux."
+     },
+     {
+      "term": "Restore operation",
+      "meaning": "After removing top-left, repeatedly replace current gap with min(right neighbor, bottom neighbor) until gap reaches a cell where both right and bottom are inf.",
+      "example": "Gap at (0,0): min(right=2, below=3) = 2, so move 2 up; gap now at (0,1).",
+      "connects": "Each replacement is one shift; counting shifts gives the answer."
+     },
+     {
+      "term": "Path of shifts",
+      "meaning": "The sequence of cells that get moved forms a path from top-left toward the bottom-right boundary.",
+      "example": "The path might be (0,0) -> (0,1) -> (1,1) -> (1,2) -> (2,2) -> (3,2) — 5 moves.",
+      "connects": "Length of this path (excluding the initial removed element) is the answer."
+     }
+    ],
+    "plan": "Simulate the Young tableau restore process starting from position (0,0) after removing 1. At each step, pick the smaller of the right or bottom neighbor and move it into the gap. Count each such move until the gap reaches a boundary position where restoration stops."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Remove element 1 at position (0,0) — gap at (0,0)",
+      "formula_raw": "gap <- min(right, down)",
+      "apply": "right = arr[0][1] = 2, down = arr[1][0] = 3. min = 2. Move 2 to (0,0). Gap moves to (0,1).",
+      "note": "Count: 1 shift so far."
+     },
+     {
+      "step": 2,
+      "title": "Gap at (0,1) — fill from right or down",
+      "formula_raw": "",
+      "apply": "right = arr[0][2] = 5, down = arr[1][1] = 4. min = 4. Move 4 to (0,1). Gap moves to (1,1).",
+      "note": "Count: 2 shifts so far."
+     },
+     {
+      "step": 3,
+      "title": "Gap at (1,1) — fill from right or down",
+      "formula_raw": "",
+      "apply": "right = arr[1][2] = 6, down = arr[2][1] = 12. min = 6. Move 6 to (1,1). Gap moves to (1,2).",
+      "note": "Count: 3 shifts so far."
+     },
+     {
+      "step": 4,
+      "title": "Gap at (1,2) — fill from right or down",
+      "formula_raw": "",
+      "apply": "right = arr[1][3] = 23, down = arr[2][2] = 18. min = 18. Move 18 to (1,2). Gap moves to (2,2).",
+      "note": "Count: 4 shifts so far."
+     },
+     {
+      "step": 5,
+      "title": "Gap at (2,2) — fill from right or down",
+      "formula_raw": "",
+      "apply": "right = arr[2][3] = 25, down = arr[3][2] = inf. min = 25. Move 25 to (2,2). Gap moves to (2,3).",
+      "note": "Count: 5 shifts so far."
+     },
+     {
+      "step": 6,
+      "title": "Gap at (2,3) — fill from right or down",
+      "formula_raw": "",
+      "apply": "right = inf (out of bounds), down = arr[3][3] = inf. Both neighbors are inf. Set (2,3) = inf and stop.",
+      "note": "The gap cell itself becomes inf — this is NOT counted as a shift of another element. Total shifts = 5."
+     }
+    ],
+    "result": "5 entries (other than 1) need to be shifted. Answer = 5."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Young tableau restore algorithm: repeatedly move the smaller of right/below neighbor into the gap, tracing a path to the boundary. Path length = number of shifts.",
+   "qid": "8.2.12",
+   "answer_official": "5"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2021",
+    "year": 2021,
+    "marks": 1,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Data Structures",
+    "topic": "Array",
+    "subtopic": "Array"
+   },
+   "question": "Let A be an array of n integers. Let t be the lowest upper bound on the number of comparisons of the array elements, required to find the minimum and maximum values in an arbitrary array of n elements. Which one of the following choices is correct?\n\nA. t > 2n - 2\nB. t > 3*floor(n/2) and t <= 2n - 2\nC. t > floor(n/2) and t <= 3*floor(n/2)\nD. t <= floor(n/2)",
+   "answer": "C. t > floor(n/2) and t <= 3*floor(n/2)",
+   "to_find": "The tightest upper bound t on number of comparisons to find both minimum and maximum in an n-element array",
+   "understand": {
+    "plain": "We want to find both the minimum and maximum of an array with as few comparisons as possible. A naive approach does 2(n-1) comparisons. A smarter tournament/pair-based approach does only ceil(3n/2) - 2 comparisons. We need to identify which bound correctly characterizes this.",
+    "keywords": [
+     {
+      "term": "Tournament method (pair-based min-max)",
+      "explain": "Compare elements in pairs first (floor(n/2) comparisons). Then find the min among 'losers' and max among 'winners' separately (each takes about n/2-1 comparisons). Total: about 3n/2 - 2.",
+      "example": "For n=4, elements a,b,c,d: compare (a,b) and (c,d) — 2 comparisons. Then compare winners for max (1), compare losers for min (1). Total = 4 comparisons = 3*4/2 - 2 = 4."
+     },
+     {
+      "term": "Upper bound vs Lower bound",
+      "explain": "Upper bound = best algorithm's worst case. The best known algorithm achieves ceil(3n/2) - 2 comparisons.",
+      "example": "For n=6: ceil(9) - 2 = 7 comparisons optimal vs naive 10."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Comparison count for finding min and max: naive uses 2(n-1), optimal pair-based method uses floor(3n/2) - 2 comparisons."
+   },
+   "given": {
+    "aim": "Determine the tight bound t on comparisons needed to find both min and max.",
+    "terms": [
+     {
+      "term": "n",
+      "meaning": "Number of elements in the array.",
+      "example": "n = 8 elements.",
+      "connects": "All bounds are expressed in terms of n."
+     },
+     {
+      "term": "Naive bound: 2(n-1) = 2n-2",
+      "meaning": "Find min with n-1 comparisons, then find max with n-1 comparisons independently.",
+      "example": "For n=4: 3+3=6 comparisons.",
+      "connects": "This is an upper bound but NOT optimal — better is possible."
+     },
+     {
+      "term": "Optimal bound: ceil(3n/2) - 2",
+      "meaning": "Using the pair-comparison tournament method, we can achieve this lower number of comparisons.",
+      "example": "For n=4: ceil(6) - 2 = 4 comparisons vs naive 6.",
+      "connects": "This optimal value is approximately 3*floor(n/2) - 2 for even n, which is <= 3*floor(n/2) and > floor(n/2), confirming option C."
+     }
+    ],
+    "plan": "Recall that the optimal number of comparisons to find both min and max is ceil(3n/2) - 2. For even n this equals 3n/2 - 2. This is strictly greater than floor(n/2) = n/2 (since 3n/2 - 2 > n/2 for n >= 2), and strictly less than or equal to 3*floor(n/2) = 3n/2. So option C: t > floor(n/2) and t <= 3*floor(n/2) is the correct characterization."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Evaluate the naive approach",
+      "formula_raw": "Comparisons_naive = 2(n-1) = 2n-2",
+      "apply": "Scan for min: n-1 comparisons. Scan for max: n-1 comparisons. Total = 2n-2.",
+      "note": "This gives an upper bound but not the tightest."
+     },
+     {
+      "step": 2,
+      "title": "Apply the pair-based tournament algorithm",
+      "formula_raw": "Comparisons_optimal = ceil(3n/2) - 2",
+      "apply": "Step 1: Compare elements in pairs — floor(n/2) comparisons. Step 2: Find max among the 'larger of each pair' candidates — ceil(n/2)-1 comparisons. Step 3: Find min among the 'smaller of each pair' candidates — ceil(n/2)-1 comparisons. Total = floor(n/2) + 2*(ceil(n/2)-1) = ceil(3n/2) - 2.",
+      "note": "For even n, ceil(3n/2)-2 = 3n/2 - 2 = 3*floor(n/2) - 2."
+     },
+     {
+      "step": 3,
+      "title": "Check which option matches",
+      "formula_raw": "3*floor(n/2) - 2 < t <= 2n-2? Or: t = ceil(3n/2) - 2",
+      "apply": "The optimal t = ceil(3n/2) - 2 which is approximately 3n/2. This is strictly less than 2n-2 for n >= 3, and strictly greater than 3*floor(n/2) - 2... Wait, let us check option B: t > 3*floor(n/2) means t >= 3*floor(n/2)+1. But the optimum IS 3*floor(n/2)-2 for even n. Re-reading: Option B says t > 3*floor(n/2) is FALSE since optimal is 3n/2 - 2 < 3n/2. Let us revisit. The optimal is ceil(3n/2) - 2. For n=10 (even): 15-2=13 vs 3*5=15 — so t=13 < 15 = 3*floor(n/2). So t <= 3*floor(n/2). Option C: t <= 3*floor(n/2) is satisfied. Also t > floor(n/2) is clearly true (n/2 < 3n/2-2 for n>2). Therefore option C is correct.",
+      "note": "Re-checking with small n: n=4, optimal=4, floor(n/2)=2, 3*floor(n/2)=6. So 2 < 4 <= 6. Option C holds. For n=2: optimal=1, floor(2/2)=1, 3*1=3. 1 <= 1 is not strictly greater than floor(n/2)=1. Edge case. For n >= 3 option C is the correct characterization."
+     }
+    ],
+    "result": "C. t > floor(n/2) and t <= 3*floor(n/2)"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Optimal min-max finding using pair comparison: ceil(3n/2) - 2 comparisons total. This value is > floor(n/2) and <= 3*floor(n/2), placing it squarely in option C's range.",
+   "qid": "8.2.13",
+   "answer_official": "C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1990",
+    "year": 1990,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Data Structures",
+    "topic": "Binary Heap",
+    "subtopic": "Binary Heap"
+   },
+   "question": "Match the pairs in the following:\n\nList 1:\n(a) Heap construction with linear probing\n(b) Constructing a Hashtable with linear probing\n(c) AVL tree construction\n(d) Digital trie construction\n\nList 2:\n(p) Theta(log_2(n))\n(q) O(n)\n(r) O(n^2)\n(s) O(n log_2(n))\n\nA. a-p, b-r, c-s, d-q\nB. a-q, b-r, c-s, d-p\nC. a-q, b-r, c-s, d-s\nD. a-r, b-q, c-s, d-p",
+   "answer": "B. a-q, b-r, c-s, d-p",
+   "to_find": "Match each data structure construction method with its time complexity",
+   "understand": {
+    "plain": "We need to match four data structure construction operations with their time complexities. Each operation has a well-known average or worst-case time to build from n elements.",
+    "keywords": [
+     {
+      "term": "Heap construction (build-heap)",
+      "explain": "Building a binary max/min heap from n elements using the Floyd heapify-down algorithm takes O(n) time.",
+      "example": "Inserting n elements one by one takes O(n log n), but build-heap bottom-up is O(n)."
+     },
+     {
+      "term": "Hashtable with linear probing",
+      "explain": "In the worst case (many collisions), each of n insertions may scan O(n) slots, giving O(n^2) total.",
+      "example": "All n keys hash to the same slot: insertion 1 takes 1, insertion 2 takes 2, ..., total = n(n+1)/2 = O(n^2)."
+     },
+     {
+      "term": "AVL tree construction",
+      "explain": "Inserting n elements into an AVL tree: each insertion with rotations costs O(log n), so n insertions cost O(n log n).",
+      "example": "Insert 1,2,3,...,n into AVL: O(log 1 + log 2 + ... + log n) = O(n log n)."
+     },
+     {
+      "term": "Digital trie construction",
+      "explain": "A trie node lookup at each level is O(1) per bit/character. Inserting one key of length k is O(k) = O(log_2(n)) for integer keys. So per-key cost is O(log n), not the total.",
+      "example": "Inserting n integers each of size log_2(n) bits: each insertion is O(log_2(n))."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Matching table: Heap construction O(n), Hashtable with linear probing O(n^2), AVL tree O(n log n), Digital trie O(log n) per insertion."
+   },
+   "given": {
+    "aim": "Match each construction operation to its time complexity.",
+    "terms": [
+     {
+      "term": "(a) Heap construction",
+      "meaning": "Build-heap using heapify: O(n) total.",
+      "example": "Floyd's algorithm: start from last internal node, sift down each node.",
+      "connects": "Matches O(n) = (q)."
+     },
+     {
+      "term": "(b) Hashtable with linear probing",
+      "meaning": "Worst-case O(n^2) due to clustering and long probe sequences.",
+      "example": "Dense table with many collisions requires O(n) probes per insertion on average.",
+      "connects": "Matches O(n^2) = (r)."
+     },
+     {
+      "term": "(c) AVL tree construction",
+      "meaning": "n insertions each O(log n) with rotations = O(n log n) total.",
+      "example": "Inserting n sorted elements into AVL takes O(n log n).",
+      "connects": "Matches O(n log n) = (s)."
+     },
+     {
+      "term": "(d) Digital trie construction",
+      "meaning": "Each key insertion takes O(log n) time (key length in bits for n-key universe).",
+      "example": "Keys are integers, each has log_2(n) bits, so insertion is O(log_2(n)).",
+      "connects": "Matches Theta(log_2(n)) = (p) per insertion."
+     }
+    ],
+    "plan": "Recall the standard time complexities: heap build = O(n), hash table linear probing worst = O(n^2), AVL build = O(n log n), trie insertion = O(log n) per key."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Assign complexities to each operation",
+      "formula_raw": "",
+      "apply": "(a) Heap construction: Floyd's build-heap is O(n) — matches (q). (b) Hashtable with linear probing: worst case O(n^2) — matches (r). (c) AVL tree: n * O(log n) = O(n log_2(n)) — matches (s). (d) Digital trie: per-key O(log_2(n)) bits traversed — matches (p).",
+      "note": "These are standard complexity results in CS curriculum."
+     },
+     {
+      "step": 2,
+      "title": "Identify the matching option",
+      "formula_raw": "",
+      "apply": "a->q, b->r, c->s, d->p corresponds to option B.",
+      "note": "Option B: a-q, b-r, c-s, d-p is the correct match."
+     }
+    ],
+    "result": "B. a-q, b-r, c-s, d-p"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Key complexities: Floyd build-heap O(n), hash linear probing worst O(n^2), AVL tree O(n log n), digital trie per-key O(log n).",
+   "qid": "8.3.1",
+   "answer_official": "N/A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1996",
+    "year": 1996,
+    "marks": 2,
+    "difficulty": "easy",
+    "type": "MCQ",
+    "subject": "Data Structures",
+    "topic": "Binary Heap",
+    "subtopic": "Binary Heap"
+   },
+   "question": "The minimum number of interchanges needed to convert the array\n89, 19, 40, 17, 12, 10, 2, 5, 7, 11, 6, 9, 70\ninto a max-heap is\n\nA. 0\nB. 1\nC. 2\nD. 3",
+   "answer": "C. 2",
+   "to_find": "Minimum number of swaps to convert the given array into a valid max-heap",
+   "understand": {
+    "plain": "A max-heap is a complete binary tree where each parent node is >= its children. The array represents a heap in level-order. We need to find how many swaps are needed to make this array satisfy the max-heap property. We use Floyd's build-heap algorithm which performs heapify-down on each internal node from right to left.",
+    "keywords": [
+     {
+      "term": "Max-heap property",
+      "explain": "For every node at index i, arr[i] >= arr[2i+1] and arr[i] >= arr[2i+2] (1-indexed: arr[i] >= arr[2i] and arr[i] >= arr[2i+1]).",
+      "example": "In a max-heap, root (index 1) must be the largest element."
+     },
+     {
+      "term": "Floyd's heapify (build-heap)",
+      "explain": "Start from the last internal node (index floor(n/2)) and call sift-down on each node going left to up to the root.",
+      "example": "For n=13, last internal node is at index 6 (1-based). Sift down from index 6 down to index 1."
+     }
+    ],
+    "visual_svg": "<svg width='380' height='200' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><circle cx='190' cy='30' r='22' class='bg'/><text x='190' y='36' text-anchor='middle' class='lbl ink'>89</text><circle cx='100' cy='80' r='22' class='bg'/><text x='100' y='86' text-anchor='middle' class='lbl ink'>19</text><circle cx='280' cy='80' r='22' class='bg'/><text x='280' y='86' text-anchor='middle' class='lbl ink'>40</text><circle cx='55' cy='130' r='22' class='bg'/><text x='55' y='136' text-anchor='middle' class='lbl ink'>17</text><circle cx='145' cy='130' r='22' class='bg'/><text x='145' y='136' text-anchor='middle' class='lbl ink'>12</text><circle cx='235' cy='130' r='22' class='bg'/><text x='235' y='136' text-anchor='middle' class='lbl ink'>10</text><circle cx='325' cy='130' r='22' class='hi'/><text x='325' y='136' text-anchor='middle' class='lbl ink'>2</text><line x1='190' y1='52' x2='100' y2='58' stroke='#B4B2A9' stroke-width='2'/><line x1='190' y1='52' x2='280' y2='58' stroke='#B4B2A9' stroke-width='2'/><line x1='100' y1='102' x2='55' y2='108' stroke='#B4B2A9' stroke-width='2'/><line x1='100' y1='102' x2='145' y2='108' stroke='#B4B2A9' stroke-width='2'/><line x1='280' y1='102' x2='235' y2='108' stroke='#B4B2A9' stroke-width='2'/><line x1='280' y1='102' x2='325' y2='108' stroke='#B4B2A9' stroke-width='2'/><text x='190' y='190' text-anchor='middle' class='sub mut'>Array: 89,19,40,17,12,10,2,5,7,11,6,9,70 (indices 1-13)</text></svg>",
+    "visual_alt": "Binary tree from the array. Root=89, left subtree rooted at 19 with children 17,12, right subtree rooted at 40 with children 10,2. Node 2 is highlighted as a problem node (parent 40 > child 2 but sibling 70 at index 13 needs attention)."
+   },
+   "given": {
+    "aim": "Determine the minimum swaps needed to heapify the array 89,19,40,17,12,10,2,5,7,11,6,9,70.",
+    "terms": [
+     {
+      "term": "Array (1-indexed)",
+      "meaning": "Index 1=89, 2=19, 3=40, 4=17, 5=12, 6=10, 7=2, 8=5, 9=7, 10=11, 11=6, 12=9, 13=70.",
+      "example": "Node at index i has children at 2i and 2i+1.",
+      "connects": "We check all internal nodes (indices 1 to 6) for heap violations."
+     },
+     {
+      "term": "Last internal node",
+      "meaning": "For n=13, floor(13/2) = 6 (1-based). Index 6 = value 10.",
+      "example": "Children of index 6: index 12=9 and index 13=70. 10 < 70 — violation!",
+      "connects": "Index 6 (value 10) needs to be sifted down."
+     },
+     {
+      "term": "Sift-down",
+      "meaning": "If a node is less than its largest child, swap with that child and continue downward.",
+      "example": "Node 10 (idx 6) < child 70 (idx 13): swap. Now 70 is at idx 6, 10 at idx 13.",
+      "connects": "Each sift-down may cause 1 or more swaps."
+     }
+    ],
+    "plan": "Apply Floyd's build-heap: check each internal node from index 6 down to 1. For each, perform sift-down if needed. Count total swaps."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Check node at index 6 (value 10): children at idx 12=9 and idx 13=70",
+      "formula_raw": "arr[6] >= arr[12] and arr[6] >= arr[13]?",
+      "apply": "10 >= 9 (yes), 10 >= 70 (no). Violation! Swap arr[6] with arr[13]: swap 10 and 70. Array becomes: 89,19,40,17,12,70,2,5,7,11,6,9,10. Swap count = 1.",
+      "note": "After swap, 70 is at idx 6, 10 is at idx 13. Index 13 is a leaf, no further sift-down needed."
+     },
+     {
+      "step": 2,
+      "title": "Check node at index 5 (value 12): children at idx 10=11 and idx 11=6",
+      "formula_raw": "",
+      "apply": "12 >= 11 (yes), 12 >= 6 (yes). No violation. No swap.",
+      "note": ""
+     },
+     {
+      "step": 3,
+      "title": "Check node at index 4 (value 17): children at idx 8=5 and idx 9=7",
+      "formula_raw": "",
+      "apply": "17 >= 5 (yes), 17 >= 7 (yes). No violation. No swap.",
+      "note": ""
+     },
+     {
+      "step": 4,
+      "title": "Check node at index 3 (value 40): children at idx 6=70 (after swap) and idx 7=2",
+      "formula_raw": "",
+      "apply": "40 >= 70 (no). Violation! Swap arr[3] with arr[6]: swap 40 and 70. Array becomes: 89,19,70,17,12,40,2,5,7,11,6,9,10. Swap count = 2. Now check idx 6 (value 40): children at idx 12=9 and idx 13=10. 40 >= 9 and 40 >= 10. No further sift-down needed.",
+      "note": "Second and final swap."
+     },
+     {
+      "step": 5,
+      "title": "Check node at index 2 (value 19): children at idx 4=17 and idx 5=12",
+      "formula_raw": "",
+      "apply": "19 >= 17 (yes), 19 >= 12 (yes). No violation. No swap.",
+      "note": ""
+     },
+     {
+      "step": 6,
+      "title": "Check node at index 1 (value 89): children at idx 2=19 and idx 3=70",
+      "formula_raw": "",
+      "apply": "89 >= 19 (yes), 89 >= 70 (yes). No violation. No swap.",
+      "note": "Final array: 89,19,70,17,12,40,2,5,7,11,6,9,10 — valid max-heap."
+     }
+    ],
+    "result": "C. 2 — minimum 2 interchanges are needed."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Floyd's build-heap algorithm: apply sift-down to each internal node from floor(n/2) down to 1; total swaps across all sift-downs gives the answer.",
+   "qid": "8.3.2",
+   "answer_official": "C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1999",
+    "year": 1999,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Data Structures",
+    "topic": "Binary Heap",
+    "subtopic": "Binary Heap"
+   },
+   "question": "In a binary tree, a full node is defined to be a node with 2 children. Use induction on the height of the binary tree to prove that the number of full nodes plus one is equal to the number of leaves.\n\nLet F denote the number of full nodes and L denote the number of leaves. Which statement is to be proved?\n\nA. F + 1 = L\nB. F = L + 1\nC. F = L\nD. F = 2L",
+   "answer": "A. F + 1 = L",
+   "to_find": "The relationship between the number of full nodes (nodes with exactly 2 children) and the number of leaves in a binary tree",
+   "understand": {
+    "plain": "In any binary tree, every node is either a leaf (0 children), a half-node (1 child), or a full node (2 children). There is a well-known formula relating leaves (L) and full nodes (F): L = F + 1. This can be proved by induction on the tree height.",
+    "keywords": [
+     {
+      "term": "Full node",
+      "explain": "A node with exactly 2 children (both left and right children present).",
+      "example": "Root of a perfect binary tree with 3 nodes is a full node."
+     },
+     {
+      "term": "Leaf node",
+      "explain": "A node with no children (0 children).",
+      "example": "Bottom nodes in any binary tree."
+     },
+     {
+      "term": "Binary tree identity",
+      "explain": "For any binary tree: if F = number of full nodes and L = number of leaves, then L = F + 1.",
+      "example": "A tree with 1 full node (root) and 2 leaves: 2 = 1 + 1. A perfect tree with 3 full nodes and 4 leaves: 4 = 3 + 1."
+     }
+    ],
+    "visual_svg": "<svg width='300' height='180' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><circle cx='150' cy='30' r='20' class='hi'/><text x='150' y='36' text-anchor='middle' class='sub ink'>F</text><circle cx='80' cy='90' r='20' class='hi'/><text x='80' y='96' text-anchor='middle' class='sub ink'>F</text><circle cx='220' cy='90' r='20' class='bg'/><text x='220' y='96' text-anchor='middle' class='sub mut'>L</text><circle cx='40' cy='150' r='20' class='bg'/><text x='40' y='156' text-anchor='middle' class='sub mut'>L</text><circle cx='120' cy='150' r='20' class='bg'/><text x='120' y='156' text-anchor='middle' class='sub mut'>L</text><line x1='150' y1='50' x2='80' y2='70' stroke='#B4B2A9' stroke-width='2'/><line x1='150' y1='50' x2='220' y2='70' stroke='#B4B2A9' stroke-width='2'/><line x1='80' y1='110' x2='40' y2='130' stroke='#B4B2A9' stroke-width='2'/><line x1='80' y1='110' x2='120' y2='130' stroke='#B4B2A9' stroke-width='2'/><text x='150' y='175' text-anchor='middle' class='sub mut'>F=2 full nodes, L=3 leaves: L = F+1</text></svg>",
+    "visual_alt": "Binary tree with 2 full nodes (root and left child) and 3 leaves (right child of root, and two children of left child). Demonstrates L = F + 1 = 2 + 1 = 3."
+   },
+   "given": {
+    "aim": "Prove by induction that in a binary tree, the number of leaves equals the number of full nodes plus one: L = F + 1.",
+    "terms": [
+     {
+      "term": "F",
+      "meaning": "Number of full nodes (nodes with exactly 2 children).",
+      "example": "In a single-node tree (just root), F = 0.",
+      "connects": "The claim is L = F + 1."
+     },
+     {
+      "term": "L",
+      "meaning": "Number of leaf nodes (nodes with 0 children).",
+      "example": "In a single-node tree, L = 1.",
+      "connects": "Base case: L=1, F=0, L = F+1 holds."
+     },
+     {
+      "term": "Inductive step",
+      "meaning": "Adding a full node to a leaf: replaces 1 leaf with 3 nodes (1 full + 2 leaves), net change: L increases by 1, F increases by 1. So L - F stays constant = 1.",
+      "example": "Before: tree has L leaves, F full nodes, L=F+1. Add two children to a leaf: L becomes L+1, F becomes F+1. Still (F+1)+1 = L+1.",
+      "connects": "Invariant L = F+1 is preserved under this operation."
+     }
+    ],
+    "plan": "Base case: single node tree has L=1, F=0, so L = F+1 holds. Inductive step: any binary tree can be built by starting from a single node and repeatedly adding two children to a leaf (converting a leaf to a full node). Each such operation increases L by 1 and F by 1, preserving L = F+1."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Base case: tree with a single node (height 0)",
+      "formula_raw": "L = F + 1",
+      "apply": "One node, no children. F = 0, L = 1. L = F + 1 = 0 + 1 = 1. True.",
+      "note": "This establishes the base case for induction."
+     },
+     {
+      "step": 2,
+      "title": "Inductive step: add two children to a leaf node",
+      "formula_raw": "L_new = L_old + 1, F_new = F_old + 1",
+      "apply": "Assume L = F + 1 for a tree T. Take any leaf and give it two children. The leaf becomes a full node (F increases by 1) and two new leaves are added (L increases by 2) but the original leaf is no longer a leaf (L decreases by 1). Net: L_new = L + 2 - 1 = L + 1, F_new = F + 1. Check: L_new = (L+1) = (F+1)+1 = F_new + 1. Invariant holds.",
+      "note": "Any binary tree can be constructed this way from a single leaf, so the property holds for all binary trees."
+     },
+     {
+      "step": 3,
+      "title": "Conclude the relationship",
+      "formula_raw": "F + 1 = L",
+      "apply": "The proved relationship is: number of full nodes + 1 = number of leaves, i.e., F + 1 = L.",
+      "note": "This is option A."
+     }
+    ],
+    "result": "A. F + 1 = L"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Binary tree leaf-full node identity: L = F + 1, proved by structural induction. Each full node 'contributes' one extra leaf compared to itself.",
+   "qid": "8.3.3",
+   "answer_official": "N/A"
+  }
+ ]
+}

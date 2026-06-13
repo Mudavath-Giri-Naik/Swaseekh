@@ -1,0 +1,253 @@
+{
+ "page": 238,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2025",
+    "year": 2025,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Computer Networks",
+    "topic": "Fragmentation",
+    "subtopic": "Fragmentation"
+   },
+   "question": "Suppose a message of size 13000 bytes is transmitted from a source to a destination using IPv4 protocol via two routers as shown in the figure. Each router has a defined maximum transmission unit (MTU) as shown in the figure, including IP header.\n\nSource --> Router 1 (MTU = 3000 bytes) --> Router 2 (MTU = 2000 bytes) --> Destination\n\nThe number of fragments that will be delivered to the destination is ___. (Answer in integer)",
+   "answer": "9",
+   "to_find": "Total number of IPv4 fragments delivered to the destination",
+   "understand": {
+    "plain": "A large 13000-byte message is sent using IPv4 across two routers, each with a different MTU (maximum packet size). IPv4 routers fragment oversized packets into smaller ones. We must count how many fragments ultimately arrive at the destination after all fragmentation steps.",
+    "keywords": [
+     {
+      "term": "MTU (Maximum Transmission Unit)",
+      "explain": "The largest IP packet (header + data) that a link can carry",
+      "example": "MTU = 3000 means each fragment including the 20-byte IP header can be at most 3000 bytes"
+     },
+     {
+      "term": "IPv4 fragmentation",
+      "explain": "When a packet is too large for an outgoing link, the router splits it into smaller fragments, each with its own IP header. Fragment offsets must be multiples of 8 bytes.",
+      "example": "A 5000-byte IP payload through MTU=1500 yields ceil(5000/1480) = 4 fragments"
+     },
+     {
+      "term": "Re-fragmentation",
+      "explain": "A fragment produced by one router can be fragmented again by the next router if the next link has a smaller MTU. Only the destination reassembles fragments.",
+      "example": "A 2976-byte data fragment through MTU=2000 yields 2 sub-fragments"
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 700 160'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='60' width='100' height='40' class='bg'/><text x='60' y='85' text-anchor='middle' class='lbl ink'>Source</text><rect x='180' y='50' width='140' height='60' class='hi'/><text x='250' y='78' text-anchor='middle' class='lbl ink'>Router 1</text><text x='250' y='98' text-anchor='middle' class='sub mut'>MTU=3000</text><rect x='390' y='50' width='140' height='60' class='hi'/><text x='460' y='78' text-anchor='middle' class='lbl ink'>Router 2</text><text x='460' y='98' text-anchor='middle' class='sub mut'>MTU=2000</text><rect x='590' y='60' width='100' height='40' class='bg'/><text x='640' y='85' text-anchor='middle' class='lbl ink'>Dest</text><line x1='110' y1='80' x2='180' y2='80' stroke='#2C2C2A' stroke-width='2' marker-end='url(#arr)'/><line x1='320' y1='80' x2='390' y2='80' stroke='#2C2C2A' stroke-width='2' marker-end='url(#arr)'/><line x1='530' y1='80' x2='590' y2='80' stroke='#2C2C2A' stroke-width='2' marker-end='url(#arr)'/><defs><marker id='arr' markerWidth='8' markerHeight='8' refX='6' refY='4' orient='auto'><path d='M0,0 L0,8 L8,4 z' class='ink'/></marker></defs><text x='350' y='40' text-anchor='middle' class='tag mut'>13000 bytes data (13020 bytes IP packet)</text><text x='145' y='140' text-anchor='middle' class='sub mut'>5 frags</text><text x='355' y='140' text-anchor='middle' class='sub mut'>9 frags</text></svg>",
+    "visual_alt": "Source sends a 13020-byte IP packet (13000 data + 20 header). Router 1 (MTU=3000) produces 5 fragments. Router 2 (MTU=2000) re-fragments the larger ones, resulting in 9 total fragments at the destination."
+   },
+   "given": {
+    "aim": "Count the total IPv4 fragments delivered to the destination after two rounds of fragmentation",
+    "terms": [
+     {
+      "term": "Message size = 13000 bytes",
+      "meaning": "The original data payload before any IP header is added",
+      "example": "Total IP datagram from source = 13000 + 20 = 13020 bytes",
+      "connects": "This is what gets fragmented at Router 1"
+     },
+     {
+      "term": "Router 1 MTU = 3000 bytes",
+      "meaning": "Max IP packet (data + header) that can traverse the link after Router 1",
+      "example": "Max data per fragment = 3000 - 20 = 2980; rounded down to multiple of 8 = 2976 bytes",
+      "connects": "Determines number and size of first-round fragments"
+     },
+     {
+      "term": "Router 2 MTU = 2000 bytes",
+      "meaning": "Max IP packet that can traverse the link after Router 2",
+      "example": "Max data per fragment = 2000 - 20 = 1980; rounded down to multiple of 8 = 1976 bytes",
+      "connects": "Determines which fragments from Router 1 get re-fragmented"
+     }
+    ],
+    "plan": "Fragment at Router 1: find how many fragments of up to 2976 bytes are needed for 13000 bytes. Then at Router 2, check each fragment: if its data exceeds 1976 bytes, re-fragment it. Sum all final fragments."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Fragmentation at Router 1 (MTU = 3000)",
+      "formula_raw": "max_data = floor((MTU - 20) / 8) * 8",
+      "apply": "max_data = floor((3000 - 20) / 8) * 8 = floor(2980/8) * 8 = 372 * 8 = 2976 bytes per fragment.\nNumber of fragments = ceil(13000 / 2976) = ceil(4.369) = 5 fragments.\nFragment breakdown:\n  F1: 2976 bytes data\n  F2: 2976 bytes data\n  F3: 2976 bytes data\n  F4: 2976 bytes data\n  F5: 13000 - 4*2976 = 13000 - 11904 = 1096 bytes data",
+      "note": "Fragment offsets must be multiples of 8 bytes, which is why we floor to 2976 rather than using 2980."
+     },
+     {
+      "step": 2,
+      "title": "Re-fragmentation at Router 2 (MTU = 2000)",
+      "formula_raw": "max_data_R2 = floor((2000 - 20) / 8) * 8 = 1976 bytes",
+      "apply": "max_data_R2 = floor(1980/8) * 8 = 247 * 8 = 1976 bytes.\nF1 (2976 bytes): 2976 > 1976, so re-fragment: ceil(2976/1976) = 2 sub-fragments (1976 + 1000 bytes)\nF2 (2976 bytes): same -> 2 sub-fragments\nF3 (2976 bytes): same -> 2 sub-fragments\nF4 (2976 bytes): same -> 2 sub-fragments\nF5 (1096 bytes): 1096 <= 1976, no re-fragmentation -> 1 fragment\n\nTotal fragments at destination = 4 * 2 + 1 * 1 = 8 + 1 = 9",
+      "note": "Only F1 through F4 exceed the MTU at Router 2. F5 passes through intact. IPv4 fragmentation is done by routers; reassembly is only at the final destination."
+     }
+    ],
+    "result": "9 fragments are delivered to the destination."
+   },
+   "formula_ids_used": [],
+   "formula_note": "IPv4 fragmentation: max data per fragment = floor((MTU - 20) / 8) * 8 (to ensure 8-byte aligned offset). Number of fragments = ceil(total_data / max_data_per_fragment). Re-fragmentation at each intermediate router is independent.",
+   "qid": "4.13.1",
+   "answer_official": "7"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2025",
+    "year": 2025,
+    "marks": 1,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Computer Networks",
+    "topic": "Fragmentation",
+    "subtopic": "Fragmentation"
+   },
+   "question": "Consider a network that uses Ethernet and IPv4. Assume that headers do not use any options field. Each Ethernet frame can carry a maximum of 1500 bytes in its data field. A UDP segment is transmitted. The payload (data) in the UDP segment is 7482 bytes. Which ONE of the following choices has the CORRECT total number of fragments transmitted and the size of the last fragment including IPv4 header?\n\nA. 5 fragments, 88 bytes\nB. 6 fragments, 88 bytes\nC. 6 fragments, 198 bytes\nD. 6 fragments, 110 bytes",
+   "answer": "D. 6 fragments, 110 bytes",
+   "to_find": "Total number of IPv4 fragments and size of the last fragment (including IP header) for a UDP payload of 7482 bytes over Ethernet (MTU=1500)",
+   "understand": {
+    "plain": "A UDP application sends 7482 bytes of data. This data gets a UDP header (8 bytes) added, then an IP header (20 bytes), making the IP datagram too large for a single Ethernet frame. So IP must fragment it into multiple packets, each fitting within the 1500-byte Ethernet limit. We count how many fragments result and compute the size of the final fragment.",
+    "keywords": [
+     {
+      "term": "UDP header",
+      "explain": "An 8-byte fixed header added to UDP data to form a UDP segment; it contains source/destination port, length, and checksum",
+      "example": "7482-byte payload + 8-byte UDP header = 7490-byte UDP segment = IP datagram payload"
+     },
+     {
+      "term": "IP fragmentation offset alignment",
+      "explain": "Each fragment except the last must carry data in multiples of 8 bytes so the 13-bit fragment offset field can represent the position",
+      "example": "Ethernet max data = 1500, IP data per fragment = 1500 - 20 = 1480, which is already a multiple of 8"
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 680 180'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='20' width='60' height='30' class='hi'/><text x='40' y='40' text-anchor='middle' class='sub ink'>IP hdr</text><text x='40' y='55' text-anchor='middle' class='sub mut'>20B</text><rect x='70' y='20' width='60' height='30' class='bg'/><text x='100' y='40' text-anchor='middle' class='sub ink'>UDP hdr</text><text x='100' y='55' text-anchor='middle' class='sub mut'>8B</text><rect x='130' y='20' width='200' height='30' class='bg'/><text x='230' y='40' text-anchor='middle' class='sub ink'>UDP payload: 7482 bytes</text><text x='200' y='75' text-anchor='middle' class='tag ink'>IP payload = 7490 bytes</text><text x='10' y='110' class='lbl ink'>After fragmentation (5 frags x 1480 + 1 frag x 90):</text><rect x='10' y='125' width='60' height='30' class='hi'/><text x='40' y='143' text-anchor='middle' class='sub ink'>20B IP</text><rect x='70' y='125' width='100' height='30' class='bg'/><text x='120' y='143' text-anchor='middle' class='sub ink'>1480B data</text><text x='185' y='143' class='sub mut'>... x5 ...</text><rect x='330' y='125' width='60' height='30' class='hi'/><text x='360' y='143' text-anchor='middle' class='sub ink'>20B IP</text><rect x='390' y='125' width='60' height='30' class='ok'/><text x='420' y='143' text-anchor='middle' class='sub ink' style='fill:white'>90B</text><text x='460' y='143' class='sub mut'>= 110B last frag</text></svg>",
+    "visual_alt": "IP payload = UDP header (8B) + UDP data (7482B) = 7490 bytes. This is split into 6 fragments: first 5 each carry 1480 bytes of IP data (1500 bytes total), and the last fragment carries 90 bytes of IP data (110 bytes total including IP header)."
+   },
+   "given": {
+    "aim": "Find the number of IPv4 fragments and the last fragment size when a 7482-byte UDP payload is sent over Ethernet (max frame payload = 1500 bytes)",
+    "terms": [
+     {
+      "term": "UDP payload = 7482 bytes",
+      "meaning": "Application data passed to UDP",
+      "example": "IP must carry 7482 + 8 (UDP hdr) = 7490 bytes as its payload",
+      "connects": "Total IP payload to be fragmented"
+     },
+     {
+      "term": "Ethernet max data = 1500 bytes",
+      "meaning": "The maximum number of bytes an Ethernet frame can carry (the IP datagram size limit)",
+      "example": "IP header = 20 bytes, so max IP payload per fragment = 1500 - 20 = 1480 bytes",
+      "connects": "Sets the fragmentation unit"
+     },
+     {
+      "term": "IP header = 20 bytes (no options)",
+      "meaning": "Fixed minimum IPv4 header size when no optional fields are used",
+      "example": "Each fragment includes a full 20-byte IP header",
+      "connects": "Subtracted from each fragment's total size to find data capacity"
+     }
+    ],
+    "plan": "Compute total IP payload = UDP segment size. Divide by max data per fragment (1480 bytes, already a multiple of 8) using ceiling division to get fragment count. Compute last fragment's data size and add 20-byte IP header."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Compute total IP payload and max data per fragment",
+      "formula_raw": "IP_payload = UDP_data + UDP_header; max_frag_data = Ethernet_max - IP_header",
+      "apply": "IP payload = 7482 + 8 = 7490 bytes\nMax data per fragment = 1500 - 20 = 1480 bytes\n1480 is already a multiple of 8, so no rounding needed.",
+      "note": "The UDP header stays in the first fragment (not duplicated). All 7490 bytes of IP payload are fragmented together."
+     },
+     {
+      "step": 2,
+      "title": "Count fragments and find last fragment size",
+      "formula_raw": "num_frags = ceil(IP_payload / max_frag_data); last_data = IP_payload - (num_frags - 1) * max_frag_data",
+      "apply": "num_frags = ceil(7490 / 1480) = ceil(5.0608) = 6 fragments\nLast fragment data = 7490 - 5 * 1480 = 7490 - 7400 = 90 bytes\nLast fragment total size = 90 + 20 (IP header) = 110 bytes",
+      "note": "The first 5 fragments each carry exactly 1480 bytes of IP payload (1500 bytes total per Ethernet frame). The 6th fragment carries only 90 bytes of data, giving a total of 110 bytes including the IP header."
+     }
+    ],
+    "result": "6 fragments are transmitted. The last fragment is 110 bytes (including the IPv4 header). Answer: D."
+   },
+   "formula_ids_used": [],
+   "formula_note": "IPv4 fragmentation over Ethernet: each fragment except the last carries max_data = MTU - IP_header_size bytes (must be multiple of 8). Number of fragments = ceil(total_IP_payload / max_data). Last fragment size = remaining_data + IP_header_size.",
+   "qid": "4.13.2",
+   "answer_official": "D"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2003",
+    "year": 2003,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Computer Networks",
+    "topic": "IP Addressing",
+    "subtopic": "IP Addressing"
+   },
+   "question": "Which of the following assertions is FALSE about the Internet Protocol (IP)?\n\nA. It is possible for a computer to have multiple IP addresses\nB. IP packets from the same source to the same destination can take different routes in the network\nC. IP ensures that a packet is discarded if it is unable to reach its destination within a specified number of hops\nD. The packet source cannot set the route of an outgoing packet; the route is determined only by the routing tables in the routers",
+   "answer": "D. The packet source cannot set the route of an outgoing packet; the route is determined only by the routing tables in the routers",
+   "to_find": "The FALSE assertion about the Internet Protocol (IP)",
+   "understand": {
+    "plain": "We need to identify which statement about IP is incorrect. IP is a connectionless, best-effort protocol. Three of the four statements are true facts about IP, and one is false. The key is to recall IP features: multiple addresses per host, dynamic routing, TTL field for hop limit, and source routing options.",
+    "keywords": [
+     {
+      "term": "Source routing",
+      "explain": "An IPv4 option (Loose Source Routing / Strict Source Routing) that allows the packet's sender to specify the route the packet must take through the network",
+      "example": "A host can include an IP Options field listing the intermediate routers the packet must pass through, overriding normal routing table decisions"
+     },
+     {
+      "term": "TTL (Time To Live)",
+      "explain": "An 8-bit field in the IPv4 header decremented by each router; when it reaches 0 the packet is discarded and an ICMP Time Exceeded message is sent back",
+      "example": "A packet with TTL=64 can traverse at most 64 routers before being discarded"
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "IP protocol features: a host can have multiple IP addresses (multihoming); packets are routed independently and may take different paths; TTL limits the number of hops; and source routing options allow the sender to influence the route."
+   },
+   "given": {
+    "aim": "Identify the one FALSE statement about IP from four given options",
+    "terms": [
+     {
+      "term": "Multiple IP addresses (Option A)",
+      "meaning": "A single host can have multiple network interfaces, each with its own IP address (multihoming)",
+      "example": "A router or a laptop with both Wi-Fi and Ethernet has two IP addresses — this is TRUE",
+      "connects": "This is a well-known true fact about IP; not the false assertion"
+     },
+     {
+      "term": "Different routes for same src-dst (Option B)",
+      "meaning": "IP is a connectionless protocol; each packet is routed independently, so packets between the same pair can follow different paths",
+      "example": "Packets may be load-balanced or rerouted due to link failures — this is TRUE",
+      "connects": "This is a true property of IP's connectionless, best-effort delivery"
+     },
+     {
+      "term": "Discard after N hops (Option C)",
+      "meaning": "The TTL (Time To Live) field is decremented at each hop; when it reaches zero, the packet is discarded",
+      "example": "TTL=3 packet is discarded after 3 routers — this is TRUE",
+      "connects": "This is a true property of IPv4's TTL mechanism"
+     },
+     {
+      "term": "Source cannot set route (Option D)",
+      "meaning": "This claims the source has no influence over routing — but IPv4 has an Options field that includes Loose/Strict Source Routing, allowing the sender to specify the route",
+      "example": "Using IP Source Routing option, a packet sender can list specific routers the packet must visit",
+      "connects": "This assertion is FALSE because IP does allow source routing via Options"
+     }
+    ],
+    "plan": "Evaluate each option against known IP features: check multihoming (A), connectionless routing (B), TTL/hop-limit discard (C), and source routing options (D). Option D contradicts the existence of IPv4 source routing options."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Verify options A, B, C as TRUE",
+      "formula_raw": "",
+      "apply": "A: A computer can have multiple network interfaces each with a different IP address (multihoming) — TRUE.\nB: IP is connectionless; each packet is routed independently, so packets between the same src and dst can take different paths depending on router table states — TRUE.\nC: The TTL field in every IPv4 header is decremented by 1 at each router. When TTL = 0, the router discards the packet and typically sends an ICMP Time Exceeded message back to the source — TRUE.",
+      "note": "Options A, B, and C all describe verified, standard IPv4 behaviors."
+     },
+     {
+      "step": 2,
+      "title": "Evaluate option D",
+      "formula_raw": "",
+      "apply": "D claims: 'The packet source cannot set the route of an outgoing packet; the route is determined only by the routing tables in the routers.'\n\nThis is FALSE. IPv4 defines an Options field in the IP header. Two source routing options exist:\n1. Loose Source Routing (LSR): source specifies a list of intermediate routers the packet MUST pass through (other hops can be added by routers).\n2. Strict Source Routing (SSR): source specifies the exact complete route.\n\nThus the source CAN influence or completely specify the route using these IP options, making option D false.",
+      "note": "Although source routing is rarely used in the modern Internet (and often blocked by firewalls for security reasons), it is a defined feature of IPv4, making statement D false."
+     }
+    ],
+    "result": "Option D is FALSE. The correct answer is D."
+   },
+   "formula_ids_used": [],
+   "formula_note": "IPv4 source routing: the IP Options field supports Loose Source Routing (LSR) and Strict Source Routing (SSR), allowing the packet originator to specify intermediate routers. The TTL field ensures packets are discarded after exceeding a hop count.",
+   "qid": "4.14.1",
+   "answer_official": "D"
+  }
+ ]
+}

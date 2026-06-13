@@ -1,0 +1,257 @@
+{
+ "page": 479,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 1994",
+    "year": 1994,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Operating System",
+    "topic": "Process Synchronization",
+    "subtopic": "Process Synchronization"
+   },
+   "question": "A. Draw a precedence graph for the following sequential code. The statements are numbered from S_0 to S_6:\nS_0: read n\nS_1: i := 1\nS_2: if i > n goto next\nS_3: a(i) := i + 1\nS_4: i := i + 1\n(goto S_2)\nnext:\nS_5: write a(i)\n\nB. Can this graph be converted to a concurrent program using parbegin-parend construct only?",
+   "answer": "B. No",
+   "to_find": "Precedence graph for the given sequential code and whether it can be parallelized using parbegin-parend construct only.",
+   "understand": {
+    "plain": "We have a sequential loop that reads n, initializes i to 1, checks if i > n, computes a(i) = i+1, increments i, and finally writes a(i). We need to draw the precedence graph showing which statements must execute before others. Then we determine if parbegin-parend (which requires a series-parallel graph) can express this concurrency.",
+    "keywords": [
+     {
+      "term": "Precedence Graph",
+      "explain": "A directed acyclic graph (DAG) where nodes represent statements and edges represent ordering constraints — an edge from S_i to S_j means S_i must complete before S_j starts.",
+      "example": "If S_1 must run before S_2, we draw S_1 -> S_2."
+     },
+     {
+      "term": "parbegin-parend construct",
+      "explain": "A parallel programming construct where all statements between parbegin and parend can execute concurrently. It can only express series-parallel (SP) graphs — not arbitrary DAGs.",
+      "example": "parbegin S1; S2; S3 parend means S1, S2, S3 run in parallel."
+     },
+     {
+      "term": "Series-Parallel (SP) graph",
+      "explain": "A DAG that can be decomposed into series (sequential) and parallel compositions. If the precedence graph is not SP, parbegin-parend alone cannot express it.",
+      "example": "A diamond-shaped graph (S0->S1, S0->S2, S1->S3, S2->S3) is SP."
+     }
+    ],
+    "visual_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"420\" height=\"320\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><circle cx=\"210\" cy=\"30\" r=\"22\" class=\"hi\"/><text x=\"210\" y=\"36\" text-anchor=\"middle\" class=\"lbl ink\">S0</text><circle cx=\"100\" cy=\"110\" r=\"22\" class=\"bg\"/><text x=\"100\" y=\"116\" text-anchor=\"middle\" class=\"lbl ink\">S1</text><circle cx=\"320\" cy=\"110\" r=\"22\" class=\"bg\"/><text x=\"320\" y=\"116\" text-anchor=\"middle\" class=\"lbl ink\">S2</text><circle cx=\"100\" cy=\"200\" r=\"22\" class=\"bg\"/><text x=\"100\" y=\"206\" text-anchor=\"middle\" class=\"lbl ink\">S3</text><circle cx=\"100\" cy=\"290\" r=\"22\" class=\"bg\"/><text x=\"100\" y=\"296\" text-anchor=\"middle\" class=\"lbl ink\">S4</text><circle cx=\"320\" cy=\"200\" r=\"22\" class=\"bg\"/><text x=\"320\" y=\"206\" text-anchor=\"middle\" class=\"lbl ink\">S5</text><line x1=\"210\" y1=\"52\" x2=\"115\" y2=\"92\" stroke=\"#7F77DD\" stroke-width=\"2\" marker-end=\"url(#arr)\"/><line x1=\"210\" y1=\"52\" x2=\"305\" y2=\"92\" stroke=\"#7F77DD\" stroke-width=\"2\" marker-end=\"url(#arr)\"/><line x1=\"100\" y1=\"132\" x2=\"100\" y2=\"178\" stroke=\"#7F77DD\" stroke-width=\"2\" marker-end=\"url(#arr)\"/><line x1=\"100\" y1=\"222\" x2=\"100\" y2=\"268\" stroke=\"#7F77DD\" stroke-width=\"2\" marker-end=\"url(#arr)\"/><line x1=\"320\" y1=\"132\" x2=\"320\" y2=\"178\" stroke=\"#7F77DD\" stroke-width=\"2\" marker-end=\"url(#arr)\"/><line x1=\"118\" y1=\"200\" x2=\"300\" y2=\"200\" stroke=\"#7F77DD\" stroke-width=\"2\" marker-end=\"url(#arr)\"/><defs><marker id=\"arr\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"3\" orient=\"auto\"><path d=\"M0,0 L0,6 L8,3 z\" fill=\"#7F77DD\"/></marker></defs><text x=\"8\" y=\"120\" class=\"sub mut\">read n</text><text x=\"8\" y=\"210\" class=\"sub mut\">a(i):=i+1</text><text x=\"8\" y=\"300\" class=\"sub mut\">i:=i+1</text><text x=\"330\" y=\"120\" class=\"sub mut\">i:=1</text><text x=\"330\" y=\"210\" class=\"sub mut\">write a(i)</text></svg>",
+    "visual_alt": "Precedence graph: S0 (read n) branches to S1 (i:=1) and S2 (if i>n). S1 flows to S3 (a(i):=i+1), S3 flows to S4 (i:=i+1). S2 branches to S3 (loop body) and S5 (write a(i)). The loop creates a cycle-like dependency that is not series-parallel."
+   },
+   "given": {
+    "aim": "Determine the precedence constraints among statements and check if the graph is series-parallel (expressible by parbegin-parend).",
+    "terms": [
+     {
+      "term": "S_0: read n",
+      "meaning": "First statement; must execute before all others since n is needed.",
+      "example": "S0 -> all others",
+      "connects": "Root of the precedence graph."
+     },
+     {
+      "term": "Loop with i := 1, check i > n, a(i) := i+1, i := i+1",
+      "meaning": "Each iteration depends on the previous iteration's value of i; introduces sequential dependency between iterations.",
+      "example": "Iteration k depends on iteration k-1 completing first.",
+      "connects": "Creates chain dependencies S3_k -> S4_k -> S2_{k+1} -> S3_{k+1}."
+     },
+     {
+      "term": "S_5: write a(i)",
+      "meaning": "Final output; can only execute after the loop condition is false (i > n).",
+      "example": "Must wait for all a(i) computations to complete.",
+      "connects": "Sink node of the precedence graph."
+     }
+    ],
+    "plan": "Draw nodes for each distinct statement execution. Add edges for data and control dependencies. Then check if the resulting DAG is series-parallel: if it contains a pattern that cannot be decomposed into series/parallel blocks, parbegin-parend cannot represent it."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Identify statement dependencies",
+      "formula_raw": "S_i -> S_j if S_i must precede S_j",
+      "apply": "S0 (read n) must precede everything. S1 (i:=1) must precede the loop. S2 (if i>n) depends on S1 and S4 (i:=i+1). S3 (a(i):=i+1) depends on S2 (loop condition false). S4 depends on S3. S5 (write a(i)) depends on S2 being true (i>n) and all S3 computations. The key dependencies are: S0->S1, S0->S2... etc. forming a graph where iterations have sequential chained dependencies.",
+      "note": "In the loop, iteration k's S3_k and S4_k must complete before iteration k+1 can start (since i is updated). This creates a sequential chain."
+     },
+     {
+      "step": 2,
+      "title": "Check for series-parallel structure",
+      "formula_raw": "SP graph: can be decomposed by series (;) and parallel (||) operators",
+      "apply": "The loop iterations are inherently sequential (each depends on the previous i value), so there is no true parallelism possible between loop iterations. The graph is essentially a linear chain: S0 -> S1 -> [loop body iterations sequentially] -> S5. This is series-parallel, but it is purely sequential with no parallel branches. For a single iteration: S0->S1->S2->(S3->S4 back to S2) and S2->S5. The back-edge (i:=i+1 feeding back into i>n) makes this a non-DAG when modeled as a loop. If we unroll the loop for fixed n, the result is a chain, which IS series-parallel (all sequential). However, the general structure with the loop cannot be directly expressed as a finite parbegin-parend construct.",
+      "note": "The answer to part B is: No, this graph (as a loop) cannot be directly converted to a concurrent program using parbegin-parend only, because the construct requires a static, finite, series-parallel structure and cannot represent loops with data-dependent iteration counts."
+     }
+    ],
+    "result": "Part A: The precedence graph shows S0 as the root, with S1 and S2 depending on S0. The loop body (S3, S4) forms a sequential chain per iteration, all preceding S5. Part B: No — the graph cannot be expressed using parbegin-parend only because the loop creates dynamic dependencies that require a non-series-parallel structure for general n."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Series-parallel graph theory for parbegin-parend construct; a precedence graph is expressible by parbegin-parend if and only if it is a series-parallel DAG.",
+   "qid": "7.20.8",
+   "answer_official": "B;C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1995",
+    "year": 1995,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Process Synchronization",
+    "subtopic": "Process Synchronization"
+   },
+   "question": "Consider the following program segment for concurrent processing using semaphore operators P and V for synchronization. Draw the precedence graph for the statements S1 to S9.\n\nvar a,b,c,d,e,f,g,h,i,j,k : semaphore;\nbegin\n  cobegin\n    begin S1; V(a); V(b) end;\n    begin P(a); S2; V(c); V(d) end;\n    begin P(c); S4; V(e) end;\n    begin P(b); S3; V(f); V(g) end;\n    begin P(d); P(f); S6; V(h) end;\n    begin P(e); P(g); S7; V(i) end;\n    begin P(h); P(i); S8 end;\n    begin P(j); S5; V(j); V(k) end;\n    begin P(k); S9 end;\n  coend\nend\n\nWhich of the following is the correct precedence relationship?\nA. S1 must precede S2, S3, S4\nB. S6 requires both S3 and S2 to complete\nC. S8 requires S6 and S7 to complete\nD. All of the above",
+   "answer": "D. All of the above",
+   "to_find": "Correct precedence relationships among statements S1 to S9 from the semaphore-based concurrent program.",
+   "understand": {
+    "plain": "A concurrent program uses semaphores (P waits, V signals) to enforce ordering between statements. By tracing which V signals which P, we can reconstruct the precedence graph — edges show which statements must complete before others can begin.",
+    "keywords": [
+     {
+      "term": "P (wait) operation",
+      "explain": "Decrements the semaphore; the process blocks if the value becomes negative. It means 'wait until the semaphore is signaled.'",
+      "example": "P(a) blocks until V(a) is called."
+     },
+     {
+      "term": "V (signal) operation",
+      "explain": "Increments the semaphore, potentially unblocking a waiting process. It means 'signal that an event has occurred.'",
+      "example": "V(a) signals that whatever guarded by 'a' is done."
+     },
+     {
+      "term": "Semaphore-based precedence",
+      "explain": "If statement X does V(s) and statement Y does P(s), then X must precede Y in execution order.",
+      "example": "S1 does V(a), S2 does P(a), so S1 -> S2."
+     }
+    ],
+    "visual_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"500\" height=\"360\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><circle cx=\"250\" cy=\"30\" r=\"22\" class=\"hi\"/><text x=\"250\" y=\"36\" text-anchor=\"middle\" class=\"lbl ink\">S1</text><circle cx=\"130\" cy=\"110\" r=\"22\" class=\"bg\"/><text x=\"130\" y=\"116\" text-anchor=\"middle\" class=\"lbl ink\">S2</text><circle cx=\"370\" cy=\"110\" r=\"22\" class=\"bg\"/><text x=\"370\" y=\"116\" text-anchor=\"middle\" class=\"lbl ink\">S3</text><circle cx=\"130\" cy=\"190\" r=\"22\" class=\"bg\"/><text x=\"130\" y=\"196\" text-anchor=\"middle\" class=\"lbl ink\">S4</text><circle cx=\"250\" cy=\"190\" r=\"22\" class=\"bg\"/><text x=\"250\" y=\"196\" text-anchor=\"middle\" class=\"lbl ink\">S6</text><circle cx=\"370\" cy=\"190\" r=\"22\" class=\"bg\"/><text x=\"370\" y=\"196\" text-anchor=\"middle\" class=\"lbl ink\">S7</text><circle cx=\"250\" cy=\"270\" r=\"22\" class=\"bg\"/><text x=\"250\" y=\"276\" text-anchor=\"middle\" class=\"lbl ink\">S8</text><circle cx=\"450\" cy=\"190\" r=\"22\" class=\"bg\"/><text x=\"450\" y=\"196\" text-anchor=\"middle\" class=\"lbl ink\">S5</text><circle cx=\"450\" cy=\"270\" r=\"22\" class=\"bg\"/><text x=\"450\" y=\"276\" text-anchor=\"middle\" class=\"lbl ink\">S9</text><line x1=\"235\" y1=\"50\" x2=\"148\" y2=\"92\" stroke=\"#7F77DD\" stroke-width=\"2\" marker-end=\"url(#a)\"/><line x1=\"265\" y1=\"50\" x2=\"352\" y2=\"92\" stroke=\"#7F77DD\" stroke-width=\"2\" marker-end=\"url(#a)\"/><line x1=\"130\" y1=\"132\" x2=\"130\" y2=\"168\" stroke=\"#7F77DD\" stroke-width=\"2\" marker-end=\"url(#a)\"/><line x1=\"145\" y1=\"105\" x2=\"235\" y2=\"185\" stroke=\"#7F77DD\" stroke-width=\"2\" marker-end=\"url(#a)\"/><line x1=\"355\" y1=\"105\" x2=\"265\" y2=\"185\" stroke=\"#7F77DD\" stroke-width=\"2\" marker-end=\"url(#a)\"/><line x1=\"145\" y1=\"195\" x2=\"365\" y2=\"195\" stroke=\"#7F77DD\" stroke-width=\"2\" marker-end=\"url(#a)\"/><line x1=\"250\" y1=\"212\" x2=\"250\" y2=\"248\" stroke=\"#7F77DD\" stroke-width=\"2\" marker-end=\"url(#a)\"/><line x1=\"370\" y1=\"212\" x2=\"265\" y2=\"252\" stroke=\"#7F77DD\" stroke-width=\"2\" marker-end=\"url(#a)\"/><line x1=\"450\" y1=\"212\" x2=\"450\" y2=\"248\" stroke=\"#7F77DD\" stroke-width=\"2\" marker-end=\"url(#a)\"/><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"3\" orient=\"auto\"><path d=\"M0,0 L0,6 L8,3 z\" fill=\"#7F77DD\"/></marker></defs></svg>",
+    "visual_alt": "Precedence graph: S1 at top. S1 leads to S2 (via semaphore a) and S3 (via semaphore b). S2 leads to S4 (via c) and S6 (via d). S3 leads to S6 (via f) and S7 (via g). S4 leads to S7 (via e). S6 and S7 both lead to S8. S5 leads to itself (via j) then S9 (via k) — self-loop representing repeated execution until some condition."
+   },
+   "given": {
+    "aim": "Trace semaphore signals (V) and waits (P) to derive the precedence graph and identify correct ordering relationships.",
+    "terms": [
+     {
+      "term": "V(a) in S1's process, P(a) in S2's process",
+      "meaning": "S1 signals semaphore a after completing; S2 waits on a before starting — so S1 -> S2.",
+      "example": "begin S1; V(a); V(b) end means S1 happens first, then signals a and b.",
+      "connects": "Establishes S1 as a predecessor of S2 and S3."
+     },
+     {
+      "term": "P(d); P(f) before S6",
+      "meaning": "S6 requires both semaphore d (signaled after S2) and semaphore f (signaled after S3) to be available — so S2 -> S6 and S3 -> S6.",
+      "example": "begin P(d); P(f); S6; V(h) end means S6 waits for both S2 and S3.",
+      "connects": "Confirms that S6 has two prerequisites: S2 and S3."
+     },
+     {
+      "term": "P(h); P(i) before S8",
+      "meaning": "S8 waits for both h (signaled after S6) and i (signaled after S7), so S6 -> S8 and S7 -> S8.",
+      "example": "begin P(h); P(i); S8 end",
+      "connects": "Confirms S8 requires both S6 and S7 to complete."
+     }
+    ],
+    "plan": "For each semaphore, match V(x) to P(x) to draw precedence edges. Then evaluate each option A, B, C against the derived graph."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Trace all semaphore edges",
+      "formula_raw": "V(x) in process A and P(x) in process B => A -> B",
+      "apply": "Semaphore a: V(a) after S1, P(a) before S2 => S1 -> S2\nSemaphore b: V(b) after S1, P(b) before S3 => S1 -> S3\nSemaphore c: V(c) after S2, P(c) before S4 => S2 -> S4\nSemaphore d: V(d) after S2, P(d) before S6 => S2 -> S6\nSemaphore e: V(e) after S4, P(e) before S7 => S4 -> S7\nSemaphore f: V(f) after S3, P(f) before S6 => S3 -> S6\nSemaphore g: V(g) after S3, P(g) before S7 => S3 -> S7\nSemaphore h: V(h) after S6, P(h) before S8 => S6 -> S8\nSemaphore i: V(i) after S7, P(i) before S8 => S7 -> S8\nSemaphore j: V(j) after S5, P(j) before S5 => S5 -> S5 (self-loop, S5 runs once on init)\nSemaphore k: V(k) after S5, P(k) before S9 => S5 -> S9",
+      "note": "The self-loop on j (P(j) and V(j) both in S5's process) means S5 executes exactly once (initial value of j must be 1 for bootstrap) then signals S9."
+     },
+     {
+      "step": 2,
+      "title": "Verify each option",
+      "formula_raw": "",
+      "apply": "Option A: S1 -> S2 (via a), S1 -> S3 (via b), S1 -> S4 (via a then c: S1->S2->S4). TRUE.\nOption B: S6 requires P(d) and P(f); d comes from S2 via V(d), f comes from S3 via V(f). So S2->S6 and S3->S6. TRUE.\nOption C: S8 requires P(h) and P(i); h comes from S6 via V(h), i comes from S7 via V(i). So S6->S8 and S7->S8. TRUE.\nAll three options are correct, so option D (all of the above) is correct.",
+      "note": "Each option correctly captures a subset of the precedence edges derived from the semaphore operations."
+     }
+    ],
+    "result": "D. All of the above — S1 precedes S2, S3, S4; S6 requires both S2 and S3; S8 requires both S6 and S7."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Semaphore-based precedence extraction: V(x) in process A and P(x) in process B implies A must execute before B (A -> B in the precedence graph).",
+   "qid": "7.20.9",
+   "answer_official": "N/A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1996",
+    "year": 1996,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Process Synchronization",
+    "subtopic": "Process Synchronization"
+   },
+   "question": "A critical section is a program segment\nA. which should run in a certain amount of time\nB. which avoids deadlocks\nC. where shared resources are accessed\nD. which must be enclosed by a pair of semaphore operations, P and V",
+   "answer": "C. where shared resources are accessed",
+   "to_find": "The correct definition of a critical section.",
+   "understand": {
+    "plain": "A critical section is a part of a program that accesses shared resources (like shared variables, files, or hardware). At most one process should be in its critical section at a time to prevent race conditions. The critical section problem is about designing protocols to ensure this mutual exclusion.",
+    "keywords": [
+     {
+      "term": "Critical Section",
+      "explain": "A code segment that accesses shared resources and must not be executed by more than one process at the same time.",
+      "example": "Code that reads and writes a shared counter variable is a critical section."
+     },
+     {
+      "term": "Mutual Exclusion",
+      "explain": "The requirement that only one process can execute in the critical section at any given time to prevent data inconsistency.",
+      "example": "If two processes both increment a counter simultaneously without mutual exclusion, updates can be lost."
+     },
+     {
+      "term": "Shared Resource",
+      "explain": "Data or hardware accessed by multiple concurrent processes, requiring controlled access to ensure consistency.",
+      "example": "A global variable, a database record, or a printer are shared resources."
+     }
+    ],
+    "visual_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"420\" height=\"220\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x=\"10\" y=\"20\" width=\"180\" height=\"180\" rx=\"10\" class=\"bg\"/><text x=\"100\" y=\"50\" text-anchor=\"middle\" class=\"lbl ink\">Process P1</text><rect x=\"30\" y=\"65\" width=\"140\" height=\"40\" rx=\"6\" class=\"bg\"/><text x=\"100\" y=\"90\" text-anchor=\"middle\" class=\"sub ink\">Entry section</text><rect x=\"30\" y=\"115\" width=\"140\" height=\"40\" rx=\"6\" class=\"hi\"/><text x=\"100\" y=\"140\" text-anchor=\"middle\" class=\"sub ink\">Critical Section</text><rect x=\"30\" y=\"165\" width=\"140\" height=\"25\" rx=\"6\" class=\"bg\"/><text x=\"100\" y=\"182\" text-anchor=\"middle\" class=\"sub ink\">Exit section</text><rect x=\"230\" y=\"20\" width=\"180\" height=\"180\" rx=\"10\" class=\"bg\"/><text x=\"320\" y=\"50\" text-anchor=\"middle\" class=\"lbl ink\">Process P2</text><rect x=\"250\" y=\"65\" width=\"140\" height=\"40\" rx=\"6\" class=\"bg\"/><text x=\"320\" y=\"90\" text-anchor=\"middle\" class=\"sub ink\">Entry section</text><rect x=\"250\" y=\"115\" width=\"140\" height=\"40\" rx=\"6\" class=\"hi\"/><text x=\"320\" y=\"140\" text-anchor=\"middle\" class=\"sub ink\">Critical Section</text><rect x=\"250\" y=\"165\" width=\"140\" height=\"25\" rx=\"6\" class=\"bg\"/><text x=\"320\" y=\"182\" text-anchor=\"middle\" class=\"sub ink\">Exit section</text><text x=\"210\" y=\"140\" text-anchor=\"middle\" class=\"lbl no\">X</text><text x=\"210\" y=\"158\" text-anchor=\"middle\" class=\"sub mut\">Mutual</text><text x=\"210\" y=\"173\" text-anchor=\"middle\" class=\"sub mut\">Exclusion</text></svg>",
+    "visual_alt": "Two processes P1 and P2 each have an entry section, a critical section (highlighted), and an exit section. A large X between their critical sections indicates mutual exclusion — only one can be in the critical section at a time."
+   },
+   "given": {
+    "aim": "Identify the precise definition of a critical section from the given options.",
+    "terms": [
+     {
+      "term": "Option A: runs in certain amount of time",
+      "meaning": "This describes a real-time constraint, not the definition of a critical section.",
+      "example": "A real-time task has timing constraints; critical section is about shared resource access.",
+      "connects": "Incorrect — critical sections have no inherent timing requirement."
+     },
+     {
+      "term": "Option B: avoids deadlocks",
+      "meaning": "Deadlock avoidance is a different OS concept; critical sections can even be part of code that causes deadlocks if not managed correctly.",
+      "example": "Deadlock happens when processes wait for each other's critical sections.",
+      "connects": "Incorrect — critical sections are about access control, not deadlock avoidance."
+     },
+     {
+      "term": "Option C: where shared resources are accessed",
+      "meaning": "This is the standard textbook definition — a critical section is precisely the code where shared resources (shared memory, files, I/O devices) are read or written.",
+      "example": "counter++ in a process that shares 'counter' with another process.",
+      "connects": "Correct definition."
+     }
+    ],
+    "plan": "Recall the OS textbook definition of critical section and match it to the options. Eliminate incorrect options by testing them against the definition."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Recall the definition of critical section",
+      "formula_raw": "",
+      "apply": "A critical section (CS) is defined as a segment of code in which a process accesses shared resources — shared variables, tables, files, etc. The critical section problem requires: (1) Mutual exclusion: only one process in CS at a time; (2) Progress: a process not in CS cannot block others from entering; (3) Bounded waiting: every requesting process eventually enters.",
+      "note": "The key defining characteristic is shared resource access — not timing, not deadlock avoidance, and not necessarily semaphores (other synchronization mechanisms like mutexes or monitors can also protect critical sections)."
+     },
+     {
+      "step": 2,
+      "title": "Evaluate and eliminate each option",
+      "formula_raw": "",
+      "apply": "A: 'runs in a certain amount of time' — this is about real-time scheduling, not critical sections. WRONG.\nB: 'avoids deadlocks' — deadlock avoidance is a separate property; critical sections don't inherently avoid deadlocks. WRONG.\nC: 'where shared resources are accessed' — this is exactly the definition. CORRECT.\nD: 'must be enclosed by P and V' — while semaphores are one way to protect CS, they are not the only way; critical sections can be protected by mutexes, monitors, or hardware instructions. Option D is too restrictive. WRONG.",
+      "note": "Option D is tempting but incorrect because it limits protection to semaphores only; the definition of CS is broader and independent of the synchronization mechanism used."
+     }
+    ],
+    "result": "C. where shared resources are accessed — this is the correct and precise definition of a critical section."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Critical Section definition: a code segment that accesses shared resources and must be executed under mutual exclusion to prevent race conditions.",
+   "qid": "7.20.10",
+   "answer_official": "N/A"
+  }
+ ]
+}

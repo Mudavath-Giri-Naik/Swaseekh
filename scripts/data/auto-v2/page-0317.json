@@ -1,0 +1,168 @@
+{
+ "page": 317,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2024",
+    "year": 2024,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "Relational Algebra",
+    "subtopic": "Relational Algebra"
+   },
+   "question": "The relation schema, Person (pid, city), describes the city of residence for every person uniquely identified by pid. The following relational algebra operators are available: selection, projection, cross product, and rename.\n\nTo find the list of cities where at least 3 persons reside, using the above operators, the minimum number of cross product operations that must be used is:\n\nA. 1\nB. 2\nC. 3\nD. 4",
+   "answer": "B. 2",
+   "to_find": "Minimum number of cross product operations needed to find cities with at least 3 persons",
+   "understand": {
+    "plain": "We have a table Person(pid, city). We want to find all cities that appear in at least 3 rows (i.e., at least 3 persons live there). Since we only have selection, projection, cross product, and rename (no join, no aggregation, no count), we must simulate the 'at least 3' condition using cross products and selections.",
+    "keywords": [
+     {
+      "term": "Cross product (x)",
+      "explain": "Combines every tuple of one relation with every tuple of another, producing all pairs. Used here to generate all combinations of persons in the same city.",
+      "example": "Person x Person gives all (p1, p2) pairs, then select where city1 = city2 to find same-city pairs."
+     },
+     {
+      "term": "Rename (rho)",
+      "explain": "Renames a relation or its attributes so we can distinguish two copies of the same relation in a cross product expression.",
+      "example": "rho(P2, Person) creates a copy named P2 with the same data."
+     },
+     {
+      "term": "At least 3 condition",
+      "explain": "Means there exist 3 distinct pids p1, p2, p3 with p1 != p2, p1 != p3, p2 != p3, all living in the same city.",
+      "example": "If city 'Hyderabad' has pids 1, 2, 3, then the condition is satisfied."
+     }
+    ],
+    "visual_svg": "<svg width=\"520\" height=\"180\" xmlns=\"http://www.w3.org/2000/svg\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x=\"10\" y=\"10\" width=\"140\" height=\"80\" class=\"bg\"/><text x=\"80\" y=\"30\" class=\"lbl ink\" text-anchor=\"middle\">Person</text><text x=\"80\" y=\"52\" class=\"sub ink\" text-anchor=\"middle\">(pid, city)</text><text x=\"80\" y=\"75\" class=\"sub mut\" text-anchor=\"middle\">P1</text><rect x=\"190\" y=\"10\" width=\"140\" height=\"80\" class=\"hi\"/><text x=\"260\" y=\"30\" class=\"lbl ink\" text-anchor=\"middle\">Person</text><text x=\"260\" y=\"52\" class=\"sub ink\" text-anchor=\"middle\">(pid, city)</text><text x=\"260\" y=\"75\" class=\"sub mut\" text-anchor=\"middle\">P2 (renamed)</text><rect x=\"370\" y=\"10\" width=\"140\" height=\"80\" class=\"hi\"/><text x=\"440\" y=\"30\" class=\"lbl ink\" text-anchor=\"middle\">Person</text><text x=\"440\" y=\"52\" class=\"sub ink\" text-anchor=\"middle\">(pid, city)</text><text x=\"440\" y=\"75\" class=\"sub mut\" text-anchor=\"middle\">P3 (renamed)</text><text x=\"168\" y=\"58\" class=\"big ink\" text-anchor=\"middle\">x</text><text x=\"358\" y=\"58\" class=\"big ink\" text-anchor=\"middle\">x</text><text x=\"260\" y=\"140\" class=\"sub ink\" text-anchor=\"middle\">Select: city1=city2=city3 AND pid1!=pid2 AND pid1!=pid3 AND pid2!=pid3</text><text x=\"260\" y=\"162\" class=\"sub mut\" text-anchor=\"middle\">Project: city1  =>  cities with &gt;= 3 persons</text></svg>",
+    "visual_alt": "Three copies of Person table (P1, P2, P3) are cross-producted twice. After two cross products, we apply selection for same city and distinct pids, then project the city."
+   },
+   "given": {
+    "aim": "Find all cities that have at least 3 distinct persons, using only selection, projection, cross product, and rename.",
+    "terms": [
+     {
+      "term": "Person(pid, city)",
+      "meaning": "Relation with unique person id and their city of residence.",
+      "example": "Tuples: (1, Hyd), (2, Hyd), (3, Hyd), (4, Del)",
+      "connects": "We need three copies to represent 3 distinct persons in the same city."
+     },
+     {
+      "term": "Available operators",
+      "meaning": "Only selection (sigma), projection (pi), cross product (x), rename (rho) — no natural join, no aggregation.",
+      "example": "Cannot directly count; must simulate by comparing triples.",
+      "connects": "Each cross product combines two relations; to get triples we need exactly 2 cross products."
+     },
+     {
+      "term": "Distinct pids condition",
+      "meaning": "The 3 persons must be different (pid1 != pid2, pid1 != pid3, pid2 != pid3) to avoid counting the same person multiple times.",
+      "example": "Without this, a single person in a city could satisfy the condition trivially.",
+      "connects": "This is enforced in the selection predicate after the cross products."
+     }
+    ],
+    "plan": "Rename Person as P1, P2, P3 (two renames). Compute P1 x P2 (1st cross product), then (P1 x P2) x P3 (2nd cross product). Apply selection: city1 = city2 AND city2 = city3 AND pid1 != pid2 AND pid1 != pid3 AND pid2 != pid3. Project city1. This requires exactly 2 cross products."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Understand why 2 cross products are needed",
+      "formula_raw": "P1 x P2 x P3",
+      "apply": "To check that at least 3 distinct persons live in the same city, we need to simultaneously reference 3 rows from Person. With only cross product available (no aggregation/groupby), we must create a 3-way combination using 2 cross products: first P1 x P2, then (P1 x P2) x P3. This yields all triples of persons.",
+      "note": "One cross product gives pairs (can only check 2 persons), so it is insufficient for 'at least 3'."
+     },
+     {
+      "step": 2,
+      "title": "Write the full expression and verify minimum is 2",
+      "formula_raw": "pi_{city1}( sigma_{city1=city2 AND city2=city3 AND pid1!=pid2 AND pid1!=pid3 AND pid2!=pid3}( rho(P1(pid1,city1), Person) x rho(P2(pid2,city2), Person) x rho(P3(pid3,city3), Person) ) )",
+      "apply": "Two cross products are used: (P1 x P2) and then (result x P3). The selection filters for same-city triples with all distinct pids. The projection extracts the city. This is the minimum — 1 cross product only produces pairs and cannot express the 3-person condition.",
+      "note": "The answer is 2. Using 3 or 4 cross products would be redundant."
+     }
+    ],
+    "result": "The minimum number of cross product operations required is 2 (Option B)."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Simulating an 'at least k' count in relational algebra without aggregation requires (k-1) cross products to form k-tuples; for k=3, exactly 2 cross products are needed.",
+   "qid": "5.15.27",
+   "answer_official": "B"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2025",
+    "year": 2025,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Databases",
+    "topic": "Relational Algebra",
+    "subtopic": "Relational Algebra"
+   },
+   "question": "Consider the following tables, Loan and Borrower, of a bank.\n\nLoan:\nloan_number | branch_name    | amount\nL11         | Begum Hills    | 20000\nL14         | Kondapur       | 50000\nL15         | SR Nagar       | 40000\nL22         | SR Nagar       | 20000\nL25         | Balanagar      | 80000\nL25         | Kondapur       | 70000\nL19         | SR Nagar       | 62000\n\nBorrower:\ncustomer_name | loan_num\nAnand         | L11\nGopak         | L11\nKarteek       | L14\nAnkita        | L15\nGopak         | L19\nKarteek       | L22\nSmit          | L23\nKarteek       | L25\n\nQuery: pi_{branch_name, customer_name} ( Loan |><| Borrower )\n\nwhere |><| denotes natural join.\n\nThe number of tuples returned by the above relational algebra query is ____________ (Answer in integer)",
+   "answer": "7",
+   "to_find": "Number of tuples returned by pi_{branch_name, customer_name}(Loan |><| Borrower)",
+   "understand": {
+    "plain": "We have two tables: Loan (with loan_number, branch_name, amount) and Borrower (with customer_name, loan_num). The natural join matches rows where the join attribute (loan_number = loan_num) is equal. After joining, we project only branch_name and customer_name. We count how many distinct tuples result.",
+    "keywords": [
+     {
+      "term": "Natural Join (|><|)",
+      "explain": "Combines rows from two tables where the common attribute values match, eliminating duplicate attribute columns.",
+      "example": "Loan row (L11, Begum Hills, 20000) joins with Borrower row (Anand, L11) to give (L11, Begum Hills, 20000, Anand)."
+     },
+     {
+      "term": "Projection (pi)",
+      "explain": "Selects only specified columns from a relation and removes duplicate rows.",
+      "example": "pi_{branch_name, customer_name} drops loan_number and amount, keeping only branch and customer."
+     }
+    ],
+    "visual_svg": "<svg width=\"560\" height=\"260\" xmlns=\"http://www.w3.org/2000/svg\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x=\"10\" y=\"10\" width=\"250\" height=\"30\" class=\"hi\"/><text x=\"135\" y=\"30\" class=\"lbl ink\" text-anchor=\"middle\">Natural Join Result (matched)</text><rect x=\"10\" y=\"45\" width=\"250\" height=\"22\" class=\"bg\"/><text x=\"135\" y=\"61\" class=\"sub ink\" text-anchor=\"middle\">L11 | Begum Hills | Anand</text><rect x=\"10\" y=\"68\" width=\"250\" height=\"22\" class=\"bg\"/><text x=\"135\" y=\"84\" class=\"sub ink\" text-anchor=\"middle\">L11 | Begum Hills | Gopak</text><rect x=\"10\" y=\"91\" width=\"250\" height=\"22\" class=\"bg\"/><text x=\"135\" y=\"107\" class=\"sub ink\" text-anchor=\"middle\">L14 | Kondapur | Karteek</text><rect x=\"10\" y=\"114\" width=\"250\" height=\"22\" class=\"bg\"/><text x=\"135\" y=\"130\" class=\"sub ink\" text-anchor=\"middle\">L15 | SR Nagar | Ankita</text><rect x=\"10\" y=\"137\" width=\"250\" height=\"22\" class=\"bg\"/><text x=\"135\" y=\"153\" class=\"sub ink\" text-anchor=\"middle\">L19 | SR Nagar | Gopak</text><rect x=\"10\" y=\"160\" width=\"250\" height=\"22\" class=\"bg\"/><text x=\"135\" y=\"176\" class=\"sub ink\" text-anchor=\"middle\">L22 | SR Nagar | Karteek</text><rect x=\"10\" y=\"183\" width=\"250\" height=\"22\" class=\"hi\"/><text x=\"135\" y=\"199\" class=\"sub ink\" text-anchor=\"middle\">L25 | Balanagar | Karteek</text><rect x=\"10\" y=\"206\" width=\"250\" height=\"22\" class=\"hi\"/><text x=\"135\" y=\"222\" class=\"sub ink\" text-anchor=\"middle\">L25 | Kondapur | Karteek</text><text x=\"135\" y=\"252\" class=\"sub mut\" text-anchor=\"middle\">L23 (Smit) has no match in Loan => dropped</text><rect x=\"300\" y=\"10\" width=\"250\" height=\"30\" class=\"ok\"/><text x=\"425\" y=\"30\" class=\"lbl ink\" text-anchor=\"middle\">After Projection (8 raw, check dups)</text><rect x=\"300\" y=\"45\" width=\"250\" height=\"22\" class=\"bg\"/><text x=\"425\" y=\"61\" class=\"sub ink\" text-anchor=\"middle\">Begum Hills | Anand</text><rect x=\"300\" y=\"68\" width=\"250\" height=\"22\" class=\"bg\"/><text x=\"425\" y=\"84\" class=\"sub ink\" text-anchor=\"middle\">Begum Hills | Gopak</text><rect x=\"300\" y=\"91\" width=\"250\" height=\"22\" class=\"bg\"/><text x=\"425\" y=\"107\" class=\"sub ink\" text-anchor=\"middle\">Kondapur | Karteek</text><rect x=\"300\" y=\"114\" width=\"250\" height=\"22\" class=\"bg\"/><text x=\"425\" y=\"130\" class=\"sub ink\" text-anchor=\"middle\">SR Nagar | Ankita</text><rect x=\"300\" y=\"137\" width=\"250\" height=\"22\" class=\"bg\"/><text x=\"425\" y=\"153\" class=\"sub ink\" text-anchor=\"middle\">SR Nagar | Gopak</text><rect x=\"300\" y=\"160\" width=\"250\" height=\"22\" class=\"bg\"/><text x=\"425\" y=\"176\" class=\"sub ink\" text-anchor=\"middle\">SR Nagar | Karteek</text><rect x=\"300\" y=\"183\" width=\"250\" height=\"22\" class=\"hi\"/><text x=\"425\" y=\"199\" class=\"sub ink\" text-anchor=\"middle\">Balanagar | Karteek</text><rect x=\"300\" y=\"206\" width=\"250\" height=\"22\" class=\"hi\"/><text x=\"425\" y=\"222\" class=\"sub ink\" text-anchor=\"middle\">Kondapur | Karteek (NEW)</text><text x=\"425\" y=\"252\" class=\"sub mut\" text-anchor=\"middle\">Total = 8 distinct tuples</text></svg>",
+    "visual_alt": "The natural join matches loan_number with loan_num. L23 (Smit) has no matching loan, so it is dropped. L25 appears twice in Loan (Balanagar and Kondapur), and Karteek borrows L25, giving two join results. After projection, we get 8 distinct (branch_name, customer_name) pairs."
+   },
+   "given": {
+    "aim": "Compute natural join of Loan and Borrower, then project branch_name and customer_name, and count the resulting tuples.",
+    "terms": [
+     {
+      "term": "Join attribute",
+      "meaning": "The common column between Loan (loan_number) and Borrower (loan_num) used for natural join matching.",
+      "example": "Borrower row (Anand, L11) matches Loan row (L11, Begum Hills, 20000) on the common value L11.",
+      "connects": "Only rows with matching loan ids contribute to the join result."
+     },
+     {
+      "term": "Loan_num L23 (Smit)",
+      "meaning": "Smit borrows L23, but there is no loan with loan_number L23 in the Loan table.",
+      "example": "No Loan tuple has loan_number = L23.",
+      "connects": "This borrower row is dropped in the natural join (dangling tuple), so Smit contributes 0 tuples."
+     },
+     {
+      "term": "Loan_number L25 (two rows)",
+      "meaning": "L25 appears twice in the Loan table: once with branch Balanagar and once with branch Kondapur.",
+      "example": "Both (L25, Balanagar, 80000) and (L25, Kondapur, 70000) match the Borrower row (Karteek, L25).",
+      "connects": "This gives two join tuples for Karteek+L25, resulting in two distinct projected tuples: (Balanagar, Karteek) and (Kondapur, Karteek)."
+     }
+    ],
+    "plan": "Perform the natural join by matching loan_number = loan_num. For each matched pair, form a combined tuple. Drop unmatched rows (L23). Apply projection to keep only branch_name and customer_name. Count distinct tuples in the result."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Perform the natural join: match loan_number = loan_num",
+      "formula_raw": "Loan |><| Borrower  (on loan_number = loan_num)",
+      "apply": "Go through each Borrower tuple and find matching Loan tuples:\n- Anand, L11 -> Loan(L11, Begum Hills, 20000) => (L11, Begum Hills, 20000, Anand)\n- Gopak, L11 -> Loan(L11, Begum Hills, 20000) => (L11, Begum Hills, 20000, Gopak)\n- Karteek, L14 -> Loan(L14, Kondapur, 50000) => (L14, Kondapur, 50000, Karteek)\n- Ankita, L15 -> Loan(L15, SR Nagar, 40000) => (L15, SR Nagar, 40000, Ankita)\n- Gopak, L19 -> Loan(L19, SR Nagar, 62000) => (L19, SR Nagar, 62000, Gopak)\n- Karteek, L22 -> Loan(L22, SR Nagar, 20000) => (L22, SR Nagar, 20000, Karteek)\n- Smit, L23 -> NO matching Loan row => DROPPED\n- Karteek, L25 -> Loan(L25, Balanagar, 80000) => (L25, Balanagar, 80000, Karteek)\n- Karteek, L25 -> Loan(L25, Kondapur, 70000) => (L25, Kondapur, 70000, Karteek)\nTotal join result: 8 tuples.",
+      "note": "L25 appears twice in Loan, so the single Borrower row (Karteek, L25) produces 2 join tuples. L23 has no match so Smit is excluded."
+     },
+     {
+      "step": 2,
+      "title": "Apply projection and count distinct tuples",
+      "formula_raw": "pi_{branch_name, customer_name}",
+      "apply": "After projection, the 8 tuples become:\n1. (Begum Hills, Anand)\n2. (Begum Hills, Gopak)\n3. (Kondapur, Karteek)\n4. (SR Nagar, Ankita)\n5. (SR Nagar, Gopak)\n6. (SR Nagar, Karteek)\n7. (Balanagar, Karteek)\n8. (Kondapur, Karteek)  <-- same as tuple 3!\nCheck for duplicates: (Kondapur, Karteek) appears from both L14 and L25-Kondapur.\nSo after deduplication: 7 distinct tuples.",
+      "note": "Projection in relational algebra removes duplicate tuples. (Kondapur, Karteek) appears for both L14 and L25-Kondapur, so it is counted only once."
+     }
+    ],
+    "result": "The number of tuples returned by the query is 7."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Natural join matches on common attribute names; projection removes duplicate rows. A loan_number appearing multiple times in one table can create multiple join results, but duplicates in the projected output are eliminated.",
+   "qid": "5.15.28",
+   "answer_official": "1"
+  }
+ ]
+}

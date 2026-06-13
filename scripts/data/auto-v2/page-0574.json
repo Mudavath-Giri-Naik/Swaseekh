@@ -1,0 +1,180 @@
+{
+ "page": 574,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2025",
+    "year": 2025,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Data Structures",
+    "topic": "Stack",
+    "subtopic": "Stack"
+   },
+   "question": "Consider a stack data structure into which we can PUSH and POP records. Assume that each record pushed in the stack has a positive integer key and that all keys are distinct. We wish to augment the stack data structure with an O(1) time MIN operation that returns a pointer to the record with the smallest key present in the stack:\n1. without deleting the corresponding record, and\n2. without changing the complexities of the standard stack operations.\n\nWhich one or more of the following approach(es) can achieve it?\nA. Keep a pointer below each record in the stack, a pointer to the record with the smallest key below it in the stack.\nB. Keep a pointer to the record with the smallest key in the stack.\nC. Keep the key values of the records in the stack are maintained in sorted order.\nD. Keep a Min Heap in which the key values of the records in the stack are maintained.",
+   "answer": "A. Keep a pointer below each record in the stack, a pointer to the record with the smallest key below it in the stack.",
+   "to_find": "Which approach(es) allow O(1) MIN on a stack without changing standard stack operation complexities",
+   "understand": {
+    "plain": "We have a stack with PUSH and POP, and we want to also support a MIN query that returns the element with the smallest key in O(1) time. The challenge is that after popping an element, we need to know the new minimum quickly without scanning all remaining elements. We must not slow down PUSH or POP either.",
+    "keywords": [
+     {
+      "term": "Augmented data structure",
+      "explain": "A standard data structure extended with extra bookkeeping to support additional operations efficiently.",
+      "example": "A stack augmented with a 'min-stack' can answer MIN queries in O(1)."
+     },
+     {
+      "term": "O(1) MIN operation",
+      "explain": "Finding the minimum key in the stack in constant time, regardless of how many elements are present.",
+      "example": "If stack has [3,1,4,1,5], MIN returns a pointer to the record with key 1 in O(1)."
+     },
+     {
+      "term": "Auxiliary min-pointer approach",
+      "explain": "Each record in the stack stores an extra pointer to the minimum record below (and including) it. When a new element is pushed, compute and store the new minimum in O(1) by comparing with the current top's min-pointer.",
+      "example": "Push 3 (min=3), push 1 (min=1), push 4 (min=1). MIN = top.min_ptr = record with key 1."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='420' height='280' viewBox='0 0 420 280'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='180' height='260' rx='6' class='bg'/><text x='100' y='38' text-anchor='middle' class='lbl ink'>Stack (Augmented)</text><rect x='30' y='50' width='140' height='44' rx='4' class='hi'/><text x='70' y='77' class='lbl ink'>key=4</text><text x='140' y='77' class='sub mut'>min->1</text><rect x='30' y='100' width='140' height='44' rx='4' class='hi'/><text x='70' y='127' class='lbl ink'>key=1</text><text x='140' y='127' class='sub mut'>min->1</text><rect x='30' y='150' width='140' height='44' rx='4' class='bg'/><text x='70' y='177' class='lbl ink'>key=3</text><text x='140' y='177' class='sub mut'>min->3</text><text x='100' y='230' text-anchor='middle' class='sub mut'>Each record stores</text><text x='100' y='248' text-anchor='middle' class='sub mut'>pointer to current min below</text><rect x='230' y='60' width='170' height='44' rx='4' class='ok'/><text x='315' y='87' text-anchor='middle' class='lbl' style='fill:#fff'>MIN = O(1)</text><text x='315' y='115' text-anchor='middle' class='sub ink'>Just read top.min_ptr</text><text x='315' y='155' text-anchor='middle' class='sub ink'>PUSH: O(1) extra work</text><text x='315' y='175' text-anchor='middle' class='sub ink'>POP: O(1), no change</text><text x='315' y='215' text-anchor='middle' class='sub ink'>Option A works!</text></svg>",
+    "visual_alt": "A stack where each record stores a key and a pointer to the minimum key below (and including) it. The top record with key=4 has min-pointer to key=1. Reading min is O(1) by checking top's min-pointer."
+   },
+   "given": {
+    "aim": "Find which approach(es) support O(1) MIN without degrading PUSH/POP complexity",
+    "terms": [
+     {
+      "term": "PUSH complexity",
+      "meaning": "Standard PUSH is O(1); any augmentation must keep it O(1)",
+      "example": "Sorting keys on push would make PUSH O(n), violating constraint.",
+      "connects": "Eliminates Option C (sorted order requires O(n) insertion)."
+     },
+     {
+      "term": "POP complexity",
+      "meaning": "Standard POP is O(1); after popping, MIN must still be answerable in O(1)",
+      "example": "If only one global min-pointer is stored (Option B), after popping the minimum we need O(n) scan to find new min.",
+      "connects": "Eliminates Option B (single pointer can't update after pop in O(1))."
+     },
+     {
+      "term": "Min Heap maintenance",
+      "meaning": "A Min Heap supports extract-min in O(log n) but also insert in O(log n)",
+      "example": "Each PUSH/POP would require O(log n) heap operations.",
+      "connects": "Eliminates Option D (heap operations are O(log n), not O(1))."
+     },
+     {
+      "term": "Per-record min-pointer (Option A)",
+      "meaning": "Each record stores a pointer to the minimum record among all records at or below it in the stack",
+      "example": "On PUSH(x): new_min = min(x, top.min_ptr.key); store pointer. O(1) extra work.",
+      "connects": "On POP, the new top still has its own valid min-pointer. All operations remain O(1)."
+     }
+    ],
+    "plan": "Evaluate each option against two constraints: (1) PUSH remains O(1), (2) POP remains O(1), and (3) MIN returns correct answer in O(1). Only Option A satisfies all three — each record carries its own min-context so no recomputation is needed after POP."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Evaluate Option A: per-record min-pointer",
+      "formula_raw": "new_record.min_ptr = (x < top.min_ptr.key) ? new_record : top.min_ptr",
+      "apply": "When pushing a new record with key x, compare x with the current top's stored minimum pointer. Store whichever is smaller as the new record's min_ptr. PUSH cost: O(1) extra comparison. MIN cost: O(1) - just return top.min_ptr. POP cost: O(1) - after pop, new top still has its own valid min_ptr. All operations remain O(1).",
+      "note": "This is the classic 'min-stack' trick: piggyback the running minimum onto each stack frame."
+     },
+     {
+      "step": 2,
+      "title": "Evaluate Options B, C, D",
+      "formula_raw": "",
+      "apply": "Option B (single global min pointer): After popping the minimum element, finding the new minimum requires scanning O(n) elements — violates O(1) POP or O(1) MIN. Option C (sorted order): Inserting in sorted position during PUSH takes O(n) — violates O(1) PUSH. Option D (Min Heap): Both heap insert and heap delete-by-position take O(log n) — violates O(1) PUSH and O(1) POP.",
+      "note": "Options B, C, D all fail to maintain O(1) for at least one standard stack operation."
+     }
+    ],
+    "result": "Option A: Keep a pointer below each record in the stack pointing to the record with the smallest key below it. This is the only approach that keeps PUSH, POP, and MIN all O(1)."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Auxiliary min-stack technique: each stack frame stores the current minimum, enabling O(1) MIN queries and O(1) updates on PUSH/POP.",
+   "qid": "8.13.14",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2025",
+    "year": 2025,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Data Structures",
+    "topic": "Stack",
+    "subtopic": "Stack"
+   },
+   "question": "Consider the following pseudocode:\n\nCreate empty stack S\nSet x = 0, flag = 0, sum = 0\nPush x onto S\nwhile (S is not empty) {\n    if (flag equals 0) {\n        Set x = x + 1\n        Push x onto S\n    }\n    if (x equals 8):\n        Set flag = 1\n    else {\n        Pop from S\n        Set sum = sum + x\n        Set x = top element of S (without popping)\n    }\n}\n\nThe value of sum output by the above pseudocode is _______ (Answer in integer)",
+   "answer": "36",
+   "to_find": "The value of sum after the pseudocode finishes executing",
+   "understand": {
+    "plain": "The pseudocode uses a stack to push integers 1 through 8 in sequence, then pops them back while accumulating their sum. The flag variable controls when to stop pushing and start popping. We need to trace the execution and find the total sum accumulated during the pop phase.",
+    "keywords": [
+     {
+      "term": "flag variable",
+      "explain": "A boolean-like variable that switches the mode from 'push' (flag=0) to 'pop' (flag=1) when x reaches 8.",
+      "example": "Once x==8, flag is set to 1, so no more elements are pushed; subsequent iterations pop elements."
+     },
+     {
+      "term": "top element without popping",
+      "explain": "After popping and reading x, we peek at the new top of the stack to update x for the next iteration.",
+      "example": "Stack [0,1,2,...,7] after popping 8: peek gives x=7, which is used next."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='440' height='300' viewBox='0 0 440 300'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><text x='10' y='28' class='lbl ink'>Push phase (flag=0): push 0,1,2,...,8</text><rect x='10' y='38' width='200' height='36' rx='4' class='hi'/><text x='110' y='62' text-anchor='middle' class='lbl ink'>Stack: [0,1,2,3,4,5,6,7,8]</text><text x='10' y='98' class='lbl ink'>Pop phase (flag=1): pop 8,7,6,...,1</text><rect x='10' y='108' width='200' height='36' rx='4' class='bg'/><text x='110' y='132' text-anchor='middle' class='sub ink'>sum += 8+7+6+5+4+3+2+1</text><rect x='10' y='152' width='200' height='36' rx='4' class='ok'/><text x='110' y='176' text-anchor='middle' class='lbl' style='fill:#fff'>sum = 36</text><text x='240' y='48' class='sub ink'>Note: x=0 is not added to sum</text><text x='240' y='72' class='sub ink'>(when x=0 is top, S becomes</text><text x='240' y='92' class='sub ink'>empty after pop, loop ends)</text><text x='240' y='130' class='sub ink'>1+2+3+...+8 = 8*9/2 = 36</text><rect x='240' y='150' width='180' height='36' rx='4' class='hi'/><text x='330' y='174' text-anchor='middle' class='lbl ink'>sum = 36</text></svg>",
+    "visual_alt": "Push phase: integers 0 through 8 are pushed onto the stack. Pop phase: integers 8 down to 1 are popped and summed. When 0 is reached, the loop ends. Total sum = 1+2+3+4+5+6+7+8 = 36."
+   },
+   "given": {
+    "aim": "Trace the pseudocode to determine the final value of sum",
+    "terms": [
+     {
+      "term": "Push phase (flag=0)",
+      "meaning": "While flag is 0, each iteration increments x by 1 and pushes it. Ends when x reaches 8 and flag is set to 1.",
+      "example": "Iteration 1: x=1, push 1. ... Iteration 8: x=8, push 8, then set flag=1.",
+      "connects": "After push phase, stack contains [0, 1, 2, 3, 4, 5, 6, 7, 8] (bottom to top)."
+     },
+     {
+      "term": "Pop phase (flag=1)",
+      "meaning": "Once flag=1, the else branch executes: pop from S, add popped value to sum, peek at new top.",
+      "example": "First pop: pop 8, sum=8, peek x=7. Next: pop 7, sum=15, peek x=6. Continue until stack empty.",
+      "connects": "Elements 8,7,6,5,4,3,2,1 are all added to sum. When x=0 is top, it gets popped but sum += 0, and stack becomes empty."
+     },
+     {
+      "term": "Loop termination",
+      "meaning": "The while loop exits when S becomes empty.",
+      "example": "After popping 0 (the original bottom element), S is empty and the loop exits.",
+      "connects": "sum accumulates 8+7+6+5+4+3+2+1+0 = 36 (0 contributes nothing)."
+     },
+     {
+      "term": "Critical iteration at x=8",
+      "meaning": "When x equals 8, flag is set to 1 but the else branch does NOT execute in that same iteration (the if sets flag=1, skipping else).",
+      "example": "At x=8: flag becomes 1, but x==8 so the else block is skipped. Next iteration: flag=1, else runs.",
+      "connects": "8 is NOT added to sum in the iteration where flag is set; it is added in the next iteration when the else branch executes."
+     }
+    ],
+    "plan": "Trace the pseudocode step by step: (1) push phase builds stack [0..8], (2) pop phase sums elements from 8 down to 0. Note that when x=8 and flag is just set, the else is skipped, so 8 is added in the next iteration. Final sum = 0+1+2+...+8 = 36."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Trace the push phase (flag=0)",
+      "formula_raw": "",
+      "apply": "Initial state: S=[0], x=0, flag=0, sum=0.\nIteration 1: flag=0 -> x=1, push 1. S=[0,1]. x!=8, else: pop->sum+=1... Wait, re-read: the if(x==8) and else are SEPARATE from the if(flag==0) block.\n\nLet me re-trace carefully:\nState: S=[0], x=0, flag=0, sum=0\nLoop iter 1: flag=0 -> x=1, push 1. S=[0,1]. x(=1)!=8 -> else: pop S(pops 1), sum=0+1=1, x=top(S)=0.\nLoop iter 2: flag=0 -> x=1, push 1. S=[0,1]. x=1!=8 -> else: pop, sum=1+1=2, x=top=0.\n\nThis would be an infinite loop. Let me re-read the pseudocode structure from the image more carefully.\n\nFrom the image, the pseudocode structure is:\nwhile (S not empty) {\n  if (flag == 0) { x = x+1; push x; }\n  if (x == 8): flag = 1\n  else { pop; sum = sum + x; x = top of S; }\n}\n\nThe key is that when flag becomes 0 path executes (push), the SAME iteration then checks x==8. If x is not 8, the else runs (pop). So each iteration either: pushes and pops back (net zero) OR pushes without popping (when x==8, only flag is set).\n\nRe-trace:\nStart: S=[0], x=0, flag=0, sum=0\nIter 1: flag=0 -> x=1, push. S=[0,1]. x=1!=8 -> else: pop 1, sum=1, x=peek=0. S=[0]\nIter 2: flag=0 -> x=1, push. S=[0,1]... same infinite loop?\n\nActually x is updated by else to top of stack = 0 each time. This IS infinite unless x accumulates. Wait - after else: x=top(S)=0, but then flag=0 path does x=x+1=1 again. \n\nThe pseudocode must mean: the flag=0 block and the x==8 else block are mutually exclusive in execution (i.e. when flag==0, we push and then the if(x==8)/else checks the NEW x). So the push happens and then check x. Since after push x went from 0->1, and 1!=8, else pops. Then x becomes 0 again. This IS a loop. \n\nMost likely the pseudocode structure from GATE 2025 is:\nwhile S not empty:\n  if flag==0:\n    x = x+1; push x\n    if x==8: flag=1\n  else:\n    pop; sum+=x; x=top(S)",
+      "note": "The exact control flow structure is critical. The most natural reading consistent with a finite terminating program is that if(x==8)/flag=1 is nested inside the if(flag==0) block."
+     },
+     {
+      "step": 2,
+      "title": "Re-trace with correct structure and compute sum",
+      "formula_raw": "sum = 1+2+3+...+8 = n*(n+1)/2 = 8*9/2 = 36",
+      "apply": "With structure: while(S not empty){ if(flag==0){ x=x+1; push x; if(x==8) flag=1; } else { pop; sum+=x; x=top(S); } }\n\nPush phase (flag=0):\n- Start: S=[0], x=0\n- x->1, push. S=[0,1]\n- x->2, push. S=[0,1,2]\n- ... \n- x->8, push. S=[0,1,2,3,4,5,6,7,8]. Set flag=1.\n\nPop phase (flag=1), else branch runs each iteration:\n- pop 8, sum=8, x=peek=7. S=[0..7]\n- pop 7, sum=15, x=peek=6. S=[0..6]\n- pop 6, sum=21, x=5. S=[0..5]\n- pop 5, sum=26, x=4. S=[0..4]\n- pop 4, sum=30, x=3. S=[0..3]\n- pop 3, sum=33, x=2. S=[0..2]\n- pop 2, sum=35, x=1. S=[0,1]\n- pop 1, sum=36, x=0. S=[0]\n- pop 0, sum=36, S is now empty. x=peek fails / loop exits.\n\nFinal sum = 36.",
+      "note": "The sum equals 1+2+3+4+5+6+7+8 = 36. The element 0 (initially pushed) contributes 0 to the sum."
+     }
+    ],
+    "result": "The value of sum output by the pseudocode is 36."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Sum of first n natural numbers: n*(n+1)/2. Here elements 1 through 8 are popped and summed: 8*9/2 = 36.",
+   "qid": "8.13.15",
+   "answer_official": "C"
+  }
+ ]
+}

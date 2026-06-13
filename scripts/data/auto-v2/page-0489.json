@@ -1,0 +1,177 @@
+{
+ "page": 489,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2010",
+    "year": 2010,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Process Synchronization",
+    "subtopic": "Process Synchronization"
+   },
+   "question": "The following program consists of 3 concurrent processes and 3 binary semaphores. The semaphores are initialized as S0 = 1, S1 = 0 and S2 = 0.\n\nProcess P0:\nwhile (true) {\n  wait(S0);\n  print 'V';\n  release(S1);\n  release(S2);\n}\n\nProcess P1:\nwait(S1);\nwait(S0);\nprint 'V';\n\nProcess P2:\nwait(S2);\nrelease(S0);\n\nHow many times will process P0 print 'V'?\n\nA. At least twice\nB. Exactly twice\nC. Exactly thrice\nD. Exactly once",
+   "answer": "B. Exactly twice",
+   "to_find": "How many times does process P0 print 'V'?",
+   "understand": {
+    "plain": "Three concurrent processes share three binary semaphores initialized to S0=1, S1=0, S2=0. P0 loops waiting on S0, prints 'V', then signals S1 and S2. P1 waits on S1 then S0 and prints 'V'. P2 waits on S2 then releases S0. We need to trace through all possible execution sequences to determine how many times P0 can print 'V'.",
+    "keywords": [
+     {
+      "term": "binary semaphore",
+      "explain": "A semaphore that can only take values 0 or 1; wait() blocks if value is 0 and decrements it if 1; release() increments it (signals).",
+      "example": "S0=1 means the resource is free; after wait(S0), S0 becomes 0 (locked)."
+     },
+     {
+      "term": "wait() / release()",
+      "explain": "wait(S) is P-operation: decrements semaphore, blocks if 0. release(S) is V-operation: increments semaphore, unblocks a waiting process.",
+      "example": "wait(S1) on S1=0 will block until another process does release(S1)."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 320'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='170' height='290' rx='8' class='bg'/><rect x='200' y='10' width='170' height='130' rx='8' class='bg'/><rect x='400' y='10' width='170' height='100' rx='8' class='bg'/><text x='95' y='35' text-anchor='middle' class='lbl ink'>P0 (loop)</text><text x='95' y='58' text-anchor='middle' class='sub ink'>wait(S0)</text><text x='95' y='78' text-anchor='middle' class='sub ink'>print 'V'</text><text x='95' y='98' text-anchor='middle' class='sub ink'>release(S1)</text><text x='95' y='118' text-anchor='middle' class='sub ink'>release(S2)</text><text x='95' y='138' text-anchor='middle' class='sub mut'>(repeat)</text><text x='285' y='35' text-anchor='middle' class='lbl ink'>P1</text><text x='285' y='58' text-anchor='middle' class='sub ink'>wait(S1)</text><text x='285' y='78' text-anchor='middle' class='sub ink'>wait(S0)</text><text x='285' y='98' text-anchor='middle' class='sub ink'>print 'V'</text><text x='485' y='35' text-anchor='middle' class='lbl ink'>P2</text><text x='485' y='58' text-anchor='middle' class='sub ink'>wait(S2)</text><text x='485' y='78' text-anchor='middle' class='sub ink'>release(S0)</text><rect x='30' y='160' width='130' height='30' rx='4' class='hi'/><text x='95' y='180' text-anchor='middle' class='tag ink'>S0=1 S1=0 S2=0</text><text x='95' y='210' text-anchor='middle' class='sub ink'>Initial state</text></svg>",
+    "visual_alt": "Three process boxes showing P0 in a while loop (wait S0, print V, release S1, release S2), P1 (wait S1, wait S0, print V), and P2 (wait S2, release S0). Initial semaphore values: S0=1, S1=0, S2=0."
+   },
+   "given": {
+    "aim": "Determine how many times P0 executes its print statement.",
+    "terms": [
+     {
+      "term": "S0 = 1, S1 = 0, S2 = 0",
+      "meaning": "Initial semaphore values; S0=1 means P0 can proceed immediately, S1 and S2 are blocked.",
+      "example": "Only P0 can run first since it needs S0=1.",
+      "connects": "P0 starts first iteration immediately."
+     },
+     {
+      "term": "P0 releases S1 and S2 after each print",
+      "meaning": "After P0 prints 'V', it signals both S1 and S2, enabling P1 and P2 to proceed.",
+      "example": "First time P0 prints, S1 becomes 1 (P1 unblocks) and S2 becomes 1 (P2 unblocks).",
+      "connects": "P1 and P2 can now run."
+     },
+     {
+      "term": "P2 releases S0",
+      "meaning": "P2's only effect is to release S0 back to 1, allowing P0 to do a second iteration.",
+      "example": "After P2 runs, S0 becomes 1 again, so P0 can print a second time.",
+      "connects": "P0 can execute at most one more time after P2 runs."
+     }
+    ],
+    "plan": "Trace the execution: P0 runs first (S0=1), prints once, releases S1 and S2. P1 gets S1, then tries wait(S0) — but S0=0, so P1 blocks. P2 gets S2, releases S0 (S0 becomes 1). P0 can now run again, prints a second time, releases S1 and S2 again. But now P1 gets S0 (S0 becomes 0 again). P0 loops back to wait(S0) and blocks forever because S0=0 and P2 has already finished. P0 prints exactly twice."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "First iteration of P0",
+      "formula_raw": "Initial: S0=1, S1=0, S2=0",
+      "apply": "P0 executes wait(S0): S0 goes 1->0. P0 prints 'V' (1st time). P0 does release(S1): S1 goes 0->1. P0 does release(S2): S2 goes 0->1. State: S0=0, S1=1, S2=1.",
+      "note": "P0 is the only process that can start since only S0=1 initially."
+     },
+     {
+      "step": 2,
+      "title": "P1 and P2 proceed; P0's second chance",
+      "formula_raw": "After step 1: S0=0, S1=1, S2=1",
+      "apply": "P1: wait(S1) succeeds (S1: 1->0). P1: wait(S0) — S0=0, so P1 BLOCKS. P2: wait(S2) succeeds (S2: 1->0). P2: release(S0) — S0 goes 0->1. Now S0=1, P0 can loop: wait(S0) succeeds (S0: 1->0). P0 prints 'V' (2nd time). P0 does release(S1): S1 goes 0->1. P0 does release(S2): S2 goes 0->1. P1 was waiting on S0 and now S0=0, so now P1 gets S0 (S0: the release gave it to P0 first, but now P0 releases S1/S2 and loops back to wait(S0) finding S0=0 again). P1 wakes: S0 goes 0->0, P1 prints 'V'. P0 returns to while loop, waits on S0 — S0=0, blocks. P2 has already terminated. No one will release S0 again.",
+      "note": "After P0's second print, S0 is consumed by P1 (which was waiting). P2 has finished. P0 blocks forever on wait(S0). So P0 prints exactly twice."
+     },
+     {
+      "step": 3,
+      "title": "Verify P0 cannot print a third time",
+      "formula_raw": "",
+      "apply": "After P0's second iteration: release(S1) wakes P1 which was blocked on wait(S0). But P0 already consumed S0 for its second iteration, and now P1 holds S0. P2 is done (single-run process). Nobody releases S0 for P0 a third time. P0 blocks indefinitely at wait(S0).",
+      "note": "P2 runs exactly once, releasing S0 only once. That gives P0 exactly one extra iteration beyond the first."
+     }
+    ],
+    "result": "P0 prints 'V' exactly twice. Answer: B."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Binary semaphore trace analysis: track semaphore values through all possible interleavings to count process executions.",
+   "qid": "7.20.33",
+   "answer_official": "B"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2012",
+    "year": 2012,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Process Synchronization",
+    "subtopic": "Process Synchronization"
+   },
+   "question": "Fetch_And_Add(X, i) is an atomic Read-Modify-Write instruction that reads the value of memory location X, increments it by the value i, and returns the old value of X. It is used in the pseudocode shown below to implement a busy-wait lock. L is an unsigned integer shared variable initialized to 0. The value of 0 corresponds to lock being not available.\n\nAcquire_Lock(L) {\n  if (Fetch_And_Add(L, 1) == 0)\n    // lock is acquired\n}\n\nRelease_Lock(L) {\n  L = 1;\n}\n\nThis implementation:\n\nA. fails as L can overflow\nB. fails as L can take on a non-zero value when the lock is actually available\nC. works correctly but may starve some processes\nD. works correctly and starvation is not possible",
+   "answer": "B. fails as L can take on a non-zero value when the lock is actually available",
+   "to_find": "Whether the given Fetch_And_Add-based busy-wait lock implementation is correct.",
+   "understand": {
+    "plain": "The code uses an atomic Fetch_And_Add instruction to build a mutual exclusion lock. Acquire_Lock increments L and checks if the old value was 0 (meaning the lock was free). Release_Lock sets L back to 1 (but should set it to 0 to indicate 'free'). We need to determine if this implementation is correct or has a bug.",
+    "keywords": [
+     {
+      "term": "Fetch_And_Add(X, i)",
+      "explain": "An atomic instruction that atomically reads X, increments it by i, and returns the old value — no interruption possible between read and write.",
+      "example": "If L=0, Fetch_And_Add(L,1) returns 0 and sets L=1."
+     },
+     {
+      "term": "busy-wait lock (spinlock)",
+      "explain": "A lock where a process repeatedly checks a condition in a loop (spins) until the lock becomes available, without sleeping.",
+      "example": "while (Fetch_And_Add(L,1) != 0) { /* spin */ } acquires the lock only when L was 0."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 560 260'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='250' height='110' rx='8' class='bg'/><text x='135' y='32' text-anchor='middle' class='lbl ink'>Acquire_Lock(L)</text><text x='135' y='55' text-anchor='middle' class='sub ink'>if Fetch_And_Add(L,1)==0</text><text x='135' y='73' text-anchor='middle' class='sub ink'>  lock acquired</text><text x='135' y='93' text-anchor='middle' class='sub mut'>(no loop — tries once only!)</text><rect x='280' y='10' width='250' height='110' rx='8' class='bg'/><text x='405' y='32' text-anchor='middle' class='lbl ink'>Release_Lock(L)</text><text x='405' y='55' text-anchor='middle' class='sub ink'>L = 1  (BUG!)</text><text x='405' y='78' text-anchor='middle' class='sub no'>Should be: L = 0</text><rect x='10' y='140' width='520' height='90' rx='8' class='hi'/><text x='270' y='163' text-anchor='middle' class='lbl ink'>Bug Scenario</text><text x='270' y='185' text-anchor='middle' class='sub ink'>L=0 (free). P1: FAA returns 0, L=1. P1 holds lock.</text><text x='270' y='205' text-anchor='middle' class='sub ink'>Release: L=1 (wrong! should be 0). L is now 1.</text><text x='270' y='225' text-anchor='middle' class='sub no'>Next Acquire: FAA returns 1, fails — lock looks taken!</text></svg>",
+    "visual_alt": "Two code boxes: Acquire_Lock checks if Fetch_And_Add returns 0; Release_Lock incorrectly sets L=1 instead of L=0. Bug scenario: after release, L=1 makes the lock appear taken even though it is free."
+   },
+   "given": {
+    "aim": "Identify the correctness flaw in the Fetch_And_Add-based lock.",
+    "terms": [
+     {
+      "term": "L = 0 means lock not available (per problem statement)",
+      "meaning": "Wait — actually re-reading: 'value of 0 corresponds to lock being not available' is the problem's stated convention, but looking at Acquire logic: FAA returns 0 means lock WAS free (it acquires). So 0 = free/available.",
+      "example": "L=0: lock free. After Acquire, L=1: lock held.",
+      "connects": "The bug is in Release_Lock which sets L=1 instead of L=0."
+     },
+     {
+      "term": "Release_Lock sets L = 1",
+      "meaning": "The release operation should reset L to 0 (free), but the code sets L=1, leaving the lock in the 'held' state after release.",
+      "example": "P1 acquires (L: 0->1), P1 releases (L set to 1 — no change!). Lock never goes back to 0.",
+      "connects": "This is the critical bug: after release, L=1 and no subsequent Acquire can get old value=0."
+     },
+     {
+      "term": "Acquire does not loop / spin",
+      "meaning": "The Acquire_Lock only calls Fetch_And_Add once; if it fails (returns non-zero), the function returns without acquiring. There is no retry loop — this is a try-lock, not a proper spinlock.",
+      "example": "If two processes try simultaneously: one gets L=0, the other gets L=1 and simply returns without the lock.",
+      "connects": "Even if Release were fixed (L=0), without a retry loop Acquire would not be a proper spinlock."
+     }
+    ],
+    "plan": "The critical bug: Release_Lock sets L=1 instead of L=0. After a lock is released, L=1 (non-zero), so the next call to Acquire_Lock will see FAA return 1 (not 0) and fail to acquire, even though the lock is actually free. This means L can take a non-zero value when the lock is available — matching option B."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Trace the lock lifecycle with the given code",
+      "formula_raw": "Acquire: old = Fetch_And_Add(L,1); if old==0 then locked. Release: L = 1.",
+      "apply": "Initially L=0 (free). Process P1 calls Acquire_Lock: Fetch_And_Add(L,1) reads L=0 (returns 0), sets L=1. Since return==0, P1 has the lock. P1 in critical section. P1 calls Release_Lock: sets L=1. But L was already 1 (held state), so L remains 1. Now L=1.",
+      "note": "The Release_Lock function should set L=0 to indicate the lock is free again. Setting L=1 does nothing useful."
+     },
+     {
+      "step": 2,
+      "title": "Show the failure case",
+      "formula_raw": "",
+      "apply": "After P1 releases: L=1. Process P2 calls Acquire_Lock: Fetch_And_Add(L,1) reads L=1 (returns 1), sets L=2. Since return=1 != 0, P2 fails to acquire. But the lock IS actually available (P1 released it). So L has a non-zero value (1) when the lock is actually available — this is exactly option B's description.",
+      "note": "Furthermore, L keeps incrementing with each failed acquire attempt (L can be 2, 3, 4...), making the problem worse. Eventually L could also overflow (unsigned wrap-around), but the primary and immediate bug is option B."
+     },
+     {
+      "step": 3,
+      "title": "Check all options",
+      "formula_raw": "",
+      "apply": "A: overflow is possible but secondary. B: YES — L=1 (non-zero) after release means lock is 'available' but L is non-zero, exactly this failure. C and D: implementation is broken, not 'works correctly'. Correct answer is B.",
+      "note": "The fix would be to change Release_Lock to set L=0 (and add a spin loop in Acquire for proper busy-wait behavior)."
+     }
+    ],
+    "result": "The implementation fails because L can take a non-zero value when the lock is actually available (Release_Lock sets L=1 instead of L=0). Answer: B."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Fetch_And_Add atomic instruction for spinlock implementation; correctness requires Release to restore L to the 'free' state (0), not leave it at the 'held' value (1).",
+   "qid": "7.20.34",
+   "answer_official": "B"
+  }
+ ]
+}

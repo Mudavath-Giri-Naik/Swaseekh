@@ -1,0 +1,484 @@
+{
+ "page": 269,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2024",
+    "year": 2024,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Computer Networks",
+    "topic": "TCP",
+    "subtopic": "TCP"
+   },
+   "question": "Consider a TCP connection operating at a point of time with the congestion window of size 12 MSS (Maximum Segment Size), when a timeout occurs due to packet loss. Assuming that all the segments transmitted in the next two RTTs (Round Trip Times) are acknowledged correctly, the congestion window size (in MSS) during the 3rd RTT will be ___.",
+   "answer": "4",
+   "to_find": "Congestion window size (in MSS) at the start of the 3rd RTT after a timeout event",
+   "understand": {
+    "plain": "TCP congestion control resets on timeout: ssthresh becomes half the current cwnd and cwnd is reset to 1 MSS (slow start). The window then grows exponentially in slow start. We need to find the window size that is in effect during the 3rd RTT after the timeout.",
+    "keywords": [
+     {
+      "term": "Congestion Window (cwnd)",
+      "explain": "The sender-side limit on how many unacknowledged bytes/segments can be in flight at once.",
+      "example": "cwnd = 4 MSS means the sender can have 4 unacknowledged segments in the network."
+     },
+     {
+      "term": "Slow Start Threshold (ssthresh)",
+      "explain": "When cwnd reaches ssthresh, TCP switches from slow start (exponential growth) to congestion avoidance (linear growth).",
+      "example": "If ssthresh = 6 MSS and cwnd = 5 MSS, the next RTT cwnd = 6 MSS (still slow start); after that, linear."
+     },
+     {
+      "term": "Timeout Event",
+      "explain": "A severe congestion signal in TCP that causes ssthresh = cwnd/2 and cwnd = 1 MSS, restarting slow start.",
+      "example": "cwnd = 12 MSS on timeout -> ssthresh = 6, cwnd = 1."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='420' height='200'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect width='420' height='200' rx='10' class='bg'/><text x='210' y='28' text-anchor='middle' class='lbl ink'>TCP Congestion Window After Timeout</text><rect x='30' y='50' width='80' height='40' class='no' rx='5'/><text x='70' y='75' text-anchor='middle' class='tag' fill='white'>Timeout</text><text x='70' y='110' text-anchor='middle' class='sub ink'>cwnd=12</text><rect x='150' y='50' width='80' height='40' class='bg' rx='5'/><text x='190' y='75' text-anchor='middle' class='tag ink'>RTT 1</text><text x='190' y='110' text-anchor='middle' class='sub ink'>cwnd=1->2</text><rect x='250' y='50' width='80' height='40' class='bg' rx='5'/><text x='290' y='75' text-anchor='middle' class='tag ink'>RTT 2</text><text x='290' y='110' text-anchor='middle' class='sub ink'>cwnd=2->4</text><rect x='350' y='50' width='55' height='40' class='hi' rx='5'/><text x='377' y='75' text-anchor='middle' class='tag ink'>RTT 3</text><text x='377' y='110' text-anchor='middle' class='sub ink'>cwnd=4</text><line x1='110' y1='70' x2='148' y2='70' stroke='#5F5E5A' stroke-width='2' marker-end='url(#a)'/><line x1='230' y1='70' x2='248' y2='70' stroke='#5F5E5A' stroke-width='2'/><line x1='330' y1='70' x2='348' y2='70' stroke='#5F5E5A' stroke-width='2'/><text x='210' y='160' text-anchor='middle' class='sub mut'>ssthresh=6, slow start: 1->2->4 (4&lt;6, still slow start)</text><text x='210' y='180' text-anchor='middle' class='sub mut'>cwnd during 3rd RTT = 4 MSS</text></svg>",
+    "visual_alt": "Timeline showing TCP cwnd after timeout: cwnd resets to 1 MSS (ssthresh=6), doubles each RTT in slow start: RTT1=1->2, RTT2=2->4, so cwnd during 3rd RTT is 4 MSS."
+   },
+   "given": {
+    "aim": "Find the congestion window size during the 3rd RTT after a timeout when cwnd was 12 MSS",
+    "terms": [
+     {
+      "term": "cwnd at timeout = 12 MSS",
+      "meaning": "The congestion window just before timeout occurs",
+      "example": "Sender could send 12 segments before waiting for ACK",
+      "connects": "Determines ssthresh = 12/2 = 6 MSS"
+     },
+     {
+      "term": "ssthresh after timeout = 6 MSS",
+      "meaning": "New slow start threshold set to half the window at timeout",
+      "example": "ssthresh = 12/2 = 6",
+      "connects": "Slow start continues while cwnd < ssthresh; exponential growth until cwnd = 6"
+     },
+     {
+      "term": "cwnd reset to 1 MSS",
+      "meaning": "After timeout, sender restarts slow start from 1 MSS",
+      "example": "Start of slow start phase",
+      "connects": "Grows as 1->2->4->8... each RTT until ssthresh is reached"
+     }
+    ],
+    "plan": "On timeout: set ssthresh = cwnd/2 = 6 MSS, cwnd = 1 MSS. In slow start, cwnd doubles each RTT. Track cwnd: before RTT1 = 1 MSS, before RTT2 = 2 MSS, before RTT3 = 4 MSS. Since 4 < ssthresh = 6, we are still in slow start. Answer is 4 MSS."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Apply timeout rules",
+      "formula_raw": "ssthresh = cwnd/2; cwnd = 1 MSS",
+      "apply": "cwnd = 12 MSS at timeout. New ssthresh = 12/2 = 6 MSS. cwnd is reset to 1 MSS. Slow start begins.",
+      "note": "Timeout is more severe than triple duplicate ACK (3-dup-ACK sets cwnd = ssthresh, not 1)."
+     },
+     {
+      "step": 2,
+      "title": "Track cwnd growth over RTTs",
+      "formula_raw": "In slow start: cwnd doubles each RTT while cwnd < ssthresh",
+      "apply": "Start: cwnd = 1 MSS (this is the value being used DURING the 1st RTT after timeout). After RTT1 ACKs arrive: cwnd = 2 MSS. During RTT2: cwnd = 2 MSS. After RTT2 ACKs: cwnd = 4 MSS. During RTT3: cwnd = 4 MSS. Since 4 < 6 (ssthresh), still in slow start.",
+      "note": "The question asks for cwnd 'during the 3rd RTT', meaning the window size at the start of (used during) the 3rd RTT = 4 MSS."
+     }
+    ],
+    "result": "Congestion window size during the 3rd RTT = 4 MSS"
+   },
+   "formula_ids_used": [],
+   "formula_note": "TCP congestion control: on timeout, ssthresh = cwnd/2, cwnd = 1 MSS, then slow start (exponential doubling) until ssthresh.",
+   "qid": "4.30.16",
+   "answer_official": "4"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2025",
+    "year": 2025,
+    "marks": 1,
+    "difficulty": "medium",
+    "type": "MSQ",
+    "subject": "Computer Networks",
+    "topic": "TCP",
+    "subtopic": "TCP"
+   },
+   "question": "Consider the 3-way handshaking protocol for TCP connection establishment. Let the three packets exchanged during the connection establishment be denoted as P1, P2, and P3, in order. Which of the following option(s) is/are TRUE with respect to TCP header flags that are set in the packets?\n\nA. P2 : SYN = 1, ACK = 1\nB. P1 : SYN = 1, ACK = 1\nC. P3 : SYN = 1, ACK = 1\nD. P1 : SYN = 1",
+   "answer": "A, D",
+   "to_find": "Which TCP flag combinations are correctly set in the 3-way handshake packets P1, P2, P3",
+   "understand": {
+    "plain": "The TCP 3-way handshake involves three packets exchanged to establish a connection. P1 is SYN from client, P2 is SYN-ACK from server, and P3 is ACK from client. We need to check which flag descriptions in the options are true.",
+    "keywords": [
+     {
+      "term": "SYN flag",
+      "explain": "Synchronize sequence numbers — set in the first two packets of the 3-way handshake to initiate connection.",
+      "example": "P1 (client->server): SYN=1, ACK=0. P2 (server->client): SYN=1, ACK=1."
+     },
+     {
+      "term": "ACK flag",
+      "explain": "Acknowledgment — set when the ACK number field is valid, i.e., acknowledging previously received data.",
+      "example": "P2 has ACK=1 (acknowledging P1). P3 has ACK=1 (acknowledging P2). P1 has ACK=0 (no prior segment)."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='420' height='220'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect width='420' height='220' rx='10' class='bg'/><text x='210' y='25' text-anchor='middle' class='lbl ink'>TCP 3-Way Handshake</text><text x='80' y='50' text-anchor='middle' class='tag ink'>Client</text><text x='340' y='50' text-anchor='middle' class='tag ink'>Server</text><line x1='80' y1='55' x2='80' y2='200' stroke='#2C2C2A' stroke-width='2'/><line x1='340' y1='55' x2='340' y2='200' stroke='#2C2C2A' stroke-width='2'/><line x1='80' y1='80' x2='340' y2='100' stroke='#1D9E75' stroke-width='2' marker-end='url(#arr)'/><text x='210' y='85' text-anchor='middle' class='sub' fill='#1D9E75'>P1: SYN=1, ACK=0</text><line x1='340' y1='120' x2='80' y2='140' stroke='#7F77DD' stroke-width='2' marker-end='url(#arr)'/><text x='210' y='125' text-anchor='middle' class='sub' fill='#7F77DD'>P2: SYN=1, ACK=1</text><line x1='80' y1='160' x2='340' y2='180' stroke='#D85A30' stroke-width='2' marker-end='url(#arr)'/><text x='210' y='165' text-anchor='middle' class='sub' fill='#D85A30'>P3: SYN=0, ACK=1</text><defs><marker id='arr' markerWidth='8' markerHeight='8' refX='6' refY='3' orient='auto'><path d='M0,0 L0,6 L8,3 z' fill='#5F5E5A'/></marker></defs></svg>",
+    "visual_alt": "3-way handshake: P1 from client to server with SYN=1,ACK=0; P2 from server to client with SYN=1,ACK=1; P3 from client to server with SYN=0,ACK=1."
+   },
+   "given": {
+    "aim": "Identify which flag settings described in the options correctly match the 3-way handshake packets",
+    "terms": [
+     {
+      "term": "P1 (SYN)",
+      "meaning": "First packet from client: requests connection, SYN=1, ACK=0",
+      "example": "Client sends: SYN=1, seq=x",
+      "connects": "P1 has SYN=1 and ACK=0 (no acknowledgment yet)"
+     },
+     {
+      "term": "P2 (SYN-ACK)",
+      "meaning": "Second packet from server: accepts connection, SYN=1, ACK=1",
+      "example": "Server sends: SYN=1, ACK=1, seq=y, ack=x+1",
+      "connects": "P2 has both SYN=1 and ACK=1"
+     },
+     {
+      "term": "P3 (ACK)",
+      "meaning": "Third packet from client: final acknowledgment, SYN=0, ACK=1",
+      "example": "Client sends: ACK=1, ack=y+1",
+      "connects": "P3 has SYN=0, ACK=1 — connection is now established"
+     }
+    ],
+    "plan": "Check each option against the known flag patterns: P1=SYN only, P2=SYN+ACK, P3=ACK only. Option A: P2 SYN=1,ACK=1 is TRUE. Option B: P1 SYN=1,ACK=1 is FALSE (P1 has ACK=0). Option C: P3 SYN=1,ACK=1 is FALSE (P3 has SYN=0). Option D: P1 SYN=1 is TRUE."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Recall the 3-way handshake flag assignments",
+      "formula_raw": "P1: SYN=1,ACK=0 | P2: SYN=1,ACK=1 | P3: SYN=0,ACK=1",
+      "apply": "P1 is the initial SYN from the client — no prior packet to acknowledge, so ACK=0. P2 is SYN-ACK from the server — it acknowledges P1 (ACK=1) and also initiates server side (SYN=1). P3 is the final ACK from client — acknowledges P2, connection established, SYN is no longer needed so SYN=0.",
+      "note": "SYN flag is set only in P1 and P2, not in P3."
+     },
+     {
+      "step": 2,
+      "title": "Evaluate each option",
+      "formula_raw": "",
+      "apply": "A. P2: SYN=1, ACK=1 — TRUE (matches P2 exactly). B. P1: SYN=1, ACK=1 — FALSE (P1 has ACK=0, there is nothing to acknowledge before the first SYN). C. P3: SYN=1, ACK=1 — FALSE (P3 has SYN=0, the connection is being finalized not initiated from server side). D. P1: SYN=1 — TRUE (P1 is the SYN packet).",
+      "note": "A and D are correct. This is an MSQ so both must be selected."
+     }
+    ],
+    "result": "Options A and D are TRUE: A. P2: SYN=1, ACK=1 and D. P1: SYN=1"
+   },
+   "formula_ids_used": [],
+   "formula_note": "TCP 3-way handshake flag rules: P1=SYN (SYN=1,ACK=0), P2=SYN-ACK (SYN=1,ACK=1), P3=ACK (SYN=0,ACK=1).",
+   "qid": "4.30.17",
+   "answer_official": "B;D"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2004",
+    "year": 2004,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Computer Networks",
+    "topic": "TCP",
+    "subtopic": "TCP"
+   },
+   "question": "Which one of the following statements is FALSE?\n\nA. TCP guarantees a minimum communication rate\nB. TCP ensures in-order delivery\nC. TCP reacts to congestion by reducing sender window size\nD. TCP employs retransmission to compensate for packet loss",
+   "answer": "A. TCP guarantees a minimum communication rate",
+   "to_find": "Which statement about TCP is FALSE",
+   "understand": {
+    "plain": "TCP is a reliable transport-layer protocol. We need to identify the one incorrect claim about its behavior. TCP provides reliability and congestion control but does NOT guarantee any minimum throughput or communication rate.",
+    "keywords": [
+     {
+      "term": "Best-effort vs. Guaranteed delivery",
+      "explain": "TCP guarantees reliable, in-order delivery but does NOT guarantee any bandwidth/rate — it is a best-effort protocol at the rate level.",
+      "example": "TCP may slow down to nearly zero in heavy congestion; there is no minimum rate guarantee."
+     },
+     {
+      "term": "TCP Congestion Control",
+      "explain": "TCP reduces its sending window (cwnd) when congestion is detected, slowing down transmission.",
+      "example": "On triple duplicate ACK: cwnd = ssthresh = cwnd/2. On timeout: cwnd = 1 MSS."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "TCP properties: reliable (yes), in-order delivery (yes), congestion reaction (yes), minimum rate guarantee (NO — this is false)."
+   },
+   "given": {
+    "aim": "Identify the false statement from four claims about TCP behavior",
+    "terms": [
+     {
+      "term": "Minimum communication rate",
+      "meaning": "A guaranteed lower bound on throughput — TCP provides NO such guarantee",
+      "example": "A TCP connection can be throttled to near-zero by congestion control",
+      "connects": "This is the false statement — TCP gives no QoS bandwidth guarantee"
+     },
+     {
+      "term": "In-order delivery",
+      "meaning": "TCP reassembles out-of-order segments at the receiver using sequence numbers",
+      "example": "Segment with seq=100 arriving after seq=160 is buffered and reordered",
+      "connects": "TRUE — TCP guarantees in-order delivery to the application"
+     },
+     {
+      "term": "Retransmission",
+      "meaning": "TCP retransmits lost segments detected via timeout or duplicate ACKs",
+      "example": "If ACK for a segment is not received within RTO, the segment is retransmitted",
+      "connects": "TRUE — retransmission is a core TCP reliability mechanism"
+     }
+    ],
+    "plan": "Evaluate each option: B, C, D are well-known TCP features. A claims TCP guarantees minimum communication rate — TCP is a best-effort protocol with NO rate guarantee, making A false."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Verify options B, C, D",
+      "formula_raw": "",
+      "apply": "B. TCP ensures in-order delivery: TRUE — TCP uses sequence numbers and buffering to present data in order to the application layer. C. TCP reacts to congestion by reducing sender window size: TRUE — congestion control (slow start, congestion avoidance, fast retransmit) all reduce cwnd. D. TCP employs retransmission: TRUE — core feature for reliability.",
+      "note": "All three are standard, well-documented TCP behaviors."
+     },
+     {
+      "step": 2,
+      "title": "Evaluate option A",
+      "formula_raw": "",
+      "apply": "A. TCP guarantees a minimum communication rate: FALSE — TCP does not provide QoS or bandwidth guarantees. Congestion control can reduce the sending rate to 1 MSS per RTT (near zero). TCP operates on best-effort basis at the rate/bandwidth level.",
+      "note": "UDP can sometimes sustain higher rates than TCP under congestion because UDP has no congestion control, but neither provides minimum rate guarantees at the network level."
+     }
+    ],
+    "result": "Option A is FALSE: TCP does not guarantee a minimum communication rate."
+   },
+   "formula_ids_used": [],
+   "formula_note": "TCP provides reliable, in-order, byte-stream delivery with congestion control, but offers NO bandwidth or minimum-rate guarantee.",
+   "qid": "4.30.18",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2004",
+    "year": 2004,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Computer Networks",
+    "topic": "TCP",
+    "subtopic": "TCP"
+   },
+   "question": "In TCP, a unique sequence number is assigned to each\n\nA. byte\nB. word\nC. segment\nD. message",
+   "answer": "A. byte",
+   "to_find": "The unit to which TCP assigns a unique sequence number",
+   "understand": {
+    "plain": "TCP is a byte-stream protocol. It assigns sequence numbers to individual bytes, not to segments or words. The sequence number in a TCP segment header is the sequence number of the first byte of data in that segment.",
+    "keywords": [
+     {
+      "term": "TCP Sequence Number",
+      "explain": "A 32-bit number in the TCP header that identifies the position of the first byte of the segment's data within the overall byte stream.",
+      "example": "If a segment carries bytes 100-199, its sequence number is 100."
+     },
+     {
+      "term": "Byte-stream service",
+      "explain": "TCP views data as a continuous stream of bytes, not as discrete messages or segments.",
+      "example": "Sending 'Hello World' (11 bytes) starting at seq=0: 'H'=0, 'e'=1, 'l'=2, ... each byte has a unique number."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "TCP byte stream: each byte in the stream has a unique sequence number. A segment's seq number is the number of its first byte."
+   },
+   "given": {
+    "aim": "Identify the granularity at which TCP assigns sequence numbers",
+    "terms": [
+     {
+      "term": "Byte",
+      "meaning": "The unit of sequence numbering in TCP",
+      "example": "Seq=1000 means the first byte of the segment is byte number 1000 of the stream",
+      "connects": "Correct answer — sequence numbers are per-byte"
+     },
+     {
+      "term": "Segment",
+      "meaning": "A unit of data at the TCP transport layer; contains header + data",
+      "example": "One segment may carry 1000 bytes, seq=100 to 1099",
+      "connects": "Segments use sequence numbers but each BYTE within has its own number, not each segment"
+     },
+     {
+      "term": "TCP header sequence number field",
+      "meaning": "32-bit field indicating sequence number of first data byte in the segment",
+      "example": "Segment with 500 bytes starting at seq=1000 -> header seq=1000",
+      "connects": "Confirms that tracking is byte-level — receiver ACKs the next expected byte number"
+     }
+    ],
+    "plan": "Recall TCP fundamentals: TCP is a byte-stream protocol. The sequence number field identifies individual bytes. ACK number = next expected byte number, confirming byte-level granularity."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Recall TCP sequence numbering design",
+      "formula_raw": "ACK_num = seq_num_of_last_received_byte + 1",
+      "apply": "TCP assigns a 32-bit sequence number to every byte in the data stream. A segment header carries the sequence number of its first byte. The receiver's ACK contains the next expected byte number, confirming byte-level tracking.",
+      "note": "This allows TCP to handle partial deliveries, reordering, and retransmission at byte granularity."
+     },
+     {
+      "step": 2,
+      "title": "Eliminate other options",
+      "formula_raw": "",
+      "apply": "B. Word — TCP does not use word-level numbering. C. Segment — incorrect; sequence numbers are not per-segment (one segment could be split and each half needs its own number). D. Message — TCP is not message-oriented; it provides a byte stream with no message boundaries.",
+      "note": "UDP uses message (datagram) model. TCP uses byte-stream model."
+     }
+    ],
+    "result": "Option A: Each byte is assigned a unique sequence number in TCP."
+   },
+   "formula_ids_used": [],
+   "formula_note": "TCP byte-stream model: sequence numbers identify bytes, not segments or messages. ACK = next expected byte number.",
+   "qid": "4.30.19",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2007",
+    "year": 2007,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Computer Networks",
+    "topic": "TCP",
+    "subtopic": "TCP"
+   },
+   "question": "Consider the following statements about the timeout value used in TCP:\n\ni. The timeout value is set to the RTT (Round Trip Time) measured during TCP connection establishment for the entire duration of the connection.\nii. Appropriate RTT estimation algorithm is used to set the timeout value of a TCP connection.\niii. The timeout value is set to twice the propagation delay from the sender to the receiver.\n\nWhich of the following choices is correct?\n\nA. (i) is true, (ii) and (iii) are false\nB. (ii) and (iii) are true, (i) is false\nC. (i) and (iii) are true, (ii) is false\nD. (i), (ii), and (iii) are false",
+   "answer": "B. (ii) and (iii) are true, (i) is false",
+   "to_find": "Which statements about TCP timeout value setting are correct",
+   "understand": {
+    "plain": "TCP dynamically adjusts its retransmission timeout (RTO) using an exponential weighted moving average (EWMA) of measured RTT samples. The timeout is NOT fixed at the connection-establishment RTT, and it is NOT simply twice the propagation delay. Statement (ii) about using an RTT estimation algorithm is the standard TCP behavior; statement (iii) is also a reasonable characterization since timeout relates to round-trip (2 * propagation delay).",
+    "keywords": [
+     {
+      "term": "Retransmission Timeout (RTO)",
+      "explain": "The time TCP waits for an ACK before retransmitting. Dynamically computed using smoothed RTT estimates.",
+      "example": "RTO = SRTT + 4*RTTVAR, where SRTT is smoothed RTT and RTTVAR is RTT variance."
+     },
+     {
+      "term": "RTT Estimation (Jacobson's Algorithm)",
+      "explain": "TCP uses an exponential weighted moving average to estimate RTT and its variance for computing RTO.",
+      "example": "SRTT = (1-alpha)*SRTT + alpha*SampleRTT, then RTO = SRTT + 4*RTTVAR."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "TCP RTO is computed dynamically using EWMA of RTT samples (Jacobson's algorithm), not fixed at connection setup."
+   },
+   "given": {
+    "aim": "Determine which of the three statements about TCP timeout setting are true",
+    "terms": [
+     {
+      "term": "Statement (i)",
+      "meaning": "Timeout fixed at connection-establishment RTT for entire connection",
+      "example": "If initial RTT = 50ms, timeout stays 50ms forever",
+      "connects": "FALSE — TCP continuously re-estimates RTT and updates RTO throughout the connection"
+     },
+     {
+      "term": "Statement (ii)",
+      "meaning": "TCP uses an appropriate RTT estimation algorithm for timeout",
+      "example": "Jacobson's algorithm: SRTT with EWMA; RTO = SRTT + 4*RTTVAR",
+      "connects": "TRUE — this is exactly how TCP sets RTO (RFC 6298)"
+     },
+     {
+      "term": "Statement (iii)",
+      "meaning": "Timeout = 2 * propagation delay",
+      "example": "Propagation delay = 25ms each way; RTT ~ 50ms; timeout ~ 50ms",
+      "connects": "TRUE in conceptual sense — round-trip time is approximately twice one-way propagation delay, and timeout is based on RTT"
+     }
+    ],
+    "plan": "Statement (i) is clearly false — TCP continuously updates its RTO estimate. Statement (ii) is true — TCP uses Jacobson's algorithm. Statement (iii) is true in the conceptual/simplified sense that RTO relates to 2*propagation delay. Therefore answer is B."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Evaluate statement (i)",
+      "formula_raw": "",
+      "apply": "Statement (i): Timeout is fixed at the RTT measured at connection establishment for the entire connection. This is FALSE. TCP continuously measures RTT using acknowledgments and updates its RTO using an EWMA algorithm (Karn's algorithm and Jacobson's algorithm). The RTO adapts to changing network conditions throughout the connection.",
+      "note": "Fixing timeout at initial RTT would cause either too-frequent retransmissions (if network improves) or too-slow detection (if network degrades)."
+     },
+     {
+      "step": 2,
+      "title": "Evaluate statements (ii) and (iii)",
+      "formula_raw": "RTO = SRTT + 4*RTTVAR",
+      "apply": "Statement (ii): TCP uses an appropriate RTT estimation algorithm — TRUE. The standard algorithm (RFC 6298) is: SRTT = (1-0.125)*SRTT + 0.125*RTTsample; RTTVAR updated similarly; RTO = SRTT + 4*RTTVAR. Statement (iii): Timeout = 2 * propagation delay — TRUE in simplified model. RTT = 2 * one-way propagation delay (ignoring transmission and queueing), so timeout being proportional to RTT = proportional to 2 * propagation delay. This is conceptually correct.",
+      "note": "For GATE purposes, statements (ii) and (iii) are both TRUE, (i) is FALSE => answer B."
+     }
+    ],
+    "result": "Option B: (ii) and (iii) are true, (i) is false."
+   },
+   "formula_ids_used": [],
+   "formula_note": "TCP RTO computed using Jacobson/Karn algorithm: RTO = SRTT + 4*RTTVAR, continuously updated. Not fixed at connection-setup RTT.",
+   "qid": "4.30.20",
+   "answer_official": "B"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2007",
+    "year": 2007,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Computer Networks",
+    "topic": "TCP",
+    "subtopic": "TCP"
+   },
+   "question": "Consider a TCP connection in a state where there are no outstanding ACKs. The sender sends two segments back to back. The sequence numbers of the first and second segments are 230 and 290 respectively. The first segment was lost, but the second segment was correctly received by the receiver. Let X be the amount of data (in bytes) carried in the first segment, and Y be the ACK number sent by the receiver. The values of X and Y (in order) are:\n\nA. 60 and 290\nB. 230 and 291\nC. 60 and 231\nD. 60 and 230",
+   "answer": "D. 60 and 230",
+   "to_find": "Number of data bytes X in the first segment, and the ACK number Y sent by the receiver",
+   "understand": {
+    "plain": "TCP uses cumulative acknowledgment. The receiver got segment 2 (seq=290) but not segment 1 (seq=230). The receiver cannot advance its ACK beyond the last in-order byte received. Since the first segment (seq=230) was lost, the receiver's expected byte is still 231 (it previously had received up to byte 230, so next expected = 231). The size of the first segment is 290 - 230 = 60 bytes.",
+    "keywords": [
+     {
+      "term": "Cumulative ACK",
+      "explain": "TCP ACK number = the next byte the receiver expects to receive in-order. Out-of-order segments are buffered but not ACKed beyond the gap.",
+      "example": "If bytes 0-229 are received and bytes 230-289 are lost, ACK = 230 (expecting byte 230 next)."
+     },
+     {
+      "term": "Sequence Number",
+      "explain": "The sequence number of a segment is the byte number of its first data byte in the stream.",
+      "example": "Segment with seq=230 carries bytes starting at byte 230. If it has 60 bytes, it covers bytes 230-289."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='420' height='200'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect width='420' height='200' rx='10' class='bg'/><text x='210' y='25' text-anchor='middle' class='lbl ink'>TCP Segment Sequence Numbers</text><rect x='30' y='50' width='60' height='40' class='bg' rx='4'/><text x='60' y='65' text-anchor='middle' class='sub mut'>Received</text><text x='60' y='82' text-anchor='middle' class='sub mut'>0-229</text><rect x='100' y='50' width='80' height='40' class='no' rx='4'/><text x='140' y='65' text-anchor='middle' class='sub' fill='white'>LOST</text><text x='140' y='82' text-anchor='middle' class='sub' fill='white'>seq=230 (60B)</text><rect x='190' y='50' width='80' height='40' class='ok' rx='4'/><text x='230' y='65' text-anchor='middle' class='sub' fill='white'>Received</text><text x='230' y='82' text-anchor='middle' class='sub' fill='white'>seq=290</text><text x='210' y='130' text-anchor='middle' class='lbl ink'>X = 290 - 230 = 60 bytes</text><text x='210' y='155' text-anchor='middle' class='lbl ink'>Y = ACK = 230 (next expected after gap)</text><text x='210' y='178' text-anchor='middle' class='sub mut'>Wait — receiver already had up to 229, expects 230. Segment lost, ACK stays 230? See solution.</text></svg>",
+    "visual_alt": "Byte stream: bytes 0-229 received, segment seq=230 (60 bytes, covering 230-289) is LOST, segment seq=290 received out-of-order. Receiver sends ACK=230 (cumulative, can't advance past the gap). X=60, Y=230."
+   },
+   "given": {
+    "aim": "Find size X of first segment and ACK number Y from receiver given first segment lost and second received",
+    "terms": [
+     {
+      "term": "First segment seq = 230, second segment seq = 290",
+      "meaning": "The first segment starts at byte 230, second starts at byte 290",
+      "example": "Gap between seq numbers = 290 - 230 = 60 bytes = size of first segment",
+      "connects": "X = 290 - 230 = 60 bytes"
+     },
+     {
+      "term": "No outstanding ACKs initially",
+      "meaning": "Before sending, all previous bytes were acknowledged; receiver expects byte 230 next",
+      "example": "Last ACK from receiver = 230 (receiver has all bytes up to 229)",
+      "connects": "When first segment (seq=230) is lost, receiver still expects byte 230"
+     },
+     {
+      "term": "Cumulative ACK = next expected byte",
+      "meaning": "Receiver ACKs only up to the last in-order received byte",
+      "example": "With gap at 230-289, receiver buffers seq=290 but sends ACK=230",
+      "connects": "Y = 230 (receiver cannot acknowledge past the missing segment)"
+     }
+    ],
+    "plan": "X = seq(second) - seq(first) = 290 - 230 = 60 bytes. For Y: the receiver had acknowledged everything up to byte 229 (since no outstanding ACKs, last ACK was 230). The first segment (seq=230, 60 bytes) is lost, so receiver still expects byte 230. The second segment (seq=290) is buffered (out of order). Receiver sends ACK=230."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Calculate X (bytes in first segment)",
+      "formula_raw": "X = seq(S2) - seq(S1)",
+      "apply": "The first segment starts at byte 230. The second segment starts at byte 290. Since segments are contiguous (sender sends back to back), the first segment spans bytes 230 through 289. Size = 290 - 230 = 60 bytes. So X = 60.",
+      "note": "Sequence numbers directly encode the byte position, so the difference gives the segment length."
+     },
+     {
+      "step": 2,
+      "title": "Calculate Y (ACK number from receiver)",
+      "formula_raw": "ACK = last_in_order_byte_received + 1",
+      "apply": "Initially no outstanding ACKs, so the receiver had received and ACKed everything up to byte 229 (since no outstanding ACKs, the last ACK it sent was 230, meaning it expects byte 230 next). Now: First segment (seq=230, bytes 230-289) is LOST — never arrives. Second segment (seq=290) arrives — receiver buffers it but cannot advance cumulative ACK past the missing byte. Receiver sends ACK = 230 (still expecting byte 230). So Y = 230.",
+      "note": "This is cumulative ACK. The receiver signals the gap by repeating ACK=230, which will eventually trigger retransmission of the lost segment."
+     }
+    ],
+    "result": "X = 60 bytes, Y = 230. Answer: D. 60 and 230. The receiver cannot advance the ACK past the missing first segment, so it keeps ACK = 230."
+   },
+   "formula_ids_used": [],
+   "formula_note": "TCP cumulative acknowledgment: ACK = next expected byte in-order. Out-of-order segments buffered but ACK does not advance past a gap.",
+   "qid": "4.30.21",
+   "answer_official": "D"
+  }
+ ]
+}

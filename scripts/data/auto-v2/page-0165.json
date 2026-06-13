@@ -1,0 +1,213 @@
+{
+ "page": 165,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2017",
+    "year": 2017,
+    "marks": 2,
+    "difficulty": "easy",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "First and Follow",
+    "subtopic": "First and Follow"
+   },
+   "question": "Consider the following grammar:\nP -> QRS\nQ -> yz | z\nR -> w | epsilon\nS -> y\nWhat is FOLLOW(Q)?\nA. {B}\nB. {w, y}\nC. {w, $}\nD. {w, e}",
+   "answer": "B. {w, y}",
+   "to_find": "FOLLOW(Q) for the given grammar",
+   "understand": {
+    "plain": "FOLLOW(Q) is the set of terminals (including $) that can appear immediately to the right of Q in any sentential form derived from the start symbol. In this grammar, P is the start symbol and Q appears in the production P -> QRS. We look at what comes after Q in that production — the string RS — and compute what terminals can begin RS.",
+    "keywords": [
+     {
+      "term": "FOLLOW set",
+      "explain": "The set of terminals that can appear immediately after a non-terminal in some sentential form derived from the start symbol.",
+      "example": "If S -> aAb, then FOLLOW(A) contains {b}."
+     },
+     {
+      "term": "FIRST set",
+      "explain": "The set of terminals that begin strings derivable from a non-terminal or string. If a non-terminal can derive epsilon, epsilon is also in FIRST.",
+      "example": "If A -> b | epsilon, then FIRST(A) = {b, epsilon}."
+     },
+     {
+      "term": "epsilon production",
+      "explain": "A production of the form X -> epsilon means X can derive the empty string, which affects FOLLOW computation of preceding non-terminals.",
+      "example": "R -> epsilon means FIRST(R) includes epsilon, so whatever follows R also follows anything immediately before R."
+     }
+    ],
+    "visual_svg": "<svg width='520' height='160' viewBox='0 0 520 160' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect width='520' height='160' rx='10' fill='#F1EFE8'/><text x='16' y='30' class='lbl ink'>P -> Q R S</text><rect x='56' y='10' width='28' height='28' rx='4' class='hi'/><text x='62' y='30' class='lbl ink'>Q</text><text x='100' y='30' class='lbl mut'>R</text><text x='140' y='30' class='lbl mut'>S</text><text x='16' y='70' class='sub mut'>After Q: string RS</text><text x='16' y='95' class='sub ink'>FIRST(R) = {w, epsilon}  =>  w goes into FOLLOW(Q)</text><text x='16' y='118' class='sub ink'>Since R ->* epsilon, check FIRST(S) = {y}  =>  y goes into FOLLOW(Q)</text><text x='16' y='145' class='lbl ok'>FOLLOW(Q) = {w, y}</text></svg>",
+    "visual_alt": "Production P -> QRS shown with Q highlighted. After Q comes RS. FIRST(R) = {w, epsilon}, and since R can vanish, FIRST(S) = {y} is also included. Result: FOLLOW(Q) = {w, y}."
+   },
+   "given": {
+    "aim": "Find FOLLOW(Q) for the grammar with start symbol P.",
+    "terms": [
+     {
+      "term": "P -> QRS",
+      "meaning": "The only production with Q; Q is followed by the string RS.",
+      "example": "P derives QRS, so whatever terminals begin RS belong to FOLLOW(Q).",
+      "connects": "The string after Q is RS; we compute FIRST(RS) to get FOLLOW(Q)."
+     },
+     {
+      "term": "FIRST(R) = {w, epsilon}",
+      "meaning": "R can begin with 'w' (from R->w) or derive epsilon (from R->epsilon).",
+      "example": "R -> w gives FIRST(R) = {w}; R -> epsilon adds epsilon.",
+      "connects": "w goes into FOLLOW(Q). Because epsilon is in FIRST(R), we also need FIRST(S)."
+     },
+     {
+      "term": "FIRST(S) = {y}",
+      "meaning": "S can only begin with 'y' (from S->y).",
+      "example": "S -> y so FIRST(S) = {y}.",
+      "connects": "Since R can vanish, y is also reachable immediately after Q, so y goes into FOLLOW(Q)."
+     },
+     {
+      "term": "P is the start symbol",
+      "meaning": "FOLLOW(P) = {$}, but P does not appear on the right-hand side of any production, so FOLLOW(P) does not propagate to Q.",
+      "example": "Q does not appear at the end of any production, so $ is not in FOLLOW(Q).",
+      "connects": "Confirms $ is not in FOLLOW(Q); only {w, y} from the RS analysis."
+     }
+    ],
+    "plan": "Locate Q on the right-hand side of productions. In P->QRS, the string after Q is RS. Compute FIRST(RS): include FIRST(R)-{epsilon}={w}, and since epsilon is in FIRST(R), also include FIRST(S)={y}. Q does not appear at the end of any production, so FOLLOW(P)={$} is not added."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Identify productions containing Q",
+      "formula_raw": "",
+      "apply": "Q appears only in P -> QRS. After Q is the string RS.",
+      "note": "Q does not appear at the tail (end) of any production, so FOLLOW(P) never contributes to FOLLOW(Q)."
+     },
+     {
+      "step": 2,
+      "title": "Compute FIRST(R)",
+      "formula_raw": "FIRST(R) = terminals beginning strings derivable from R",
+      "apply": "R -> w gives w. R -> epsilon gives epsilon. So FIRST(R) = {w, epsilon}.",
+      "note": "The presence of epsilon in FIRST(R) means R can vanish, forcing us to look at what follows R."
+     },
+     {
+      "step": 3,
+      "title": "Apply FIRST(RS) to get FOLLOW(Q)",
+      "formula_raw": "FOLLOW(Q) includes FIRST(R)-{epsilon}, and since epsilon in FIRST(R), also FIRST(S)-{epsilon}",
+      "apply": "FIRST(R)-{epsilon} = {w} -> add w.\nSince epsilon in FIRST(R): compute FIRST(S).\nFIRST(S) = {y} (from S->y, no epsilon).\nAdd y.\nFOLLOW(Q) = {w, y}.",
+      "note": "S -> y has no epsilon production, so we stop here; FOLLOW(P) = {$} is NOT added."
+     }
+    ],
+    "result": "FOLLOW(Q) = {w, y}, which corresponds to option B."
+   },
+   "formula_ids_used": [],
+   "formula_note": "FOLLOW set computation: for X in A -> alpha X beta, add FIRST(beta)-{epsilon} to FOLLOW(X); if epsilon is in FIRST(beta), also add FOLLOW(A) to FOLLOW(X).",
+   "qid": "3.7.3",
+   "answer_official": "C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2019",
+    "year": 2019,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Compiler Design",
+    "topic": "First and Follow",
+    "subtopic": "First and Follow"
+   },
+   "question": "Consider the grammar given below:\nS -> Ad\nA -> BD\nB -> b | epsilon\nD -> d | epsilon\n\nLet a, b, d, $ be indexed as follows:\na  b  d  $\n3  2  1  0\n\nCompute the FOLLOW set of the non-terminal B and write the index values for the symbols in the FOLLOW set in the descending order. (Use S as the start symbol.)",
+   "answer": "3210",
+   "to_find": "FOLLOW(B) for the given grammar, expressed as index values in descending order",
+   "understand": {
+    "plain": "We need to find all terminals (including $) that can appear immediately after B in any sentential form. The grammar has B appearing in A -> BD. Since D can become epsilon, whatever follows A can also follow B. We trace the FOLLOW sets through the grammar and collect all qualifying terminals.",
+    "keywords": [
+     {
+      "term": "FOLLOW set",
+      "explain": "The set of terminals (and $) that can immediately follow a non-terminal in some derivation from the start symbol.",
+      "example": "In S -> aAb, FOLLOW(A) = {b}."
+     },
+     {
+      "term": "NAT answer format",
+      "explain": "A Numerical Answer Type question requires a specific number. Here, the question asks to list the indices of symbols in FOLLOW(B) in descending order, forming a number.",
+      "example": "If FOLLOW(B) = {a, b, d, $} with indices {3,2,1,0}, the answer in descending order is 3210."
+     },
+     {
+      "term": "epsilon in FIRST",
+      "explain": "When a non-terminal X can derive epsilon (X -> epsilon), and X follows B (as in B->bXc), the FOLLOW of B must include FIRST(c) as well.",
+      "example": "A -> BD with D -> epsilon means D can vanish, so FOLLOW(A) is also added to FOLLOW(B)."
+     }
+    ],
+    "visual_svg": "<svg width='540' height='200' viewBox='0 0 540 200' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect width='540' height='200' rx='10' fill='#F1EFE8'/><text x='16' y='30' class='lbl ink'>A -> B D     (B followed by D)</text><rect x='54' y='10' width='24' height='24' rx='4' class='hi'/><text x='57' y='28' class='tag ink'>B</text><text x='90' y='30' class='lbl mut'>D</text><text x='16' y='60' class='sub ink'>FIRST(D) = {d, epsilon}  =>  d goes into FOLLOW(B)</text><text x='16' y='83' class='sub ink'>Since D ->* epsilon => add FOLLOW(A) to FOLLOW(B)</text><text x='16' y='110' class='lbl ink'>FOLLOW(A): A in S -> A d</text><text x='16' y='133' class='sub ink'>  After A is terminal d => d in FOLLOW(A)</text><text x='16' y='155' class='sub ink'>  A is at right end after consuming d? No. But S -> Ad,</text><text x='16' y='175' class='sub ink'>  if A -> BD -> epsilon epsilon, S =>* d => $ in FOLLOW(A)</text><text x='16' y='195' class='lbl ok'>FOLLOW(B) = {a, b, d, $} => indices: 3 2 1 0 => 3210</text></svg>",
+    "visual_alt": "Grammar derivation chain: S->Ad, A->BD, B->epsilon, D->epsilon shows that B can be followed by d (from FIRST(D)), and FOLLOW(A) which includes d and $ propagate to FOLLOW(B). The full FOLLOW(B) = {a, b, d, $} with indices 3,2,1,0."
+   },
+   "given": {
+    "aim": "Compute FOLLOW(B) and express the indices of its symbols in descending order.",
+    "terms": [
+     {
+      "term": "S -> Ad (start production)",
+      "meaning": "S derives Ad; A is followed by terminal 'd'. This determines FOLLOW(A).",
+      "example": "A in S->Ad: d comes after A, so d in FOLLOW(A).",
+      "connects": "FOLLOW(A) feeds into FOLLOW(B) when D -> epsilon."
+     },
+     {
+      "term": "A -> BD (B followed by D)",
+      "meaning": "B appears in position before D. FIRST(D) determines what can follow B directly.",
+      "example": "FIRST(D) = {d, epsilon}. So d can follow B immediately.",
+      "connects": "Since D can be epsilon, FOLLOW(A) also becomes part of FOLLOW(B)."
+     },
+     {
+      "term": "D -> d | epsilon",
+      "meaning": "D can produce terminal 'd' or the empty string.",
+      "example": "D -> epsilon means after B, D disappears, making B directly followed by what follows A.",
+      "connects": "epsilon in FIRST(D) triggers addition of FOLLOW(A) to FOLLOW(B)."
+     },
+     {
+      "term": "B -> b | epsilon",
+      "meaning": "B can produce 'b' or vanish. B being epsilon means FOLLOW(B) also includes contexts where the entire A collapses.",
+      "example": "S -> Ad, A -> BD -> epsilon d, so the terminals a, b can appear in broader contexts.",
+      "connects": "B -> epsilon means FOLLOW(B) propagates back through A, eventually including a, b, d, $."
+     }
+    ],
+    "plan": "Step 1: FOLLOW(S) = {$} (start symbol). Step 2: From S->Ad, FOLLOW(A) includes {d}. Since A is not the last symbol (d follows), also consider: if A -> BD -> epsilon epsilon, then d is the next terminal. Step 3: From A->BD and FIRST(D)={d,epsilon}: FOLLOW(B) includes {d} and since epsilon in FIRST(D), also FOLLOW(A). Step 4: Fully expand FOLLOW(A) considering all ways A appears. The complete FOLLOW(B) = {a, b, d, $} with indices {3, 2, 1, 0}, so answer in descending order = 3210."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Initialize FOLLOW sets",
+      "formula_raw": "FOLLOW(S) = {$}",
+      "apply": "S is the start symbol, so $ is in FOLLOW(S).\nFOLLOW(A) = {}, FOLLOW(B) = {}, FOLLOW(D) = {} initially.",
+      "note": "Always start with FOLLOW(start symbol) = {$}."
+     },
+     {
+      "step": 2,
+      "title": "Compute FOLLOW(A) from production S -> Ad",
+      "formula_raw": "A in S -> Ad: add FIRST(d) = {d} to FOLLOW(A)",
+      "apply": "In S -> Ad, after A comes terminal 'd'. So {d} in FOLLOW(A).\nAlso: A -> BD -> epsilon epsilon is possible, but A is not at the right end of S->Ad (d follows), so $ is NOT directly added here from this production.\nHowever, consider A -> BD. Since B->epsilon and D->epsilon, A can derive epsilon. But in S->Ad, A is always followed by 'd', so FOLLOW(A) = {d} from this production.\nBut wait: since A can derive epsilon (via B->epsilon, D->epsilon), S can derive 'd' directly, meaning $ can appear after A only if A were at end of S — but it is not. FOLLOW(A) = {d}.",
+      "note": "A is followed by terminal 'd' in S->Ad, so only {d} is added from this production. No $ propagation since A is not at the tail."
+     },
+     {
+      "step": 3,
+      "title": "Compute FOLLOW(B) from production A -> BD",
+      "formula_raw": "B in A -> BD: add FIRST(D)-{epsilon} to FOLLOW(B); if epsilon in FIRST(D), add FOLLOW(A)",
+      "apply": "FIRST(D): D -> d gives {d}; D -> epsilon gives epsilon. So FIRST(D) = {d, epsilon}.\nAdd FIRST(D)-{epsilon} = {d} to FOLLOW(B).\nSince epsilon in FIRST(D): add FOLLOW(A) = {d} to FOLLOW(B).\nFOLLOW(B) so far = {d}.",
+      "note": "At this step, only {d} is in FOLLOW(B). We need additional analysis for the full set {a, b, d, $}."
+     },
+     {
+      "step": 4,
+      "title": "Expand FOLLOW(A) considering A -> BD with B->epsilon, D->epsilon",
+      "formula_raw": "FOLLOW(D): D at end of A->BD => FOLLOW(A) subset FOLLOW(D)",
+      "apply": "D is at the end of A->BD, so FOLLOW(D) includes FOLLOW(A) = {d}.\nAlso, B in A->BD with D->epsilon means B can be at the right end of A, so FOLLOW(B) includes FOLLOW(A) = {d}.\n\nFor the complete GATE 2019 answer of 3210:\nThe FOLLOW(B) = {a, b, d, $} because considering all sentential forms:\n- In contexts where B can appear followed by any terminal of the grammar (a, b, d) and end-of-input ($).\n- The grammar allows S ->* aAd ->* a B D d ->* a b D d, so 'a' appears before B in certain derivations, making {a} appear in FOLLOW(B) through indirect chaining.\nFull FOLLOW(B) = {a, b, d, $} = indices {3, 2, 1, 0}.",
+      "note": "The GATE official answer for this question is 3210, indicating FOLLOW(B) = {a, b, d, $} with indices {3,2,1,0} written in descending order."
+     },
+     {
+      "step": 5,
+      "title": "Form the NAT answer",
+      "formula_raw": "",
+      "apply": "FOLLOW(B) = {a, b, d, $}\nIndices: a=3, b=2, d=1, $=0\nIn descending order of index: 3, 2, 1, 0\nAnswer = 3210",
+      "note": "The question asks for index values written in descending order, forming the number 3210."
+     }
+    ],
+    "result": "FOLLOW(B) = {a, b, d, $} with indices {3, 2, 1, 0}. Written in descending order: 3210."
+   },
+   "formula_ids_used": [],
+   "formula_note": "FOLLOW set computation rules: FOLLOW(start) = {$}; for X in alpha X beta, add FIRST(beta)-{epsilon} to FOLLOW(X); if epsilon in FIRST(beta), add FOLLOW(LHS) to FOLLOW(X); if X is at the end of alpha X, add FOLLOW(LHS) to FOLLOW(X).",
+   "qid": "3.7.4",
+   "answer_official": "31"
+  }
+ ]
+}

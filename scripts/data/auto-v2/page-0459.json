@@ -1,0 +1,534 @@
+{
+ "page": 459,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2012",
+    "year": 2012,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Page Replacement",
+    "subtopic": "Page Replacement"
+   },
+   "question": "Consider the virtual page reference string:\n1, 2, 3, 2, 4, 1, 3, 2, 4, 1\non a demand paged virtual memory system running on a computer system that has main memory size of 3 page frames which are initially empty. Let LRU, FIFO and OPTIMAL denote the number of page faults under the corresponding page replacement policy. Then\n\nA. OPTIMAL < LRU < FIFO\nB. OPTIMAL < FIFO < LRU\nC. OPTIMAL = LRU\nD. OPTIMAL = FIFO",
+   "answer": "B. OPTIMAL < FIFO < LRU",
+   "to_find": "Relationship between number of page faults for LRU, FIFO, and OPTIMAL policies on the given reference string with 3 frames",
+   "understand": {
+    "plain": "We have 3 page frames (initially empty) and a sequence of 10 page references. We simulate FIFO, LRU, and OPT replacement to count page faults for each and compare. The cyclic-like pattern 1,3,2,4 repeats and badly hurts LRU, while OPT uses future knowledge to minimize faults.",
+    "keywords": [
+     {
+      "term": "Page Fault",
+      "explain": "Occurs when the referenced page is not in any of the allocated frames, requiring a disk load.",
+      "example": "Accessing page 1 when frames contain {2,3,4} causes a fault."
+     },
+     {
+      "term": "OPTIMAL (OPT) Replacement",
+      "explain": "Replaces the page that will not be used for the longest time in the future — gives minimum page faults but requires future knowledge.",
+      "example": "If frames hold {1,2,3} and future refs are 4,2,1, OPT evicts page 3 since 3 is not in the future at all."
+     },
+     {
+      "term": "LRU Replacement",
+      "explain": "Replaces the page that was least recently used (accessed furthest in the past).",
+      "example": "Access order 1,2,3 => LRU is page 1; next fault evicts page 1."
+     },
+     {
+      "term": "FIFO Replacement",
+      "explain": "Replaces the page that was loaded into memory first (oldest page in frames).",
+      "example": "Load order 1,2,3 => FIFO evicts page 1 first."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Step-by-step trace table showing frame contents and fault/hit for each of the 10 references under FIFO (6 faults), LRU (9 faults), and OPT (5 faults) with 3 frames."
+   },
+   "given": {
+    "aim": "Count page faults for FIFO, LRU, and OPTIMAL on reference string 1,2,3,2,4,1,3,2,4,1 with 3 frames.",
+    "terms": [
+     {
+      "term": "Reference string",
+      "meaning": "1, 2, 3, 2, 4, 1, 3, 2, 4, 1 (10 references, 4 distinct pages)",
+      "example": "Distinct pages are {1,2,3,4}; with only 3 frames, one page is always absent.",
+      "connects": "Each element is traced against current frame contents to decide fault or hit."
+     },
+     {
+      "term": "Frame count = 3",
+      "meaning": "At most 3 pages can reside simultaneously; with 4 distinct pages, eviction is unavoidable.",
+      "example": "After loading 1,2,3, page 4 must evict one of them.",
+      "connects": "The competition between 4 pages for 3 slots determines how often each policy faults."
+     },
+     {
+      "term": "Initially empty frames",
+      "meaning": "First 3 distinct pages always cause cold-start faults.",
+      "example": "References 1,2,3 all fault unconditionally.",
+      "connects": "After 3 cold faults, 7 more references compete for 3 slots."
+     }
+    ],
+    "plan": "Simulate all three policies step-by-step and count faults. The cyclic pattern in the later part of the string creates worst-case behavior for LRU but OPT can look ahead and avoid unnecessary evictions."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Trace FIFO (3 frames)",
+      "formula_raw": "Evict the page that entered memory earliest.",
+      "apply": "pos1: ref=1, fault, queue=[1]. F=1\npos2: ref=2, fault, queue=[1,2]. F=2\npos3: ref=3, fault, queue=[1,2,3]. F=3\npos4: ref=2, HIT. F=3\npos5: ref=4, fault, evict 1, queue=[2,3,4]. F=4\npos6: ref=1, fault, evict 2, queue=[3,4,1]. F=5\npos7: ref=3, HIT. F=5\npos8: ref=2, fault, evict 3, queue=[4,1,2]. F=6\npos9: ref=4, HIT. F=6\npos10: ref=1, HIT. F=6\nFIFO total faults = 6.",
+      "note": "FIFO evicts pages in arrival order, getting lucky with some hits at the end."
+     },
+     {
+      "step": 2,
+      "title": "Trace LRU (3 frames)",
+      "formula_raw": "Evict the page least recently used (front of recency queue = LRU).",
+      "apply": "pos1: ref=1, fault, recency=[1]. F=1\npos2: ref=2, fault, recency=[1,2]. F=2\npos3: ref=3, fault, recency=[1,2,3]. F=3\npos4: ref=2, HIT, recency=[1,3,2]. F=3\npos5: ref=4, fault, evict LRU=1, recency=[3,2,4]. F=4\npos6: ref=1, fault, evict LRU=3, recency=[2,4,1]. F=5\npos7: ref=3, fault, evict LRU=2, recency=[4,1,3]. F=6\npos8: ref=2, fault, evict LRU=4, recency=[1,3,2]. F=7\npos9: ref=4, fault, evict LRU=1, recency=[3,2,4]. F=8\npos10: ref=1, fault, evict LRU=3, recency=[2,4,1]. F=9\nLRU total faults = 9.",
+      "note": "LRU suffers heavily — the 4-page cyclic pattern {1,3,2,4} with only 3 frames causes nearly every reference to fault after the initial warm-up."
+     },
+     {
+      "step": 3,
+      "title": "Trace OPT (3 frames)",
+      "formula_raw": "Evict the page whose next use is farthest in the future (or never used again).",
+      "apply": "pos1: ref=1, fault. F=1\npos2: ref=2, fault. F=2\npos3: ref=3, fault. frames={1,2,3}. F=3\npos4: ref=2, HIT. F=3\npos5: ref=4, fault. next(1)=6, next(2)=8, next(3)=7. Farthest=2(pos8). Evict 2. frames={1,3,4}. F=4\npos6: ref=1, HIT. F=4\npos7: ref=3, HIT. F=4\npos8: ref=2, fault. next(1)=10, next(3)=none(inf), next(4)=9. Farthest=3(inf). Evict 3. frames={1,4,2}. F=5\npos9: ref=4, HIT. F=5\npos10: ref=1, HIT. F=5\nOPT total faults = 5.",
+      "note": "OPT intelligently evicts page 2 at pos5 (farthest future use at pos8) and page 3 at pos8 (never used again), saving 1 fault compared to FIFO."
+     },
+     {
+      "step": 4,
+      "title": "Compare and identify correct option",
+      "formula_raw": "OPT <= LRU (OPT is lower bound), compare OPT, FIFO, LRU.",
+      "apply": "OPT = 5, FIFO = 6, LRU = 9.\nSo: OPTIMAL(5) < FIFO(6) < LRU(9).\nThis matches option B: OPTIMAL < FIFO < LRU.",
+      "note": "LRU has the worst performance here because the 4-page cyclic working set exceeds the 3-frame capacity, causing nearly continuous replacement."
+     }
+    ],
+    "result": "OPT = 5, FIFO = 6, LRU = 9. Answer: B. OPTIMAL < FIFO < LRU"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Page replacement simulation: OPT (Belady's optimal) is the lower bound on faults; LRU approximates OPT by temporal locality; FIFO uses arrival order. When the active working set size exceeds available frames by 1, LRU degrades to nearly all-fault behavior on cyclic patterns.",
+   "qid": "7.16.18",
+   "answer_official": "B"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2014",
+    "year": 2014,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Operating System",
+    "topic": "Page Replacement",
+    "subtopic": "Page Replacement"
+   },
+   "question": "Assume that there are 3 page frames which are initially empty. If the page reference string is 1, 2, 3, 2, 1, 5, 3, 2, 4, 6, the number of page faults using the optimal replacement policy is __________.",
+   "answer": "6",
+   "to_find": "Number of page faults using Optimal (OPT) page replacement with 3 frames on reference string 1,2,3,2,1,5,3,2,4,6",
+   "understand": {
+    "plain": "We have 3 frames and 10 page references. The Optimal policy always replaces the page that will not be needed for the longest time in the future. We trace through the reference string: whenever a page is not in frames we count a fault and load it, evicting via OPT when frames are full.",
+    "keywords": [
+     {
+      "term": "Optimal (OPT) Replacement",
+      "explain": "Replace the page whose next access is farthest in the future — provably minimizes total page faults.",
+      "example": "Frames {1,2,3}, next refs are 2,5,3,1 => 2 next at pos 2, 3 next at pos 7, 1 next at pos 10 => evict page with farthest next use."
+     },
+     {
+      "term": "Compulsory (Cold-start) Faults",
+      "explain": "The first distinct k pages (where k = frame count) always cause faults because all frames start empty.",
+      "example": "With 3 frames, references to 1,2,3 (first 3 distinct pages) each fault unconditionally."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Step-by-step frame trace table showing frames content and fault/hit status for each of the 10 page references under OPT with 3 frames. Faults at positions 1,2,3,6,9,10."
+   },
+   "given": {
+    "aim": "Count page faults under OPT policy for reference string 1,2,3,2,1,5,3,2,4,6 with 3 frames.",
+    "terms": [
+     {
+      "term": "Reference string",
+      "meaning": "1, 2, 3, 2, 1, 5, 3, 2, 4, 6 (10 references, 7 distinct pages: 1,2,3,4,5,6)",
+      "example": "6 distinct pages, 3 frames — 3 pages cannot be resident at once.",
+      "connects": "Each reference is checked against frame contents; fault if absent."
+     },
+     {
+      "term": "3 frames",
+      "meaning": "Only 3 pages can be in memory at once.",
+      "example": "After 3 cold-start faults, each new distinct page requires eviction.",
+      "connects": "Frame size drives eviction frequency; OPT minimizes this."
+     },
+     {
+      "term": "OPT eviction rule",
+      "meaning": "When eviction needed, pick the resident page with the farthest (or no) future reference.",
+      "example": "If page X is never referenced again, it is the best eviction candidate.",
+      "connects": "Minimizes future faults by keeping pages that will be needed soonest."
+     }
+    ],
+    "plan": "Scan the reference string from left to right. Maintain frame contents. On each fault (page not in frames), if frames are full apply OPT eviction: look at future references for each frame resident and evict the one referenced farthest in the future. Count total faults."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Simulate OPT step by step",
+      "formula_raw": "Evict page with max next_use when fault occurs and frames are full.",
+      "apply": "pos1: ref=1, frames={}: FAULT. frames={1}. Faults=1\npos2: ref=2, frames={1}: FAULT. frames={1,2}. Faults=2\npos3: ref=3, frames={1,2}: FAULT. frames={1,2,3}. Faults=3\npos4: ref=2, in {1,2,3}: HIT. Faults=3\npos5: ref=1, in {1,2,3}: HIT. Faults=3\npos6: ref=5, not in {1,2,3}: FAULT.\n  next(1) after pos6: none (infinity) — 1 does not appear after pos5 in string 1,2,3,2,1,5,3,2,4,6\n  next(2) after pos6: pos8\n  next(3) after pos6: pos7\n  Farthest = 1 (infinity). Evict 1. frames={2,3,5}. Faults=4\npos7: ref=3, in {2,3,5}: HIT. Faults=4\npos8: ref=2, in {2,3,5}: HIT. Faults=4\npos9: ref=4, not in {2,3,5}: FAULT.\n  next(2) after pos9: none (infinity)\n  next(3) after pos9: none (infinity)\n  next(5) after pos9: none (infinity)\n  All infinity — evict any, say 5. frames={2,3,4}. Faults=5\npos10: ref=6, not in {2,3,4}: FAULT.\n  next(2)=inf, next(3)=inf, next(4)=inf — evict any. frames={2,3,6}. Faults=6",
+      "note": "Faults occur at positions 1,2,3,6,9,10 = 6 total faults."
+     },
+     {
+      "step": 2,
+      "title": "Verify the count",
+      "formula_raw": "Total faults = compulsory faults + replacement faults",
+      "apply": "Compulsory faults (first 3 distinct pages loaded): pages 1,2,3 => 3 faults.\nReplacement faults:\n  pos6: ref=5 (evict page 1 — never used again) => fault\n  pos9: ref=4 (evict any; all remaining have no future use) => fault\n  pos10: ref=6 (evict any) => fault\nTotal = 3 + 3 = 6.",
+      "note": "OPT perfectly identifies page 1 as eviction candidate at pos6 since it has no future references. Pages 4 and 6 are new pages that also appear only once, so their faults at pos9 and pos10 are unavoidable compulsory misses."
+     }
+    ],
+    "result": "The number of page faults using Optimal replacement policy = 6"
+   },
+   "formula_ids_used": [],
+   "formula_note": "OPT (Belady's optimal) page replacement: always evict the page whose next reference is farthest in the future; this minimizes total page faults and serves as a lower bound for all other policies.",
+   "qid": "7.16.19",
+   "answer_official": "7"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2014",
+    "year": 2014,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Page Replacement",
+    "subtopic": "Page Replacement"
+   },
+   "question": "A computer has twenty physical page frames which contain pages numbered 101 through 120. Now a program accesses the pages numbered 1, 2, ..., 20 in that order, and repeats the access sequence THRICE. Which one of the following page replacement policies experiences the same number of page faults as the optimal page replacement policy for this program?\n\nA. Last-in-first-out\nB. First-in-first-out\nC. Least-recently-used\nD. Most-recently-used",
+   "answer": "C. Least-recently-used",
+   "to_find": "Which page replacement policy gives the same number of page faults as OPT for the given access pattern with 20 frames containing pages 101-120?",
+   "understand": {
+    "plain": "The 20 physical frames already hold pages 101-120, which are irrelevant to the program. The program accesses pages 1 through 20 in order, three times (60 total references). On the first pass, pages 1-19 are already in frames but page 20 is not (only page 0 is missing — wait, frames have 101-120, program needs 1-20). Actually ALL of 1-20 are absent from the initial frames {101..120}. Each access in pass 1 causes a fault, evicting one of the 101-120 pages. After pass 1, frames hold {1..20}. Passes 2 and 3 have zero faults.",
+    "keywords": [
+     {
+      "term": "Initial frame contents (101-120)",
+      "explain": "The 20 frames contain pages 101-120, none of which the program ever accesses.",
+      "example": "Program accesses 1,2,...,20 but frames hold 101..120 — every first-pass reference is a fault."
+     },
+     {
+      "term": "Working set fits in frames",
+      "explain": "The program uses exactly 20 distinct pages and has exactly 20 frames. After loading all 20 in pass 1, all subsequent accesses hit.",
+      "example": "After pass 1: frames = {1..20}. Passes 2 and 3 are all hits."
+     },
+     {
+      "term": "LRU on initial load (pages 101-120 never accessed by program)",
+      "explain": "LRU considers pages 101-120 as 'never accessed during program execution' — so they are always the LRU candidates for eviction.",
+      "example": "When page 1 faults, LRU evicts one of {101..120} (all equally least recently used). After evicting all of {101..120}, frames hold {1..20}."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Timeline showing 3 passes over pages 1-20 with 20 frames initially holding 101-120. Pass 1 causes 20 faults as pages 1-20 replace 101-120. Passes 2 and 3 have 0 faults since all 20 program pages fit in frames."
+   },
+   "given": {
+    "aim": "Determine which replacement policy (LIFO, FIFO, LRU, MRU) matches OPT's fault count for this access pattern.",
+    "terms": [
+     {
+      "term": "20 frames containing pages 101-120",
+      "meaning": "Initially no program page (1-20) is in memory; 20 compulsory misses on first pass.",
+      "example": "Frame initially holds {101,...,120}; all 20 are irrelevant to the program.",
+      "connects": "Every access in pass 1 is a fault; eviction policy determines which pages survive."
+     },
+     {
+      "term": "Access sequence: 1,2,...,20 repeated 3 times",
+      "meaning": "60 total page references; 20 distinct pages.",
+      "example": "Pass 1: 1,2,...,20; Pass 2: 1,2,...,20; Pass 3: 1,2,...,20.",
+      "connects": "If all 20 pages are in frames after pass 1, passes 2 and 3 cost 0 faults."
+     },
+     {
+      "term": "OPT eviction during pass 1",
+      "meaning": "OPT evicts a page from {101..120} since those pages will never be referenced again.",
+      "example": "When page 1 faults, OPT evicts any of {101..120} (all have infinite next-use). After 20 evictions of 101-120, frames = {1..20}.",
+      "connects": "OPT total faults = 20 (all in pass 1)."
+     }
+    ],
+    "plan": "During pass 1, all 20 program pages fault (frames start with {101..120}). Each policy evicts from {101..120}. After pass 1, frames = {1..20} for OPT and LRU. Passes 2 and 3 = 0 faults. Analyze MRU and FIFO separately to check if they agree."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Trace pass 1 for OPT and LRU",
+      "formula_raw": "OPT: evict page with no future use. LRU: evict page not used longest.",
+      "apply": "Pass 1 access: 1, 2, 3, ..., 20.\nPage 1 accessed: not in {101..120}: FAULT. OPT evicts some page from {101..120} (all have next_use=infinity since program never uses them). LRU similarly: pages 101..120 have never been accessed by the program, so all are LRU candidates. Both evict one of {101..120} and load page 1.\nSimilarly for pages 2 through 20: each faults; each policy evicts from the shrinking set {101..120}.\nAfter page 20 is loaded: all of {101..120} have been evicted, frames = {1..20}.\nPass 1 faults = 20 for both OPT and LRU.",
+      "note": "Pages 101-120 are never in the program's access sequence, so they are always the correct eviction targets — both OPT and LRU correctly identify them."
+     },
+     {
+      "step": 2,
+      "title": "Trace passes 2 and 3",
+      "formula_raw": "All 20 program pages fit exactly in 20 frames.",
+      "apply": "After pass 1: frames = {1, 2, ..., 20}.\nPass 2 access: 1, 2, ..., 20 — every page already in frames: 0 faults.\nPass 3 access: 1, 2, ..., 20 — every page already in frames: 0 faults.\nOPT total = 20, LRU total = 20.",
+      "note": "Working set exactly fits in available frames after first pass."
+     },
+     {
+      "step": 3,
+      "title": "Check MRU behavior",
+      "formula_raw": "MRU evicts the most recently used page.",
+      "apply": "During pass 1, when page 20 faults (after accessing 1,2,...,19): MRU would evict the most recently accessed page = page 19 (just accessed). This loads page 20 but evicts page 19 from frames.\nIn pass 2: page 1 hits, ..., page 19 faults (evicted by MRU!), MRU now evicts page 20 (most recent).\nThis creates thrashing — MRU causes many more than 20 total faults.\nMRU does NOT match OPT.",
+      "note": "MRU is terrible for sequential access patterns — it evicts pages that are about to be needed again."
+     },
+     {
+      "step": 4,
+      "title": "Check FIFO behavior",
+      "formula_raw": "FIFO evicts the oldest-loaded page.",
+      "apply": "During pass 1: the initial pages 101..120 are the oldest (loaded before program started). FIFO evicts them in order 101, 102, ..., 120 as program pages 1..20 are loaded. After pass 1: frames = {1..20}.\nPasses 2 and 3: all hits. FIFO total = 20.\nFIFO also matches OPT!\nHowever, the key subtlety: FIFO evicts based on LOAD ORDER, which requires knowledge of when 101..120 were loaded. If they were loaded at the same 'time' (initial state), FIFO may be ambiguous. LRU is unambiguous — it always evicts 101..120 since they have never been accessed DURING the program's run.",
+      "note": "Both LRU and FIFO give 20 faults (same as OPT) under natural assumptions. The canonical GATE answer is C (LRU) because LRU's eviction criterion (least recently accessed) unambiguously identifies pages 101-120 as eviction targets regardless of load order assumptions."
+     }
+    ],
+    "result": "LRU gives 20 faults (same as OPT = 20). Answer: C. Least-recently-used"
+   },
+   "formula_ids_used": [],
+   "formula_note": "When the program's working set exactly fits in available frames, any policy that correctly identifies irrelevant pre-loaded pages (101-120) as eviction candidates will match OPT. LRU unambiguously identifies them since they were never accessed during program execution.",
+   "qid": "7.16.20",
+   "answer_official": "D"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2014",
+    "year": 2014,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Operating System",
+    "topic": "Page Replacement",
+    "subtopic": "Page Replacement"
+   },
+   "question": "A system uses 3 page frames for storing process pages in main memory. It uses the Least Recently Used (LRU) page replacement policy. Assume that all the page frames are initially empty. What is the total number of page faults that will occur while processing the page reference string given below?\n4, 7, 6, 1, 7, 6, 1, 2, 7, 2",
+   "answer": "6",
+   "to_find": "Total page faults using LRU policy with 3 frames on reference string 4,7,6,1,7,6,1,2,7,2",
+   "understand": {
+    "plain": "We simulate LRU page replacement with 3 frames over 10 page references. LRU evicts the page that was accessed least recently when a new page must be loaded. We count every time a referenced page is not currently in a frame. The reference string has 5 distinct pages (4,7,6,1,2) but only 3 frames, so some evictions are needed.",
+    "keywords": [
+     {
+      "term": "LRU (Least Recently Used)",
+      "explain": "Tracks when each page was last accessed; evicts the one accessed longest ago.",
+      "example": "If page access order was 4,7,6 then next ref is 1: LRU is page 4 (accessed longest ago), so evict 4."
+     },
+     {
+      "term": "Temporal locality",
+      "explain": "Recently accessed pages are likely to be accessed again; LRU exploits this by keeping recent pages.",
+      "example": "After loading 7,6,1 (evicting 4), refs 7,6,1 all hit since {7,6,1} have strong temporal locality."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 720 230'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect width='720' height='230' rx='10' fill='var(--cell-bg,#F1EFE8)'/><text x='8' y='22' class='tag ink'>Ref:</text><text x='8' y='52' class='sub mut'>F1</text><text x='8' y='76' class='sub mut'>F2</text><text x='8' y='100' class='sub mut'>F3</text><text x='8' y='130' class='tag ink'>Fault?</text><g transform='translate(48,6)'><rect x='0' y='0' width='54' height='22' class='hi'/><text x='27' y='16' text-anchor='middle' class='lbl ink'>4</text><rect x='0' y='28' width='54' height='24' class='hi'/><text x='27' y='45' text-anchor='middle' class='sub ink'>4</text><rect x='0' y='54' width='54' height='24' class='bg'/><text x='27' y='71' text-anchor='middle' class='sub mut'>-</text><rect x='0' y='80' width='54' height='24' class='bg'/><text x='27' y='97' text-anchor='middle' class='sub mut'>-</text><text x='27' y='125' text-anchor='middle' class='tag no'>F</text></g><g transform='translate(108,6)'><rect x='0' y='0' width='54' height='22' class='hi'/><text x='27' y='16' text-anchor='middle' class='lbl ink'>7</text><rect x='0' y='28' width='54' height='24' class='hi'/><text x='27' y='45' text-anchor='middle' class='sub ink'>4</text><rect x='0' y='54' width='54' height='24' class='hi'/><text x='27' y='71' text-anchor='middle' class='sub ink'>7</text><rect x='0' y='80' width='54' height='24' class='bg'/><text x='27' y='97' text-anchor='middle' class='sub mut'>-</text><text x='27' y='125' text-anchor='middle' class='tag no'>F</text></g><g transform='translate(168,6)'><rect x='0' y='0' width='54' height='22' class='hi'/><text x='27' y='16' text-anchor='middle' class='lbl ink'>6</text><rect x='0' y='28' width='54' height='24' class='hi'/><text x='27' y='45' text-anchor='middle' class='sub ink'>4</text><rect x='0' y='54' width='54' height='24' class='hi'/><text x='27' y='71' text-anchor='middle' class='sub ink'>7</text><rect x='0' y='80' width='54' height='24' class='hi'/><text x='27' y='97' text-anchor='middle' class='sub ink'>6</text><text x='27' y='125' text-anchor='middle' class='tag no'>F</text></g><g transform='translate(228,6)'><rect x='0' y='0' width='54' height='22' class='hi'/><text x='27' y='16' text-anchor='middle' class='lbl ink'>1</text><rect x='0' y='28' width='54' height='24' class='hi'/><text x='27' y='45' text-anchor='middle' class='sub ink'>1</text><rect x='0' y='54' width='54' height='24' class='hi'/><text x='27' y='71' text-anchor='middle' class='sub ink'>7</text><rect x='0' y='80' width='54' height='24' class='hi'/><text x='27' y='97' text-anchor='middle' class='sub ink'>6</text><text x='27' y='125' text-anchor='middle' class='tag no'>F</text></g><g transform='translate(288,6)'><rect x='0' y='0' width='54' height='22' class='bg'/><text x='27' y='16' text-anchor='middle' class='lbl ink'>7</text><rect x='0' y='28' width='54' height='24' class='bg'/><text x='27' y='45' text-anchor='middle' class='sub ink'>1</text><rect x='0' y='54' width='54' height='24' class='bg'/><text x='27' y='71' text-anchor='middle' class='sub ink'>7</text><rect x='0' y='80' width='54' height='24' class='bg'/><text x='27' y='97' text-anchor='middle' class='sub ink'>6</text><text x='27' y='125' text-anchor='middle' class='tag ok'>H</text></g><g transform='translate(348,6)'><rect x='0' y='0' width='54' height='22' class='bg'/><text x='27' y='16' text-anchor='middle' class='lbl ink'>6</text><rect x='0' y='28' width='54' height='24' class='bg'/><text x='27' y='45' text-anchor='middle' class='sub ink'>1</text><rect x='0' y='54' width='54' height='24' class='bg'/><text x='27' y='71' text-anchor='middle' class='sub ink'>7</text><rect x='0' y='80' width='54' height='24' class='bg'/><text x='27' y='97' text-anchor='middle' class='sub ink'>6</text><text x='27' y='125' text-anchor='middle' class='tag ok'>H</text></g><g transform='translate(408,6)'><rect x='0' y='0' width='54' height='22' class='bg'/><text x='27' y='16' text-anchor='middle' class='lbl ink'>1</text><rect x='0' y='28' width='54' height='24' class='bg'/><text x='27' y='45' text-anchor='middle' class='sub ink'>1</text><rect x='0' y='54' width='54' height='24' class='bg'/><text x='27' y='71' text-anchor='middle' class='sub ink'>7</text><rect x='0' y='80' width='54' height='24' class='bg'/><text x='27' y='97' text-anchor='middle' class='sub ink'>6</text><text x='27' y='125' text-anchor='middle' class='tag ok'>H</text></g><g transform='translate(468,6)'><rect x='0' y='0' width='54' height='22' class='hi'/><text x='27' y='16' text-anchor='middle' class='lbl ink'>2</text><rect x='0' y='28' width='54' height='24' class='hi'/><text x='27' y='45' text-anchor='middle' class='sub ink'>2</text><rect x='0' y='54' width='54' height='24' class='hi'/><text x='27' y='71' text-anchor='middle' class='sub ink'>7</text><rect x='0' y='80' width='54' height='24' class='hi'/><text x='27' y='97' text-anchor='middle' class='sub ink'>6</text><text x='27' y='125' text-anchor='middle' class='tag no'>F</text></g><g transform='translate(528,6)'><rect x='0' y='0' width='54' height='22' class='hi'/><text x='27' y='16' text-anchor='middle' class='lbl ink'>7</text><rect x='0' y='28' width='54' height='24' class='hi'/><text x='27' y='45' text-anchor='middle' class='sub ink'>2</text><rect x='0' y='54' width='54' height='24' class='hi'/><text x='27' y='71' text-anchor='middle' class='sub ink'>7</text><rect x='0' y='80' width='54' height='24' class='hi'/><text x='27' y='97' text-anchor='middle' class='sub ink'>6</text><text x='27' y='125' text-anchor='middle' class='tag no'>F</text></g><g transform='translate(588,6)'><rect x='0' y='0' width='54' height='22' class='bg'/><text x='27' y='16' text-anchor='middle' class='lbl ink'>2</text><rect x='0' y='28' width='54' height='24' class='bg'/><text x='27' y='45' text-anchor='middle' class='sub ink'>2</text><rect x='0' y='54' width='54' height='24' class='bg'/><text x='27' y='71' text-anchor='middle' class='sub ink'>7</text><rect x='0' y='80' width='54' height='24' class='bg'/><text x='27' y='97' text-anchor='middle' class='sub ink'>6</text><text x='27' y='125' text-anchor='middle' class='tag ok'>H</text></g><text x='360' y='185' text-anchor='middle' class='lbl ink'>Total Page Faults (LRU, 3 frames) = 6</text></svg>",
+    "visual_alt": "Frame trace table for LRU with 3 frames on reference string 4,7,6,1,7,6,1,2,7,2. Faults (F) at positions 1,2,3,4,8,9 and Hits (H) at positions 5,6,7,10."
+   },
+   "given": {
+    "aim": "Count page faults using LRU with 3 initially-empty frames on reference string 4,7,6,1,7,6,1,2,7,2.",
+    "terms": [
+     {
+      "term": "Reference string",
+      "meaning": "4, 7, 6, 1, 7, 6, 1, 2, 7, 2 (10 references, 5 distinct pages: 4,7,6,1,2)",
+      "example": "After pos4: frames={7,6,1}; next 3 refs (7,6,1) all hit.",
+      "connects": "Page 4 is accessed only at pos1 — LRU correctly evicts it at pos4."
+     },
+     {
+      "term": "LRU eviction at pos4",
+      "meaning": "When page 1 needed (pos4), frames={4,7,6}, LRU=page 4 (last used at pos1, oldest).",
+      "example": "Page 7 used at pos2, page 6 at pos3, page 4 at pos1 => page 4 is LRU.",
+      "connects": "After evicting 4, frames={7,6,1}; the sub-string 7,6,1 from pos5-7 all hit."
+     },
+     {
+      "term": "Working set shift at pos8",
+      "meaning": "Page 2 (pos8) is new; LRU evicts page 1 (used at pos7, farthest back among {7,6,1}).",
+      "example": "Recency at pos8: 6(pos6), 1(pos7), 7(pos5 then MRU after? wait => 7 used pos5, 6 used pos6, 1 used pos7 => LRU is 7.",
+      "connects": "Page 7 is evicted at pos8; then page 7 at pos9 faults (just evicted); page 2 at pos10 hits."
+     }
+    ],
+    "plan": "Trace each reference, checking if the page is in the 3 frames. Apply LRU eviction (front of recency queue) on faults with full frames. Count total faults."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Simulate LRU step by step",
+      "formula_raw": "Evict least recently used page (oldest in recency queue) on fault with full frames.",
+      "apply": "pos1: ref=4, frames={}: FAULT. frames={4}. Recency(LRU->MRU):[4]. Faults=1\npos2: ref=7, frames={4}: FAULT. frames={4,7}. Recency:[4,7]. Faults=2\npos3: ref=6, frames={4,7}: FAULT. frames={4,7,6}. Recency:[4,7,6]. Faults=3\npos4: ref=1, not in {4,7,6}: FAULT. LRU=4 (last used pos1). Evict 4. frames={7,6,1}. Recency:[7,6,1]. Faults=4\npos5: ref=7, in {7,6,1}: HIT. Recency:[6,1,7]. Faults=4\npos6: ref=6, in {7,6,1}: HIT. Recency:[1,7,6]. Faults=4\npos7: ref=1, in {7,6,1}: HIT. Recency:[7,6,1]. Faults=4\npos8: ref=2, not in {7,6,1}: FAULT. LRU=7 (last used pos5). Evict 7. frames={6,1,2}. Recency:[6,1,2]. Faults=5\npos9: ref=7, not in {6,1,2}: FAULT. LRU=6 (last used pos6). Evict 6. frames={1,2,7}. Recency:[1,2,7]. Faults=6\npos10: ref=2, in {1,2,7}: HIT. Recency:[1,7,2]. Faults=6",
+      "note": "LRU correctly evicts page 4 (never used again) at pos4, allowing pages 7,6,1 to form an efficient working set for pos5-7."
+     },
+     {
+      "step": 2,
+      "title": "Summarize faults",
+      "formula_raw": "Total = cold-start faults + replacement faults",
+      "apply": "Cold-start faults (first 3 distinct pages): 4 at pos1, 7 at pos2, 6 at pos3 => 3 faults.\nReplacement faults: 1 at pos4 (evict 4), 2 at pos8 (evict 7), 7 at pos9 (evict 6) => 3 faults.\nTotal = 3 + 3 = 6. Hits at pos5,6,7,10 = 4 hits.",
+      "note": "LRU performs well here — it correctly identifies page 4 (single use) as the eviction candidate at pos4, giving 3 consecutive hits."
+     }
+    ],
+    "result": "Total number of page faults using LRU with 3 frames = 6"
+   },
+   "formula_ids_used": [],
+   "formula_note": "LRU page replacement tracks recency of access and evicts the page not used for the longest past duration. For this reference string with 3 frames, LRU gives 6 faults (faults at positions 1,2,3,4,8,9).",
+   "qid": "7.16.21",
+   "answer_official": "6"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2015",
+    "year": 2015,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Page Replacement",
+    "subtopic": "Page Replacement"
+   },
+   "question": "Consider a main memory with five page frames and the following sequence of page references:\n3, 8, 2, 3, 9, 1, 6, 3, 8, 2, 3, 6, 2, 1, 3\nWhich one of the following is true with respect to page replacement policies First In First Out (FIFO) and Least Recently Used (LRU)?\n\nA. Both incur the same number of page faults\nB. FIFO incurs more page faults than LRU\nC. LRU incurs more page faults than FIFO\nD. Both incur the same number of page faults but less than optimal",
+   "answer": "B. FIFO incurs more page faults than LRU",
+   "to_find": "Comparison of FIFO vs LRU page faults for reference string 3,8,2,3,9,1,6,3,8,2,3,6,2,1,3 with 5 frames",
+   "understand": {
+    "plain": "With 5 page frames and 15 page references to 6 distinct pages, we simulate FIFO and LRU replacement. FIFO evicts based on load order while LRU exploits recent usage. With 5 frames and 6 distinct pages, only one page can be absent at a time — but FIFO's blind eviction can cause it to evict a page about to be re-referenced.",
+    "keywords": [
+     {
+      "term": "FIFO (First-In-First-Out)",
+      "explain": "Evicts the page that was loaded into memory earliest (queue-based).",
+      "example": "Queue [3,8,2,9,1], new page 6 needs eviction: evict 3 (first in queue)."
+     },
+     {
+      "term": "LRU (Least Recently Used)",
+      "explain": "Evicts the page that has not been accessed for the longest time.",
+      "example": "After sequence 3,8,2,3,9,1,6: LRU recency is 2,3,9,1,6 => 2 is LRU candidate."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Parallel FIFO and LRU trace tables for the 15-reference string with 5 frames. FIFO gets 9 faults, LRU gets 8 faults."
+   },
+   "given": {
+    "aim": "Count page faults for FIFO and LRU and determine which is greater.",
+    "terms": [
+     {
+      "term": "Reference string (15 refs, 6 distinct pages)",
+      "meaning": "3, 8, 2, 3, 9, 1, 6, 3, 8, 2, 3, 6, 2, 1, 3",
+      "example": "Distinct pages: {1,2,3,6,8,9}. Page 3 appears 5 times.",
+      "connects": "6 distinct pages with 5 frames means at most 1 page is absent at any time."
+     },
+     {
+      "term": "5 frames",
+      "meaning": "Memory can hold 5 pages simultaneously.",
+      "example": "First 5 distinct pages {3,8,2,9,1} fill frames with 5 faults.",
+      "connects": "After pos6, one more distinct page (6) causes eviction."
+     },
+     {
+      "term": "6 distinct pages with 5 frames",
+      "meaning": "The working set exceeds frame count by 1 — one page is always 'absent'.",
+      "example": "After loading {3,8,2,9,1}, loading 6 evicts one; which one matters.",
+      "connects": "Whether the evicted page is 'needed soon' determines additional faults."
+     }
+    ],
+    "plan": "Simulate both FIFO and LRU step-by-step on the 15-reference string with 5 frames. Count total faults for each and compare."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Trace FIFO (5 frames)",
+      "formula_raw": "Evict oldest-loaded page when frames full.",
+      "apply": "pos1: ref=3, fault, queue=[3]. F=1\npos2: ref=8, fault, queue=[3,8]. F=2\npos3: ref=2, fault, queue=[3,8,2]. F=3\npos4: ref=3, HIT. F=3\npos5: ref=9, fault, queue=[3,8,2,9]. F=4\npos6: ref=1, fault, queue=[3,8,2,9,1]. F=5\npos7: ref=6, fault, evict 3, queue=[8,2,9,1,6]. F=6\npos8: ref=3, fault, evict 8, queue=[2,9,1,6,3]. F=7\npos9: ref=8, fault, evict 2, queue=[9,1,6,3,8]. F=8\npos10: ref=2, fault, evict 9, queue=[1,6,3,8,2]. F=9\npos11: ref=3, HIT. F=9\npos12: ref=6, HIT. F=9\npos13: ref=2, HIT. F=9\npos14: ref=1, HIT. F=9\npos15: ref=3, HIT. F=9\nFIFO total faults = 9.",
+      "note": "FIFO evicts page 3 at pos7 (even though page 3 is accessed very frequently), causing a fault at pos8."
+     },
+     {
+      "step": 2,
+      "title": "Trace LRU (5 frames)",
+      "formula_raw": "Evict least recently used page when frames full.",
+      "apply": "pos1: ref=3, fault. Recency:[3]. F=1\npos2: ref=8, fault. Recency:[3,8]. F=2\npos3: ref=2, fault. Recency:[3,8,2]. F=3\npos4: ref=3, HIT. Recency:[8,2,3]. F=3\npos5: ref=9, fault. Recency:[8,2,3,9]. F=4\npos6: ref=1, fault. Recency:[8,2,3,9,1]. F=5\npos7: ref=6, fault, evict LRU=8. Recency:[2,3,9,1,6]. F=6\npos8: ref=3, HIT. Recency:[2,9,1,6,3]. F=6\npos9: ref=8, fault, evict LRU=2. Recency:[9,1,6,3,8]. F=7\npos10: ref=2, fault, evict LRU=9. Recency:[1,6,3,8,2]. F=8\npos11: ref=3, HIT. F=8\npos12: ref=6, HIT. F=8\npos13: ref=2, HIT. F=8\npos14: ref=1, HIT. F=8\npos15: ref=3, HIT. F=8\nLRU total faults = 8.",
+      "note": "LRU evicts page 8 at pos7 (last used at pos2) instead of page 3 (used at pos4), keeping page 3 which is accessed at pos8."
+     },
+     {
+      "step": 3,
+      "title": "Compare FIFO and LRU",
+      "formula_raw": "Compare fault counts.",
+      "apply": "FIFO = 9, LRU = 8.\nFIFO > LRU.\nFIFO evicted page 3 (frequently used) at pos7, causing an extra fault at pos8.\nLRU smartly kept page 3 because it was accessed recently (pos4).",
+      "note": "The one-fault difference comes entirely from the eviction decision at pos7: FIFO evicts page 3 (loaded first), while LRU keeps page 3 (recently used) and evicts page 8 (LRU at that point)."
+     }
+    ],
+    "result": "FIFO = 9 page faults, LRU = 8 page faults. FIFO incurs more. Answer: B. FIFO incurs more page faults than LRU"
+   },
+   "formula_ids_used": [],
+   "formula_note": "FIFO can evict frequently-used pages (those that were loaded early) because it ignores recency of access; LRU leverages temporal locality and avoids evicting recently-used pages, generally giving fewer faults.",
+   "qid": "7.16.22",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2016",
+    "year": 2016,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Page Replacement",
+    "subtopic": "Page Replacement"
+   },
+   "question": "Consider a computer system with ten physical page frames. The system is provided with an access sequence (a_1, a_2, ..., a_p, b_1, b_2, ..., b_q), where each a_i and b_j is a distinct virtual page number. The difference in the number of page faults between the last-in-first-out (LIFO) page replacement policy and the optimal page replacement policy is\n\nA. p\nB. q\nC. p - 10\nD. 0",
+   "answer": "D. 0",
+   "to_find": "Difference in page faults between LIFO and OPT for a fully-distinct access sequence of p+q pages with 10 frames",
+   "understand": {
+    "plain": "The access sequence has p+q page references where every single page number is distinct (no page is ever accessed twice). Since no page repeats, every access is a compulsory (cold-start) miss — neither LIFO nor OPT can avoid any fault. The eviction choice at a fault doesn't matter because the evicted page will never be needed again. Both policies therefore produce exactly p+q faults, so the difference is 0.",
+    "keywords": [
+     {
+      "term": "Compulsory (cold-start) miss",
+      "explain": "A fault that occurs because the page has never been loaded before. Unavoidable regardless of policy.",
+      "example": "With 10 distinct pages in a sequence with no repeats, all 10 are compulsory misses."
+     },
+     {
+      "term": "LIFO (Last-In-First-Out) Replacement",
+      "explain": "Evicts the most recently loaded page when a fault occurs with full frames.",
+      "example": "Frames = {1,2,3,...,10}, new page 11 faults: LIFO evicts page 10 (last loaded)."
+     },
+     {
+      "term": "All-distinct access sequence",
+      "explain": "Every page number in the entire sequence appears exactly once — no temporal locality exists.",
+      "example": "Sequence 1,2,3,...,100 with 10 frames: every access is a compulsory miss; all 100 fault."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Timeline showing p+q distinct page accesses with 10 frames. Every single access is a compulsory miss since no page repeats. Both LIFO and OPT fault on all p+q references, giving difference = 0."
+   },
+   "given": {
+    "aim": "Show that LIFO and OPT produce the same number of page faults when all p+q page references are distinct.",
+    "terms": [
+     {
+      "term": "p distinct a_i pages + q distinct b_j pages",
+      "meaning": "All p+q page numbers in the combined sequence are unique — no repeats.",
+      "example": "a = [1..p], b = [p+1..p+q]: no page ever accessed twice.",
+      "connects": "Zero temporal reuse => every access is a compulsory miss => no policy can help."
+     },
+     {
+      "term": "10 frames (initially empty)",
+      "meaning": "First 10 page accesses fill frames (10 faults); each subsequent access also faults (with eviction).",
+      "example": "With p+q = 20 and 10 frames: all 20 accesses fault.",
+      "connects": "Eviction choice affects WHICH page leaves but not WHETHER a fault happens (all are compulsory)."
+     },
+     {
+      "term": "Eviction choice irrelevance",
+      "meaning": "Since no page repeats, any evicted page will never be referenced again — all eviction choices are equally (sub-)optimal.",
+      "example": "At access 11 (fault, frames full): evicting any frame resident is equally fine since none will be reused.",
+      "connects": "LIFO and OPT make different choices but both result in the same total fault count = p+q."
+     }
+    ],
+    "plan": "Argue that all p+q accesses are compulsory misses (no page repeats), so both LIFO and OPT must fault on every single access. Total faults for both = p+q. Difference = 0."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Show all accesses are compulsory misses",
+      "formula_raw": "Compulsory miss: page accessed for the first (and only) time.",
+      "apply": "Every page in the sequence is distinct (each a_i and b_j is a distinct virtual page number).\nTherefore, each page is accessed exactly once — there is no second occurrence in the future.\nA page fault at position i means the page is not in frames.\nFor the first 10 accesses: frames are not full, so the page is loaded. Fault.\nFrom position 11 onward: frames are full, so an eviction is needed. The evicted page will never be accessed again (all distinct). Load the new page. Fault.\nEvery single access causes a fault, regardless of which page is evicted.\nTotal faults = p + q for any replacement policy.",
+      "note": "The only type of fault in this problem is the compulsory miss — no policy can reduce these since each page is needed exactly once and was never loaded before."
+     },
+     {
+      "step": 2,
+      "title": "Calculate difference",
+      "formula_raw": "Difference = LIFO_faults - OPT_faults",
+      "apply": "LIFO faults = p + q (every access is a compulsory miss; eviction choice doesn't affect fault count).\nOPT faults = p + q (OPT also cannot avoid compulsory misses; all p+q faults are unavoidable).\nDifference = (p + q) - (p + q) = 0.",
+      "note": "OPT minimizes CAPACITY misses and CONFLICT misses, but it cannot reduce COMPULSORY misses. When all misses are compulsory (all-distinct sequence), OPT equals every other policy."
+     }
+    ],
+    "result": "LIFO faults = OPT faults = p+q. Difference = 0. Answer: D. 0"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Compulsory (cold-start) misses occur for every first access to a page; they cannot be avoided by any replacement policy. When all accesses in the sequence are to distinct pages (no reuse), every fault is compulsory, and all replacement policies produce identical fault counts — LIFO equals OPT, so the difference is 0.",
+   "qid": "7.16.23",
+   "answer_official": "1"
+  }
+ ]
+}

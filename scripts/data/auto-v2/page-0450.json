@@ -1,0 +1,252 @@
+{
+ "page": 450,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2025",
+    "year": 2025,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Operating System",
+    "topic": "Input Output",
+    "subtopic": "Input Output"
+   },
+   "question": "Suppose in a multiprogramming environment, the following C program segment is executed. A process goes into I/O queue whenever an I/O related operation is performed. Assume that there will always be a context switch whenever a process requests for an I/O, and also whenever the process returns from an I/O. The number of times the process will enter the ready queue during its lifetime (not counting the time the process enters the ready queue when it is run initially) is ___________. (Answer in integer)\n\nint main() {\n    int i, k;\n    int a = 5, b = 10;\n    for (i = 0; i < 4; i++) {\n        scanf(\"%d\", &k);\n        printf(\"%d\\n\", a + b);\n    }\n    return 0;\n}",
+   "answer": "8",
+   "to_find": "Number of times the process enters the ready queue (excluding initial entry)",
+   "understand": {
+    "plain": "A C program runs a loop 4 times. Each iteration calls scanf (an input I/O) and printf (an output I/O). Whenever a process does I/O it goes to the I/O queue, and a context switch happens. When the I/O finishes, the process returns to the ready queue (another context switch). We need to count how many times it re-enters the ready queue.",
+    "keywords": [
+     {
+      "term": "I/O queue",
+      "explain": "A queue where a process waits while it is blocked on an I/O operation (e.g., reading from keyboard or writing to screen).",
+      "example": "When scanf is called, the process is moved to the I/O queue until the user types input."
+     },
+     {
+      "term": "Context switch",
+      "explain": "The CPU switches from one process to another, saving and restoring state. It happens here both when a process requests I/O and when it returns from I/O.",
+      "example": "After printf completes its I/O, the process re-enters the ready queue triggering a context switch."
+     },
+     {
+      "term": "Ready queue",
+      "explain": "A queue of processes that are ready to run and are waiting for the CPU.",
+      "example": "After returning from I/O, the process joins the ready queue before getting CPU time again."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 520 160' width='520' height='160'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='55' width='100' height='40' rx='6' class='hi'/><text x='60' y='80' text-anchor='middle' class='lbl ink'>Running</text><rect x='200' y='10' width='100' height='40' rx='6' class='bg'/><text x='250' y='35' text-anchor='middle' class='sub ink'>I/O Queue</text><rect x='200' y='100' width='100' height='40' rx='6' class='bg'/><text x='250' y='125' text-anchor='middle' class='sub ink'>Ready Queue</text><line x1='110' y1='65' x2='200' y2='30' stroke='#7F77DD' stroke-width='2' marker-end='url(#arr)'/><text x='145' y='45' class='sub mut'>I/O request</text><line x1='300' y1='30' x2='390' y2='60' stroke='#1D9E75' stroke-width='2' stroke-dasharray='4'/><text x='330' y='55' class='sub mut'>I/O done</text><line x1='390' y1='80' x2='300' y2='110' stroke='#1D9E75' stroke-width='2' marker-end='url(#arr2)'/><text x='320' y='105' class='sub ink'>enters</text><text x='315' y='120' class='sub ink'>ready Q</text><defs><marker id='arr' markerWidth='8' markerHeight='8' refX='4' refY='4' orient='auto'><path d='M0,0 L8,4 L0,8 Z' fill='#7F77DD'/></marker><marker id='arr2' markerWidth='8' markerHeight='8' refX='4' refY='4' orient='auto'><path d='M0,0 L8,4 L0,8 Z' fill='#1D9E75'/></marker></defs></svg>",
+    "visual_alt": "State diagram: process moves from Running to I/O Queue on I/O request, then to Ready Queue when I/O completes, and back to Running when scheduled."
+   },
+   "given": {
+    "aim": "Count how many times the process re-enters the ready queue during its lifetime (excluding initial entry).",
+    "terms": [
+     {
+      "term": "Loop iterations",
+      "meaning": "The for loop runs 4 times (i = 0, 1, 2, 3).",
+      "example": "4 iterations means 4 scanf calls and 4 printf calls.",
+      "connects": "Each I/O call causes the process to leave and then re-enter the ready queue once."
+     },
+     {
+      "term": "I/O operations per iteration",
+      "meaning": "Each iteration has 2 I/O calls: scanf (input) and printf (output).",
+      "example": "Iteration i=0: scanf triggers I/O, then printf triggers I/O.",
+      "connects": "2 I/O per iteration * 4 iterations = 8 total I/O operations."
+     },
+     {
+      "term": "Re-entry to ready queue per I/O",
+      "meaning": "After each I/O completes, the process enters the ready queue once (context switch on return from I/O).",
+      "example": "After scanf completes, process enters ready queue: 1 re-entry.",
+      "connects": "8 I/O operations => 8 times re-entering the ready queue."
+     }
+    ],
+    "plan": "Count total I/O operations (scanf and printf each count as one I/O). For each I/O, the process re-enters the ready queue once when the I/O finishes. The initial entry into the ready queue when the process starts is not counted."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Count I/O operations",
+      "formula_raw": "Total I/O = iterations * I/O_per_iteration",
+      "apply": "The loop runs 4 times. Each iteration has: scanf (1 I/O) + printf (1 I/O) = 2 I/O operations per iteration. Total I/O = 4 * 2 = 8.",
+      "note": "Both scanf and printf are system calls that involve I/O and block the process."
+     },
+     {
+      "step": 2,
+      "title": "Count ready queue entries",
+      "formula_raw": "Ready queue entries = Total I/O (one re-entry per I/O completion)",
+      "apply": "Each time the process requests I/O it is moved to the I/O queue. Each time I/O completes, the process re-enters the ready queue. So: 8 I/O completions => 8 re-entries into the ready queue. The question says NOT to count the initial entry when the process first starts.",
+      "note": "Context switch happens both when I/O is requested (process leaves CPU) and when I/O returns (process enters ready queue). Only the 'return from I/O' events count as entries into the ready queue here."
+     }
+    ],
+    "result": "The process enters the ready queue 8 times (excluding the initial entry)."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Each I/O operation causes one re-entry into the ready queue upon I/O completion. Total ready queue re-entries = total number of I/O system calls executed.",
+   "qid": "7.8.1",
+   "answer_official": "21"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1997",
+    "year": 1997,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Inter Process Communication",
+    "subtopic": "Inter Process Communication"
+   },
+   "question": "I/O redirection\nA. implies changing the name of a file\nB. can be employed to use an existing file as input file for a program\nC. implies connecting programs through a pipe\nD. None of the above",
+   "answer": "B. can be employed to use an existing file as input file for a program",
+   "to_find": "The correct statement describing I/O redirection",
+   "understand": {
+    "plain": "I/O redirection is a shell feature that allows the standard input or output of a program to be redirected from/to a file instead of the keyboard/screen. The question asks which of the given statements correctly describes this concept.",
+    "keywords": [
+     {
+      "term": "I/O redirection",
+      "explain": "A mechanism in operating systems (shells) that allows standard input (stdin) or standard output (stdout) to be directed to/from files rather than the default keyboard/terminal.",
+      "example": "The command 'prog < input.txt' redirects stdin so the program reads from input.txt instead of the keyboard."
+     },
+     {
+      "term": "Pipe",
+      "explain": "A mechanism that connects the output of one program to the input of another program; different from I/O redirection to/from files.",
+      "example": "'ls | grep .txt' connects ls output to grep input via a pipe."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "I/O redirection: a program's stdin is connected to a file (< file) or stdout to a file (> file), as opposed to the keyboard or screen."
+   },
+   "given": {
+    "aim": "Identify the correct description of I/O redirection.",
+    "terms": [
+     {
+      "term": "Option A: changing the name of a file",
+      "meaning": "Renaming a file — this is done with the 'rename' or 'mv' command, not I/O redirection.",
+      "example": "'mv old.txt new.txt' renames a file, unrelated to I/O redirection.",
+      "connects": "Incorrect — I/O redirection does not rename files."
+     },
+     {
+      "term": "Option B: use an existing file as input",
+      "meaning": "Using '<' operator to redirect stdin to read from a file, so the program reads from that file instead of the keyboard.",
+      "example": "'sort < data.txt' uses data.txt as input to the sort program.",
+      "connects": "Correct — this is exactly what I/O redirection (specifically input redirection) does."
+     },
+     {
+      "term": "Option C: connecting programs through a pipe",
+      "meaning": "Pipes (|) connect programs, which is a related but distinct IPC mechanism from I/O redirection.",
+      "example": "'ls | more' is a pipe, not I/O redirection.",
+      "connects": "Incorrect — pipes are different from I/O redirection."
+     }
+    ],
+    "plan": "Evaluate each option against the definition of I/O redirection. I/O redirection connects a program's standard I/O to files; pipes connect programs to each other."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Define I/O redirection",
+      "formula_raw": "",
+      "apply": "I/O redirection allows the standard input or output of a program to be read from or written to a file. For example, 'prog < infile.txt' causes the program to read from infile.txt instead of the keyboard.",
+      "note": "This is a shell-level feature available in Unix/Linux and Windows command shells."
+     },
+     {
+      "step": 2,
+      "title": "Evaluate each option",
+      "formula_raw": "",
+      "apply": "A: Changing a file's name — this is file renaming (mv/rename), not I/O redirection. WRONG.\nB: Using an existing file as input — this is precisely input redirection ('< file'). CORRECT.\nC: Connecting programs through a pipe — this is piping (|), a separate IPC mechanism. WRONG.\nD: None of the above — eliminated since B is correct.",
+      "note": "Pipes and I/O redirection are often confused, but pipes connect processes while redirection connects processes to files."
+     }
+    ],
+    "result": "Option B is correct: I/O redirection can be employed to use an existing file as the input file for a program."
+   },
+   "formula_ids_used": [],
+   "formula_note": "I/O redirection (< for input, > for output) connects a process's standard I/O to files; pipes (|) connect one process's output to another process's input — these are distinct OS mechanisms.",
+   "qid": "7.9.1",
+   "answer_official": "B"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1993",
+    "year": 1993,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Operating System",
+    "topic": "Interrupts",
+    "subtopic": "Interrupts"
+   },
+   "question": "The details of an interrupt cycle are shown in figure. Given that an interrupt input arrives every 1 msec, what is the percentage of the total time that the CPU devotes for the main program execution?\n\n[Figure: Interrupt cycle timing diagram showing:\n- Interrupt latency: 0.1 msec (time from interrupt arrival to start of ISR)\n- Interrupt service time (ISR execution): 0.1 msec\n- Total interrupt overhead per cycle: 0.2 msec\n- Interrupt period: 1 msec]\n\n(Answer as a percentage)",
+   "answer": "80",
+   "to_find": "Percentage of CPU time devoted to main program execution",
+   "understand": {
+    "plain": "An interrupt arrives every 1 millisecond. Each interrupt takes some time to service (the Interrupt Service Routine, ISR). The remaining time in each 1 msec period is available for the main program. We need to find what fraction of the 1 msec period is spent on the main program.",
+    "keywords": [
+     {
+      "term": "Interrupt latency",
+      "explain": "The time delay from when an interrupt signal arrives until the CPU actually starts executing the Interrupt Service Routine (ISR).",
+      "example": "If interrupt latency is 0.1 msec, the CPU takes 0.1 msec after the interrupt signal to begin the ISR."
+     },
+     {
+      "term": "Interrupt Service Routine (ISR)",
+      "explain": "The piece of code that the CPU executes in response to an interrupt. After the ISR completes, the CPU returns to the interrupted program.",
+      "example": "A keyboard interrupt ISR reads the pressed key and stores it in a buffer."
+     },
+     {
+      "term": "Interrupt overhead",
+      "explain": "The total CPU time consumed per interrupt, including latency, ISR execution, and return overhead. This time is not available for the main program.",
+      "example": "If interrupt overhead = 0.2 msec per interrupt and interrupts arrive every 1 msec, overhead = 20% of CPU time."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 130' width='500' height='130'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='20' y='30' width='320' height='35' rx='4' class='ok' opacity='0.7'/><text x='170' y='52' text-anchor='middle' class='sub ink'>Main Program (0.8 msec)</text><rect x='340' y='30' width='64' height='35' rx='4' class='no' opacity='0.8'/><text x='372' y='52' text-anchor='middle' class='sub ink'>ISR (0.2 ms)</text><line x1='20' y1='80' x2='404' y2='80' stroke='#2C2C2A' stroke-width='2'/><line x1='20' y1='75' x2='20' y2='85' stroke='#2C2C2A' stroke-width='2'/><line x1='404' y1='75' x2='404' y2='85' stroke='#2C2C2A' stroke-width='2'/><text x='212' y='100' text-anchor='middle' class='sub ink'>1 msec (interrupt period)</text><line x1='340' y1='10' x2='340' y2='75' stroke='#D85A30' stroke-width='2' stroke-dasharray='4'/><text x='340' y='8' text-anchor='middle' class='sub no'>Interrupt</text><text x='372' y='15' text-anchor='middle' class='sub ink'>0.2 msec</text></svg>",
+    "visual_alt": "Timeline showing 1 msec interrupt period. The main program runs for 0.8 msec, then an interrupt occurs and the ISR runs for 0.2 msec, repeating every 1 msec."
+   },
+   "given": {
+    "aim": "Find the percentage of CPU time spent executing the main program.",
+    "terms": [
+     {
+      "term": "Interrupt period T",
+      "meaning": "The time between consecutive interrupts; T = 1 msec.",
+      "example": "An interrupt arrives at t=0, the next at t=1 msec, and so on.",
+      "connects": "This is the total cycle time; the main program runs for T minus the interrupt overhead."
+     },
+     {
+      "term": "Interrupt overhead per cycle",
+      "meaning": "Total time spent handling one interrupt = interrupt latency + ISR execution time. From the figure: 0.1 + 0.1 = 0.2 msec.",
+      "example": "CPU spends 0.2 msec per millisecond servicing interrupts.",
+      "connects": "Overhead fraction = 0.2/1.0 = 20%, leaving 80% for main program."
+     },
+     {
+      "term": "Main program time per cycle",
+      "meaning": "T - overhead = 1.0 - 0.2 = 0.8 msec per cycle is available for the main program.",
+      "example": "Out of every 1 msec, 0.8 msec goes to the main program.",
+      "connects": "Percentage = (0.8/1.0) * 100 = 80%."
+     }
+    ],
+    "plan": "Calculate interrupt overhead per cycle from the figure (latency + ISR time). Subtract from the interrupt period to get main program time. Express as a percentage."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Determine interrupt overhead per cycle",
+      "formula_raw": "Overhead = interrupt_latency + ISR_execution_time",
+      "apply": "From the figure: interrupt latency = 0.1 msec, ISR execution time = 0.1 msec. Total overhead per interrupt = 0.1 + 0.1 = 0.2 msec.",
+      "note": "The overhead includes the time to save CPU state, execute the ISR, and restore CPU state before returning to the main program."
+     },
+     {
+      "step": 2,
+      "title": "Calculate percentage time for main program",
+      "formula_raw": "% main program = ((T - overhead) / T) * 100",
+      "apply": "T = 1 msec (interrupt arrives every 1 msec).\nMain program time = 1.0 - 0.2 = 0.8 msec.\n% = (0.8 / 1.0) * 100 = 80%.",
+      "note": "This assumes the interrupt overhead is constant and the CPU is always busy (either running the main program or handling interrupts)."
+     }
+    ],
+    "result": "The CPU devotes 80% of its total time to main program execution."
+   },
+   "formula_ids_used": [],
+   "formula_note": "CPU efficiency for main program = (1 - interrupt_overhead/interrupt_period) * 100%. Here (1 - 0.2/1.0) * 100 = 80%.",
+   "qid": "7.10.1",
+   "answer_official": "90.00"
+  }
+ ]
+}

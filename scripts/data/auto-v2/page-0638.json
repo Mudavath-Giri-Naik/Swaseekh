@@ -1,0 +1,342 @@
+{
+ "page": 638,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2000",
+    "year": 2000,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Theory of Computation",
+    "topic": "Decidability",
+    "subtopic": "Decidability"
+   },
+   "question": "Consider the following decision problems:\n(P1): Does a given finite state machine accept a given string?\n(P2): Does a given context free grammar generate an infinite number of strings?\nWhich of the following statements is true?\nA. Both (P1) and (P2) are decidable\nB. Neither (P1) nor (P2) is decidable\nC. Only (P1) is decidable\nD. Only (P2) is decidable",
+   "answer": "A. Both (P1) and (P2) are decidable",
+   "to_find": "Which of the given decision problems (P1, P2) are decidable",
+   "understand": {
+    "plain": "P1 asks whether a finite automaton accepts a specific string, and P2 asks whether a context-free grammar generates infinitely many strings. We need to determine which of these problems can always be algorithmically answered (decided). Both are classical problems with known decision procedures.",
+    "keywords": [
+     {
+      "term": "Decidable problem",
+      "explain": "A problem is decidable if there exists a Turing machine (algorithm) that always halts and correctly answers yes or no for every input.",
+      "example": "Membership in a regular language is decidable — just simulate the DFA on the input string."
+     },
+     {
+      "term": "Infinitely many strings (CFG)",
+      "explain": "A CFG generates an infinite language if and only if the parse tree for some string has a path longer than the number of variables (by the pumping lemma), i.e., some variable appears twice on a path — detectable by checking for cycles in the grammar's variable dependency graph.",
+      "example": "S -> aS | b generates infinitely many strings; S -> ab generates only one."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "P1: simulate DFA on input string (always terminates). P2: check for cycles in CFG variable dependency graph (always terminates)."
+   },
+   "given": {
+    "aim": "Determine decidability of the FSM acceptance problem and the CFG infinite-language problem",
+    "terms": [
+     {
+      "term": "P1: FSM acceptance",
+      "meaning": "Given a finite automaton M and string w, does M accept w?",
+      "example": "DFA for even-length strings: simulate on 'ab' — yes; on 'a' — no.",
+      "connects": "Simulating a DFA always terminates in |w| steps, so P1 is decidable."
+     },
+     {
+      "term": "P2: CFG infinite generation",
+      "meaning": "Given a CFG G, does L(G) contain infinitely many strings?",
+      "example": "G: S -> aS | epsilon has infinite language; S -> a has finite language.",
+      "connects": "L(G) is infinite iff the grammar contains a useful variable that can derive itself (cycle) — checkable by graph reachability, so P2 is decidable."
+     },
+     {
+      "term": "Decidability criterion",
+      "meaning": "A problem is decidable if a terminating algorithm exists for all instances.",
+      "example": "Checking if a string is in a regular language is decidable by DFA simulation.",
+      "connects": "Both P1 and P2 have classical terminating algorithms."
+     }
+    ],
+    "plan": "For P1: simulate the given FSM on the given string — the machine is finite, so this terminates. For P2: convert the CFG to remove useless symbols, then check if any variable is reachable from the start symbol and also derives a string that allows a recursive variable in the derivation chain (i.e., check for cycles in the reachability graph of variables). Both procedures always terminate."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Decidability of P1 (FSM acceptance)",
+      "formula_raw": "",
+      "apply": "Given a finite state machine M (DFA or NFA) and string w, simulate M on w step by step. Since |w| is finite and M has finitely many states, the simulation halts in at most |w| * |Q| steps. At the end, check if the current state is an accepting state. This always gives a definite yes/no answer.",
+      "note": "FSM membership is one of the most basic decidable problems — it is in fact in PTIME."
+     },
+     {
+      "step": 2,
+      "title": "Decidability of P2 (CFG infinite language)",
+      "formula_raw": "L(G) is infinite iff there exists a variable A such that S =>* alpha A beta =>* some string, and A =>+ gamma A delta (A can derive itself)",
+      "apply": "Algorithm: (1) Remove useless symbols from G to get G'. (2) Build a directed graph where there is an edge from variable A to variable B if A -> ...B... is a production in G'. (3) Check if there is a cycle among variables reachable from the start symbol S in this graph. If yes, L(G) is infinite; otherwise finite. This graph analysis always terminates.",
+      "note": "This works because a variable that appears on a derivation cycle can be pumped to produce arbitrarily long strings, giving infinitely many words."
+     },
+     {
+      "step": 3,
+      "title": "Conclusion",
+      "formula_raw": "",
+      "apply": "Both P1 and P2 have terminating decision procedures, so both are decidable.",
+      "note": "This is a standard GATE result: membership in regular/CFL and finiteness/infiniteness of CFL are all decidable."
+     }
+    ],
+    "result": "Both (P1) and (P2) are decidable. Answer: A."
+   },
+   "formula_ids_used": [],
+   "formula_note": "FSM simulation for membership (decidable in O(|w|)); CFG infinite-language check via variable dependency graph cycle detection (decidable in polynomial time in grammar size).",
+   "qid": "10.5.10",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2001",
+    "year": 2001,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Theory of Computation",
+    "topic": "Decidability",
+    "subtopic": "Decidability"
+   },
+   "question": "Consider the following problem X. Given a Turing machine M over the input alphabet Sigma, any state q of M and a word w in Sigma*, does the computation of M on w visit the state q?\nWhich of the following statements about X is correct?\nA. X is decidable\nB. X is undecidable but partially decidable\nC. X is undecidable and not even partially decidable\nD. X is not a decision problem",
+   "answer": "B. X is undecidable but partially decidable",
+   "to_find": "Whether the problem of a TM visiting a given state on a given input is decidable, partially decidable, or neither",
+   "understand": {
+    "plain": "We want to know if Turing machine M, while running on input word w, ever enters a specific state q. This is related to the halting problem — if M visits q we can detect it (by simulating M and watching for q), but if M runs forever without visiting q we cannot conclude it never will. So we can say yes when it happens but cannot always say no.",
+    "keywords": [
+     {
+      "term": "Partially decidable (recursively enumerable)",
+      "explain": "A problem is partially decidable if there is a TM that halts and accepts whenever the answer is yes, but may loop forever when the answer is no.",
+      "example": "The halting problem is partially decidable: simulate M on w and accept if it halts; loop if it doesn't."
+     },
+     {
+      "term": "State-visit problem",
+      "explain": "Given M, w, q: does M ever enter state q during its computation on w?",
+      "example": "If M halts in q_accept on w, then yes, state q_accept is visited. But if M loops on w and never reaches q, we cannot determine this in finite time."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Simulation of TM M on w: if state q is reached at any step, output yes and halt. If M loops, simulation runs forever — so the problem is semi-decidable (partially decidable)."
+   },
+   "given": {
+    "aim": "Classify problem X (TM state-visit problem) as decidable, partially decidable, or neither",
+    "terms": [
+     {
+      "term": "M",
+      "meaning": "A Turing machine over input alphabet Sigma",
+      "example": "Any standard TM accepting some language",
+      "connects": "M's computation on w must be simulated to check if q is visited"
+     },
+     {
+      "term": "q",
+      "meaning": "A specific state of M",
+      "example": "Could be the accepting state or any intermediate state",
+      "connects": "We check whether M reaches q during its run on w"
+     },
+     {
+      "term": "w",
+      "meaning": "An input word over Sigma*",
+      "example": "w = 'aab'",
+      "connects": "w is fed as input to M for the simulation"
+     }
+    ],
+    "plan": "Check if X is partially decidable by constructing a recognizer: simulate M on w step by step; if q is ever entered, accept. This recognizer halts on all yes-instances. For undecidability, reduce from the halting problem: if we could decide X, we could decide whether M halts on w (since M halts iff it visits q_halt)."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "X is partially decidable (construct recognizer)",
+      "formula_raw": "",
+      "apply": "Build a TM T that on input (M, q, w): simulates M on w step by step. After each step, check if the current state of M equals q. If yes, T halts and accepts. If M never reaches q (M loops without hitting q), T runs forever. Thus T recognizes yes-instances — X is partially decidable (recursively enumerable).",
+      "note": "This is exactly how recognizers work — they may not halt on no-instances."
+     },
+     {
+      "step": 2,
+      "title": "X is undecidable (reduction from halting problem)",
+      "formula_raw": "HALT <=_m X",
+      "apply": "Suppose X were decidable. Given any TM M and word w, construct M' from M by adding a new halting state q_halt such that whenever M would halt, M' transitions to q_halt. Now ask X: does M' visit q_halt on w? This is yes iff M halts on w. So decidability of X would imply decidability of the halting problem — a contradiction since HALT is undecidable. Therefore X is undecidable.",
+      "note": "The reduction is straightforward: visiting a designated state is as hard as halting."
+     },
+     {
+      "step": 3,
+      "title": "Conclusion",
+      "formula_raw": "",
+      "apply": "X is undecidable (proven by reduction from HALT) but partially decidable (a recognizer exists that accepts all yes-instances). Answer: B.",
+      "note": "This mirrors the halting problem's status: undecidable but RE (partially decidable)."
+     }
+    ],
+    "result": "X is undecidable but partially decidable. Answer: B."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Many-one reduction from the Halting Problem (HALT <=_m X) for undecidability; direct simulation construction for partial decidability (RE language recognition).",
+   "qid": "10.5.11",
+   "answer_official": "B"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2001",
+    "year": 2001,
+    "marks": 2,
+    "difficulty": "easy",
+    "type": "NAT",
+    "subject": "Theory of Computation",
+    "topic": "Decidability",
+    "subtopic": "Decidability"
+   },
+   "question": "Let a decision problem X be defined as follows:\nX: Given a Turing machine M over the input alphabet {0, 1} and any word w in {0, 1}*, does M loop forever on w?\nYou may assume that the halting problem for Turing machines is undecidable but partially decidable.\nA. Show that X is undecidable.\nB. Show that X is not even partially decidable.",
+   "answer": "X is undecidable (complement of halting problem) and not partially decidable (complement of a RE language that is not decidable is not RE)",
+   "to_find": "Prove X (TM looping forever problem) is undecidable and not partially decidable",
+   "understand": {
+    "plain": "X asks: given M and w, does M run forever (loop) on w? This is the complement of the halting problem: HALT asks 'does M halt on w?' and X asks 'does M NOT halt on w?'. The halting problem is known to be undecidable but partially decidable (RE). The complement of a RE language that is not recursive (not decidable) is not RE — meaning there is no algorithm that can even semi-decide X.",
+    "keywords": [
+     {
+      "term": "Complement of halting problem (co-HALT)",
+      "explain": "X = co-HALT: M loops on w iff M does NOT halt on w. Since HALT is RE but not recursive, co-HALT is not RE.",
+      "example": "If HALT = {(M,w) | M halts on w}, then co-HALT = {(M,w) | M loops on w}."
+     },
+     {
+      "term": "Not partially decidable (not RE)",
+      "explain": "A language L is not RE if no TM can enumerate (accept) all strings in L without looping on strings not in L. Equivalently, if both L and its complement were RE, L would be decidable.",
+      "example": "co-HALT is not RE: if it were, both HALT and co-HALT would be RE, making HALT decidable — contradiction."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Relationship: HALT is RE (not recursive), so co-HALT (= X) is not RE. If both HALT and X were RE, HALT would be recursive (decidable), which is a known impossibility."
+   },
+   "given": {
+    "aim": "Prove the loop-forever problem X is (A) undecidable and (B) not partially decidable",
+    "terms": [
+     {
+      "term": "HALT",
+      "meaning": "The halting problem: {(M, w) | M halts on w}",
+      "example": "(M, epsilon) in HALT if M halts on empty input",
+      "connects": "HALT is RE but not decidable — assumed given in the problem"
+     },
+     {
+      "term": "X = co-HALT",
+      "meaning": "X = {(M, w) | M does NOT halt on w} = complement of HALT",
+      "example": "(M, epsilon) in X if M loops on empty input",
+      "connects": "Properties of HALT directly determine properties of X via complementation"
+     },
+     {
+      "term": "RE closure under complement",
+      "meaning": "If a language L is RE but not recursive, then complement(L) is not RE",
+      "example": "HALT is RE but not recursive => co-HALT is not RE",
+      "connects": "This is the key theorem used to prove X is not partially decidable"
+     }
+    ],
+    "plan": "Part A: Reduce HALT to complement-of-X (i.e., decidability of X would imply decidability of HALT). Part B: Note X = co-HALT; if X were RE and HALT is RE, then HALT would be recursive/decidable (since a language is decidable iff both it and its complement are RE) — contradiction."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Part A: X is undecidable",
+      "formula_raw": "X is decidable => HALT is decidable (contradiction)",
+      "apply": "Assume X is decidable. Then given (M, w), we can decide whether M loops forever on w. But 'M halts on w' = NOT 'M loops forever on w'. So we could also decide HALT by running the decider for X and flipping the output. This contradicts the assumed undecidability of HALT. Therefore X is undecidable.",
+      "note": "X is exactly the complement of HALT. Any decision procedure for X would solve HALT by negation."
+     },
+     {
+      "step": 2,
+      "title": "Part B: X is not partially decidable",
+      "formula_raw": "L is RE and complement(L) is RE => L is recursive (decidable)",
+      "apply": "We know HALT is partially decidable (RE). If X = co-HALT were also partially decidable (RE), then by the theorem 'if L and complement(L) are both RE, then L is recursive', HALT would be decidable. But HALT is undecidable — contradiction. Therefore X = co-HALT cannot be RE, i.e., X is not partially decidable.",
+      "note": "This is a fundamental result: the complement of a non-recursive RE language is not RE. Since HALT is RE but not recursive, co-HALT (= X) is not RE."
+     }
+    ],
+    "result": "X is undecidable (Part A) and not even partially decidable (Part B), because X = co-HALT and the complement of a non-recursive RE language is not RE."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Key theorem: a language L is recursive (decidable) if and only if both L and its complement are recursively enumerable (RE/partially decidable). Since HALT is RE but not recursive, co-HALT is not RE.",
+   "qid": "10.5.12",
+   "answer_official": "N/A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2002",
+    "year": 2002,
+    "marks": 2,
+    "difficulty": "hard",
+    "type": "NAT",
+    "subject": "Theory of Computation",
+    "topic": "Decidability",
+    "subtopic": "Decidability"
+   },
+   "question": "The aim of the following question is to prove that the language L = {<M> | M is a Turing machine and M halts on the input <M>} (the self-halting/diagonal language) is undecidable.\nThis is to be done by reducing from the language H = {<M, w> | M halts on w}, which is known to be undecidable.\nIn parts (a) and (b) describe the main steps in the construction of the new TM M', which takes the input <M> and simulates M on its own encoding:\nA. On input w, what is the first step that M must make?\nB. On input w, based on the outcome of the first step, what is the second step M must make?\nC. What key property relates the behaviour of M on its input w to the behaviour of M' on z?",
+   "answer": "Reduction from HALT to L_d: construct M' that on input z simulates M on w; M' halts on <M'> iff M halts on w; key property is that M' halts on z = <M'> iff M halts on w.",
+   "to_find": "The construction steps of M' and the key property connecting M's behavior to M's self-halting behavior",
+   "understand": {
+    "plain": "We want to prove that the language of TMs that halt on their own description (the self-halting problem, related to the diagonal language) is undecidable by reducing from HALT. The idea is: given (M, w), construct a new TM M' such that M' halts on its own encoding <M'> if and only if M halts on w. If we could decide L, we could decide HALT.",
+    "keywords": [
+     {
+      "term": "Self-halting language (diagonal language variant)",
+      "explain": "L = {<M> | M halts on <M>}: the set of TM encodings where the TM halts when given its own description as input.",
+      "example": "If M_1 halts on the string '10110' (its own encoding), then <M_1> in L."
+     },
+     {
+      "term": "Many-one reduction",
+      "explain": "A reduction f: HALT -> L such that (M, w) in HALT iff f(M, w) in L. If L were decidable, HALT would be decidable — contradiction.",
+      "example": "Map each (M, w) to a new machine M' that ignores its input and simulates M on w."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Reduction diagram: (M, w) --[construct M']--> <M'>. M' on input <M'> simulates M on w. M halts on w iff M' halts on <M'>. So (M,w) in HALT iff <M'> in L."
+   },
+   "given": {
+    "aim": "Construct a TM M' to reduce HALT to L (self-halting problem) and identify the key simulation property",
+    "terms": [
+     {
+      "term": "H = HALT",
+      "meaning": "The halting problem: {<M, w> | M halts on input w}, known to be undecidable",
+      "example": "<M, epsilon> in HALT if M halts on empty string",
+      "connects": "We reduce from HALT: show HALT <=_m L"
+     },
+     {
+      "term": "L (self-halting language)",
+      "meaning": "L = {<M> | M halts on input <M>}, the language to prove undecidable",
+      "example": "<M> in L if running M with M's own code as input eventually halts",
+      "connects": "L is the target language; we show a decider for L would yield a decider for HALT"
+     },
+     {
+      "term": "M' (constructed machine)",
+      "meaning": "A new TM built from M and w that ignores its input z and instead simulates M on w",
+      "example": "M'(z) = simulate M on w; accept/reject/loop as M does on w",
+      "connects": "M' halts on any input (including <M'>) iff M halts on w — this is the key property"
+     }
+    ],
+    "plan": "Given (M, w) from HALT, construct M' = a TM that on any input z: (Step 1) ignores z and prepares w on its tape; (Step 2) simulates M on w. Then M' halts on <M'> iff M halts on w. The encoding <M'> is a computable function of (M, w), making this a valid many-one reduction."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Part A: First step of M' on input z",
+      "formula_raw": "",
+      "apply": "M' on input z: the first step is to erase (ignore) the input z from the tape and write the encoding of w (the target input) onto the tape. That is, M' replaces whatever is on its tape with the fixed string w. (M' has w hard-coded into its description from the construction.)",
+      "note": "This is key: M' does not use z at all. Its behavior is independent of its actual input, which means it behaves the same on every input including <M'>."
+     },
+     {
+      "step": 2,
+      "title": "Part B: Second step of M' on input z",
+      "formula_raw": "",
+      "apply": "After writing w on the tape, M' simulates M on w using a universal TM subroutine. M' mimics the transitions of M step by step on the content w. M' halts and accepts iff M accepts w; M' halts and rejects iff M rejects w; M' loops iff M loops on w.",
+      "note": "The simulation is faithful: M's behavior on w is exactly replicated by M' regardless of what input z M' started with."
+     },
+     {
+      "step": 3,
+      "title": "Part C: Key property relating M on w to M' on z",
+      "formula_raw": "M' halts on z iff M halts on w  (for ALL z, including z = <M'>)",
+      "apply": "Since M' ignores z and only simulates M on the fixed w, M' halts on every input z if and only if M halts on w. In particular, setting z = <M'> (M''s own encoding): M' halts on <M'> iff M halts on w. Therefore (M, w) in HALT iff <M'> in L. This is a valid many-one reduction HALT <=_m L. Since HALT is undecidable, L is also undecidable.",
+      "note": "The computable construction of M' from (M, w) ensures the reduction function is total and computable, completing the proof."
+     }
+    ],
+    "result": "M' constructed by (1) ignoring input z and writing w, then (2) simulating M on w. Key property: M' halts on <M'> iff M halts on w, giving reduction HALT <=_m L, proving L is undecidable."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Many-one reduction from the Halting Problem (HALT <=_m L) to prove undecidability of the self-halting language L; uses the universal TM simulation and hard-coding technique to construct M' independent of its input.",
+   "qid": "10.5.13",
+   "answer_official": "B"
+  }
+ ]
+}

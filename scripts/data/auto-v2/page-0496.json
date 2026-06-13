@@ -1,0 +1,192 @@
+{
+ "page": 496,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2006",
+    "year": 2006,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Process Synchronization",
+    "subtopic": "Process Synchronization"
+   },
+   "question": "Consider the solution to the bounded buffer producer/consumer problem by using general semaphores S, F, and E. The semaphore S is the mutual exclusion semaphore initialized to 1. The semaphore F corresponds to the number of free slots in the buffer and is initialized to N. The semaphore E corresponds to the number of elements in the buffer and is initialized to 0.\n\nProducer Process:\n  Produce an item;\n  Wait(F);\n  Wait(S);\n  Append the item to the buffer;\n  Signal(S);\n  Signal(E);\n\nConsumer Process:\n  Wait(E);\n  Wait(S);\n  Remove an item from the buffer;\n  Signal(S);\n  Signal(F);\n  Consume the item;\n\nWhich of the following interchange operations in a process may result in a deadlock?\n  I.   Interchanging Wait(F) and Wait(S) in the Producer process\n  II.  Interchanging Signal(S) and Signal(F) in the Consumer process\n\nA. (i) only\nB. (ii) only\nC. Neither (i) nor (ii)\nD. Both (i) and (ii)",
+   "answer": "A. (i) only",
+   "to_find": "Which interchange of semaphore operations in the producer/consumer processes can cause a deadlock",
+   "understand": {
+    "plain": "This problem involves a bounded buffer shared between a producer and a consumer, synchronized using three semaphores: S (mutex), F (free slots), and E (filled slots). We need to check which re-ordering of Wait/Signal calls can cause a circular wait (deadlock). A deadlock happens when the producer and consumer each hold a semaphore that the other needs.",
+    "keywords": [
+     {
+      "term": "Bounded Buffer",
+      "explain": "A shared buffer of fixed size N used between producer and consumer processes",
+      "example": "A buffer with 5 slots: producer fills, consumer empties"
+     },
+     {
+      "term": "Semaphore",
+      "explain": "A synchronization variable; Wait(sem) decrements it (blocks if 0), Signal(sem) increments it (wakes a blocked process)",
+      "example": "S=1 acts as a mutex; Wait(S) acquires lock, Signal(S) releases it"
+     },
+     {
+      "term": "Deadlock",
+      "explain": "A state where two or more processes are blocked indefinitely, each waiting for a resource held by the other",
+      "example": "Producer holds S and waits for F; Consumer holds nothing waiting for E — stalemate"
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='560' height='280'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='250' height='260' rx='8' class='bg'/><text x='135' y='36' text-anchor='middle' class='lbl ink'>Producer (modified)</text><text x='135' y='58' text-anchor='middle' class='sub mut'>Produce item</text><rect x='20' y='68' width='230' height='32' rx='4' class='hi'/><text x='135' y='89' text-anchor='middle' class='tag ink'>Wait(S)  ← moved up</text><rect x='20' y='105' width='230' height='32' rx='4' class='bg'/><text x='135' y='125' text-anchor='middle' class='sub ink'>Wait(F)</text><text x='135' y='155' text-anchor='middle' class='sub mut'>Append to buffer</text><text x='135' y='178' text-anchor='middle' class='sub mut'>Signal(S)</text><text x='135' y='200' text-anchor='middle' class='sub mut'>Signal(E)</text><rect x='20' y='215' width='230' height='40' rx='4' class='no'/><text x='135' y='232' text-anchor='middle' class='tag' style='fill:#fff'>If buffer full:</text><text x='135' y='250' text-anchor='middle' class='sub' style='fill:#fff'>holds S, waits F → DEADLOCK</text><rect x='295' y='10' width='250' height='260' rx='8' class='bg'/><text x='420' y='36' text-anchor='middle' class='lbl ink'>Consumer</text><text x='420' y='58' text-anchor='middle' class='sub mut'>Wait(E)</text><rect x='305' y='68' width='230' height='32' rx='4' class='bg'/><text x='420' y='89' text-anchor='middle' class='sub ink'>Wait(S)  ← needs S</text><text x='420' y='120' text-anchor='middle' class='sub mut'>Remove from buffer</text><text x='420' y='143' text-anchor='middle' class='sub mut'>Signal(S)</text><text x='420' y='165' text-anchor='middle' class='sub mut'>Signal(F)</text><text x='420' y='187' text-anchor='middle' class='sub mut'>Consume item</text><rect x='305' y='215' width='230' height='40' rx='4' class='ok'/><text x='420' y='232' text-anchor='middle' class='tag' style='fill:#fff'>Consumer blocked on E=0</text><text x='420' y='250' text-anchor='middle' class='sub' style='fill:#fff'>cannot free F → circular wait</text></svg>",
+    "visual_alt": "Diagram showing modified Producer (Wait(S) before Wait(F)) and Consumer. When buffer is full: Producer holds S and waits on F=0. Consumer is blocked on E waiting for something to be appended, but Producer holds S so buffer cannot be updated — circular wait (deadlock)."
+   },
+   "given": {
+    "aim": "Determine which semaphore operation swap causes deadlock in the bounded buffer problem",
+    "terms": [
+     {
+      "term": "S (mutex semaphore, init=1)",
+      "meaning": "Ensures mutual exclusion for accessing the shared buffer",
+      "example": "Only one process (producer or consumer) can access the buffer at a time",
+      "connects": "Swapping S with F in Producer can lead to holding S while waiting on F"
+     },
+     {
+      "term": "F (free-slots semaphore, init=N)",
+      "meaning": "Counts the number of free slots available in the buffer",
+      "example": "Starts at N; decremented by Producer when it adds an item",
+      "connects": "When buffer is full, F=0 and Producer blocks on it"
+     },
+     {
+      "term": "E (elements semaphore, init=0)",
+      "meaning": "Counts the number of filled slots in the buffer",
+      "example": "Starts at 0; incremented by Producer after appending",
+      "connects": "Consumer blocks on E when buffer is empty, preventing it from freeing F"
+     }
+    ],
+    "plan": "Simulate each swap: (I) In Producer, if Wait(S) comes before Wait(F), the Producer acquires S then waits on F. If buffer is full, F=0 so Producer blocks while holding S. Consumer needs S to remove an item and signal F, but it cannot acquire S — deadlock. (II) Swapping Signal(S) and Signal(F) in Consumer only changes order of releasing signals (both eventually released) — no deadlock."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Analyze interchange I: swap Wait(F) and Wait(S) in Producer",
+      "formula_raw": "Deadlock condition: circular wait on resources",
+      "apply": "Original Producer: Wait(F) then Wait(S). Modified: Wait(S) then Wait(F). Scenario: Suppose buffer is completely full (F=0). Producer executes Wait(S) — succeeds (S becomes 0, Producer holds mutex). Producer then executes Wait(F) — F=0, so Producer BLOCKS while holding S. Now Consumer tries to run: Wait(E) succeeds (E>0), then Wait(S) — but S=0 (held by Producer) so Consumer BLOCKS. Neither can proceed: Producer waits for Consumer to free a slot (needs S), Consumer waits for S (held by Producer). DEADLOCK.",
+      "note": "The key is: holding the mutex (S) while waiting for a resource (F) that only the other process can free — classic deadlock pattern."
+     },
+     {
+      "step": 2,
+      "title": "Analyze interchange II: swap Signal(S) and Signal(F) in Consumer",
+      "formula_raw": "Signal operations are commutative for correctness",
+      "apply": "Original Consumer: Signal(S) then Signal(F). Modified: Signal(F) then Signal(S). In both orderings, the Consumer releases both semaphores. The order of releasing does not cause a deadlock — the Producer is not holding any resource that it needs to give up to receive S or F. Both signals are eventually executed, so no circular wait occurs.",
+      "note": "Swapping Signal operations is generally safe because releasing resources in different orders does not create circular waits — it may affect scheduling but not correctness/deadlock."
+     },
+     {
+      "step": 3,
+      "title": "Conclusion",
+      "formula_raw": "",
+      "apply": "Only interchange I (swapping Wait(F) and Wait(S) in the Producer) can cause a deadlock. Interchange II (swapping Signal(S) and Signal(F) in the Consumer) does not cause a deadlock.",
+      "note": "The general rule: avoid acquiring a mutex BEFORE a resource semaphore when the resource may be unavailable. Always acquire resource semaphores before the mutex."
+     }
+    ],
+    "result": "Only interchange (i) causes a deadlock. Answer: A. (i) only"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Deadlock from nested Wait: holding a mutex while blocking on a resource semaphore creates circular wait. The standard rule is to always Wait on resource semaphores (F or E) before the mutex (S).",
+   "qid": "7.20.49",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2007",
+    "year": 2007,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Process Synchronization",
+    "subtopic": "Process Synchronization"
+   },
+   "question": "Processes P1 and P2 use critical_flag in the following routine to achieve mutual exclusion. Assume that critical_flag is initialized to FALSE in the main program.\n\nget_exclusive_access() {\n    if (critical_flag == FALSE) {\n        critical_flag = TRUE;\n        critical_region();\n        critical_flag = FALSE;\n    }\n}\n\nConsider the following statements:\n  i.  It is possible for both P1 and P2 to access critical_region concurrently.\n  ii. This may lead to a deadlock.\n\nWhich of the following holds?\n\nA. (i) is true and (ii) is false\nB. Both (i) and (ii) are false\nC. (i) is false and (ii) is true\nD. Both (i) and (ii) are true",
+   "answer": "A. (i) is true and (ii) is false",
+   "to_find": "Whether the given mutual exclusion attempt can allow concurrent access to critical region and/or cause deadlock",
+   "understand": {
+    "plain": "Two processes P1 and P2 try to use a shared boolean flag (critical_flag) to implement mutual exclusion. The flag is checked and then set in two separate steps (not atomically). We need to decide if both can enter the critical region at the same time (race condition) and if a deadlock is possible.",
+    "keywords": [
+     {
+      "term": "Mutual Exclusion",
+      "explain": "Only one process at a time should be in the critical region",
+      "example": "If P1 is in critical_region(), P2 must wait"
+     },
+     {
+      "term": "Race Condition",
+      "explain": "A bug where the outcome depends on the relative timing of two processes' operations on shared data",
+      "example": "Both P1 and P2 read critical_flag==FALSE before either sets it to TRUE"
+     },
+     {
+      "term": "Atomicity",
+      "explain": "An operation that completes entirely without interruption; test-and-set must be atomic for mutual exclusion to work",
+      "example": "Hardware test-and-set: reads and writes the flag in one uninterruptible instruction"
+     },
+     {
+      "term": "Deadlock",
+      "explain": "A state where processes wait for each other indefinitely, none able to proceed",
+      "example": "P1 holds lock A and waits for lock B; P2 holds lock B and waits for lock A"
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='540' height='220'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='240' height='200' rx='8' class='bg'/><text x='130' y='34' text-anchor='middle' class='lbl ink'>Process P1</text><text x='130' y='58' text-anchor='middle' class='sub mut'>critical_flag == FALSE? YES</text><rect x='20' y='68' width='220' height='28' rx='4' class='hi'/><text x='130' y='87' text-anchor='middle' class='tag ink'>context switch here!</text><text x='130' y='115' text-anchor='middle' class='sub mut'>(P1 not yet set flag)</text><rect x='20' y='128' width='220' height='28' rx='4' class='no'/><text x='130' y='147' text-anchor='middle' class='tag' style='fill:#fff'>critical_flag = TRUE</text><text x='130' y='178' text-anchor='middle' class='sub mut'>critical_region()</text><text x='130' y='200' text-anchor='middle' class='sub mut'>critical_flag = FALSE</text><rect x='290' y='10' width='240' height='200' rx='8' class='bg'/><text x='410' y='34' text-anchor='middle' class='lbl ink'>Process P2</text><text x='410' y='58' text-anchor='middle' class='sub mut'>(runs after context switch)</text><text x='410' y='80' text-anchor='middle' class='sub mut'>critical_flag == FALSE? YES</text><rect x='300' y='90' width='220' height='28' rx='4' class='no'/><text x='410' y='109' text-anchor='middle' class='tag' style='fill:#fff'>critical_flag = TRUE</text><text x='410' y='138' text-anchor='middle' class='sub mut'>critical_region()</text><rect x='300' y='152' width='220' height='36' rx='4' class='ok'/><text x='410' y='168' text-anchor='middle' class='tag' style='fill:#fff'>Both P1 and P2 enter</text><text x='410' y='184' text-anchor='middle' class='sub' style='fill:#fff'>critical_region! Race!</text></svg>",
+    "visual_alt": "Timeline showing P1 reads critical_flag==FALSE, then a context switch occurs before P1 sets the flag. P2 runs, also reads critical_flag==FALSE, sets it TRUE, enters critical_region. Then P1 resumes, sets critical_flag=TRUE, and also enters critical_region — both processes are in the critical region simultaneously (race condition, not deadlock)."
+   },
+   "given": {
+    "aim": "Determine if the flag-based mutual exclusion allows concurrent critical region access and/or deadlock",
+    "terms": [
+     {
+      "term": "critical_flag (boolean, init=FALSE)",
+      "meaning": "Shared variable used as a lock; FALSE = available, TRUE = in use",
+      "example": "Both processes check and set this flag, but not atomically",
+      "connects": "The non-atomic check-then-set is the source of the race condition"
+     },
+     {
+      "term": "Non-atomic test-and-set",
+      "meaning": "The check (if flag==FALSE) and set (flag=TRUE) are two separate instructions, allowing a context switch in between",
+      "example": "P1 reads FALSE, context switch, P2 reads FALSE and sets TRUE, P1 resumes and sets TRUE — both proceed",
+      "connects": "Directly causes statement (i) to be TRUE"
+     },
+     {
+      "term": "Deadlock vs. Race Condition",
+      "meaning": "Deadlock = processes block waiting for each other. Race condition = processes proceed without proper synchronization (both enter critical region)",
+      "example": "This code has a race condition, NOT a deadlock — no process waits forever",
+      "connects": "Statement (ii) is FALSE because no circular waiting occurs here"
+     }
+    ],
+    "plan": "Check for race: if both P1 and P2 read critical_flag==FALSE before either sets it TRUE (possible with context switch between read and write), both enter critical_region simultaneously — so (i) is TRUE. Check for deadlock: deadlock requires circular waiting on resources. Here, if critical_flag is FALSE, any process can enter; if TRUE, a process simply skips (does not enter and does not wait). No process ever blocks waiting for another — so no deadlock. Statement (ii) is FALSE."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Check statement (i): Can both P1 and P2 access critical_region concurrently?",
+      "formula_raw": "Race condition: check(flag) and set(flag) are non-atomic",
+      "apply": "Execution sequence that leads to concurrent access:\n1. P1 executes: if (critical_flag == FALSE) → TRUE (flag is FALSE), condition holds\n2. Context switch to P2 before P1 executes critical_flag = TRUE\n3. P2 executes: if (critical_flag == FALSE) → TRUE (flag still FALSE, P1 hasn't set it yet)\n4. P2 executes: critical_flag = TRUE\n5. P2 enters and executes critical_region()\n6. Context switch back to P1\n7. P1 executes: critical_flag = TRUE (already TRUE, no re-check)\n8. P1 enters and executes critical_region()\nBoth P1 and P2 are in critical_region at the same time. Statement (i) is TRUE.",
+      "note": "The fundamental flaw: the if-condition check and the flag assignment are two separate non-atomic operations. A context switch between them breaks mutual exclusion."
+     },
+     {
+      "step": 2,
+      "title": "Check statement (ii): Does this lead to deadlock?",
+      "formula_raw": "Deadlock requires: mutual exclusion + hold & wait + no preemption + circular wait",
+      "apply": "In this code, if critical_flag == TRUE, the process simply does NOT enter the if-block — it returns from get_exclusive_access() without waiting. No process is ever blocked spinning or sleeping waiting for another process to release the flag. There is no circular wait. Therefore, no deadlock can occur. Statement (ii) is FALSE.",
+      "note": "If the code had a busy-wait loop (while(critical_flag == TRUE) {}) instead of the if-condition, we'd need to analyze further for livelock. But even then, deadlock (as defined in OS) requires circular waiting on non-preemptible resources — not just a liveness issue."
+     },
+     {
+      "step": 3,
+      "title": "Match to answer options",
+      "formula_raw": "",
+      "apply": "Statement (i) is TRUE. Statement (ii) is FALSE. This matches option A: '(i) is true and (ii) is false'.",
+      "note": "This is a classic example of why Peterson's algorithm or hardware atomic test-and-set is needed for correct mutual exclusion — a simple shared boolean flag without atomicity is insufficient."
+     }
+    ],
+    "result": "Statement (i) is true (both can access critical_region concurrently due to race condition) and statement (ii) is false (no deadlock occurs). Answer: A. (i) is true and (ii) is false"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Non-atomic check-then-set of a shared flag violates the atomicity requirement for mutual exclusion. A context switch between the read and write of the flag allows two processes to enter the critical region simultaneously (race condition), but since no process blocks waiting for another, there is no deadlock.",
+   "qid": "7.20.50",
+   "answer_official": "B;C"
+  }
+ ]
+}

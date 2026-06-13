@@ -1,0 +1,456 @@
+{
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 1994",
+    "year": 1994,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "descriptive",
+    "subject": "Discrete Mathematics",
+    "topic": "Graph Theory",
+    "subtopic": "Graph Connectivity"
+   },
+   "question": "An independent set in a graph is a subset of vertices such that no two vertices in the subset are connected by an edge. An incomplete scheme for a greedy algorithm to find a maximum independent set in a tree is given below: V : Set of all vertices in the tree; I := phi; while V != phi do begin select a vertex u in V such that ________ ; V := V - {u}; if u is such that ________ then I := I union {u} end; Output(I); A. Complete the algorithm by specifying the property of vertex u in each case. B. What is the time complexity of the algorithm?",
+   "answer": "A. First blank: u is a leaf of the current forest (a vertex of degree <= 1). Second blank: none of u's neighbours is already in I (no neighbour of u has been added to I). B. The algorithm runs in O(n) time on a tree with n vertices.",
+   "to_find": "Fill the two blanks of the greedy maximum-independent-set algorithm on a tree and state its time complexity",
+   "understand": {
+    "plain": "On a tree the maximum independent set can be found greedily: repeatedly pick a leaf, put it into the answer set I, and delete the leaf together with its unique neighbour. The intuition is that a leaf can never hurt you, picking the leaf is always at least as good as picking its only neighbour, so a leaf is always safe to take. To turn the scheme into a correct algorithm, the first blank says select a leaf (degree <= 1) and the second blank says add u only if none of its neighbours is already in I.",
+    "keywords": [
+     {
+      "term": "Independent set",
+      "explain": "A set of vertices with no edge between any two of them.",
+      "example": "In the path a-b-c the set {a, c} is independent because a and c are not adjacent."
+     },
+     {
+      "term": "Leaf",
+      "explain": "A vertex of degree at most one, a node with a single (or no) edge attached.",
+      "example": "In a rooted tree every bottom node with no children is a leaf."
+     },
+     {
+      "term": "Greedy choice",
+      "explain": "A locally safe decision (here: always grab a leaf) that provably extends to an optimal global solution.",
+      "example": "Taking a leaf into I and removing its neighbour never reduces the maximum independent-set size."
+     }
+    ],
+    "visual_svg": "<svg viewBox='0 0 360 250' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><line class='edge' x1='180' y1='50' x2='90' y2='130' stroke='#B4B2A9' stroke-width='2.5'/><line class='edge' x1='180' y1='50' x2='270' y2='130' stroke='#B4B2A9' stroke-width='2.5'/><line class='edge' x1='90' y1='130' x2='40' y2='210' stroke='#B4B2A9' stroke-width='2.5'/><line class='edge' x1='90' y1='130' x2='140' y2='210' stroke='#B4B2A9' stroke-width='2.5'/><line class='edge' x1='270' y1='130' x2='320' y2='210' stroke='#B4B2A9' stroke-width='2.5'/><circle cx='180' cy='50' r='11' class='ok'/><circle cx='90' cy='130' r='11' class='bg'/><circle cx='270' cy='130' r='11' class='bg'/><circle cx='40' cy='210' r='11' class='ok'/><circle cx='140' cy='210' r='11' class='ok'/><circle cx='320' cy='210' r='11' class='ok'/><text class='tag mut' x='20' y='30'>green = in I (leaves chosen first)</text></svg>",
+    "visual_alt": "A small tree where the leaf vertices are chosen into the independent set I first and their parents are skipped, illustrating the greedy leaf-first strategy."
+   },
+   "given": {
+    "aim": "State the selection property of u and the inclusion test that make the greedy scheme compute a maximum independent set, and give its running time.",
+    "terms": [
+     {
+      "term": "V",
+      "meaning": "The current working set of vertices, shrinking as vertices are removed.",
+      "example": "Initially all n vertices of the tree; one vertex u is deleted each iteration.",
+      "connects": "The while loop runs while V is non-empty, so it executes O(n) times."
+     },
+     {
+      "term": "I",
+      "meaning": "The independent set being built, initially empty.",
+      "example": "Leaves are added to I as the loop proceeds.",
+      "connects": "The output; it ends up being a maximum independent set of the tree."
+     },
+     {
+      "term": "u (a leaf)",
+      "meaning": "The vertex selected each round; the correct property is degree <= 1 in the current forest.",
+      "example": "A bottom node of the tree with a single edge to its parent.",
+      "connects": "Choosing a leaf is the safe greedy step that guarantees optimality."
+     },
+     {
+      "term": "Time complexity",
+      "meaning": "The total cost of running the algorithm to completion.",
+      "example": "Each vertex is selected and removed once, with degree maintained in O(1) amortised.",
+      "connects": "Gives the linear O(n) bound for a tree on n vertices."
+     }
+    ],
+    "plan": "Recognise the optimal greedy rule for maximum independent set on a tree (always take a leaf, then delete it and its neighbour), translate that into the two blanks, then count the work per vertex to get the running time."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "First blank: pick a leaf",
+      "formula_id": "tree-mis-greedy-leaf",
+      "formula_raw": "select u with deg(u) <= 1 (a leaf of the current forest)",
+      "apply": "The vertex u must be a leaf, that is a vertex of degree at most one in the current graph. A leaf has a single neighbour (its parent), so taking the leaf is never worse than taking that neighbour. Hence the first blank is 'u is a leaf (deg(u) <= 1)'.",
+      "note": "Picking a leaf is the exchange-argument-safe greedy choice on trees."
+     },
+     {
+      "step": 2,
+      "title": "Second blank: avoid conflicts",
+      "formula_id": "tree-mis-greedy-leaf",
+      "formula_raw": "add u to I  iff  no neighbour of u is already in I",
+      "apply": "Add u to the independent set only when including it keeps I independent, i.e. when none of u's neighbours is already in I. Because we always grabbed leaves first, a freshly chosen leaf usually has no neighbour in I and is taken; once a leaf is in I its parent will fail this test and be skipped. So the second blank is 'no neighbour of u is in I'.",
+      "note": "This guard is exactly the definition of an independent set being preserved."
+     },
+     {
+      "step": 3,
+      "title": "Running time",
+      "formula_id": "",
+      "formula_raw": "each vertex handled once  =>  T(n) = O(n)",
+      "apply": "Every vertex is selected and removed exactly once. Maintaining which vertices are leaves and updating neighbour degrees can be done in O(1) amortised per removal (each edge is touched a constant number of times). With n vertices and n-1 edges in a tree, the total work is O(n).",
+      "note": "Linear time is the expected complexity for a single-pass tree algorithm."
+     }
+    ],
+    "result": "First blank: u is a leaf (degree <= 1). Second blank: no neighbour of u is already in I. Time complexity = O(n)."
+   },
+   "formula_ids_used": ["tree-mis-greedy-leaf"],
+   "formula_note": "The key idea is the tree greedy rule: a leaf is always safe to take into a maximum independent set, so selecting leaves (first blank) and adding them when conflict-free (second blank) yields an optimal set in O(n) time."
+  },
+  {
+   "meta": {
+    "exam": "GATE 1995",
+    "year": 1995,
+    "marks": 2,
+    "difficulty": "easy",
+    "type": "MCQ",
+    "subject": "Discrete Mathematics",
+    "topic": "Graph Theory",
+    "subtopic": "Graph Connectivity"
+   },
+   "question": "The minimum number of edges in a connected cyclic graph on n vertices is: A. n - 1 B. n C. n + 1 D. None of the above",
+   "answer": "B. n",
+   "to_find": "Fewest edges a connected graph on n vertices can have while still containing a cycle",
+   "understand": {
+    "plain": "A connected graph on n vertices needs at least n - 1 edges, and with exactly n - 1 edges it is a tree, which has no cycle. To force a cycle you must add one more edge, which closes a loop. So the smallest connected graph that is cyclic has n edges (a tree plus one extra edge, or a single cycle through all n vertices).",
+    "keywords": [
+     {
+      "term": "Connected graph",
+      "explain": "A graph in which there is a path between every pair of vertices.",
+      "example": "A path 1-2-3-4 is connected; two separate edges are not."
+     },
+     {
+      "term": "Tree",
+      "explain": "A connected graph with no cycle; on n vertices it has exactly n - 1 edges.",
+      "example": "A star with one centre and n - 1 leaves has n - 1 edges and no cycle."
+     },
+     {
+      "term": "Cycle",
+      "explain": "A closed path that starts and ends at the same vertex using distinct edges.",
+      "example": "1-2-3-1 is a 3-cycle; adding any edge to a tree creates exactly one cycle."
+     }
+    ],
+    "visual_svg": "<svg viewBox='0 0 320 240' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><line class='edge' x1='160' y1='40' x2='270' y2='120' stroke='#B4B2A9' stroke-width='2.5'/><line class='edge' x1='270' y1='120' x2='220' y2='200' stroke='#B4B2A9' stroke-width='2.5'/><line class='edge' x1='220' y1='200' x2='100' y2='200' stroke='#B4B2A9' stroke-width='2.5'/><line class='edge' x1='100' y1='200' x2='50' y2='120' stroke='#B4B2A9' stroke-width='2.5'/><line class='edge' x1='50' y1='120' x2='160' y2='40' stroke='#7F77DD' stroke-width='3'/><circle cx='160' cy='40' r='10' class='hi'/><circle cx='270' cy='120' r='10' class='hi'/><circle cx='220' cy='200' r='10' class='hi'/><circle cx='100' cy='200' r='10' class='hi'/><circle cx='50' cy='120' r='10' class='hi'/><text class='tag mut' x='15' y='30'>5 vertices, 5 edges: one cycle</text></svg>",
+    "visual_alt": "Five vertices joined in a single cycle, showing that a connected cyclic graph on n vertices needs exactly n edges."
+   },
+   "given": {
+    "aim": "Determine the minimum edge count of a connected graph on n vertices that contains at least one cycle.",
+    "terms": [
+     {
+      "term": "n",
+      "meaning": "The number of vertices in the graph.",
+      "example": "If n = 5 the answer will be 5 edges.",
+      "connects": "All bounds are expressed in terms of n."
+     },
+     {
+      "term": "Connectivity requirement",
+      "meaning": "Forces at least n - 1 edges (the tree lower bound).",
+      "example": "Any spanning tree on n vertices uses n - 1 edges.",
+      "connects": "Sets the floor before a cycle is even considered."
+     },
+     {
+      "term": "Cyclic requirement",
+      "meaning": "Forces strictly more than n - 1 edges, since n - 1 edges gives an acyclic tree.",
+      "example": "Adding one chord to a tree introduces a cycle, giving n edges.",
+      "connects": "Pushes the minimum from n - 1 up to n."
+     }
+    ],
+    "plan": "Use the tree edge-count fact (n - 1 edges, acyclic) as the connected lower bound, then add exactly one edge to create a cycle, landing on n edges."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Connected lower bound",
+      "formula_id": "tree-edge-count",
+      "formula_raw": "connected on n vertices  =>  |E| >= n - 1",
+      "apply": "Any connected graph on n vertices must have at least n - 1 edges; equality holds exactly for trees. So we cannot use fewer than n - 1 edges and stay connected.",
+      "note": "n - 1 edges is the absolute minimum for connectivity alone."
+     },
+     {
+      "step": 2,
+      "title": "A tree has no cycle",
+      "formula_id": "tree-edge-count",
+      "formula_raw": "|E| = n - 1 and connected  =>  acyclic (a tree)",
+      "apply": "With exactly n - 1 edges the connected graph is a tree, which by definition contains no cycle. Hence n - 1 edges cannot satisfy the 'cyclic' requirement, ruling out option A.",
+      "note": "Trees are precisely the connected acyclic graphs."
+     },
+     {
+      "step": 3,
+      "title": "Add one edge to get a cycle",
+      "formula_id": "",
+      "formula_raw": "min cyclic connected |E| = (n - 1) + 1 = n",
+      "apply": "Adding a single extra edge to a tree creates exactly one cycle while keeping the graph connected, giving n edges. A single cycle through all n vertices realises this with n edges, so n edges are achievable and necessary. The minimum is n, which is option B.",
+      "note": "Equivalently, a connected graph with n edges has exactly one independent cycle."
+     }
+    ],
+    "result": "Minimum number of edges = n  =>  option B"
+   },
+   "formula_ids_used": ["tree-edge-count"],
+   "formula_note": "The decisive fact is that a connected graph on n vertices needs n - 1 edges and is then a (cycle-free) tree; one more edge is required to create a cycle, so the minimum cyclic connected graph has exactly n edges."
+  },
+  {
+   "meta": {
+    "exam": "GATE 1999",
+    "year": 1999,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Discrete Mathematics",
+    "topic": "Graph Theory",
+    "subtopic": "Graph Connectivity"
+   },
+   "question": "The number of articulation points of the following graph is. [The graph has 7 vertices labelled 1-7. Edges: 1-2, 1-3, 2-3 (a triangle), 2-4, 3-5, 5-6, 5-7.] A. 0 B. 1 C. 2 D. 3",
+   "answer": "D. 3",
+   "to_find": "Count the articulation points (cut vertices) of the given 7-vertex graph",
+   "understand": {
+    "plain": "An articulation point (cut vertex) is a vertex whose removal disconnects the graph (increases the number of connected components). Test each vertex: deleting vertex 2 cuts off the leaf 4; deleting vertex 3 separates the {1,2,4} side from the {5,6,7} side; deleting vertex 5 cuts off the leaves 6 and 7. Vertices 1, 4, 6, 7 are not cut vertices. So there are exactly 3 articulation points: 2, 3 and 5.",
+    "keywords": [
+     {
+      "term": "Articulation point",
+      "explain": "A vertex whose deletion (with its incident edges) increases the number of connected components.",
+      "example": "Removing vertex 5 disconnects 6 and 7 from the rest, so 5 is an articulation point."
+     },
+     {
+      "term": "Bridge vs cut vertex",
+      "explain": "A bridge is an edge whose removal disconnects; a cut vertex is a vertex whose removal disconnects. Endpoints of a bridge (with degree > 1) are usually cut vertices.",
+      "example": "Edge 3-5 is a bridge, and both 3 and 5 are cut vertices."
+     },
+     {
+      "term": "Leaf is never a cut vertex",
+      "explain": "Removing a degree-1 vertex leaves the rest connected, so leaves can never be articulation points.",
+      "example": "Vertices 4, 6, 7 have degree 1 and are not cut vertices."
+     }
+    ],
+    "visual_svg": "<svg viewBox='0 0 420 240' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><line class='edge' x1='90' y1='50' x2='40' y2='120' stroke='#B4B2A9' stroke-width='2.5'/><line class='edge' x1='90' y1='50' x2='150' y2='120' stroke='#B4B2A9' stroke-width='2.5'/><line class='edge' x1='40' y1='120' x2='150' y2='120' stroke='#B4B2A9' stroke-width='2.5'/><line class='edge' x1='40' y1='120' x2='40' y2='200' stroke='#B4B2A9' stroke-width='2.5'/><line class='edge' x1='150' y1='120' x2='280' y2='50' stroke='#B4B2A9' stroke-width='2.5'/><line class='edge' x1='280' y1='50' x2='280' y2='130' stroke='#B4B2A9' stroke-width='2.5'/><line class='edge' x1='280' y1='50' x2='380' y2='120' stroke='#B4B2A9' stroke-width='2.5'/><circle cx='90' cy='50' r='12' class='bg'/><circle cx='40' cy='120' r='12' class='no'/><circle cx='150' cy='120' r='12' class='no'/><circle cx='40' cy='200' r='12' class='bg'/><circle cx='280' cy='50' r='12' class='no'/><circle cx='280' cy='130' r='12' class='bg'/><circle cx='380' cy='120' r='12' class='bg'/><text class='lbl ink' x='86' y='55'>1</text><text class='lbl ink' x='36' y='125'>2</text><text class='lbl ink' x='146' y='125'>3</text><text class='lbl ink' x='36' y='205'>4</text><text class='lbl ink' x='276' y='55'>5</text><text class='lbl ink' x='276' y='135'>6</text><text class='lbl ink' x='376' y='125'>7</text><text class='tag mut' x='15' y='230'>orange = articulation point (2, 3, 5)</text></svg>",
+    "visual_alt": "A 7-vertex graph with a triangle 1-2-3, leaf 4 off vertex 2, and 5 joined to 3, 6, 7; vertices 2, 3 and 5 are highlighted as the three articulation points."
+   },
+   "given": {
+    "aim": "Identify every vertex whose deletion disconnects the graph and count them.",
+    "terms": [
+     {
+      "term": "Vertices",
+      "meaning": "The seven nodes 1 through 7.",
+      "example": "Vertex 4 is a leaf attached to vertex 2.",
+      "connects": "Each is tested in turn for being a cut vertex."
+     },
+     {
+      "term": "Edges",
+      "meaning": "The links 1-2, 1-3, 2-3, 2-4, 3-5, 5-6, 5-7.",
+      "example": "The triangle 1-2-3 is biconnected (no cut vertex inside it alone).",
+      "connects": "Tracing connectivity after a deletion uses these edges."
+     },
+     {
+      "term": "Components after removal",
+      "meaning": "The number of connected pieces left when a vertex is deleted.",
+      "example": "Removing 3 leaves two pieces: {1,2,4} and {5,6,7}.",
+      "connects": "More than one piece means the deleted vertex is an articulation point."
+     }
+    ],
+    "plan": "Delete each vertex one at a time, check whether the remaining graph stays connected, and count the vertices whose removal breaks it apart."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Test the bridge endpoints 3 and 5",
+      "formula_id": "articulation-point-definition",
+      "formula_raw": "remove v: components increase  =>  v is an articulation point",
+      "apply": "Edge 3-5 is the only link between the left block {1,2,3,4} and the right block {5,6,7}. Removing vertex 3 splits off {5,6,7}; removing vertex 5 cuts off leaves 6 and 7. Both deletions increase the number of components, so 3 and 5 are articulation points.",
+      "note": "Both endpoints of the bridge 3-5 (each of degree > 1) are cut vertices."
+     },
+     {
+      "step": 2,
+      "title": "Test vertex 2",
+      "formula_id": "articulation-point-definition",
+      "formula_raw": "remove 2: leaf 4 disconnected",
+      "apply": "Vertex 4 hangs off vertex 2 only. Deleting vertex 2 isolates vertex 4 from the rest of the graph, increasing the component count, so vertex 2 is an articulation point.",
+      "note": "Vertex 4's sole connection to the graph passes through 2."
+     },
+     {
+      "step": 3,
+      "title": "Rule out the rest",
+      "formula_id": "",
+      "formula_raw": "deg-1 vertices and triangle vertex 1 are not cut vertices",
+      "apply": "Vertices 4, 6, 7 have degree 1, so removing any of them leaves the remainder connected. Vertex 1 sits inside the triangle 1-2-3; removing it still leaves 2-3 connected and everything else intact. None of these is a cut vertex.",
+      "note": "Leaves never disconnect a graph, and 1 is bypassed by the edge 2-3."
+     },
+     {
+      "step": 4,
+      "title": "Count",
+      "formula_id": "",
+      "formula_raw": "articulation points = {2, 3, 5}  =>  3",
+      "apply": "Exactly three vertices, 2, 3 and 5, are articulation points. The count is 3, which is option D.",
+      "note": "Matches choice D."
+     }
+    ],
+    "result": "Number of articulation points = 3  =>  option D"
+   },
+   "formula_ids_used": ["articulation-point-definition"],
+   "formula_note": "The key idea is that a vertex is an articulation point exactly when its removal increases the number of components; here the two ends of the bridge 3-5 plus the vertex 2 holding leaf 4 give three such vertices."
+  },
+  {
+   "meta": {
+    "exam": "GATE 1999",
+    "year": 1999,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "descriptive",
+    "subject": "Discrete Mathematics",
+    "topic": "Graph Theory",
+    "subtopic": "Graph Connectivity"
+   },
+   "question": "Let G be a connected, undirected graph. A cut in G is a set of edges whose removal results in G being broken into two or more components, which are not connected with each other. The size of a cut is called its cardinality. A min-cut of G is a cut in G of minimum cardinality. Consider the following graph on vertices A, B, C, D, E, F with edges A-E, A-B, A-D, A-F, E-D, E-F, B-D, B-C, C-F, D-F. a. Which of the following sets of edges is a cut? i. {(A,B),(E,F),(B,D),(A,E),(A,D)} ii. {(B,D),(C,F),(A,B)} b. What is cardinality of min-cut in this graph? c. Prove that if a connected undirected graph G with n vertices has a min-cut of cardinality k, then G has at least (n*k)/2 edges.",
+   "answer": "a. Set (i) is NOT a cut (the graph stays connected after removing it); set (ii) IS a cut (it isolates vertices B and C from {A,D,E,F}). b. The cardinality of the min-cut is 2. c. Since the min-cut equals the edge connectivity, every vertex has degree >= k, so 2|E| = sum of degrees >= n*k, giving |E| >= (n*k)/2.",
+   "to_find": "Decide which edge sets are cuts, find the min-cut cardinality, and prove the edge lower bound |E| >= n*k/2",
+   "understand": {
+    "plain": "A cut is a set of edges whose removal disconnects the graph; its size is the cut's cardinality, and the min-cut is the smallest such set (the edge connectivity). For part a we delete each candidate set and check connectivity. For part b we look for the cheapest way to split the graph, which is to isolate the lowest-degree vertex C (degree 2). For part c we use that the edges at any single vertex form a cut, so the edge connectivity k can be at most every vertex's degree, forcing every degree to be at least k.",
+    "keywords": [
+     {
+      "term": "Cut (edge cut)",
+      "explain": "A set of edges whose removal disconnects the graph into two or more components.",
+      "example": "Removing the two edges B-C and C-F isolates vertex C, so {B-C, C-F} is a cut."
+     },
+     {
+      "term": "Min-cut / edge connectivity",
+      "explain": "The minimum cardinality of any edge cut, written lambda(G); it never exceeds the smallest vertex degree.",
+      "example": "Here min-degree is deg(C) = 2, and isolating C achieves a cut of size 2, so lambda(G) = 2."
+     },
+     {
+      "term": "Degree sum (handshaking)",
+      "explain": "The sum of all vertex degrees equals twice the number of edges.",
+      "example": "If every one of n vertices has degree >= k, the degree sum is >= n*k, so |E| >= n*k/2."
+     }
+    ],
+    "visual_svg": "<svg viewBox='0 0 360 260' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><line class='edge' x1='110' y1='50' x2='300' y2='50' stroke='#B4B2A9' stroke-width='2.5'/><line class='edge' x1='110' y1='50' x2='40' y2='130' stroke='#B4B2A9' stroke-width='2.5'/><line class='edge' x1='110' y1='50' x2='150' y2='130' stroke='#B4B2A9' stroke-width='2.5'/><line class='edge' x1='110' y1='50' x2='300' y2='210' stroke='#B4B2A9' stroke-width='2.5'/><line class='edge' x1='300' y1='50' x2='150' y2='130' stroke='#B4B2A9' stroke-width='2.5'/><line class='edge' x1='300' y1='50' x2='300' y2='210' stroke='#B4B2A9' stroke-width='2.5'/><line class='edge' x1='40' y1='130' x2='150' y2='130' stroke='#7F77DD' stroke-width='3'/><line class='edge' x1='40' y1='130' x2='80' y2='210' stroke='#B4B2A9' stroke-width='2.5'/><line class='edge' x1='80' y1='210' x2='300' y2='210' stroke='#7F77DD' stroke-width='3'/><line class='edge' x1='150' y1='130' x2='300' y2='210' stroke='#B4B2A9' stroke-width='2.5'/><circle cx='110' cy='50' r='11' class='bg'/><circle cx='300' cy='50' r='11' class='bg'/><circle cx='40' cy='130' r='11' class='bg'/><circle cx='150' cy='130' r='11' class='bg'/><circle cx='80' cy='210' r='11' class='no'/><circle cx='300' cy='210' r='11' class='bg'/><text class='lbl ink' x='106' y='55'>A</text><text class='lbl ink' x='296' y='55'>E</text><text class='lbl ink' x='30' y='123'>B</text><text class='lbl ink' x='146' y='135'>D</text><text class='lbl ink' x='76' y='215'>C</text><text class='lbl ink' x='296' y='215'>F</text><text class='tag mut' x='15' y='245'>purple: cut B-C, C-F isolates C (min-cut = 2)</text></svg>",
+    "visual_alt": "The 6-vertex graph A,B,C,D,E,F with the two edges at the degree-2 vertex C highlighted, showing the size-2 min-cut that isolates C."
+   },
+   "given": {
+    "aim": "Classify two candidate edge sets as cuts, compute the min-cut cardinality, and prove the |E| >= n*k/2 edge bound.",
+    "terms": [
+     {
+      "term": "Edge set E",
+      "meaning": "The 10 edges A-E, A-B, A-D, A-F, E-D, E-F, B-D, B-C, C-F, D-F.",
+      "example": "Vertex degrees are A:4, B:3, C:2, D:4, E:3, F:4, summing to 20 = 2*10.",
+      "connects": "Degrees drive both the min-cut and the part-c inequality."
+     },
+     {
+      "term": "Candidate set (i)",
+      "meaning": "{(A,B),(E,F),(B,D),(A,E),(A,D)} - tested for being a cut.",
+      "example": "After removing it, A-F, E-D, B-C, C-F, D-F remain and keep all vertices connected.",
+      "connects": "Shows (i) fails the cut definition."
+     },
+     {
+      "term": "Candidate set (ii)",
+      "meaning": "{(B,D),(C,F),(A,B)} - tested for being a cut.",
+      "example": "Removing it leaves only B-C joining {B,C}, separating them from {A,D,E,F}.",
+      "connects": "Shows (ii) is a genuine cut."
+     },
+     {
+      "term": "k = min-cut = lambda(G)",
+      "meaning": "Edge connectivity, the minimum cut cardinality.",
+      "example": "Equals 2 here, and in general k <= every vertex degree.",
+      "connects": "The inequality lambda(G) <= delta(G) is the engine of part c."
+     }
+    ],
+    "plan": "For (a) delete each set and test connectivity; for (b) isolate the minimum-degree vertex to realise the smallest cut; for (c) note the edges at any vertex form a cut so every degree >= k, then apply the handshaking lemma."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Part a: test the two sets",
+      "formula_id": "",
+      "formula_raw": "cut  <=>  removal disconnects G",
+      "apply": "Remove set (i) {A-B, E-F, B-D, A-E, A-D}: the remaining edges A-F, E-D, B-C, C-F, D-F still connect all six vertices (A-F-C-B, A-F-D-E), so the graph stays connected and (i) is NOT a cut. Remove set (ii) {B-D, C-F, A-B}: now B's only remaining edge is B-C, so {B, C} forms its own component while {A, D, E, F} stays connected. Removal disconnects G, so (ii) IS a cut.",
+      "note": "A cut must actually break the graph; (i) leaves it in one piece."
+     },
+     {
+      "step": 2,
+      "title": "Part b: find the min-cut",
+      "formula_id": "edge-connectivity-min-degree",
+      "formula_raw": "lambda(G) <= delta(G) = deg(C) = 2",
+      "apply": "The smallest degree is deg(C) = 2 (C touches only B and F). The two edges at C, {B-C, C-F}, are a cut that isolates C, giving a cut of size 2, so lambda(G) <= 2. No single edge is a bridge (every edge lies on a cycle, e.g. B-C-F-A-B), so lambda(G) >= 2. Hence the min-cut cardinality is exactly 2.",
+      "note": "Edge connectivity is squeezed between the no-bridge lower bound and the min-degree upper bound."
+     },
+     {
+      "step": 3,
+      "title": "Part c: every degree is at least k",
+      "formula_id": "edge-connectivity-min-degree",
+      "formula_raw": "for every vertex v: deg(v) >= lambda(G) = k",
+      "apply": "For any vertex v, the set of edges incident to v is itself a cut (removing them isolates v from the connected graph on n >= 2 vertices). That cut has cardinality deg(v), and the min-cut is the smallest cut, so deg(v) >= k for every v.",
+      "note": "This is exactly the inequality lambda(G) <= delta(G) read vertex by vertex."
+     },
+     {
+      "step": 4,
+      "title": "Part c: apply the handshaking lemma",
+      "formula_id": "handshaking-lemma",
+      "formula_raw": "2|E| = sum deg(v) >= n*k  =>  |E| >= (n*k)/2",
+      "apply": "Summing deg(v) >= k over all n vertices gives sum of degrees >= n*k. By the handshaking lemma the degree sum equals 2|E|, so 2|E| >= n*k, i.e. |E| >= (n*k)/2. This proves the required bound.",
+      "note": "Combining the per-vertex bound with the degree-sum identity completes the proof."
+     }
+    ],
+    "result": "a. (i) is not a cut, (ii) is a cut. b. min-cut cardinality = 2. c. deg(v) >= k for all v and 2|E| = sum deg(v) >= n*k, so |E| >= (n*k)/2."
+   },
+   "formula_ids_used": ["edge-connectivity-min-degree", "handshaking-lemma"],
+   "formula_note": "The central idea is lambda(G) <= delta(G): the edges at any vertex form a cut, so a min-cut of size k forces every degree to be at least k, and the handshaking lemma 2|E| = sum deg(v) >= n*k then gives |E| >= n*k/2."
+  }
+ ],
+ "formulas": [
+  {
+   "formulaId": "tree-mis-greedy-leaf",
+   "name": "Greedy Maximum Independent Set on a Tree (Leaf Rule)",
+   "latex": "\\text{repeatedly pick a leaf }u,\\ I\\leftarrow I\\cup\\{u\\}\\text{ if no neighbour of }u\\in I,\\ \\text{delete }u",
+   "plain": "On a tree, a maximum independent set is found greedily by repeatedly selecting a leaf (degree <= 1), adding it to I when none of its neighbours is already in I, then deleting it; runs in O(n).",
+   "whenToUse": "When asked for a maximum independent set (or minimum vertex cover) of a tree or forest.",
+   "terms": [
+    {"symbol": "u", "means": "a leaf, a vertex of degree at most 1 in the current forest"},
+    {"symbol": "I", "means": "the independent set being built"},
+    {"symbol": "O(n)", "means": "linear running time; each of the n vertices is processed once"}
+   ],
+   "trap": "The greedy leaf rule is optimal only on trees/forests; on a general graph greedily picking minimum-degree vertices need not give a maximum independent set.",
+   "reference": "Greedy / dynamic-programming maximum independent set on trees"
+  },
+  {
+   "formulaId": "tree-edge-count",
+   "name": "Edges in a Tree and Connectivity Lower Bound",
+   "latex": "\\text{tree on }n\\text{ vertices: }|E|=n-1;\\quad\\text{connected }\\Rightarrow|E|\\ge n-1",
+   "plain": "A tree on n vertices has exactly n - 1 edges; any connected graph on n vertices has at least n - 1 edges, with equality only for trees (which are acyclic).",
+   "whenToUse": "When reasoning about minimum edge counts for connectivity, spanning trees, or when a cycle must be present.",
+   "terms": [
+    {"symbol": "n", "means": "number of vertices"},
+    {"symbol": "|E|", "means": "number of edges"}
+   ],
+   "trap": "Exactly n - 1 edges plus connectivity forces a tree (no cycle); to guarantee a cycle you need at least n edges.",
+   "reference": "Basic tree properties / spanning-tree edge count"
+  },
+  {
+   "formulaId": "articulation-point-definition",
+   "name": "Articulation Point (Cut Vertex)",
+   "latex": "v\\text{ is an articulation point}\\iff c(G-v)>c(G)",
+   "plain": "A vertex v is an articulation point (cut vertex) if removing v (and its incident edges) increases the number of connected components of the graph.",
+   "whenToUse": "When counting or identifying cut vertices, biconnected components, or single points of failure in a network.",
+   "terms": [
+    {"symbol": "c(G)", "means": "number of connected components of G"},
+    {"symbol": "G - v", "means": "graph G with vertex v and all its incident edges removed"}
+   ],
+   "trap": "A degree-1 (leaf) vertex is never an articulation point; both interior endpoints of a bridge usually are.",
+   "reference": "Articulation points and biconnected components (Tarjan / DFS low-link)"
+  },
+  {
+   "formulaId": "edge-connectivity-min-degree",
+   "name": "Edge Connectivity Bounded by Minimum Degree",
+   "latex": "\\lambda(G)\\le\\delta(G);\\quad k=\\lambda(G)\\Rightarrow\\deg(v)\\ge k\\ \\forall v",
+   "plain": "The edge connectivity lambda(G) (min-cut cardinality) is at most the minimum degree delta(G), because the edges at any vertex form a cut isolating it; hence a min-cut of size k forces every vertex degree to be at least k.",
+   "whenToUse": "When bounding the min-cut / edge connectivity of a graph from vertex degrees, or proving edge-count lower bounds from connectivity.",
+   "terms": [
+    {"symbol": "lambda(G)", "means": "edge connectivity, the minimum number of edges whose removal disconnects G"},
+    {"symbol": "delta(G)", "means": "minimum vertex degree of G"},
+    {"symbol": "k", "means": "the min-cut cardinality, equal to lambda(G)"}
+   ],
+   "trap": "lambda(G) <= delta(G) is one-directional; edge connectivity can be strictly less than the minimum degree, so a low-degree vertex caps but does not always equal the min-cut.",
+   "reference": "Whitney's inequality: lambda(G) <= delta(G) (and kappa(G) <= lambda(G) <= delta(G))"
+  }
+ ]
+}

@@ -1,0 +1,328 @@
+{
+ "page": 44,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2015",
+    "year": 2015,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Algorithms",
+    "topic": "Identify Function",
+    "subtopic": "Identify Function"
+   },
+   "question": "Consider the following C function:\n\nint fun1(int n) {\n    int i, j, k, p, q = 0;\n    for (i = 1; i < n; ++i) {\n        p = 0;\n        for (j = n; j > 1; j = j/2) ++p;\n        for (k = 1; k < p; k = k * 2) ++q;\n    }\n    return q;\n}\n\nWhich one of the following most closely approximates the return value of the function fun1?\n\nA. n^2\nB. n(log n)^2\nC. n log n\nD. n log(log n)",
+   "answer": "D. n log(log n)",
+   "to_find": "The asymptotic approximation of the return value of fun1(n)",
+   "understand": {
+    "plain": "The function has three nested loops. The outer loop runs n-1 times. The middle loop counts how many times n can be halved (giving floor(log_2(n))). The innermost loop runs by doubling k, so it runs floor(log_2(p)) times. q is incremented in the innermost loop, so its total count is (n-1) * floor(log_2(log_2(n))).",
+    "keywords": [
+     {
+      "term": "log(log n)",
+      "explain": "The logarithm applied twice to n; grows extremely slowly.",
+      "example": "If n=256, log_2(256)=8, log_2(8)=3, so log(log n)=3."
+     },
+     {
+      "term": "Doubling loop",
+      "explain": "A loop where the variable is multiplied by 2 each iteration runs in O(log(limit)) iterations.",
+      "example": "k=1,2,4,8,... up to p takes ceil(log_2(p)) steps."
+     }
+    ],
+    "visual_svg": "<svg width='420' height='160' viewBox='0 0 420 160' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='5' y='5' width='410' height='150' rx='10' class='bg'/><text x='20' y='35' class='lbl ink'>Loop analysis of fun1(n):</text><text x='20' y='60' class='sub ink'>Outer loop (i): runs n-1 times   ->   O(n)</text><text x='20' y='85' class='sub ink'>Middle loop (j): halving n until 1  ->   p = floor(log_2(n))</text><text x='20' y='110' class='sub ink'>Inner loop (k): doubling until p  ->   floor(log_2(p)) = floor(log_2(log_2(n)))</text><text x='20' y='140' class='sub ink'>Total q increments = (n-1) * floor(log_2(log_2(n)))  ~  n*log(log n)</text></svg>",
+    "visual_alt": "Three loops: outer runs n-1 times; middle counts log_2(n) halvings into p; inner doubles k from 1 to p, running log_2(p) = log(log n) times. Total = n * log(log n)."
+   },
+   "given": {
+    "aim": "Determine the asymptotic growth of the return value q of fun1(n).",
+    "terms": [
+     {
+      "term": "p",
+      "meaning": "Number of times n can be integer-divided by 2 before reaching 1",
+      "example": "n=16: j=16,8,4,2 so p=4 = log_2(16)",
+      "connects": "p = floor(log_2(n)), used as the limit for the innermost loop"
+     },
+     {
+      "term": "Inner loop iterations",
+      "meaning": "k doubles each step (k=1,2,4,...) while k < p, giving floor(log_2(p)) steps",
+      "example": "p=8: k=1,2,4 => 3 iterations = log_2(8)",
+      "connects": "q is incremented once per inner-loop iteration"
+     },
+     {
+      "term": "Outer loop count",
+      "meaning": "i runs from 1 to n-1, giving n-1 iterations",
+      "example": "n=10: i=1,2,...,9 => 9 iterations",
+      "connects": "Multiplies the inner work by (n-1)"
+     }
+    ],
+    "plan": "Find the number of iterations of each loop separately and multiply. The outer loop contributes n-1, the middle loop gives p = log_2(n), and the inner loop gives log_2(p) = log_2(log_2(n)). Multiply all to get Theta(n log(log n))."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Analyze the middle loop: compute p",
+      "formula_raw": "p = floor(log_2(n))",
+      "apply": "The loop 'for (j = n; j > 1; j = j/2) ++p' halves j repeatedly until j <= 1. Starting at n, after t halvings j = n/2^t. It stops when j <= 1, i.e., t = floor(log_2(n)). So p = floor(log_2(n)).",
+      "note": "p is the same for every iteration of the outer loop, so it can be computed once."
+     },
+     {
+      "step": 2,
+      "title": "Analyze the inner loop: count q increments per outer iteration",
+      "formula_raw": "inner iterations = floor(log_2(p))",
+      "apply": "The loop 'for (k = 1; k < p; k = k * 2) ++q' doubles k each time: k=1,2,4,... until k >= p. Number of steps = floor(log_2(p)) = floor(log_2(log_2(n))).",
+      "note": "This is log applied twice to n."
+     },
+     {
+      "step": 3,
+      "title": "Multiply over all outer iterations",
+      "formula_raw": "q = (n-1) * floor(log_2(log_2(n)))",
+      "apply": "The outer loop runs n-1 times. In each iteration, the inner loop adds floor(log_2(log_2(n))) to q. Total: q = (n-1) * floor(log_2(log_2(n))) = Theta(n log(log n)).",
+      "note": "Among the given options, n log(log n) matches exactly."
+     }
+    ],
+    "result": "The return value is Theta(n log(log n)), so the answer is D. n log(log n)."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Loop complexity analysis: outer O(n), middle O(log n) giving limit p, inner O(log p) = O(log log n); product = O(n log log n).",
+   "qid": "1.18.27",
+   "answer_official": "D"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2015",
+    "year": 2015,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Algorithms",
+    "topic": "Identify Function",
+    "subtopic": "Identify Function"
+   },
+   "question": "Consider the following C function:\n\nint fun(int n) {\n    int x = 1, k;\n    if (n == 1) return x;\n    for (k = 1; k < n; ++k)\n        x = x + fun(k) * fun(n - k);\n    return x;\n}\n\nThe return value of fun(5) is ______.",
+   "answer": "51",
+   "to_find": "The return value of fun(5)",
+   "understand": {
+    "plain": "The function is recursive. For n=1 it returns 1. For larger n it sums products fun(k)*fun(n-k) for all k from 1 to n-1, then adds 1 (the initial value of x). Computing values bottom-up from fun(1) to fun(5) gives the answer.",
+    "keywords": [
+     {
+      "term": "Recurrence relation",
+      "explain": "fun(n) = 1 + sum_{k=1}^{n-1} fun(k)*fun(n-k); this mirrors the Catalan number recurrence.",
+      "example": "fun(3) = 1 + fun(1)*fun(2) + fun(2)*fun(1) = 1+2+2 = 5"
+     },
+     {
+      "term": "Bottom-up evaluation",
+      "explain": "Compute fun(1), fun(2), ... in order so each result is reused.",
+      "example": "fun(2) needs fun(1) which is already known = 1."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Recursive tree computing fun(5) by expanding into sums of products of smaller fun values, computed bottom-up."
+   },
+   "given": {
+    "aim": "Compute fun(5) by evaluating fun(1) through fun(5) iteratively.",
+    "terms": [
+     {
+      "term": "fun(1) = 1",
+      "meaning": "Base case: returns 1",
+      "example": "Direct return",
+      "connects": "Used in computing all higher values"
+     },
+     {
+      "term": "fun(n) = 1 + sum_{k=1}^{n-1} fun(k)*fun(n-k)",
+      "meaning": "Recursive case: x starts at 1 and accumulates products",
+      "example": "fun(2) = 1 + fun(1)*fun(1) = 2",
+      "connects": "Each higher value depends on all smaller ones"
+     },
+     {
+      "term": "Symmetry of sum",
+      "meaning": "fun(k)*fun(n-k) appears twice for most k (once as k and once as n-k)",
+      "example": "For n=4, fun(1)*fun(3) and fun(3)*fun(1) both appear",
+      "connects": "Can double the partial sums to speed computation"
+     }
+    ],
+    "plan": "Compute fun(1), fun(2), fun(3), fun(4), fun(5) sequentially using the recurrence."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Compute fun(1) through fun(4)",
+      "formula_raw": "fun(n) = 1 + sum_{k=1}^{n-1} fun(k)*fun(n-k)",
+      "apply": "fun(1) = 1 (base case)\nfun(2) = 1 + fun(1)*fun(1) = 1 + 1*1 = 2\nfun(3) = 1 + fun(1)*fun(2) + fun(2)*fun(1) = 1 + 1*2 + 2*1 = 5\nfun(4) = 1 + fun(1)*fun(3) + fun(2)*fun(2) + fun(3)*fun(1) = 1 + 1*5 + 2*2 + 5*1 = 1+5+4+5 = 15",
+      "note": "fun values so far: 1, 2, 5, 15 (these are Catalan numbers C_0, C_1, C_2, C_3 scaled by initial 1)."
+     },
+     {
+      "step": 2,
+      "title": "Compute fun(5)",
+      "formula_raw": "fun(5) = 1 + sum_{k=1}^{4} fun(k)*fun(5-k)",
+      "apply": "fun(5) = 1 + fun(1)*fun(4) + fun(2)*fun(3) + fun(3)*fun(2) + fun(4)*fun(1)\n       = 1 + 1*15 + 2*5 + 5*2 + 15*1\n       = 1 + 15 + 10 + 10 + 15\n       = 51",
+      "note": "The answer is 51."
+     }
+    ],
+    "result": "fun(5) = 51"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Catalan-number-style recurrence: fun(n) = 1 + sum_{k=1}^{n-1} fun(k)*fun(n-k), computed iteratively bottom-up.",
+   "qid": "1.18.28",
+   "answer_official": "51"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2015",
+    "year": 2015,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Algorithms",
+    "topic": "Identify Function",
+    "subtopic": "Identify Function"
+   },
+   "question": "Suppose c is an array of length k, where all the entries are from the set {0, 1}. For any positive integers a and n, consider the following pseudocode:\n\nDOSOMETHING(c, a, n)\n  z = 1\n  for i = 0 to k-1 do\n    z = z^2 mod n\n    if c[i] = 1 then z = (z * a) mod n\n  return z\n\nIf k = 4, c = [1, 0, 1, 1], a = 2, and n = 8, then the output of DOSOMETHING(c, a, n) is ______.\n\nA. 0\nB. 2\nC. 4\nD. 6",
+   "answer": "A. 0",
+   "to_find": "The output of DOSOMETHING([1,0,1,1], 2, 8) with k=4",
+   "understand": {
+    "plain": "The pseudocode implements left-to-right binary modular exponentiation. The array c represents the binary digits of an exponent (most significant bit first). The algorithm computes a^m mod n where m is the number whose binary representation is c. With c=[1,0,1,1], m=11 (binary 1011), so it computes 2^11 mod 8.",
+    "keywords": [
+     {
+      "term": "Modular exponentiation",
+      "explain": "Computing a^m mod n efficiently by repeated squaring and conditional multiplication.",
+      "example": "2^4 mod 5 = 16 mod 5 = 1"
+     },
+     {
+      "term": "Binary representation",
+      "explain": "c=[1,0,1,1] is the binary number 1011 = 11 in decimal; each bit tells whether to multiply by a.",
+      "example": "1*8 + 0*4 + 1*2 + 1*1 = 11"
+     }
+    ],
+    "visual_svg": "<svg width='440' height='200' viewBox='0 0 440 200' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='5' y='5' width='430' height='190' rx='10' class='bg'/><text x='20' y='30' class='lbl ink'>DOSOMETHING trace: a=2, n=8, c=[1,0,1,1]</text><text x='20' y='58' class='sub ink'>z=1 (start)</text><text x='20' y='80' class='sub ink'>i=0: z=1^2 mod 8=1; c[0]=1: z=(1*2) mod 8 = 2</text><text x='20' y='102' class='sub ink'>i=1: z=2^2 mod 8=4; c[1]=0: no multiply, z=4</text><text x='20' y='124' class='sub ink'>i=2: z=4^2 mod 8=16 mod 8=0; c[2]=1: z=(0*2) mod 8=0</text><text x='20' y='146' class='sub ink'>i=3: z=0^2 mod 8=0; c[3]=1: z=(0*2) mod 8=0</text><text x='20' y='175' class='lbl ink'>return z = 0</text></svg>",
+    "visual_alt": "Step-by-step trace: z starts at 1, after 4 iterations with c=[1,0,1,1], a=2, n=8, z becomes 0 (since 2^11 mod 8 = 2048 mod 8 = 0)."
+   },
+   "given": {
+    "aim": "Simulate DOSOMETHING with k=4, c=[1,0,1,1], a=2, n=8 step by step.",
+    "terms": [
+     {
+      "term": "c = [1, 0, 1, 1]",
+      "meaning": "Binary digits of exponent m=11 (binary 1011), MSB first",
+      "example": "11 in binary = 1011",
+      "connects": "Each c[i] controls whether to multiply by a in that step"
+     },
+     {
+      "term": "z = z^2 mod n",
+      "meaning": "Square-and-reduce step in modular exponentiation",
+      "example": "z=4: 4^2=16, 16 mod 8=0",
+      "connects": "Doubles the exponent built so far"
+     },
+     {
+      "term": "n = 8",
+      "meaning": "Modulus; all operations are mod 8",
+      "example": "16 mod 8 = 0, so once z reaches a multiple of 8 it stays 0",
+      "connects": "2^3=8=0 mod 8, so 2^m mod 8 = 0 for all m >= 3"
+     }
+    ],
+    "plan": "Trace the 4 iterations of the loop, updating z at each step by squaring and optionally multiplying by a=2, all mod 8."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Trace the loop iteration by iteration",
+      "formula_raw": "z = z^2 mod n; if c[i]=1: z = (z*a) mod n",
+      "apply": "z = 1 (initial)\ni=0: z = 1^2 mod 8 = 1; c[0]=1: z = (1*2) mod 8 = 2\ni=1: z = 2^2 mod 8 = 4; c[1]=0: z stays 4\ni=2: z = 4^2 mod 8 = 16 mod 8 = 0; c[2]=1: z = (0*2) mod 8 = 0\ni=3: z = 0^2 mod 8 = 0; c[3]=1: z = (0*2) mod 8 = 0",
+      "note": "Once z becomes 0 (a multiple of 8), it stays 0 for all subsequent steps."
+     },
+     {
+      "step": 2,
+      "title": "Verify using direct computation",
+      "formula_raw": "2^11 mod 8",
+      "apply": "c=[1,0,1,1] in binary = 1011 base 2 = 11 in decimal.\n2^11 = 2048.\n2048 / 8 = 256 exactly, so 2048 mod 8 = 0.",
+      "note": "For any m >= 3, 2^m mod 8 = 0, confirming the result."
+     }
+    ],
+    "result": "DOSOMETHING([1,0,1,1], 2, 8) = 0. Answer: A. 0"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Left-to-right binary modular exponentiation: c[] encodes the exponent in binary (MSB first); the algorithm computes a^m mod n where m is the integer with binary representation c.",
+   "qid": "1.18.29",
+   "answer_official": "0"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2019",
+    "year": 2019,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Algorithms",
+    "topic": "Identify Function",
+    "subtopic": "Identify Function"
+   },
+   "question": "Consider the following C function:\n\nvoid convert(int n) {\n    if (n < 0)\n        printf(\"%d\", n);\n    else {\n        convert(n / 2);\n        printf(\"%d\", n % 2);\n    }\n}\n\nWhich one of the following will happen when the function convert is called with any positive integer n as argument?\n\nA. It will print the binary representation of n and terminate\nB. It will print the binary representation of n in the reverse order and terminate\nC. It will print the binary representation of n but will not terminate\nD. It will not print anything and will not terminate",
+   "answer": "D. It will not print anything and will not terminate",
+   "to_find": "What happens when convert is called with a positive integer n",
+   "understand": {
+    "plain": "The function tries to print the binary representation by recursing on n/2 before printing n%2. However, when n reaches 0, n/2 = 0, so convert(0) calls convert(0) again — causing infinite recursion that never returns. Since printf is only executed after the recursive call returns, nothing is ever printed.",
+    "keywords": [
+     {
+      "term": "Infinite recursion",
+      "explain": "convert(0) calls convert(0/2) = convert(0), which is the same call, looping forever.",
+      "example": "convert(0) -> convert(0) -> convert(0) -> ..."
+     },
+     {
+      "term": "Post-order print",
+      "explain": "printf comes after the recursive call, so it can only execute when recursion returns — which never happens due to infinite loop.",
+      "example": "convert(5) calls convert(2) first, and only prints 1 after convert(2) returns — but it never does."
+     }
+    ],
+    "visual_svg": "<svg width='420' height='200' viewBox='0 0 420 200' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='5' y='5' width='410' height='190' rx='10' class='bg'/><text x='20' y='30' class='lbl ink'>convert(5) call chain:</text><text x='20' y='55' class='sub ink'>convert(5) -> convert(2) -> convert(1) -> convert(0) -+</text><text x='20' y='78' class='sub ink'>                                                       |</text><text x='20' y='100' class='sub ink'>convert(0): n=0, not &lt; 0, so calls convert(0/2)=convert(0) &lt;--+</text><text x='20' y='130' class='sub mut'>Infinite loop: convert(0) never returns!</text><text x='20' y='158' class='no sub'>printf never executes => nothing printed, no termination</text></svg>",
+    "visual_alt": "Call chain: convert(5)->convert(2)->convert(1)->convert(0)->convert(0)->... infinite loop. printf after recursive call never executes."
+   },
+   "given": {
+    "aim": "Trace convert(n) for a positive integer n and determine if it terminates and what it prints.",
+    "terms": [
+     {
+      "term": "Base case condition: n < 0",
+      "meaning": "Only negative n causes printf to run immediately without recursion",
+      "example": "convert(-3) prints -3 and returns",
+      "connects": "Positive integers and 0 never hit this base case"
+     },
+     {
+      "term": "convert(0) = convert(0)",
+      "meaning": "When n=0: 0 is not < 0, so it goes to else branch; calls convert(0/2) = convert(0) again",
+      "example": "convert(0) -> convert(0) -> convert(0) -> ...",
+      "connects": "Any positive n eventually leads to convert(0) via repeated halving, causing infinite loop"
+     },
+     {
+      "term": "Post-recursion printf",
+      "meaning": "printf(\"%d\", n%2) is placed after the recursive call; it only runs when the recursion returns",
+      "example": "convert(1): calls convert(0) first; printf(1%2) only after convert(0) returns — it never does",
+      "connects": "Since convert(0) never returns, no printf is ever executed"
+     }
+    ],
+    "plan": "Trace the recursion: any positive n halves to 0; convert(0) recurses on convert(0) infinitely. Since printf is post-recursion, nothing is printed and the function never terminates."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Trace call stack for n=5",
+      "formula_raw": "",
+      "apply": "convert(5): n=5 >= 0, calls convert(5/2) = convert(2), then would print 5%2=1\nconvert(2): n=2 >= 0, calls convert(2/2) = convert(1), then would print 2%2=0\nconvert(1): n=1 >= 0, calls convert(1/2) = convert(0), then would print 1%2=1\nconvert(0): n=0 >= 0 (not < 0!), calls convert(0/2) = convert(0), then would print 0%2=0\n=> convert(0) calls itself again => infinite recursion",
+      "note": "The bug: n=0 is not handled as a base case. The condition 'n < 0' does NOT catch n=0."
+     },
+     {
+      "step": 2,
+      "title": "Determine output behavior",
+      "formula_raw": "",
+      "apply": "Since convert(0) recurses forever without returning, the call stack never unwinds. The printf statements in convert(0), convert(1), convert(2), convert(5) are all after the recursive call — they are reached only when recursion returns. Since recursion never returns, no printf is ever executed. The function runs forever without printing anything.",
+      "note": "If the condition were 'n <= 0' or 'n < 2', the function would correctly print binary and terminate."
+     }
+    ],
+    "result": "The function will not print anything and will not terminate. Answer: D."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Missing base case for n=0 in binary-print recursion causes infinite loop; post-order printf placement means nothing is printed before the infinite loop takes over.",
+   "qid": "1.18.30",
+   "answer_official": "D"
+  }
+ ]
+}

@@ -1,0 +1,419 @@
+{
+ "page": 187,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2024",
+    "year": 2024,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Compiler Design",
+    "topic": "LR Parser",
+    "subtopic": "LR Parser"
+   },
+   "question": "Consider the following augmented grammar, which is to be parsed with a SLR parser. The set of terminals is {a, b, c, d, [, ], #}.\n\nS' -> S\nS -> SS[Aa][Ac][Bc] | Ba\nA -> d | c\nB -> c\n\nLet I_0 = CLOSURE({S' -> .S}). The number of items in the set GOTO(I_0, S) is __________.",
+   "answer": "5",
+   "to_find": "Number of LR(0) items in GOTO(I_0, S)",
+   "understand": {
+    "plain": "We build the LR(0) canonical collection for the given augmented grammar. Starting from I_0 = CLOSURE({S' -> .S}), we compute GOTO(I_0, S) which is the set of items reachable by shifting the symbol S from state I_0. We count how many LR(0) items are in that resulting state.",
+    "keywords": [
+     {
+      "term": "CLOSURE",
+      "explain": "Expands a set of LR(0) items by adding all items for each non-terminal that appears after a dot.",
+      "example": "If item is S' -> .S, we add all productions of S with the dot at the beginning."
+     },
+     {
+      "term": "GOTO(I, X)",
+      "explain": "The set of items reachable from state I by reading symbol X; computed as CLOSURE of all items obtained by advancing the dot past X in items of I.",
+      "example": "GOTO(I_0, S) finds all items in I_0 that have .S and moves the dot to S."
+     },
+     {
+      "term": "LR(0) item",
+      "explain": "A production rule with a dot placed somewhere in the right-hand side, indicating how much of the rule has been recognized.",
+      "example": "S -> S.S[Aa][Ac][Bc] is an LR(0) item."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='500' height='220'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='220' height='130' class='bg' rx='6'/><text x='20' y='35' class='lbl ink'>I_0 = CLOSURE({S'-&gt;.S})</text><text x='20' y='58' class='sub ink'>S' -&gt; .S</text><text x='20' y='78' class='sub ink'>S -&gt; .SS[Aa][Ac][Bc]</text><text x='20' y='98' class='sub ink'>S -&gt; .Ba</text><text x='20' y='118' class='sub ink'>B -&gt; .c</text><text x='20' y='138' class='sub ink'>(+ more B, A items)</text><rect x='270' y='10' width='220' height='90' class='hi' rx='6'/><text x='280' y='35' class='lbl ink'>GOTO(I_0, S)</text><text x='280' y='58' class='sub ink'>S' -&gt; S.   (accept)</text><text x='280' y='80' class='sub ink'>S -&gt; S.S[Aa][Ac][Bc]</text><text x='280' y='102' class='sub ink'>(2 items total)</text><line x1='232' y1='75' x2='268' y2='55' stroke='#7F77DD' stroke-width='2' marker-end='url(#arr)'/><defs><marker id='arr' markerWidth='8' markerHeight='8' refX='4' refY='4' orient='auto'><path d='M0,0 L8,4 L0,8 Z' fill='#7F77DD'/></marker></defs><text x='230' y='170' class='sub mut'>shift S</text></svg>",
+    "visual_alt": "State I_0 contains all items from CLOSURE of S'->. S. After shifting S, GOTO(I_0, S) contains two items: S'->S. (the accept item) and S->S.S[Aa][Ac][Bc]."
+   },
+   "given": {
+    "aim": "Find the number of LR(0) items in GOTO(I_0, S) for the augmented grammar.",
+    "terms": [
+     {
+      "term": "I_0",
+      "meaning": "The initial LR(0) state = CLOSURE({S' -> .S})",
+      "example": "Contains S'->  .S plus all items for productions of S and its reachable non-terminals.",
+      "connects": "We apply GOTO on I_0 with symbol S to get the target state."
+     },
+     {
+      "term": "GOTO(I_0, S)",
+      "meaning": "New state reached by reading symbol S from I_0",
+      "example": "Take all items in I_0 with .S, advance the dot past S, then take CLOSURE.",
+      "connects": "The question asks how many items are in this state."
+     },
+     {
+      "term": "Items in I_0 with .S",
+      "meaning": "S' -> .S and S -> .SS[Aa][Ac][Bc] both have S as the next symbol",
+      "example": "Advancing dot past S gives: S' -> S. and S -> S.S[Aa][Ac][Bc]",
+      "connects": "These two form the kernel of GOTO(I_0, S); CLOSURE adds no new items since no non-terminal follows a dot in these two items at this point (S' -> S. is complete, S -> S.S... has S next but that is already in scope)."
+     }
+    ],
+    "plan": "Compute I_0 = CLOSURE({S' -> .S}). Identify all items in I_0 that have the dot immediately before S. Advance the dot past S in each of those items. Take CLOSURE of the result. Count the items."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Build I_0 = CLOSURE({S' -> .S})",
+      "formula_raw": "CLOSURE: for each item A -> alpha.Bbeta, add all B -> .gamma",
+      "apply": "Start: {S' -> .S}. S has productions S -> SS[Aa][Ac][Bc] and S -> Ba. Add:\nS -> .SS[Aa][Ac][Bc]\nS -> .Ba\nNow B appears after dot in S -> .Ba; B has production B -> c. Add:\nB -> .c\nA does not appear yet at dot position. Also from S -> .SS..., the leading S expands again — already added. No A items yet since A is not immediately after a dot at this point.\nI_0 = {S' -> .S, S -> .SS[Aa][Ac][Bc], S -> .Ba, B -> .c}",
+      "note": "There are 4 items in I_0. Items for A are not added because no item in I_0 has .A at this stage."
+     },
+     {
+      "step": 2,
+      "title": "Find items in I_0 with dot before S",
+      "formula_raw": "GOTO(I, X) = CLOSURE({A -> alphaX.beta | A -> alpha.Xbeta in I})",
+      "apply": "From I_0, the items with .S (dot immediately before S) are:\n1. S' -> .S   => advance => S' -> S.\n2. S -> .SS[Aa][Ac][Bc]  => advance => S -> S.S[Aa][Ac][Bc]\nSo the kernel of GOTO(I_0, S) = {S' -> S., S -> S.S[Aa][Ac][Bc]}.",
+      "note": "S -> .Ba does not have .S, and B -> .c does not have .S, so they are not included."
+     },
+     {
+      "step": 3,
+      "title": "Take CLOSURE of the kernel",
+      "formula_raw": "CLOSURE of kernel items",
+      "apply": "Item S' -> S. : dot is at the end — no non-terminal after dot, nothing to expand.\nItem S -> S.S[Aa][Ac][Bc] : dot is before S. Expand S:\n  - S -> .SS[Aa][Ac][Bc]  (already in I_0 pattern, but we must add it here too)\n  - S -> .Ba\nExpand B in S -> .Ba:\n  - B -> .c\nExpand S in S -> .SS[..]: again S -> .SS[Aa][Ac][Bc] and S -> .Ba (already added).\nFinal GOTO(I_0, S) = {\n  S' -> S.,\n  S -> S.S[Aa][Ac][Bc],\n  S -> .SS[Aa][Ac][Bc],\n  S -> .Ba,\n  B -> .c\n} = 5 items.\n\nWait — re-examining the grammar from the image more carefully: The grammar shown is S -> SS[Aa][Ac][Bc] | Ba; A -> d|c; B -> c. Let me recount.\n\nGOTO(I_0, S) kernel = {S'->S., S->S.S[Aa][Ac][Bc]}.\nCLOSURE: S->S.S[Aa][Ac][Bc] has S after dot. Add S productions:\n  S -> .SS[Aa][Ac][Bc]\n  S -> .Ba\nFrom S -> .Ba, B after dot, add B -> .c.\nFrom S -> .SS[Aa][Ac][Bc], S after dot (already added).\nTotal: {S'->S., S->S.S[Aa][Ac][Bc], S->.SS[Aa][Ac][Bc], S->.Ba, B->.c} = 5 items.",
+      "note": "The closure of GOTO(I_0, S) adds items for S and B productions, giving 5 items total."
+     }
+    ],
+    "result": "The number of items in GOTO(I_0, S) is 5."
+   },
+   "formula_ids_used": [],
+   "formula_note": "LR(0) item construction: CLOSURE and GOTO operations on the augmented grammar to build the canonical collection of sets of items.",
+   "qid": "3.10.19",
+   "answer_official": "9"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2025",
+    "year": 2025,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "LR Parser",
+    "subtopic": "LR Parser"
+   },
+   "question": "Given a Context-Free Grammar G as follows:\n\nS -> Ac | Ac | dc | bda\nA -> a\n\nWhich ONE of the following statements is TRUE?\n\nA. G is neither LALR(1) nor SLR(1)\nB. G is SLR(1), not LALR(1)\nC. G is LALR(1)\nD. G is LALR(1), also SLR(1)",
+   "answer": "D. G is LALR(1), also SLR(1)",
+   "to_find": "Which parsing class (SLR(1), LALR(1)) does the grammar G belong to?",
+   "understand": {
+    "plain": "We are given a context-free grammar and need to determine whether it can be parsed by SLR(1) or LALR(1) parsers. SLR(1) is a less powerful parser than LALR(1), and LALR(1) is less powerful than LR(1). If a grammar is SLR(1), it is also LALR(1) and LR(1). The question asks which class this grammar belongs to.",
+    "keywords": [
+     {
+      "term": "SLR(1)",
+      "explain": "Simple LR parser with 1 lookahead. Uses FOLLOW sets to resolve shift/reduce conflicts. Less powerful than LALR(1).",
+      "example": "An SLR(1) grammar has no shift/reduce or reduce/reduce conflicts when using FOLLOW sets as lookahead."
+     },
+     {
+      "term": "LALR(1)",
+      "explain": "Look-Ahead LR parser with 1 lookahead. Merges states with identical cores from LR(1) parser. More powerful than SLR(1).",
+      "example": "Every SLR(1) grammar is also LALR(1), but not vice versa."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Grammar G has productions S->Ac|dc|bda and A->a. The language it generates includes: ac, dc, bda. Checking for conflicts in SLR/LALR(1) parse tables determines parser class."
+   },
+   "given": {
+    "aim": "Determine whether the grammar G is SLR(1), LALR(1), both, or neither.",
+    "terms": [
+     {
+      "term": "Grammar G",
+      "meaning": "S -> Ac | dc | bda; A -> a (the two 'Ac' in the original appear to be S->Ac and S->dc; the grammar generates strings ac, dc, bda)",
+      "example": "Terminals: a, b, c, d; Non-terminals: S, A",
+      "connects": "We build LR(0) items and check for conflicts."
+     },
+     {
+      "term": "FOLLOW sets",
+      "meaning": "FOLLOW(A) = set of terminals that can appear immediately after A in any sentential form",
+      "example": "For A -> a used in S -> Ac, after A comes c, so c is in FOLLOW(A).",
+      "connects": "SLR(1) uses FOLLOW sets to decide when to reduce."
+     },
+     {
+      "term": "Lookahead sets",
+      "meaning": "In LALR(1), each reduce item carries a specific lookahead computed from the LR(1) items",
+      "example": "LALR(1) lookaheads are subsets of or equal to FOLLOW sets used by SLR(1).",
+      "connects": "If SLR(1) has no conflicts, LALR(1) also has no conflicts (since LALR lookaheads are subsets of FOLLOW)."
+     }
+    ],
+    "plan": "Build the LR(0) states for G. Check for shift/reduce or reduce/reduce conflicts using FOLLOW sets (for SLR) and LALR lookaheads. Since every SLR(1) grammar is automatically LALR(1), if we confirm SLR(1), the answer is D."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Compute FIRST and FOLLOW sets",
+      "formula_raw": "FIRST(alpha), FOLLOW(A) using standard rules",
+      "apply": "FIRST(S) = {a, d, b}  (from Ac->a..., dc->d..., bda->b...)\nFIRST(A) = {a}\nFOLLOW(S) = {$}\nFOLLOW(A) = {c}  (from S->Ac, A is always followed by c)\n\nThe grammar productions are:\n1. S' -> S\n2. S -> Ac\n3. S -> dc\n4. S -> bda\n5. A -> a",
+      "note": "FOLLOW(A) = {c} because in the only production using A (S->Ac), A is followed by terminal c."
+     },
+     {
+      "step": 2,
+      "title": "Build LR(0) states and check for conflicts",
+      "formula_raw": "SLR(1): no conflict if for reduce item A->alpha., no terminal is in both the shift set and FOLLOW(A)",
+      "apply": "I_0: S'-> .S, S-> .Ac, S-> .dc, S-> .bda, A-> .a\nGOTO(I_0,S) = I_1: {S'->S.} - accept state, no conflict\nGOTO(I_0,A) = I_2: {S->A.c}\nGOTO(I_0,d) = I_3: {S->d.c}\nGOTO(I_0,b) = I_4: {S->b.da}\nGOTO(I_0,a) = I_5: {A->a.} - reduce item\n\nIn I_5: A->a. is a reduce item. FOLLOW(A) = {c}.\nThe only action on input c is REDUCE by A->a. No shift on c in I_5.\nNo conflict.\n\nGOTO(I_2,c) = I_6: {S->Ac.} - reduce by S->Ac on $. OK.\nGOTO(I_3,c) = I_7: {S->dc.} - reduce by S->dc on $. OK.\nGOTO(I_4,d) = I_8: {S->bd.a}\nGOTO(I_8,a) = I_9: {S->bda.} - reduce by S->bda on $. OK.\n\nNo shift/reduce or reduce/reduce conflicts anywhere.",
+      "note": "Since there are no conflicts in the SLR(1) construction, the grammar is SLR(1)."
+     },
+     {
+      "step": 3,
+      "title": "Conclude parser class",
+      "formula_raw": "SLR(1) subset LALR(1) subset LR(1)",
+      "apply": "Every SLR(1) grammar is also LALR(1) and LR(1), since LALR(1) lookaheads are always subsets of FOLLOW sets. Since G is SLR(1) with no conflicts, it is also LALR(1).\nAnswer: D — G is LALR(1), also SLR(1).",
+      "note": "The containment SLR(1) ⊆ LALR(1) means if SLR(1) accepts the grammar, so does LALR(1)."
+     }
+    ],
+    "result": "G is LALR(1) and also SLR(1). Answer: D."
+   },
+   "formula_ids_used": [],
+   "formula_note": "SLR(1) and LALR(1) grammar classes; SLR(1) is a proper subset of LALR(1); no conflict in SLR(1) parse table implies membership in both classes.",
+   "qid": "3.10.20",
+   "answer_official": "C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1987",
+    "year": 1987,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "Lexical Analysis",
+    "subtopic": "Lexical Analysis"
+   },
+   "question": "Using longer identifiers in a program will necessarily lead to:\n\nA. Somewhat slower compilation\nB. A program that is easier to understand\nC. An incorrect program\nD. None of the above",
+   "answer": "D. None of the above",
+   "to_find": "What is the necessary consequence of using longer identifiers?",
+   "understand": {
+    "plain": "The question asks about the effect of using longer (more characters) identifier names in a program. We need to check if any of options A, B, or C is necessarily always true. Option A says compilation is slower, B says the program is easier to understand, C says the program becomes incorrect — we evaluate which if any is necessarily true.",
+    "keywords": [
+     {
+      "term": "Identifier",
+      "explain": "A name given to variables, functions, or other user-defined entities in a program.",
+      "example": "In C, 'x' and 'myLongVariableName' are both valid identifiers."
+     },
+     {
+      "term": "Lexical Analysis",
+      "explain": "The first phase of compilation that tokenizes the source code, recognizing identifiers, keywords, literals, etc.",
+      "example": "A lexer reads 'int myVar = 5;' and produces tokens: keyword 'int', identifier 'myVar', operator '=', integer '5'."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Longer identifiers increase token length slightly but do not necessarily affect compilation speed, correctness, or readability — none of A, B, C is necessarily true."
+   },
+   "given": {
+    "aim": "Identify the necessary consequence of using longer identifiers in a source program.",
+    "terms": [
+     {
+      "term": "Slower compilation (A)",
+      "meaning": "Longer tokens take slightly more time to lex, but this effect is negligible and not a necessity",
+      "example": "Modern lexers use hash tables; identifier length has almost no effect on compilation speed.",
+      "connects": "Option A is not necessarily true."
+     },
+     {
+      "term": "Easier to understand (B)",
+      "meaning": "Meaningful long names can improve readability, but this is not guaranteed — a long random name is harder to read",
+      "example": "'xyzabc123' is longer but not more readable than 'count'.",
+      "connects": "Option B is not necessarily true."
+     },
+     {
+      "term": "Incorrect program (C)",
+      "meaning": "Longer identifiers do not cause incorrectness; any valid identifier (within limits) produces correct programs",
+      "example": "'totalEmployeeCount' is as valid as 'n'.",
+      "connects": "Option C is false."
+     }
+    ],
+    "plan": "Evaluate each option for whether it is necessarily (always) true when longer identifiers are used. Since none of A, B, C is necessarily always true, the answer is D."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Evaluate Option A: Somewhat slower compilation",
+      "formula_raw": "",
+      "apply": "Longer identifiers mean the lexer reads more characters per token. In theory, this could add trivial overhead. However, modern compilers use efficient hash tables and the overhead is negligible and implementation-dependent. Moreover, 'necessarily' means it must always be true — since it depends on the compiler implementation, A is not necessarily true.",
+      "note": "Symbol table lookup via hashing is O(1) regardless of identifier length for practical purposes."
+     },
+     {
+      "step": 2,
+      "title": "Evaluate Options B and C",
+      "formula_raw": "",
+      "apply": "B. Longer names improve readability only if they are meaningful. A name like 'aaaaaabbbbbbcccccc' is long but meaningless. So B is not necessarily true.\nC. Program correctness is unrelated to identifier length. Any syntactically valid identifier produces correct code (assuming logic is correct). So C is necessarily false.\nConclusion: None of A, B, or C is necessarily true. Answer: D.",
+      "note": "Most compilers allow identifiers of arbitrary length (or at least 31+ significant characters per C standard), so length alone does not cause incorrectness."
+     }
+    ],
+    "result": "D. None of the above — using longer identifiers does not necessarily lead to any of the stated consequences."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Lexical analysis tokenizes identifiers; identifier length has no necessary negative effect on compilation speed, readability, or correctness.",
+   "qid": "3.11.1",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2000",
+    "year": 2000,
+    "marks": 2,
+    "difficulty": "easy",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "Lexical Analysis",
+    "subtopic": "Lexical Analysis"
+   },
+   "question": "The number of tokens in the following C statement is\n\nprintf(\"i=%d, &i=%x\", i, &i);\n\nA. 3\nB. 26\nC. 10\nD. 21",
+   "answer": "C. 10",
+   "to_find": "Count the number of tokens in the given C printf statement.",
+   "understand": {
+    "plain": "A token is the smallest meaningful unit recognized by the lexer. In C, tokens include keywords, identifiers, operators, punctuation (separators), and string literals. The entire string literal 'i=%d, &i=%x' counts as a single string token, not individual characters. We count every distinct token in the statement.",
+    "keywords": [
+     {
+      "term": "Token",
+      "explain": "The smallest lexical unit in a program: identifier, keyword, literal, operator, or punctuation.",
+      "example": "In 'int x = 5;', the tokens are: int, x, =, 5, ; (5 tokens)."
+     },
+     {
+      "term": "String literal",
+      "explain": "A sequence of characters enclosed in double quotes, treated as a single token by the lexer.",
+      "example": "\"hello world\" is one token despite containing a space."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "The statement printf(\"i=%d, &i=%x\", i, &i); broken into tokens: printf | ( | \"i=%d, &i=%x\" | , | i | , | & | i | ) | ; = 10 tokens."
+   },
+   "given": {
+    "aim": "Count the number of lexical tokens in the C statement: printf(\"i=%d, &i=%x\", i, &i);",
+    "terms": [
+     {
+      "term": "printf",
+      "meaning": "An identifier (function name) — 1 token",
+      "example": "printf -> identifier token",
+      "connects": "Token 1"
+     },
+     {
+      "term": "Punctuation tokens",
+      "meaning": "( ) , ; are each separate tokens",
+      "example": "Opening ( is token 2, closing ) is token 9, ; is token 10",
+      "connects": "Tokens 2, 5, 7, 9, 10"
+     },
+     {
+      "term": "String literal \"i=%d, &i=%x\"",
+      "meaning": "The entire string in double quotes is a single token",
+      "example": "\"hello\" is 1 token, not 5",
+      "connects": "Token 3"
+     }
+    ],
+    "plan": "List every token in the statement one by one: identifier, parentheses, string literal, commas, variable identifiers, address-of operator, and semicolon."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "List all tokens sequentially",
+      "formula_raw": "",
+      "apply": "Statement: printf ( \"i=%d, &i=%x\" , i , & i ) ;\n\nToken 1:  printf          (identifier)\nToken 2:  (               (punctuation/operator)\nToken 3:  \"i=%d, &i=%x\"  (string literal — entire string is ONE token)\nToken 4:  ,               (comma punctuation)\nToken 5:  i               (identifier)\nToken 6:  ,               (comma punctuation)\nToken 7:  &               (address-of operator)\nToken 8:  i               (identifier)\nToken 9:  )               (punctuation)\nToken 10: ;               (punctuation)\n\nTotal = 10 tokens.",
+      "note": "The string literal, no matter how long, is always 1 token. The & operator in '&i' is a separate token from 'i'."
+     },
+     {
+      "step": 2,
+      "title": "Verify the count",
+      "formula_raw": "",
+      "apply": "1 identifier (printf) + 1 '(' + 1 string literal + 1 ',' + 1 identifier (i) + 1 ',' + 1 '&' + 1 identifier (i) + 1 ')' + 1 ';' = 10 tokens. Matches option C.",
+      "note": "Characters inside the string literal (%, =, d, etc.) are part of the string token and are NOT counted separately."
+     }
+    ],
+    "result": "The number of tokens is 10. Answer: C."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Lexical tokenization rules: string literals are single tokens; each operator and punctuation mark is a separate token; identifiers are single tokens.",
+   "qid": "3.11.2",
+   "answer_official": "C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2010",
+    "year": 2010,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "Lexical Analysis",
+    "subtopic": "Lexical Analysis"
+   },
+   "question": "Which data structure in a compiler is used for managing information about variables and their attributes?\n\nA. Abstract syntax tree\nB. Symbol table\nC. Semantic stack\nD. Parse table",
+   "answer": "B. Symbol table",
+   "to_find": "Identify the compiler data structure that manages variable information and attributes.",
+   "understand": {
+    "plain": "A compiler must keep track of every variable, function, and type declared in the program — its name, type, scope, memory location, etc. This information is stored and retrieved using a specific data structure. The question asks which data structure serves this purpose.",
+    "keywords": [
+     {
+      "term": "Symbol table",
+      "explain": "A data structure maintained by a compiler to store information (attributes) about identifiers such as their name, type, scope, and memory location.",
+      "example": "For 'int x = 5;', the symbol table stores: name=x, type=int, value=5, scope=global."
+     },
+     {
+      "term": "Abstract syntax tree (AST)",
+      "explain": "A tree representation of the hierarchical syntactic structure of source code, used in semantic analysis and code generation.",
+      "example": "For 'a + b * c', the AST has '+' as root with 'a' and '*' as children."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='420' height='180'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='400' height='160' class='bg' rx='6'/><text x='20' y='35' class='lbl ink'>Symbol Table</text><rect x='10' y='45' width='400' height='30' class='hi' rx='3'/><text x='20' y='65' class='sub ink'>Name</text><text x='110' y='65' class='sub ink'>Type</text><text x='200' y='65' class='sub ink'>Scope</text><text x='290' y='65' class='sub ink'>Address</text><text x='20' y='95' class='sub ink'>x</text><text x='110' y='95' class='sub ink'>int</text><text x='200' y='95' class='sub ink'>global</text><text x='290' y='95' class='sub ink'>0x1000</text><text x='20' y='120' class='sub ink'>myFunc</text><text x='110' y='120' class='sub ink'>function</text><text x='200' y='120' class='sub ink'>global</text><text x='290' y='120' class='sub ink'>0x2000</text><text x='20' y='145' class='sub ink'>count</text><text x='110' y='145' class='sub ink'>int</text><text x='200' y='145' class='sub ink'>local</text><text x='290' y='145' class='sub ink'>0x3008</text></svg>",
+    "visual_alt": "A symbol table with columns: Name, Type, Scope, Address. Rows show entries for variables and functions declared in the program."
+   },
+   "given": {
+    "aim": "Identify which compiler data structure manages variable information and attributes.",
+    "terms": [
+     {
+      "term": "Variable attributes",
+      "meaning": "Properties of a variable such as its name, data type, scope, and memory address",
+      "example": "'float temperature' has attributes: name=temperature, type=float",
+      "connects": "These attributes must be stored and retrieved efficiently during compilation."
+     },
+     {
+      "term": "Abstract syntax tree",
+      "meaning": "Represents syntactic structure of code, not variable attribute storage",
+      "example": "AST of 'x = y + 1' is a tree with '=' at root, not a table of attributes.",
+      "connects": "AST is used for parsing and semantic analysis, not for attribute lookup."
+     },
+     {
+      "term": "Parse table",
+      "meaning": "A table used by a parser (e.g., LL or LR) to determine parsing actions",
+      "example": "A predictive parse table maps (non-terminal, terminal) -> production rule.",
+      "connects": "Parse table guides parsing, not variable management."
+     }
+    ],
+    "plan": "Recognize that the symbol table is the standard compiler data structure for storing and retrieving identifier (variable) attributes throughout all phases of compilation."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Identify the purpose of each option",
+      "formula_raw": "",
+      "apply": "A. Abstract syntax tree: represents the hierarchical structure of the program; used in semantic analysis and intermediate code generation; does NOT store variable attributes.\nB. Symbol table: a dictionary/table that maps identifiers to their attributes (type, scope, size, address); created during lexical/syntactic analysis and used throughout compilation.\nC. Semantic stack: used in certain parsing techniques for semantic actions; not a general variable attribute store.\nD. Parse table: used by LL or LR parsers to direct the parsing process; contains grammar rules, not variable data.",
+      "note": "The symbol table is the canonical answer — it is filled during the declaration phase and consulted during type checking, code generation, and optimization."
+     },
+     {
+      "step": 2,
+      "title": "Confirm the answer",
+      "formula_raw": "",
+      "apply": "The symbol table stores: identifier name, data type, scope/visibility, memory location, size, number of parameters (for functions), etc. This matches exactly what the question asks — 'managing information about variables and their attributes'. Answer: B.",
+      "note": "All major compiler textbooks (Aho et al., 'Dragon Book') define symbol table as the data structure for managing identifier information."
+     }
+    ],
+    "result": "B. Symbol table — it is the data structure used for managing information about variables and their attributes in a compiler."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Symbol table: central compiler data structure mapping identifiers to their attributes (type, scope, address, etc.), used across all compilation phases.",
+   "qid": "3.11.3",
+   "answer_official": "B"
+  }
+ ]
+}

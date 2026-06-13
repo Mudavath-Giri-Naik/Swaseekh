@@ -1,0 +1,340 @@
+{
+ "page": 172,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2003",
+    "year": 2003,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "Grammar",
+    "subtopic": "Grammar"
+   },
+   "question": "Consider the grammar shown below.\n\nS -> CC\nC -> cC | d\n\nThis grammar is\n\nA. LL(1)\nB. SLR(1) but not LL(1)\nC. LALR(1) but not SLR(1)\nD. LR(1) but not LALR(1)",
+   "answer": "A. LL(1)",
+   "to_find": "Which parsing class does the grammar S->CC, C->cC|d belong to?",
+   "understand": {
+    "plain": "We are given a grammar with two productions for C. We need to determine the strongest (highest-level) parsing class this grammar belongs to. LL(1) is the strongest — if a grammar is LL(1), it is also SLR(1) and LALR(1) and LR(1). We check whether the grammar is LL(1) by computing FIRST and FOLLOW sets and checking for conflicts.",
+    "keywords": [
+     {
+      "term": "LL(1)",
+      "explain": "A grammar is LL(1) if for every non-terminal A with productions A -> alpha | beta, FIRST(alpha) and FIRST(beta) are disjoint, and if epsilon is in FIRST(alpha) then FIRST(beta) and FOLLOW(A) are disjoint.",
+      "example": "A -> aB | bC is LL(1) if 'a' and 'b' are distinct."
+     },
+     {
+      "term": "FIRST set",
+      "explain": "FIRST(alpha) is the set of terminals that can begin a string derived from alpha.",
+      "example": "FIRST(cC) = {c}, FIRST(d) = {d}."
+     },
+     {
+      "term": "FOLLOW set",
+      "explain": "FOLLOW(A) is the set of terminals that can appear immediately to the right of A in some sentential form.",
+      "example": "FOLLOW(S) = {$} for the start symbol."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='440' height='200'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect width='440' height='200' rx='10' class='bg'/><text x='20' y='35' class='lbl ink'>Grammar: S -> CC, C -> cC | d</text><text x='20' y='70' class='sub ink'>FIRST(C -> cC) = {c}</text><text x='20' y='95' class='sub ink'>FIRST(C -> d)  = {d}</text><text x='20' y='120' class='sub ink'>FIRST sets are disjoint => no LL(1) conflict for C</text><text x='20' y='155' class='sub ink'>FIRST(S) = {c, d}, FOLLOW(S) = {$}</text><text x='20' y='180' class='sub ok'>Conclusion: Grammar is LL(1)</text></svg>",
+    "visual_alt": "Table showing FIRST sets for C's productions: FIRST(cC)={c} and FIRST(d)={d} are disjoint, confirming LL(1)."
+   },
+   "given": {
+    "aim": "Classify the grammar S->CC, C->cC|d into LL(1), SLR(1), LALR(1) or LR(1) only.",
+    "terms": [
+     {
+      "term": "S -> CC",
+      "meaning": "Start symbol S derives exactly two C's.",
+      "example": "String 'cdcd' can be derived: S => CC => cCd => cdcd (using C->cC then C->d for each C).",
+      "connects": "Determines the overall structure; S always derives exactly one string of the form (c^n d)(c^m d)."
+     },
+     {
+      "term": "C -> cC | d",
+      "meaning": "C can be a c followed by another C, or just d.",
+      "example": "C =>* ccd by applying C->cC->ccC->ccd.",
+      "connects": "The two alternatives for C have FIRST sets {c} and {d} which are disjoint — key to LL(1) check."
+     },
+     {
+      "term": "Parsing hierarchy",
+      "meaning": "LL(1) subset of LALR(1) subset of LR(1). If a grammar is LL(1), it is in all classes.",
+      "example": "Proving LL(1) is the strongest claim.",
+      "connects": "If LL(1) is satisfied, options B, C, D are all weaker than A, so A is the correct answer."
+     }
+    ],
+    "plan": "Compute FIRST sets for each alternative of every non-terminal. Check if they are disjoint (LL(1) condition). If so, the grammar is LL(1), which automatically makes it SLR(1) and LALR(1) as well. Report the strongest class."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Compute FIRST sets",
+      "formula_raw": "FIRST(alpha) = set of terminals starting strings derivable from alpha",
+      "apply": "C has two productions: C -> cC and C -> d.\nFIRST(cC) = {c}\nFIRST(d)  = {d}\nThese are disjoint: {c} ∩ {d} = empty set.\nFor S -> CC: FIRST(CC) = FIRST(C) = {c, d}. Only one production for S, so no conflict.",
+      "note": "Disjoint FIRST sets for all alternatives of every non-terminal is the core LL(1) condition (when no production derives epsilon)."
+     },
+     {
+      "step": 2,
+      "title": "Verify LL(1) condition and classify",
+      "formula_raw": "LL(1): for each A -> alpha | beta, FIRST(alpha) ∩ FIRST(beta) = empty",
+      "apply": "S has only one production (no conflict).\nC -> cC | d: FIRST(cC) ∩ FIRST(d) = {c} ∩ {d} = empty — no conflict.\nNo production derives epsilon, so the FOLLOW-based condition is not triggered.\nHence the grammar is LL(1).\nSince LL(1) => LALR(1) => SLR(1) => LR(1), option A is the strongest and correct answer.",
+      "note": "The grammar is deterministic and predictable with 1 lookahead — a parser can always decide which production to use just by looking at the next input symbol."
+     }
+    ],
+    "result": "The grammar is LL(1). Answer: A. LL(1)"
+   },
+   "formula_ids_used": [],
+   "formula_note": "LL(1) membership check via disjoint FIRST sets for all alternatives of each non-terminal.",
+   "qid": "3.8.23",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2003",
+    "year": 2003,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "Grammar",
+    "subtopic": "Grammar"
+   },
+   "question": "Consider the translation scheme shown below.\n\nS  -> TR\nR  -> +T { print('+'); } R | epsilon\nT  -> num { print(num.val); }\n\nHere num is a token that represents an integer and num.val represents the corresponding integer value. For an input string '9+5+2', this translation scheme will print\n\nA. 9+5+2\nB. 9 5 + 2 +\nC. 9 5 2 + +\nD. + + 9 5 2",
+   "answer": "B. 9 5 + 2 +",
+   "to_find": "Output printed when the translation scheme is applied to input '9+5+2'.",
+   "understand": {
+    "plain": "This is an SDT (Syntax-Directed Translation) scheme. The actions (print statements) are embedded inline in the grammar rules. When parsing '9+5+2', the actions fire in the order the parser encounters them during a leftmost derivation (top-down parse). We trace the parse tree and note when each action fires.",
+    "keywords": [
+     {
+      "term": "Syntax-Directed Translation (SDT)",
+      "explain": "A grammar with semantic actions embedded at positions within production bodies. Actions fire when the parser reaches that position in the rule.",
+      "example": "T -> num { print(num.val); } fires print immediately after matching the num token."
+     },
+     {
+      "term": "Postfix action ordering",
+      "explain": "In a top-down parse, an action at the end of a production body fires after all symbols to its left in the body have been processed.",
+      "example": "R -> +T { print('+'); } R fires print('+') after matching '+' and T but before R is expanded."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='500' height='260'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect width='500' height='260' rx='10' class='bg'/><text x='20' y='30' class='lbl ink'>Parse of 9 + 5 + 2</text><text x='20' y='60' class='sub ink'>S => T R</text><text x='20' y='85' class='sub ink'>  T => num(9) { print(9) }   -- prints: 9</text><text x='20' y='110' class='sub ink'>  R => +T { print(+) } R</text><text x='20' y='135' class='sub ink'>    T => num(5) { print(5) }  -- prints: 5</text><text x='20' y='160' class='sub ink'>    { print(+) }             -- prints: +</text><text x='20' y='185' class='sub ink'>    R => +T { print(+) } R</text><text x='20' y='210' class='sub ink'>      T => num(2) { print(2) } -- prints: 2</text><text x='20' y='235' class='sub ok'>      { print(+) }            -- prints: +</text></svg>",
+    "visual_alt": "Parse tree trace for 9+5+2 showing order of action execution: print(9), print(5), print(+), print(2), print(+) yielding '9 5 + 2 +'."
+   },
+   "given": {
+    "aim": "Trace the translation scheme on input '9+5+2' and determine the printed output.",
+    "terms": [
+     {
+      "term": "S -> TR",
+      "meaning": "S expands to T (a number) followed by R (the rest: additions).",
+      "example": "'9+5+2': T matches 9, R matches '+5+2'.",
+      "connects": "Sets up the parse; T fires first printing the first number."
+     },
+     {
+      "term": "R -> +T { print('+'); } R",
+      "meaning": "R matches a '+', then T (a number which prints itself), then fires print('+'), then recurses into R.",
+      "example": "First R matches '+5', T prints '5', then print('+') fires.",
+      "connects": "The + is printed AFTER the number T to its left — this is a postfix-like ordering."
+     },
+     {
+      "term": "T -> num { print(num.val); }",
+      "meaning": "T matches a number token and immediately prints its value.",
+      "example": "num = 9 => prints '9'.",
+      "connects": "All numbers are printed before their operators because num.val print comes before the { print('+') } action in R."
+     }
+    ],
+    "plan": "Simulate a top-down leftmost parse of '9+5+2' and fire each action in order. Track the printed sequence."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Expand S and match first number",
+      "formula_raw": "S -> TR",
+      "apply": "S -> T R\nT -> num { print(num.val) }\nMatch num=9, fire print(9).\nOutput so far: 9",
+      "note": "Numbers always print before their operator because T -> num {print} fires first in the R production."
+     },
+     {
+      "step": 2,
+      "title": "Expand first R (matches +5)",
+      "formula_raw": "R -> +T { print('+'); } R",
+      "apply": "Match '+', then expand T -> num { print(num.val) } with num=5.\nFire print(5). Output so far: 9 5\nThen fire print('+'). Output so far: 9 5 +\nNow recurse into R.",
+      "note": "The print('+') action comes after T in the body, so the number 5 is printed before '+'."
+     },
+     {
+      "step": 3,
+      "title": "Expand second R (matches +2)",
+      "formula_raw": "R -> +T { print('+'); } R",
+      "apply": "Match '+', then expand T -> num { print(num.val) } with num=2.\nFire print(2). Output so far: 9 5 + 2\nThen fire print('+'). Output so far: 9 5 + 2 +\nR -> epsilon, done.",
+      "note": "Final output is 9 5 + 2 + which matches option C."
+     }
+    ],
+    "result": "The translation scheme prints: 9 5 + 2 +. Answer: B. 9 5 + 2 +"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Inline SDT action ordering during top-down parse: actions fire left-to-right as their surrounding symbols are matched.",
+   "qid": "3.8.24",
+   "answer_official": "B"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2004",
+    "year": 2004,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "Grammar",
+    "subtopic": "Grammar"
+   },
+   "question": "Consider the grammar with the following translation rules and E as the start symbol.\n\nE -> E1 # T  { E.value = E1.value * T.value }\nE -> T        { E.value = T.value }\nT -> T1 & F  { T.value = T1.value + F.value }\nT -> F        { T.value = F.value }\nF -> num      { F.value = num.value }\n\nCompute E.value for the root of the parse tree for the expression: 2 # 3 & 5 # 6 & 4\n\nA. 200\nB. 180\nC. 160\nD. 40",
+   "answer": "C. 160",
+   "to_find": "E.value for the expression 2 # 3 & 5 # 6 & 4 using the given translation rules.",
+   "understand": {
+    "plain": "The grammar defines two operators: # (which acts like multiplication) and & (which acts like addition). The grammar structure tells us that # has lower precedence than & (since E uses # and E uses T as operand, while T uses &). Both operators are left-associative. We parse the expression and compute the value bottom-up.",
+    "keywords": [
+     {
+      "term": "Operator precedence in grammar",
+      "explain": "In a grammar, the operator at a lower level (closer to the start symbol) has lower precedence. Here E uses # and T uses &, so # has lower precedence (binds less tightly) than &.",
+      "example": "2 # 3 & 5 is parsed as 2 # (3 & 5) = 2 * 8 = 16, not (2 # 3) & 5."
+     },
+     {
+      "term": "Left-associativity",
+      "explain": "Both E -> E1 # T and T -> T1 & F have the recursive symbol on the left (E1, T1), so both operators associate left-to-right.",
+      "example": "2 # 3 # 5 = (2 # 3) # 5."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='480' height='220'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect width='480' height='220' rx='10' class='bg'/><text x='20' y='30' class='lbl ink'>Expression: 2 # 3 &amp; 5 # 6 &amp; 4</text><text x='20' y='60' class='sub ink'>Precedence: &amp; &gt; #  (& binds tighter)</text><text x='20' y='85' class='sub ink'>Left-assoc: (2 # (3&amp;5)) # (6&amp;4)</text><text x='20' y='115' class='sub ink'>Step 1: T1 = 3 &amp; 5 = 3+5 = 8</text><text x='20' y='140' class='sub ink'>Step 2: T2 = 6 &amp; 4 = 6+4 = 10</text><text x='20' y='165' class='sub ink'>Step 3: E1 = 2 # T1 = 2*8 = 16</text><text x='20' y='195' class='sub ok'>Step 4: E  = E1 # T2 = 16*10 = 160... wait recalculate</text></svg>",
+    "visual_alt": "Parsing 2#3&5#6&4 with & as addition (+) and # as multiplication (*). Left-associativity of # applied: ((2#(3&5))#(6&4)) = (2*8)*(6+4) = 16*10 = 160."
+   },
+   "given": {
+    "aim": "Evaluate 2 # 3 & 5 # 6 & 4 using the grammar's operator semantics (# = multiply, & = add, & has higher precedence, both left-associative).",
+    "terms": [
+     {
+      "term": "# operator",
+      "explain": "Defined at E level: E.value = E1.value * T.value. So # computes multiplication.",
+      "example": "3 # 4 = 3 * 4 = 12.",
+      "connects": "Lower precedence than &, so & groups first."
+     },
+     {
+      "term": "& operator",
+      "explain": "Defined at T level: T.value = T1.value + F.value. So & computes addition.",
+      "example": "3 & 4 = 3 + 4 = 7.",
+      "connects": "Higher precedence than #, so & groups before #."
+     },
+     {
+      "term": "Left-associativity",
+      "meaning": "Both # and & are left-associative due to left-recursive grammar rules.",
+      "example": "a # b # c = (a # b) # c.",
+      "connects": "Determines how consecutive same-operator expressions group."
+     }
+    ],
+    "plan": "Parse the expression respecting precedence (& before #) and left-associativity. Compute & sub-expressions first, then #."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Identify structure using precedence and associativity",
+      "formula_raw": "& has higher precedence than #; both are left-associative",
+      "apply": "Expression: 2 # 3 & 5 # 6 & 4\nWith # as E-level (lower precedence) and & as T-level (higher precedence):\nThe expression is parsed as a sequence of E-level productions.\nBreaking by # (left-associative): ((2) # (3 & 5)) # (6 & 4)\nFirst, compute the T-level sub-expressions grouped by &.\nT1: 3 & 5 = 3 + 5 = 8\nT2: 6 & 4 = 6 + 4 = 10",
+      "note": "& groups tighter, so 3 & 5 and 6 & 4 are computed first."
+     },
+     {
+      "step": 2,
+      "title": "Compute # expressions left-to-right",
+      "formula_raw": "E.value = E1.value * T.value",
+      "apply": "E1 = 2 # T1 = 2 # 8 = 2 * 8 = 16\nE  = E1 # T2 = 16 # 10 = 16 * 10 = 160\n\nHowever, checking if 2 is itself a T (single num): F=2, T=2, E=2.\nSo: E = (2 # (3&5)) # (6&4) = (2*8) * (6+4) = 16 * 10 = 160.\n\nWait — checking option A=200: perhaps 2 # 3 is one group: T for 3&5? Let me re-examine.\nActually with left-assoc on #: the whole expression with two # operators:\nE -> E1 # T gives: first E1=2, T=(3&5)=8, so E_partial = 2*8=16.\nThen E_partial # T_2 where T_2=(6&4)=10: E_final = 16*10 = 160.\nOption C = 160.",
+      "note": "The computation yields 160, which is option C. The correct answer is C. 160."
+     }
+    ],
+    "result": "E.value = 160. Answer: C. 160 (options A=200, B=180, C=160, D=40)"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Operator precedence from grammar hierarchy (lower in grammar = lower precedence) and left-recursive grammar giving left-associativity.",
+   "qid": "3.8.25",
+   "answer_official": "C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2004",
+    "year": 2004,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "Grammar",
+    "subtopic": "Grammar"
+   },
+   "question": "Which of the following grammar rules violate the requirements of an operator grammar? P, Q, R, S are non-terminals, and a, b are terminals.\n\nI.   P -> QR\nII.  P -> aQbR\nIII. P -> epsilon\nIV.  P -> a Q b R a\n\nA. (I) only\nB. (I) and (III) only\nC. (II) and (III) only\nD. (III) and (IV) only",
+   "answer": "B. (I) and (III) only",
+   "to_find": "Which grammar rules violate the definition of an operator grammar?",
+   "understand": {
+    "plain": "An operator grammar is a special type of grammar used in operator-precedence parsing. It has two restrictions: (1) no production has two adjacent non-terminals on the right-hand side, and (2) no production has epsilon (empty string) on the right-hand side. We check each rule against these two conditions.",
+    "keywords": [
+     {
+      "term": "Operator grammar",
+      "explain": "A grammar where (1) no right-hand side has two adjacent non-terminals, and (2) no right-hand side is epsilon.",
+      "example": "P -> aQb is valid (Q is not adjacent to another NT). P -> QR is invalid (Q and R are adjacent NTs)."
+     },
+     {
+      "term": "Adjacent non-terminals",
+      "explain": "Two non-terminals appearing next to each other in a production body (with no terminal between them).",
+      "example": "In P -> QR, Q and R are adjacent NTs — this violates operator grammar."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='460' height='240'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect width='460' height='240' rx='10' class='bg'/><text x='20' y='30' class='lbl ink'>Operator Grammar Checks</text><text x='20' y='65' class='sub ink'>I.   P -> QR       : QR adjacent NTs</text><text x='180' y='65' class='sub no'>VIOLATES</text><text x='20' y='95' class='sub ink'>II.  P -> aQbR     : no adjacent NTs</text><text x='230' y='95' class='sub ok'>VALID</text><text x='20' y='125' class='sub ink'>III. P -> epsilon   : empty production</text><text x='230' y='125' class='sub no'>VIOLATES</text><text x='20' y='155' class='sub ink'>IV.  P -> aQbRa    : no adjacent NTs</text><text x='230' y='155' class='sub ok'>VALID</text><text x='20' y='195' class='lbl ink'>Answer: (I) and (III) only</text></svg>",
+    "visual_alt": "Table checking each rule: Rule I (P->QR) violates because Q and R are adjacent non-terminals; Rule III (P->epsilon) violates because epsilon productions are not allowed; Rules II and IV are valid."
+   },
+   "given": {
+    "aim": "Identify which of the four given productions violate the operator grammar conditions.",
+    "terms": [
+     {
+      "term": "Condition 1: No two adjacent non-terminals",
+      "meaning": "In any production body, you cannot have two non-terminals side by side (without a terminal between them).",
+      "example": "P -> Q R is invalid; P -> Q a R is valid.",
+      "connects": "Used to check rules I, II, IV."
+     },
+     {
+      "term": "Condition 2: No epsilon productions",
+      "meaning": "No production can have an empty (epsilon) right-hand side.",
+      "example": "P -> epsilon is not allowed in an operator grammar.",
+      "connects": "Used to check rule III."
+     },
+     {
+      "term": "Rule I: P -> QR",
+      "meaning": "Two non-terminals QR with no terminal between them.",
+      "example": "Q and R are adjacent — this violates condition 1.",
+      "connects": "Violates operator grammar condition 1."
+     }
+    ],
+    "plan": "Check each of the four rules against the two operator grammar conditions: (1) no adjacent NTs, (2) no epsilon. List the violating rules."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Check each rule for adjacent non-terminals",
+      "formula_raw": "Operator grammar: no two NTs adjacent in any RHS",
+      "apply": "Rule I:   P -> QR    — Q and R are adjacent non-terminals (no terminal between them). VIOLATES.\nRule II:  P -> aQbR  — Q is flanked by 'a' and 'b'; R is at the end (rightmost). Between Q and b: terminal. Between b and R: terminal. No two NTs are adjacent. VALID.\nRule III: P -> epsilon — epsilon production. Does not have adjacent NTs, but check condition 2.\nRule IV:  P -> aQbRa — Q is between 'a' and 'b'; R is between 'b' and 'a'. No adjacent NTs. VALID.",
+      "note": "Only Rule I has adjacent NTs (QR with no terminal between them)."
+     },
+     {
+      "step": 2,
+      "title": "Check for epsilon productions",
+      "formula_raw": "Operator grammar: no epsilon productions",
+      "apply": "Rule III: P -> epsilon — this is an epsilon production. VIOLATES.\nRules I, II, IV have non-empty RHS.",
+      "note": "Epsilon productions are explicitly forbidden in operator grammars because they complicate the operator-precedence matrix."
+     },
+     {
+      "step": 3,
+      "title": "Compile the violating rules",
+      "formula_raw": "",
+      "apply": "Violating rules: I (adjacent NTs) and III (epsilon production).\nThis matches option B: (I) and (III) only.",
+      "note": "Rules II and IV are valid operator grammar rules."
+     }
+    ],
+    "result": "Rules I and III violate operator grammar requirements. Answer: B. (I) and (III) only"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Operator grammar definition: no two adjacent non-terminals on any RHS, and no epsilon productions.",
+   "qid": "3.8.26",
+   "answer_official": "B"
+  }
+ ]
+}

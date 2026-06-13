@@ -1,0 +1,253 @@
+{
+ "page": 497,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2007",
+    "year": 2007,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Process Synchronization",
+    "subtopic": "Process Synchronization"
+   },
+   "question": "Synchronization in the classical readers and writers problem can be achieved through use of semaphores. In the following incomplete code for readers-writers problem, two binary semaphores mutex and wrt are used to obtain synchronization.\n\nwait (wrt); /* writing is performed */ signal (wrt);\n\nreadcount = 0;\nReader:\n  wait (mutex);\n  readcount = readcount + 1;\n  if readcount == 1 then S1;\n  signal (mutex);\n  /* reading is performed */\n  wait (mutex);\n  readcount = readcount - 1;\n  if readcount == 0 then S4;\n  signal (mutex);\n\nThe values of S1, S2, S3, S4 (in that order) are:\n\nA. signal(mutex), wait(wrt), signal(mutex), wait(mutex)\nB. wait(wrt), signal(mutex), wait(mutex), signal(wrt)\nC. wait(wrt), signal(mutex), signal(wrt), wait(mutex)\nD. signal(mutex), wait(mutex), signal(mutex), wait(mutex)",
+   "answer": "B. wait(wrt), signal(mutex), wait(mutex), signal(wrt)",
+   "to_find": "The correct values of S1, S2, S3, S4 in the readers-writers problem using semaphores.",
+   "understand": {
+    "plain": "The readers-writers problem allows multiple readers to read simultaneously but requires exclusive access for writers. Semaphore 'wrt' controls writer access, and 'mutex' protects the readcount variable. The first reader must lock out writers (wait on wrt), and the last reader must release writers (signal wrt). The missing statements S1 through S4 must complete this logic correctly.",
+    "keywords": [
+     {
+      "term": "mutex semaphore",
+      "explain": "A binary semaphore used to protect the shared readcount variable from concurrent modification.",
+      "example": "Only one reader at a time can update readcount by using wait(mutex) and signal(mutex)."
+     },
+     {
+      "term": "wrt semaphore",
+      "explain": "A binary semaphore that provides mutual exclusion between writers, and between the first/last reader and writers.",
+      "example": "A writer does wait(wrt) before writing and signal(wrt) after. The first reader also does wait(wrt) to block writers."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='520' height='220'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect class='bg' x='10' y='10' width='230' height='200' rx='8'/><text class='ink lbl' x='125' y='38' text-anchor='middle'>Reader Entry</text><text class='ink sub' x='20' y='60'>wait(mutex)</text><text class='ink sub' x='20' y='80'>readcount++</text><text class='ink sub' x='20' y='100'>if readcount==1:</text><text class='hi tag' x='30' y='120' style='fill:var(--hi-line,#7F77DD)'>  S1: wait(wrt)</text><text class='ink sub' x='20' y='140'>signal(mutex) [S2]</text><text class='mut sub' x='20' y='162'>// reading happens</text><rect class='bg' x='270' y='10' width='230' height='200' rx='8'/><text class='ink lbl' x='385' y='38' text-anchor='middle'>Reader Exit</text><text class='ink sub' x='280' y='60'>wait(mutex) [S3]</text><text class='ink sub' x='280' y='80'>readcount--</text><text class='ink sub' x='280' y='100'>if readcount==0:</text><text class='hi tag' x='290' y='120' style='fill:var(--hi-line,#7F77DD)'>  S4: signal(wrt)</text><text class='ink sub' x='280' y='140'>signal(mutex)</text></svg>",
+    "visual_alt": "Reader entry: wait(mutex), increment readcount, if first reader then wait(wrt) [S1], signal(mutex) [S2]. Reader exit: wait(mutex) [S3], decrement readcount, if last reader then signal(wrt) [S4], signal(mutex)."
+   },
+   "given": {
+    "aim": "Determine the correct operations for S1, S2, S3, S4 in the readers-writers solution.",
+    "terms": [
+     {
+      "term": "readcount",
+      "meaning": "Shared variable tracking the number of active readers currently reading.",
+      "example": "readcount=3 means 3 readers are concurrently reading.",
+      "connects": "When readcount becomes 1 (first reader), writers must be blocked. When it becomes 0 (last reader), writers can proceed."
+     },
+     {
+      "term": "S1 (first reader action)",
+      "meaning": "When the first reader arrives, it must prevent writers from entering the critical section.",
+      "example": "First reader calls wait(wrt) to lock out writers.",
+      "connects": "S1 = wait(wrt) blocks any writer while at least one reader is active."
+     },
+     {
+      "term": "S4 (last reader action)",
+      "meaning": "When the last reader finishes, it must release the writer lock.",
+      "example": "Last reader calls signal(wrt) to allow a writer to proceed.",
+      "connects": "S4 = signal(wrt) enables a waiting writer to enter once all readers leave."
+     },
+     {
+      "term": "S2 and S3",
+      "meaning": "S2 releases the mutex after updating readcount in entry; S3 re-acquires mutex before updating readcount in exit.",
+      "example": "S2 = signal(mutex), S3 = wait(mutex).",
+      "connects": "These complete the mutual exclusion around readcount modifications."
+     }
+    ],
+    "plan": "In the standard readers-writers solution: (1) First reader blocks writers via wait(wrt) as S1, then releases mutex via signal(mutex) as S2. (2) In the exit section, the reader must re-acquire mutex (S3 = wait(mutex)) and the last reader signals writers (S4 = signal(wrt))."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Determine S1 and S2 (Reader Entry)",
+      "formula_raw": "if readcount == 1 then S1; signal(mutex);",
+      "apply": "When the first reader (readcount==1) enters, it must block all writers by calling wait(wrt). This is S1 = wait(wrt). After that, the mutex protecting readcount must be released: S2 = signal(mutex). Note: S2 is already written in code as 'signal(mutex)' after the if block, so S2 corresponds to that signal.",
+      "note": "The first reader acquires wrt so that writers cannot proceed while any reader is active."
+     },
+     {
+      "step": 2,
+      "title": "Determine S3 and S4 (Reader Exit)",
+      "formula_raw": "wait(mutex); readcount--; if readcount==0 then S4; signal(mutex);",
+      "apply": "In the exit section, before modifying readcount, the reader must acquire mutex: S3 = wait(mutex). When the last reader leaves (readcount==0), it must release the writer lock: S4 = signal(wrt). So the full sequence is: S1=wait(wrt), S2=signal(mutex), S3=wait(mutex), S4=signal(wrt).",
+      "note": "This matches option B: wait(wrt), signal(mutex), wait(mutex), signal(wrt)."
+     }
+    ],
+    "result": "S1=wait(wrt), S2=signal(mutex), S3=wait(mutex), S4=signal(wrt) — Option B."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Classical Readers-Writers synchronization using two semaphores: 'mutex' protects readcount, 'wrt' provides writer exclusion. First reader acquires wrt; last reader releases wrt.",
+   "qid": "7.20.51",
+   "answer_official": "C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2008",
+    "year": 2008,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Process Synchronization",
+    "subtopic": "Process Synchronization"
+   },
+   "question": "The following is a code with two threads, producer and consumer, that can run in parallel. Further, S and Q are binary semaphores equipped with the standard P and V operations.\n\nsemaphore S = 1, Q = 0;\ninteger x;\n\nproducer:               consumer:\nwhile (true) do         while (true) do\n  P(S);                   P(Q);\n  x = produce();          consume(x);\n  V(Q);                   V(S);\nend while               end while\n\nWhich of the following is TRUE about the program above?\n\nA. The program can deadlock.\nB. One of the items produced by the producer may be lost.\nC. Some of the items produced by the producer may be consumed more than once.\nD. Values generated and stored in x by the producer will always be consumed before the producer can generate a new value.",
+   "answer": "D. Values generated and stored in x by the producer will always be consumed before the producer can generate a new value.",
+   "to_find": "Which statement is TRUE about the producer-consumer program using binary semaphores S and Q.",
+   "understand": {
+    "plain": "The producer generates items and puts them in x, while the consumer reads x and processes it. Binary semaphores S and Q coordinate them: S starts at 1 (producer can go first) and Q starts at 0 (consumer must wait). After producing, the producer signals Q to let the consumer run. After consuming, the consumer signals S to let the producer produce again. This creates a strict alternating pattern.",
+    "keywords": [
+     {
+      "term": "binary semaphore",
+      "explain": "A semaphore that can only take values 0 or 1. P (wait) decrements it; V (signal) increments it. If value is 0, P blocks the caller.",
+      "example": "S=1 means a process can proceed; after P(S), S becomes 0, blocking any other process doing P(S)."
+     },
+     {
+      "term": "P and V operations",
+      "explain": "P (proberen/wait) decrements the semaphore and blocks if it would go negative. V (verhogen/signal) increments the semaphore and wakes a blocked process if any.",
+      "example": "P(Q) with Q=0 blocks until someone does V(Q) to set Q=1."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='520' height='200'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect class='bg' x='10' y='10' width='220' height='170' rx='8'/><text class='ink lbl' x='120' y='36' text-anchor='middle'>Producer</text><text class='ink sub' x='20' y='58'>P(S)  [S:1->0]</text><text class='ink sub' x='20' y='78'>x = produce()</text><text class='ok tag' x='20' y='98'>V(Q)  [Q:0->1]</text><rect class='bg' x='280' y='10' width='220' height='170' rx='8'/><text class='ink lbl' x='390' y='36' text-anchor='middle'>Consumer</text><text class='ink sub' x='290' y='58'>P(Q)  [Q:1->0]</text><text class='ink sub' x='290' y='78'>consume(x)</text><text class='ok tag' x='290' y='98'>V(S)  [S:0->1]</text><text class='mut sub' x='10' y='195'>Strict alternation: produce -> consume -> produce -> ...</text></svg>",
+    "visual_alt": "Producer does P(S), produces x, signals V(Q). Consumer does P(Q), consumes x, signals V(S). This creates strict alternation ensuring every produced item is consumed exactly once before the next production."
+   },
+   "given": {
+    "aim": "Identify the true behavioral property of the producer-consumer code.",
+    "terms": [
+     {
+      "term": "S = 1 initially",
+      "meaning": "Producer can immediately execute P(S) and start producing. Consumer must wait for Q.",
+      "example": "At start, producer runs first since S=1, Q=0.",
+      "connects": "Ensures producer goes first in each cycle."
+     },
+     {
+      "term": "Q = 0 initially",
+      "meaning": "Consumer is blocked at P(Q) until producer does V(Q).",
+      "example": "Consumer waits until producer has placed an item in x.",
+      "connects": "Guarantees consumer only runs after producer has produced."
+     },
+     {
+      "term": "Strict alternation",
+      "meaning": "After producing, producer signals Q and then waits on S again. Consumer must consume and signal S before producer can produce again.",
+      "example": "Cycle: P produces -> V(Q) -> consumer consumes -> V(S) -> P produces again.",
+      "connects": "No item can be overwritten or skipped; every produced item is consumed exactly once."
+     }
+    ],
+    "plan": "Trace through the semaphore values: initially S=1, Q=0. Producer can run; consumer is blocked. After producer does V(Q), consumer unblocks. After consumer does V(S), producer can run again. This strict handshake means every item is consumed before the next is produced."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Trace the execution flow",
+      "formula_raw": "S=1, Q=0 initially",
+      "apply": "Step A: Producer calls P(S): S becomes 0. Producer runs x=produce(). Producer calls V(Q): Q becomes 1.\nStep B: Consumer calls P(Q): Q becomes 0. Consumer calls consume(x). Consumer calls V(S): S becomes 1.\nStep C: Producer calls P(S): S becomes 0. Cycle repeats.\nThe semaphores enforce that after each produce, a consume must happen before the next produce.",
+      "note": "This is a strict handoff protocol — the producer cannot produce a second item until the consumer consumes the first."
+     },
+     {
+      "step": 2,
+      "title": "Evaluate each option",
+      "formula_raw": "",
+      "apply": "A. Deadlock? No. S+Q=1 always (invariant), so one of producer/consumer can always proceed.\nB. Item lost? No. Producer waits for consumer to signal S before producing again.\nC. Item consumed more than once? No. Consumer must signal S before it can do P(Q) again, and producer must produce before signaling Q.\nD. Every value consumed before next production? YES. Producer must wait on S (which only becomes 1 after consumer's V(S)), so it cannot overwrite x before consumer processes it.",
+      "note": "Option D is the correct TRUE statement."
+     }
+    ],
+    "result": "Option D is TRUE: Values generated and stored in x will always be consumed before the producer can generate a new value."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Binary semaphore handshake pattern for producer-consumer synchronization; invariant S+Q=1 ensures strict alternation with no deadlock, no loss, and no duplication.",
+   "qid": "7.20.52",
+   "answer_official": "D"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1988",
+    "year": 1988,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Resource Allocation",
+    "subtopic": "Resource Allocation"
+   },
+   "question": "A number of processes could be in a deadlock state if none of them can execute due to non-availability of sufficient resources. Let P_0, P_1, P_2, P_3, P_4 represent five processes and let there be four resource types R_0, R_1, R_2, R_3. Suppose the following data structures have been used.\n\nAvailable: A vector of length 4 such that Available[j] = k if there are k instances of resource type R_j available.\n\nAllocation: A 5x4 matrix defining the number of resources of each type currently allocated to each process.\n\nMax: A 5x4 matrix indicating the maximum demand of each process.\n\nThe data is given as follows:\n\nAllocation:          Max:              Available:\n     R0 R1 R2 R3      R0 R1 R2 R3      R0 R1 R2 R3\nP0:  0  0  1  2       0  0  1  2       1  5  2  0\nP1:  1  0  0  0       1  7  5  0\nP2:  1  3  5  4       2  3  5  6\nP3:  0  6  3  2       0  6  5  2\nP4:  0  0  1  4       0  6  5  6\n\nIs the system currently in a safe state? If yes, explain why.",
+   "answer": "Yes, the system is in a safe state. A safe sequence exists: P0 -> P3 -> P4 -> P1 -> P2.",
+   "to_find": "Determine whether the system is in a safe state using the Banker's Algorithm, and if so, identify a safe sequence.",
+   "understand": {
+    "plain": "The Banker's Algorithm checks if a system is in a safe state by finding a sequence of processes that can all complete given the currently available resources. Each process's Need = Max - Allocation. We simulate running processes one at a time: if a process's Need can be satisfied by Available resources, we run it, release its resources, and try the next. If all processes finish, the state is safe.",
+    "keywords": [
+     {
+      "term": "Need matrix",
+      "explain": "Need[i][j] = Max[i][j] - Allocation[i][j]: the additional resources process i still needs to complete.",
+      "example": "If P1 has Max=[1,7,5,0] and Allocation=[1,0,0,0], then Need=[0,7,5,0]."
+     },
+     {
+      "term": "Safe state",
+      "explain": "A state where there exists at least one safe sequence of processes that can all complete without deadlock.",
+      "example": "If Available=[1,5,2,0] and P0 needs [0,0,0,0], P0 can finish and release its resources for others."
+     },
+     {
+      "term": "Safe sequence",
+      "explain": "An ordering of processes P_i1, P_i2, ..., P_in such that each process's remaining needs can be met by currently available resources plus all resources held by processes that precede it.",
+      "example": "Sequence P0->P3->P4->P1->P2 means P0 finishes first releasing its resources for P3, etc."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='560' height='280'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect class='bg' x='10' y='10' width='540' height='260' rx='8'/><text class='ink lbl' x='280' y='36' text-anchor='middle'>Need Matrix (Max - Allocation)</text><text class='ink tag' x='20' y='58'>     R0  R1  R2  R3</text><text class='ink sub' x='20' y='76'>P0:   0   0   0   0   (all zeros - already satisfied)</text><text class='ink sub' x='20' y='94'>P1:   0   7   5   0</text><text class='ink sub' x='20' y='112'>P2:   1   0   0   2</text><text class='ink sub' x='20' y='130'>P3:   0   0   2   0</text><text class='ink sub' x='20' y='148'>P4:   0   6   4   2</text><text class='ink tag' x='20' y='172'>Available: [1, 5, 2, 0]</text><text class='ok tag' x='20' y='196'>Safe Sequence: P0 -> P3 -> P4 -> P1 -> P2</text><text class='mut sub' x='20' y='218'>After P0: Avail=[1,5,2,2]  After P3: Avail=[1,11,5,4]</text><text class='mut sub' x='20' y='240'>After P4: Avail=[1,11,6,8]  After P1: Avail=[2,11,6,8]  After P2: done</text></svg>",
+    "visual_alt": "Need matrix computed as Max minus Allocation. Available starts at [1,5,2,0]. P0 has Need=[0,0,0,0] so it runs first. After each process completes, its allocation is added back to Available. Safe sequence: P0->P3->P4->P1->P2."
+   },
+   "given": {
+    "aim": "Determine if the system is in a safe state using the Banker's Algorithm.",
+    "terms": [
+     {
+      "term": "Available = [1, 5, 2, 0]",
+      "meaning": "Current free resources: 1 unit of R0, 5 of R1, 2 of R2, 0 of R3.",
+      "example": "Only processes whose Need <= [1,5,2,0] can be scheduled first.",
+      "connects": "Starting point for the safety algorithm simulation."
+     },
+     {
+      "term": "Need matrix",
+      "meaning": "Need = Max - Allocation for each process.",
+      "example": "P0: Need=[0,0,1,2]-[0,0,1,2]=[0,0,0,0]; P3: Need=[0,6,5,2]-[0,6,3,2]=[0,0,2,0].",
+      "connects": "Determines which processes can be allocated resources and run to completion."
+     },
+     {
+      "term": "Safety check condition",
+      "meaning": "A process P_i can run if Need[i] <= Available (component-wise).",
+      "example": "P0 with Need=[0,0,0,0] <= [1,5,2,0] is always satisfied first.",
+      "connects": "This condition drives the simulation to find a safe sequence."
+     }
+    ],
+    "plan": "Compute the Need matrix for all processes. Then simulate: find a process whose Need <= Available, mark it as done, add its Allocation back to Available, repeat until all processes are done (safe) or none can proceed (unsafe)."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Compute Need matrix (Max - Allocation)",
+      "formula_raw": "Need[i][j] = Max[i][j] - Allocation[i][j]",
+      "apply": "P0: [0,0,1,2] - [0,0,1,2] = [0,0,0,0]\nP1: [1,7,5,0] - [1,0,0,0] = [0,7,5,0]\nP2: [2,3,5,6] - [1,3,5,4] = [1,0,0,2]\nP3: [0,6,5,2] - [0,6,3,2] = [0,0,2,0]\nP4: [0,6,5,6] - [0,0,1,4] = [0,6,4,2]",
+      "note": "P0's Need is all zeros meaning it needs no additional resources to complete."
+     },
+     {
+      "step": 2,
+      "title": "Run safety algorithm simulation",
+      "formula_raw": "Available = [1,5,2,0]; Finish[i]=false for all i",
+      "apply": "Step 1: P0: Need=[0,0,0,0] <= [1,5,2,0]. Run P0. Available += [0,0,1,2] = [1,5,3,2]. Finish[P0]=true.\nStep 2: P3: Need=[0,0,2,0] <= [1,5,3,2]. Run P3. Available += [0,6,3,2] = [1,11,6,4]. Finish[P3]=true.\nStep 3: P4: Need=[0,6,4,2] <= [1,11,6,4]. Run P4. Available += [0,0,1,4] = [1,11,7,8]. Finish[P4]=true.\nStep 4: P1: Need=[0,7,5,0] <= [1,11,7,8]. Run P1. Available += [1,0,0,0] = [2,11,7,8]. Finish[P1]=true.\nStep 5: P2: Need=[1,0,0,2] <= [2,11,7,8]. Run P2. Finish[P2]=true.\nAll processes finish. Safe sequence: P0 -> P3 -> P4 -> P1 -> P2.",
+      "note": "Since all processes can complete in this order, the system is in a safe state."
+     }
+    ],
+    "result": "Yes, the system is in a safe state. Safe sequence: P0 -> P3 -> P4 -> P1 -> P2."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Banker's Algorithm for deadlock avoidance: compute Need = Max - Allocation, then simulate resource allocation to find a safe sequence where every process can eventually complete.",
+   "qid": "7.21.1",
+   "answer_official": "3"
+  }
+ ]
+}

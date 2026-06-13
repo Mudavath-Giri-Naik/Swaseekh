@@ -1,0 +1,377 @@
+{
+ "page": 127,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2009",
+    "year": 2009,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Computer Organization & Architecture",
+    "topic": "Interrupts",
+    "subtopic": "Interrupts"
+   },
+   "question": "A CPU generally handles an interrupt by executing an interrupt service routine:\nA. As soon as an interrupt is raised.\nB. By checking the interrupt register at the end of fetch cycle.\nC. By checking the interrupt register after finishing the execution of the current instruction.\nD. By checking the interrupt register at fixed time intervals.",
+   "answer": "C. By checking the interrupt register after finishing the execution of the current instruction.",
+   "to_find": "When does a CPU check and handle an interrupt?",
+   "understand": {
+    "plain": "When an external device raises an interrupt signal, the CPU does not drop whatever it is doing immediately. Instead, it completes the instruction it is currently executing, then checks whether an interrupt is pending, and only then transfers control to the interrupt service routine (ISR). This ensures that the CPU state is consistent when saving context.",
+    "keywords": [
+     {
+      "term": "Interrupt",
+      "explain": "An asynchronous signal from hardware or software requesting the CPU to stop its current task and run a special handler routine.",
+      "example": "A keyboard press generates an interrupt so the CPU reads the key character."
+     },
+     {
+      "term": "Interrupt Service Routine (ISR)",
+      "explain": "A special function/subroutine that the CPU jumps to when it recognizes and accepts an interrupt.",
+      "example": "The keyboard ISR reads the scancode and stores the character in the keyboard buffer."
+     },
+     {
+      "term": "Instruction completion before interrupt",
+      "explain": "The CPU always finishes executing the current instruction before sampling the interrupt line, ensuring a clean CPU state.",
+      "example": "If the CPU is executing ADD R1, R2 and an interrupt arrives mid-execution, it finishes ADD before checking the interrupt."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Timeline showing CPU fetching and executing an instruction, then at the end of the instruction checking the interrupt register and branching to ISR if an interrupt is pending."
+   },
+   "given": {
+    "aim": "Identify the correct moment at which the CPU checks and acts on an interrupt.",
+    "terms": [
+     {
+      "term": "Interrupt register",
+      "meaning": "A CPU register (or flag) that records whether an interrupt request is pending.",
+      "example": "Interrupt flag set to 1 when a device raises IRQ.",
+      "connects": "CPU reads this register to decide whether to invoke the ISR."
+     },
+     {
+      "term": "Fetch-Decode-Execute cycle",
+      "meaning": "The repeated three-phase cycle a CPU uses to process instructions.",
+      "example": "CPU fetches opcode, decodes it, then executes the operation.",
+      "connects": "Interrupt check happens at the end of the execute phase, not during fetch."
+     },
+     {
+      "term": "Context save",
+      "meaning": "Saving PC, registers, and flags before jumping to ISR so execution can resume correctly.",
+      "example": "PUSH PC and flags onto stack before jumping to ISR.",
+      "connects": "Requires a clean instruction boundary; hence interrupt is checked only after current instruction finishes."
+     }
+    ],
+    "plan": "Recall how a standard CPU pipeline handles interrupts: it does not interrupt mid-instruction. The interrupt check occurs at the boundary between instructions — after the current instruction finishes execution but before fetching the next one."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Eliminate incorrect options",
+      "formula_raw": "",
+      "apply": "Option A ('as soon as raised') is wrong — handling an interrupt mid-instruction would leave CPU state inconsistent. Option B ('end of fetch cycle') is wrong — the instruction has not yet executed, so the state is inconsistent. Option D ('fixed time intervals') describes a polling scheme, not standard interrupt handling.",
+      "note": "Options A and B would corrupt the in-progress instruction; Option D is polling, not interrupt-driven."
+     },
+     {
+      "step": 2,
+      "title": "Confirm correct behaviour",
+      "formula_raw": "",
+      "apply": "Standard CPU behaviour: at the end of each instruction execution, before fetching the next instruction, the CPU samples the interrupt request line. If an interrupt is pending and interrupts are enabled, it saves the program counter and PSW, then jumps to the ISR. This is Option C.",
+      "note": "This is consistent across virtually all real CPU architectures (x86, RISC-V, MIPS)."
+     }
+    ],
+    "result": "Option C: By checking the interrupt register after finishing the execution of the current instruction."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Standard CPU interrupt-handling protocol: interrupt is sampled at instruction boundaries (after execute phase) to ensure a consistent CPU state before context save.",
+   "qid": "2.13.6",
+   "answer_official": "C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2020",
+    "year": 2020,
+    "marks": 1,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Computer Organization & Architecture",
+    "topic": "Interrupts",
+    "subtopic": "Interrupts"
+   },
+   "question": "Consider the following statements.\nI. Daisy chaining is used to assign priorities in attending interrupts.\nII. When a device raises a vectored interrupt, the CPU does polling to identify the source of interrupt.\nIII. In polling, the CPU periodically checks the status bits to know if any device needs its attention.\n\nWhich of the above statements is/are TRUE?\nA. I and III only\nB. I and IV only\nC. I only\nD. III only",
+   "answer": "A. I and III only",
+   "to_find": "Which statements about interrupt handling mechanisms are correct?",
+   "understand": {
+    "plain": "There are three common interrupt/device-attention mechanisms: daisy chaining (a hardware priority scheme), vectored interrupts (device supplies its own handler address), and polling (CPU repeatedly checks status registers). Statement I describes daisy chaining correctly. Statement II incorrectly says vectored interrupts use polling — they do not; the device provides a vector. Statement III correctly describes polling.",
+    "keywords": [
+     {
+      "term": "Daisy chaining",
+      "explain": "A hardware technique where interrupt request lines are connected in a chain; the device closest to the CPU gets the highest priority.",
+      "example": "Device A -> Device B -> Device C; if A and C request simultaneously, A is served first."
+     },
+     {
+      "term": "Vectored interrupt",
+      "explain": "An interrupt mechanism where the interrupting device supplies an interrupt vector (address of its ISR) directly, so the CPU jumps immediately without polling.",
+      "example": "Device places vector 0x40 on data bus; CPU fetches ISR address from interrupt vector table at offset 0x40."
+     },
+     {
+      "term": "Polling",
+      "explain": "The CPU repeatedly checks a status register of each device to see if it needs service; no hardware interrupt line is needed.",
+      "example": "CPU reads keyboard status register every 10 ms to see if a key was pressed."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Three columns comparing daisy chaining (hardware priority chain), vectored interrupts (device provides vector, no polling), and polling (CPU checks status registers periodically)."
+   },
+   "given": {
+    "aim": "Identify which of the three statements about interrupt mechanisms are true.",
+    "terms": [
+     {
+      "term": "Statement I — Daisy chaining assigns priorities",
+      "meaning": "In a daisy-chained interrupt scheme, the physical position in the chain determines priority; the nearest device wins.",
+      "example": "CPU -> Dev1 -> Dev2; Dev1 has higher interrupt priority.",
+      "connects": "Statement I is TRUE."
+     },
+     {
+      "term": "Statement II — Vectored interrupt uses polling",
+      "meaning": "This is FALSE. A vectored interrupt does the opposite: the device identifies itself by supplying a vector, eliminating the need for polling.",
+      "example": "NMI on x86 automatically pushes an interrupt number; CPU looks up the IDT.",
+      "connects": "Statement II is FALSE."
+     },
+     {
+      "term": "Statement III — Polling checks status bits periodically",
+      "meaning": "This is TRUE by definition of polling: the CPU runs a loop that reads device status registers at regular intervals.",
+      "example": "while(keyboard_status_reg == 0); // busy-wait",
+      "connects": "Statement III is TRUE."
+     }
+    ],
+    "plan": "Evaluate each statement independently using definitions of daisy chaining, vectored interrupts, and polling, then select the option matching 'I and III'."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Evaluate Statement I",
+      "formula_raw": "",
+      "apply": "Daisy chaining IS used to assign priorities. In this scheme, the interrupt acknowledge signal propagates from CPU through devices in a chain; the device that intercepts it first gets served. TRUE.",
+      "note": "Daisy chaining is a hardware-level priority mechanism, simpler but less flexible than programmable priority controllers."
+     },
+     {
+      "step": 2,
+      "title": "Evaluate Statement II",
+      "formula_raw": "",
+      "apply": "A vectored interrupt does NOT use polling. When a device raises a vectored interrupt, it places an interrupt vector (or interrupt number) on the bus. The CPU uses this vector to jump directly to the correct ISR — no polling loop is involved. Statement II is FALSE.",
+      "note": "Polling and vectored interrupts are opposite philosophies: polling is CPU-driven, vectored interrupt is device-driven."
+     },
+     {
+      "step": 3,
+      "title": "Evaluate Statement III",
+      "formula_raw": "",
+      "apply": "In polling, the CPU periodically reads each device's status register to see if service is needed. This is exactly what Statement III says. TRUE.",
+      "note": "Polling wastes CPU cycles when no device needs attention but is simple to implement."
+     },
+     {
+      "step": 4,
+      "title": "Select the answer",
+      "formula_raw": "",
+      "apply": "I = TRUE, II = FALSE, III = TRUE. The option matching 'I and III only' is A.",
+      "note": ""
+     }
+    ],
+    "result": "Option A: I and III only."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Definitions of daisy chaining (hardware priority chain), vectored interrupts (device-supplied vector, no polling), and polling (CPU-driven periodic status check).",
+   "qid": "2.13.7",
+   "answer_official": "B"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2023",
+    "year": 2023,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Computer Organization & Architecture",
+    "topic": "Interrupts",
+    "subtopic": "Interrupts"
+   },
+   "question": "A keyboard connected to a computer is used at a rate of 1 keystroke per second. The computer system polls the keyboard every 10 ms (milli seconds) to check for a keystroke and consumes 100 us (micro seconds) for each poll. If it is determined after polling that a key has been pressed, the system consumes an additional 200 us to process the keystroke.\n\nIn an alternative implementation, the system uses interrupts instead of polling. An interrupt is raised for every keystroke. It takes a total of 300 us for servicing and processing a keystroke.\n\nLet T_1 denote the fraction of a second spent in servicing and processing a keystroke (using polling), and T_2 denote the fraction of a second spent in servicing the interrupt and processing a keystroke (using interrupts).\n\nThe ratio T_1 / T_2 is ____. (Rounded off to one decimal place)",
+   "answer": "34.0",
+   "to_find": "Ratio T_1/T_2, where T_1 is polling overhead fraction and T_2 is interrupt overhead fraction per second.",
+   "understand": {
+    "plain": "The system can handle keyboard input in two ways: polling (CPU checks keyboard every 10 ms) or interrupts (CPU only acts when a key is actually pressed). We need to find how much of each second the CPU spends on keyboard-related work in each scheme, then take the ratio.",
+    "keywords": [
+     {
+      "term": "Polling overhead",
+      "explain": "Total CPU time consumed by polling attempts per unit time, regardless of whether a keystroke actually occurred.",
+      "example": "If CPU polls every 10 ms and each poll takes 100 us, it does 100 polls/second costing 100 * 100 us = 10,000 us = 0.01 s per second."
+     },
+     {
+      "term": "Interrupt overhead",
+      "explain": "CPU time consumed only when an actual event (keystroke) occurs; zero overhead when device is idle.",
+      "example": "With 1 keystroke/second and 300 us per keystroke ISR, overhead = 300 us/second = 0.0003 s."
+     }
+    ],
+    "visual_svg": "<svg width='520' height='220' viewBox='0 0 520 220' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect width='520' height='220' rx='10' class='bg'/><text x='260' y='28' text-anchor='middle' class='lbl ink'>Polling vs Interrupt Overhead</text><rect x='20' y='50' width='220' height='140' rx='8' class='bg'/><text x='130' y='72' text-anchor='middle' class='tag ink'>Polling (T1)</text><text x='130' y='95' text-anchor='middle' class='sub mut'>100 polls/sec</text><text x='130' y='115' text-anchor='middle' class='sub mut'>x 100 us/poll</text><text x='130' y='135' text-anchor='middle' class='sub ink'>= 10,000 us overhead</text><text x='130' y='155' text-anchor='middle' class='sub mut'>+ 1 x 200 us (process)</text><text x='130' y='175' text-anchor='middle' class='sub ink'>T1 = 10,200 us/s</text><rect x='280' y='50' width='220' height='140' rx='8' class='hi'/><text x='390' y='72' text-anchor='middle' class='tag ink'>Interrupt (T2)</text><text x='390' y='95' text-anchor='middle' class='sub mut'>1 keystroke/sec</text><text x='390' y='115' text-anchor='middle' class='sub mut'>x 300 us/keystroke</text><text x='390' y='155' text-anchor='middle' class='sub ink'>T2 = 300 us/s</text><text x='390' y='185' text-anchor='middle' class='lbl ink'>Ratio = 34.0</text></svg>",
+    "visual_alt": "Comparison table: Polling overhead = 100 polls/s * 100 us + 1 * 200 us = 10,200 us; Interrupt overhead = 1 * 300 us = 300 us; Ratio = 10200/300 = 34.0."
+   },
+   "given": {
+    "aim": "Compute T_1 (polling overhead per second) and T_2 (interrupt overhead per second) and find T_1/T_2.",
+    "terms": [
+     {
+      "term": "Poll interval",
+      "meaning": "The keyboard is checked every 10 ms.",
+      "example": "In 1 second there are 1000 ms / 10 ms = 100 polls.",
+      "connects": "Determines how many times the CPU wastes time polling per second."
+     },
+     {
+      "term": "Poll cost",
+      "meaning": "Each poll consumes 100 us of CPU time.",
+      "example": "100 polls * 100 us = 10,000 us of polling cost per second.",
+      "connects": "Contributes 10,000 us to T_1 regardless of keystrokes."
+     },
+     {
+      "term": "Keystroke processing cost (polling path)",
+      "meaning": "After polling confirms a key press, an additional 200 us is spent processing it.",
+      "example": "At 1 keystroke/s, this adds 200 us to T_1.",
+      "connects": "T_1 = 10,000 + 200 = 10,200 us per second."
+     },
+     {
+      "term": "Interrupt service cost",
+      "meaning": "Each keystroke interrupt takes 300 us total (service + process).",
+      "example": "1 keystroke/s -> T_2 = 300 us per second.",
+      "connects": "T_2 = 300 us per second."
+     }
+    ],
+    "plan": "Count polls per second, multiply by poll cost to get polling overhead. Add processing cost for the one actual keystroke. That is T_1. T_2 is simply 1 keystroke * 300 us. Divide T_1/T_2."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Compute number of polls per second",
+      "formula_raw": "polls_per_sec = 1000 ms / 10 ms = 100",
+      "apply": "The keyboard is polled every 10 ms, so in one second (1000 ms), the CPU polls 1000/10 = 100 times.",
+      "note": "Each poll happens regardless of whether a key was pressed."
+     },
+     {
+      "step": 2,
+      "title": "Compute T_1 (polling scheme overhead per second)",
+      "formula_raw": "T_1 = (polls_per_sec * poll_cost) + (keystrokes_per_sec * process_cost)",
+      "apply": "T_1 = (100 * 100 us) + (1 * 200 us) = 10,000 us + 200 us = 10,200 us = 0.0102 s",
+      "note": "The 100*100 us is unavoidable polling overhead; the 200 us is only incurred on actual keystrokes."
+     },
+     {
+      "step": 3,
+      "title": "Compute T_2 (interrupt scheme overhead per second)",
+      "formula_raw": "T_2 = keystrokes_per_sec * ISR_cost",
+      "apply": "T_2 = 1 * 300 us = 300 us = 0.0003 s. No overhead when no key is pressed.",
+      "note": "Interrupts are efficient when events are rare; the CPU is free otherwise."
+     },
+     {
+      "step": 4,
+      "title": "Compute ratio T_1 / T_2",
+      "formula_raw": "T_1 / T_2 = 10200 us / 300 us",
+      "apply": "T_1 / T_2 = 10200 / 300 = 34.0",
+      "note": "Rounded to one decimal place: 34.0. Polling costs 34 times more CPU time than interrupts for this workload."
+     }
+    ],
+    "result": "T_1 / T_2 = 34.0"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Polling overhead = (polls per second * cost per poll) + (events per second * processing cost); Interrupt overhead = events per second * ISR cost. Ratio shows the efficiency advantage of interrupt-driven I/O.",
+   "qid": "2.13.8",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2025",
+    "year": 2025,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Computer Organization & Architecture",
+    "topic": "Interrupts",
+    "subtopic": "Interrupts"
+   },
+   "question": "Suppose a program is running on a non-pipelined single processor computer system. The computer is connected to an external device that can interrupt the processor asynchronously. The processor needs to execute the interrupt service routine (ISR) to serve this interrupt. The following steps (not necessarily in order) are taken by the processor when the interrupt arrives:\n\ni. The processor saves the content of the program counter.\nii. The program counter is loaded with the start address of the ISR.\niii. The processor finishes the present instruction.\n\nWhich ONE of the following is the CORRECT sequence of steps?\nA. (iii), (i), (ii)\nB. (i), (iii), (ii)\nC. (iii), (ii), (i)\nD. (i), (ii), (iii)",
+   "answer": "A. (iii), (i), (ii)",
+   "to_find": "The correct sequence of steps taken by the processor when an interrupt arrives.",
+   "understand": {
+    "plain": "When an interrupt signal arrives, the processor does not immediately abandon what it is doing. It first completes the instruction currently in execution (so the CPU state is consistent), then saves the program counter (so it knows where to return after the ISR), and finally loads the program counter with the ISR start address to start executing the interrupt handler.",
+    "keywords": [
+     {
+      "term": "Program Counter (PC)",
+      "explain": "A register that holds the address of the next instruction to be fetched and executed.",
+      "example": "If PC = 0x1004, the CPU will fetch the instruction at memory address 0x1004 next."
+     },
+     {
+      "term": "Interrupt Service Routine (ISR)",
+      "explain": "A dedicated piece of code that handles a specific interrupt; execution jumps here when the interrupt is accepted.",
+      "example": "Timer ISR increments a tick counter and resets the timer."
+     },
+     {
+      "term": "Context save",
+      "explain": "Saving the current execution state (especially PC) so the processor can resume the interrupted program after the ISR completes.",
+      "example": "CPU pushes PC=0x1004 onto stack; after ISR returns, pops it and continues from 0x1004."
+     }
+    ],
+    "visual_svg": "<svg width='520' height='200' viewBox='0 0 520 200' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect width='520' height='200' rx='10' class='bg'/><text x='260' y='28' text-anchor='middle' class='lbl ink'>Interrupt Handling Sequence</text><rect x='10' y='45' width='145' height='55' rx='8' class='bg'/><text x='82' y='68' text-anchor='middle' class='tag ink'>Step 1</text><text x='82' y='88' text-anchor='middle' class='sub ink'>(iii) Finish current</text><text x='82' y='103' text-anchor='middle' class='sub mut'>instruction</text><text x='165' y='75' text-anchor='middle' class='big ink'>-&gt;</text><rect x='185' y='45' width='145' height='55' rx='8' class='bg'/><text x='257' y='68' text-anchor='middle' class='tag ink'>Step 2</text><text x='257' y='88' text-anchor='middle' class='sub ink'>(i) Save PC</text><text x='257' y='103' text-anchor='middle' class='sub mut'>(return address)</text><text x='340' y='75' text-anchor='middle' class='big ink'>-&gt;</text><rect x='360' y='45' width='148' height='55' rx='8' class='hi'/><text x='434' y='68' text-anchor='middle' class='tag ink'>Step 3</text><text x='434' y='88' text-anchor='middle' class='sub ink'>(ii) Load PC with</text><text x='434' y='103' text-anchor='middle' class='sub mut'>ISR start address</text><text x='260' y='155' text-anchor='middle' class='sub mut'>Interrupt arrives --&gt; finish instr --&gt; save PC --&gt; jump to ISR</text></svg>",
+    "visual_alt": "Three-box sequence diagram: Box 1 = finish current instruction (iii), Box 2 = save PC (i), Box 3 = load PC with ISR address (ii). Arrows connect them left to right."
+   },
+   "given": {
+    "aim": "Determine the correct order of the three steps taken by the CPU when an interrupt is received.",
+    "terms": [
+     {
+      "term": "Step iii — Finish present instruction",
+      "meaning": "The CPU must complete whatever instruction it is currently executing before acknowledging the interrupt, so the architectural state remains consistent.",
+      "example": "If mid-ADD, complete the addition and update flags before doing anything else.",
+      "connects": "Must be FIRST — ensures clean CPU state for context save."
+     },
+     {
+      "term": "Step i — Save PC",
+      "meaning": "After finishing the current instruction, save the program counter (address of the next instruction to execute) so the CPU can return after the ISR.",
+      "example": "Push PC onto the supervisor stack: SP--, MEM[SP] = PC.",
+      "connects": "Must be SECOND — done after instruction boundary, before overwriting PC."
+     },
+     {
+      "term": "Step ii — Load PC with ISR address",
+      "meaning": "The PC is overwritten with the start address of the ISR, causing the CPU to start executing the interrupt handler on the next fetch.",
+      "example": "PC = interrupt_vector_table[interrupt_number].",
+      "connects": "Must be LAST — can only happen after the old PC is safely saved."
+     }
+    ],
+    "plan": "Use the fundamental rule: (a) never interrupt mid-instruction, (b) save context before changing PC, (c) redirect PC to ISR. This gives order iii -> i -> ii."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Why step (iii) must come first",
+      "formula_raw": "",
+      "apply": "The interrupt is asynchronous, but the CPU only samples it at instruction boundaries. It must finish the in-progress instruction first. If it abandoned execution mid-instruction, register values and condition flags would be in an indeterminate state, making context save meaningless.",
+      "note": "This is a fundamental property of all non-pipelined CPUs: interrupts are checked at instruction boundaries."
+     },
+     {
+      "step": 2,
+      "title": "Why step (i) must come second",
+      "formula_raw": "",
+      "apply": "Once the current instruction is complete, the PC holds the address of the NEXT instruction to resume after the ISR. This return address must be saved (typically pushed onto a stack) before loading the PC with the ISR address. Otherwise the return address is lost.",
+      "note": "On x86, this is handled by the CALL mechanism of the interrupt gate: the processor automatically pushes CS:EIP (the return address) onto the stack."
+     },
+     {
+      "step": 3,
+      "title": "Why step (ii) must come last",
+      "formula_raw": "",
+      "apply": "Only after saving the old PC is it safe to overwrite the PC with the ISR start address. This is the final step that transfers control to the ISR.",
+      "note": "The sequence iii -> i -> ii corresponds to Option A."
+     }
+    ],
+    "result": "Option A: (iii), (i), (ii) — Finish current instruction, save PC, load PC with ISR address."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Standard interrupt handling sequence: finish current instruction (atomic boundary) -> save program counter -> load PC with ISR start address. This ensures correct context save and return.",
+   "qid": "2.13.9",
+   "answer_official": "A"
+  }
+ ]
+}

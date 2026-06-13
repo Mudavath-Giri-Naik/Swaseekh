@@ -1,0 +1,301 @@
+{
+ "page": 214,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2003",
+    "year": 2003,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "Syntax Directed Translation",
+    "subtopic": "Syntax Directed Translation"
+   },
+   "question": "In a bottom-up evaluation of a syntax directed definition, inherited attributes can\nA. always be evaluated\nB. be evaluated only if the definition is L-attributed\nC. be evaluated only if the definition has synthesized attributes\nD. never be evaluated",
+   "answer": "B. be evaluated only if the definition is L-attributed",
+   "to_find": "Under what condition can inherited attributes be evaluated in a bottom-up evaluation of an SDD",
+   "understand": {
+    "plain": "Syntax Directed Definitions (SDDs) associate attributes with grammar symbols. Synthesized attributes flow up the parse tree (from children to parent) while inherited attributes flow down (from parent to children). Bottom-up parsers naturally support synthesized attributes. The question asks when inherited attributes can also be handled bottom-up.",
+    "keywords": [
+     {
+      "term": "Inherited attribute",
+      "explain": "An attribute whose value at a node is computed from the node's parent and/or siblings in the parse tree.",
+      "example": "In 'int x, y', the type 'int' is inherited by x and y from the declaration head."
+     },
+     {
+      "term": "L-attributed definition",
+      "explain": "An SDD is L-attributed if each inherited attribute of a symbol on the right-hand side of a production depends only on attributes of symbols to its LEFT in the production and on inherited attributes of the head (parent).",
+      "example": "A -> B C where C.inh depends only on B.syn or A.inh — this is L-attributed."
+     },
+     {
+      "term": "Bottom-up evaluation",
+      "explain": "Attributes are evaluated as the parser reduces. The parser stack holds semantic values computed so far.",
+      "example": "In shift-reduce parsing, when a production A -> B C is reduced, B and C values are on the stack."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Parse tree showing inherited attributes flowing top-down while synthesized attributes flow bottom-up."
+   },
+   "given": {
+    "aim": "Determine when inherited attributes can be evaluated during bottom-up parsing.",
+    "terms": [
+     {
+      "term": "Synthesized attributes",
+      "meaning": "Computed from children — naturally supported bottom-up.",
+      "example": "E.val = E1.val + T.val",
+      "connects": "Always evaluable bottom-up; the baseline case."
+     },
+     {
+      "term": "Inherited attributes",
+      "meaning": "Computed from parent or left siblings — normally require top-down traversal.",
+      "example": "T.type inherited from D.type in declaration grammar",
+      "connects": "Problematic in bottom-up parsing because parent is not yet reduced."
+     },
+     {
+      "term": "L-attributed SDD",
+      "meaning": "Inherited attributes depend only on left siblings and parent's inherited attributes; can be simulated on a stack.",
+      "example": "In A -> X_1 X_2 ... X_n, X_i.inh depends on X_1, ..., X_{i-1} synthesized attributes and A.inh.",
+      "connects": "This left-to-right dependency matches the order items appear on the parser stack, enabling bottom-up simulation."
+     }
+    ],
+    "plan": "Recall the theory of attribute evaluation orders. S-attributed SDDs (only synthesized) trivially work bottom-up. L-attributed SDDs are a superset that additionally allows inherited attributes computed left-to-right, which can be simulated during bottom-up parsing using the stack. Other inherited attributes (non-L-attributed) cannot be evaluated bottom-up."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Recall S-attributed and L-attributed classes",
+      "formula_raw": "",
+      "apply": "An S-attributed SDD uses only synthesized attributes and works naturally with bottom-up parsers. An L-attributed SDD allows inherited attributes that depend only on left siblings and the inherited attributes of the parent production head. This left-to-right flow can be simulated on the parser's value stack.",
+      "note": "L-attributed is a strict superset of S-attributed; every S-attributed SDD is also L-attributed."
+     },
+     {
+      "step": 2,
+      "title": "Evaluate each option",
+      "formula_raw": "",
+      "apply": "A. 'Always' — false; arbitrary inherited attributes cannot be computed bottom-up because the parent node hasn't been created yet when we need the value.\nB. 'Only if L-attributed' — correct; L-attributed allows inherited attributes arranged left-to-right, which exactly corresponds to the stack state during bottom-up parsing.\nC. 'Only if it has synthesized attributes' — irrelevant; having synthesized attributes doesn't enable arbitrary inherited attribute evaluation.\nD. 'Never' — false; L-attributed definitions DO permit inherited attributes bottom-up.",
+      "note": "The standard compiler theory result: L-attributed SDDs can be evaluated in one left-to-right pass, making them compatible with both top-down (LL) and bottom-up (LR) parsers."
+     }
+    ],
+    "result": "Inherited attributes can be evaluated in a bottom-up evaluation only if the definition is L-attributed. Answer: B."
+   },
+   "formula_ids_used": [],
+   "formula_note": "L-attributed SDD: inherited attribute of X_i in A -> X_1...X_n depends only on A's inherited attributes and synthesized attributes of X_1,...,X_{i-1}. This left-to-right dependency can be simulated on the LR parser stack.",
+   "qid": "3.22.7",
+   "answer_official": "B"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2003",
+    "year": 2003,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "Syntax Directed Translation",
+    "subtopic": "Syntax Directed Translation"
+   },
+   "question": "Consider the syntax directed definition shown below. Here, gen is a function that generates the output code, and newtemp is a function that returns the name of a new temporary variable on every call. Assume that t_1, t_2, t_3 are the temporary variable names generated by newtemp.\n\nProduction | Semantic action\nS -> id = E   | { gen(id, ':=', E.place); }\nE -> E_1 + E_2 | { t = newtemp(); gen(t, ':=', E_1.place, '+', E_2.place); E.place = t; }\nE -> id       | { E.place = id; }\n\nFor the statement a = b + c + d, the 3-address code sequence generated by this definition is:\nA. t_1 := b + c\n   t_2 := t_1 + d\n   a := t_2\nB. t_1 := c + d\n   t_2 := b + t_1\n   a := t_2\nC. t_1 := b + c\n   t_2 := t_1 + d\n   t_3 := t_2\n   a := t_3\nD. t_1 := b + c\n   a := t_1 + d",
+   "answer": "A. t_1 := b + c\n   t_2 := t_1 + d\n   a := t_2",
+   "to_find": "The 3-address code generated for a = b + c + d using the given SDD",
+   "understand": {
+    "plain": "The syntax-directed definition specifies how to generate 3-address code for assignments and additions. The grammar is left-recursive for E (E -> E_1 + E_2), so b + c + d is parsed as (b + c) + d. Each addition allocates a new temporary via newtemp and emits a 3-address instruction via gen. The final assignment uses gen for id := E.place.",
+    "keywords": [
+     {
+      "term": "3-address code",
+      "explain": "An intermediate representation where each instruction has at most three operands: result := op1 op op2.",
+      "example": "t1 := a + b is a valid 3-address instruction."
+     },
+     {
+      "term": "newtemp()",
+      "explain": "Returns a fresh temporary variable name each call (t_1, t_2, t_3, ... in sequence).",
+      "example": "First call returns t_1, second returns t_2."
+     },
+     {
+      "term": "E.place",
+      "explain": "Synthesized attribute holding the name of the variable/temporary that stores the value of expression E.",
+      "example": "After E -> id, E.place = id (the variable name itself)."
+     }
+    ],
+    "visual_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"340\" height=\"260\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect width=\"340\" height=\"260\" rx=\"8\" class=\"bg\"/><text x=\"170\" y=\"28\" text-anchor=\"middle\" class=\"lbl ink\">Parse Tree: a = (b+c)+d</text><text x=\"170\" y=\"60\" text-anchor=\"middle\" class=\"ink lbl\">S</text><line x1=\"170\" y1=\"65\" x2=\"170\" y2=\"85\" stroke=\"#2C2C2A\" stroke-width=\"2\"/><text x=\"170\" y=\"100\" text-anchor=\"middle\" class=\"ink lbl\">E (t_2)</text><line x1=\"170\" y1=\"105\" x2=\"100\" y2=\"125\" stroke=\"#2C2C2A\" stroke-width=\"2\"/><line x1=\"170\" y1=\"105\" x2=\"240\" y2=\"125\" stroke=\"#2C2C2A\" stroke-width=\"2\"/><text x=\"100\" y=\"140\" text-anchor=\"middle\" class=\"ink lbl\">E (t_1)</text><text x=\"240\" y=\"140\" text-anchor=\"middle\" class=\"ink lbl\">d</text><line x1=\"100\" y1=\"145\" x2=\"60\" y2=\"165\" stroke=\"#2C2C2A\" stroke-width=\"2\"/><line x1=\"100\" y1=\"145\" x2=\"140\" y2=\"165\" stroke=\"#2C2C2A\" stroke-width=\"2\"/><text x=\"60\" y=\"180\" text-anchor=\"middle\" class=\"ink sub\">b</text><text x=\"140\" y=\"180\" text-anchor=\"middle\" class=\"ink sub\">c</text><text x=\"170\" y=\"230\" text-anchor=\"middle\" class=\"mut sub\">t_1:=b+c, t_2:=t_1+d, a:=t_2</text></svg>",
+    "visual_alt": "Parse tree for a = b + c + d showing left-associative grouping: S -> id = E, E -> (E_1:b+c) + E_2:d. Temporary t_1 holds b+c, t_2 holds t_1+d, then a := t_2."
+   },
+   "given": {
+    "aim": "Trace the SDD on the parse tree of a = b + c + d to generate the 3-address code.",
+    "terms": [
+     {
+      "term": "Grammar rule E -> E_1 + E_2",
+      "meaning": "Left-recursive addition rule; b+c+d parses as (b+c)+d.",
+      "example": "b+c+d => E(b+c) + E(d) at top level.",
+      "connects": "Determines bottom-up reduction order: b+c is reduced first."
+     },
+     {
+      "term": "Semantic action for E -> E_1 + E_2",
+      "meaning": "Allocate newtemp t, emit gen(t, ':=', E_1.place, '+', E_2.place), set E.place = t.",
+      "example": "For b+c: t_1 := b + c; E.place = t_1.",
+      "connects": "First reduction produces t_1 := b + c."
+     },
+     {
+      "term": "Semantic action for S -> id = E",
+      "meaning": "Emit gen(id, ':=', E.place) — assigns the expression result to the LHS variable.",
+      "example": "For a = E with E.place = t_2: emits a := t_2.",
+      "connects": "Final instruction in the generated code."
+     }
+    ],
+    "plan": "Parse b+c+d left-to-right using the left-recursive grammar. Reduce b to E (place=b), reduce c to E (place=c), then reduce E+E (b+c) to E using newtemp t_1 and gen. Reduce d to E (place=d), then reduce E+E (t_1+d) to E using newtemp t_2 and gen. Finally reduce a=E to S using gen."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Build parse tree (left-associative)",
+      "formula_raw": "E -> E_1 + E_2 is left-recursive",
+      "apply": "a = b + c + d is parsed as: S -> id(a) = E3\nE3 -> E2 + id(d)\nE2 -> id(b) + id(c)\nSo the left subtree E2 = b+c is reduced first in bottom-up parsing.",
+      "note": "Left recursion means leftmost addition is reduced first in bottom-up parsing."
+     },
+     {
+      "step": 2,
+      "title": "Reduce b and c to E",
+      "formula_raw": "E -> id: E.place = id",
+      "apply": "E.place = b (for identifier b)\nE.place = c (for identifier c)\nNo code generated yet.",
+      "note": "The E -> id rule just sets place; it does not call gen."
+     },
+     {
+      "step": 3,
+      "title": "Reduce E(b) + E(c) -> E using first newtemp",
+      "formula_raw": "t = newtemp(); gen(t, ':=', E_1.place, '+', E_2.place); E.place = t",
+      "apply": "t_1 = newtemp() (first call)\ngen(t_1, ':=', b, '+', c)  =>  t_1 := b + c\nE2.place = t_1",
+      "note": "First 3-address instruction generated: t_1 := b + c."
+     },
+     {
+      "step": 4,
+      "title": "Reduce d to E, then E(t_1) + E(d) -> E",
+      "formula_raw": "t = newtemp(); gen(t, ':=', E_1.place, '+', E_2.place)",
+      "apply": "E.place = d (for identifier d)\nt_2 = newtemp() (second call)\ngen(t_2, ':=', t_1, '+', d)  =>  t_2 := t_1 + d\nE3.place = t_2",
+      "note": "Second instruction: t_2 := t_1 + d."
+     },
+     {
+      "step": 5,
+      "title": "Reduce S -> id(a) = E",
+      "formula_raw": "gen(id, ':=', E.place)",
+      "apply": "gen(a, ':=', t_2)  =>  a := t_2",
+      "note": "Final assignment instruction. No new temporary is needed here."
+     }
+    ],
+    "result": "The 3-address code is:\nt_1 := b + c\nt_2 := t_1 + d\na := t_2\nThis matches option A."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Bottom-up (left-to-right) evaluation of left-recursive grammar for E produces left-associative grouping; each E -> E_1+E_2 reduction emits one 3-address instruction and allocates one temporary.",
+   "qid": "3.22.8",
+   "answer_official": "B"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2016",
+    "year": 2016,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "Syntax Directed Translation",
+    "subtopic": "Syntax Directed Translation"
+   },
+   "question": "Consider the following Syntax Directed Translation Scheme (SDTS), with non-terminals {S, A} and terminals {a, b}:\nS -> aA  { print 1 }\nS -> a   { print 2 }\nA -> Sb  { print 3 }\n\nUsing the above SDTS, the output printed by a bottom-up parser, for the input aab is:\nA. 3 1 2\nB. 2 3 1\nC. 2 1 3\nD. syntax error",
+   "answer": "B. 2 3 1",
+   "to_find": "The output printed by a bottom-up parser for input 'aab' using the given SDTS",
+   "understand": {
+    "plain": "The SDTS has three productions each with a print action. In a bottom-up parser, the semantic action fires when a reduction occurs. We trace through the shift-reduce parse of 'aab', noting which production is reduced at each step and what it prints.",
+    "keywords": [
+     {
+      "term": "Bottom-up parser (shift-reduce)",
+      "explain": "Reads input left-to-right, shifts tokens onto a stack, and reduces a matching right-hand side to a non-terminal when a complete production is found.",
+      "example": "For a -> b + c, the parser shifts b, +, c then reduces to a."
+     },
+     {
+      "term": "Semantic action in SDTS",
+      "explain": "Code attached to a production that executes when the parser reduces by that production (in bottom-up parsing).",
+      "example": "S -> a { print 2 } prints '2' when 'a' is reduced to S."
+     }
+    ],
+    "visual_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"400\" height=\"220\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect width=\"400\" height=\"220\" rx=\"8\" class=\"bg\"/><text x=\"200\" y=\"26\" text-anchor=\"middle\" class=\"lbl ink\">Shift-Reduce trace for aab</text><rect x=\"10\" y=\"38\" width=\"160\" height=\"24\" rx=\"4\" class=\"bg\"/><rect x=\"175\" y=\"38\" width=\"120\" height=\"24\" rx=\"4\" class=\"bg\"/><rect x=\"300\" y=\"38\" width=\"90\" height=\"24\" rx=\"4\" class=\"bg\"/><text x=\"90\" y=\"55\" text-anchor=\"middle\" class=\"tag ink\">Stack</text><text x=\"235\" y=\"55\" text-anchor=\"middle\" class=\"tag ink\">Input</text><text x=\"345\" y=\"55\" text-anchor=\"middle\" class=\"tag ink\">Action</text><text x=\"90\" y=\"82\" text-anchor=\"middle\" class=\"sub ink\">$</text><text x=\"235\" y=\"82\" text-anchor=\"middle\" class=\"sub ink\">a a b $</text><text x=\"345\" y=\"82\" text-anchor=\"middle\" class=\"sub ink\">shift a</text><text x=\"90\" y=\"106\" text-anchor=\"middle\" class=\"sub ink\">$ a</text><text x=\"235\" y=\"106\" text-anchor=\"middle\" class=\"sub ink\">a b $</text><text x=\"345\" y=\"106\" text-anchor=\"middle\" class=\"sub ink\">shift a</text><text x=\"90\" y=\"130\" text-anchor=\"middle\" class=\"sub ink\">$ a a</text><text x=\"235\" y=\"130\" text-anchor=\"middle\" class=\"sub ink\">b $</text><text x=\"345\" y=\"130\" class=\"ok tag\"><tspan x=\"345\" text-anchor=\"middle\">S-&gt;a (print 2)</tspan></text><text x=\"90\" y=\"154\" text-anchor=\"middle\" class=\"sub ink\">$ a S</text><text x=\"235\" y=\"154\" text-anchor=\"middle\" class=\"sub ink\">b $</text><text x=\"345\" y=\"154\" text-anchor=\"middle\" class=\"sub ink\">shift b</text><text x=\"90\" y=\"178\" text-anchor=\"middle\" class=\"sub ink\">$ a S b</text><text x=\"235\" y=\"178\" text-anchor=\"middle\" class=\"sub ink\">$</text><text x=\"345\" y=\"178\" class=\"ok tag\"><tspan x=\"345\" text-anchor=\"middle\">A-&gt;Sb (print 3)</tspan></text><text x=\"90\" y=\"202\" text-anchor=\"middle\" class=\"sub ink\">$ a A</text><text x=\"235\" y=\"202\" text-anchor=\"middle\" class=\"sub ink\">$</text><text x=\"345\" y=\"202\" class=\"ok tag\"><tspan x=\"345\" text-anchor=\"middle\">S-&gt;aA (print 1)</tspan></text></svg>",
+    "visual_alt": "Shift-reduce parse table trace for input 'aab': shift a, shift a, reduce second a to S (print 2), shift b, reduce Sb to A (print 3), reduce aA to S (print 1). Output: 2 3 1."
+   },
+   "given": {
+    "aim": "Trace the bottom-up (shift-reduce) parse of 'aab' and record the print output in order of reductions.",
+    "terms": [
+     {
+      "term": "Productions",
+      "meaning": "S -> aA {print 1}, S -> a {print 2}, A -> Sb {print 3}",
+      "example": "When S -> a fires (reducing standalone 'a'), we print 2.",
+      "connects": "Each reduction fires its print action; order of reductions determines output order."
+     },
+     {
+      "term": "Input: aab",
+      "meaning": "Three tokens: a, a, b in sequence.",
+      "example": "Parser shifts a, a, then must decide when/what to reduce.",
+      "connects": "The second 'a' will be reduced to S before 'b' is consumed."
+     },
+     {
+      "term": "Bottom-up reduction order",
+      "meaning": "Reductions happen innermost/rightmost-on-stack first; the deepest nested sub-expression is reduced first.",
+      "example": "In aab, the second 'a' at the bottom of the right subtree is reduced first.",
+      "connects": "Determines that print 2 fires first, then print 3, then print 1."
+     }
+    ],
+    "plan": "Simulate the shift-reduce parse step by step: shift tokens, identify when a handle appears on top of the stack, perform the reduction and fire the print action. Record prints in order."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Shift first 'a'",
+      "formula_raw": "",
+      "apply": "Stack: $ a | Input remaining: a b $\nNo reduction possible yet (need to look ahead).",
+      "note": "The parser cannot yet tell if this 'a' should reduce to S or be part of S -> aA."
+     },
+     {
+      "step": 2,
+      "title": "Shift second 'a'",
+      "formula_raw": "",
+      "apply": "Stack: $ a a | Input remaining: b $\nLookahead is 'b'. Top of stack is 'a'. The production S -> a applies to the top 'a'.",
+      "note": "The parser looks ahead: with 'b' coming, 'a' at top can reduce to S (needed for A -> Sb)."
+     },
+     {
+      "step": 3,
+      "title": "Reduce: S -> a (print 2)",
+      "formula_raw": "S -> a { print 2 }",
+      "apply": "Reduce top 'a' to S.\nStack: $ a S | Input: b $\nPrint: 2",
+      "note": "First output is '2'."
+     },
+     {
+      "step": 4,
+      "title": "Shift 'b'",
+      "formula_raw": "",
+      "apply": "Stack: $ a S b | Input: $\nTop of stack matches right-hand side of A -> Sb.",
+      "note": "The handle Sb is now on top of the stack."
+     },
+     {
+      "step": 5,
+      "title": "Reduce: A -> Sb (print 3)",
+      "formula_raw": "A -> Sb { print 3 }",
+      "apply": "Reduce Sb to A.\nStack: $ a A | Input: $\nPrint: 3",
+      "note": "Second output is '3'."
+     },
+     {
+      "step": 6,
+      "title": "Reduce: S -> aA (print 1)",
+      "formula_raw": "S -> aA { print 1 }",
+      "apply": "Reduce aA to S.\nStack: $ S | Input: $\nPrint: 1\nParsing complete (stack has start symbol S, input exhausted).",
+      "note": "Third output is '1'. The parse is successful."
+     }
+    ],
+    "result": "The output printed is: 2 3 1. Answer: B."
+   },
+   "formula_ids_used": [],
+   "formula_note": "In bottom-up (shift-reduce) parsing, semantic actions fire at reduction time; the order of reductions determines the output sequence. Innermost/bottom-of-derivation reductions happen first.",
+   "qid": "3.22.9",
+   "answer_official": "C"
+  }
+ ]
+}

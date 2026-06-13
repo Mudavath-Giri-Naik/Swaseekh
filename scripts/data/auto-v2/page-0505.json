@@ -1,0 +1,388 @@
+{
+ "page": 505,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2019",
+    "year": 2019,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Resource Allocation",
+    "subtopic": "Resource Allocation"
+   },
+   "question": "Consider the following snapshot of a system running n concurrent processes. Process i is holding X_i instances of a resource R, 1 <= i <= n. Assume that all instances of R are currently in use. Further, for all i, process i can place a request for at most Y_i additional instances of R while holding the X_i instances it already has.\n\nOf the following conditions, which one guarantees that no deadlock will occur?\n\nA. For all i: X_n < Y_n (i.e., every process holds fewer than it can additionally request)\nB. X_i + X_k < Max{Y_j | 1 <= j <= n} for all i, k\nC. Min{X_i | 1 <= i <= n} >= Max{Y_k | 1 <= k <= n}\nD. Min{X_i + Y_i | 1 <= i <= n} >= Max{X_k | 1 <= k <= n}",
+   "answer": "D. Min{X_i + Y_i | 1 <= i <= n} >= Max{X_k | 1 <= k <= n}",
+   "to_find": "Which condition on X_i and Y_i guarantees no deadlock among n processes sharing a single resource type?",
+   "understand": {
+    "plain": "There are n processes each holding some instances of a single resource R. All instances are in use (none free). Each process i may request up to Y_i more instances while it holds X_i. We want to know which mathematical condition on these numbers ensures no deadlock can ever occur.",
+    "keywords": [
+     {
+      "term": "Deadlock",
+      "explain": "A state where a set of processes are each waiting for resources held by another process in the set, so none can ever proceed.",
+      "example": "P1 holds R1 and waits for R2; P2 holds R2 and waits for R1 — circular wait, deadlock."
+     },
+     {
+      "term": "Safe state (Banker's idea)",
+      "explain": "A system state is safe if there exists at least one ordering of processes in which each process can eventually obtain all the resources it needs and finish, releasing its resources for the next process.",
+      "example": "If process P3 can finish with currently available resources, then its held resources become available for others."
+     },
+     {
+      "term": "Total instances in use",
+      "explain": "Sum_{i=1}^{n} X_i = total instances of R (all in use, so available = 0 initially). When process i finishes it releases X_i instances.",
+      "example": "n=3, X = [2,3,1], total = 6 instances all occupied."
+     }
+    ],
+    "visual_svg": "<svg width='480' height='160' viewBox='0 0 480 160' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect width='480' height='160' rx='10' fill='var(--cell-bg,#F1EFE8)'/><rect x='10' y='10' width='140' height='60' rx='8' class='bg'/><text x='80' y='35' text-anchor='middle' class='lbl ink'>Process i</text><text x='80' y='55' text-anchor='middle' class='sub mut'>holds X_i, needs up to Y_i more</text><rect x='10' y='80' width='460' height='30' rx='6' class='hi'/><text x='240' y='100' text-anchor='middle' class='tag ink'>Safe if: Min(X_i + Y_i) &gt;= Max(X_k)</text><text x='240' y='140' text-anchor='middle' class='sub mut'>After the smallest-need process runs, enough is released for any other</text></svg>",
+    "visual_alt": "Each process i holds X_i instances and may request Y_i more. Safety condition: the process with the minimum (X_i + Y_i) can finish and release enough resources so that even the process with the largest X_k allocation can proceed."
+   },
+   "given": {
+    "aim": "Find the condition on X_i and Y_i that guarantees the system is deadlock-free.",
+    "terms": [
+     {
+      "term": "X_i",
+      "meaning": "Number of resource instances currently held by process i.",
+      "example": "X_2 = 3 means process 2 holds 3 instances right now.",
+      "connects": "These are the allocated units; when a process finishes it releases X_i units back to the pool."
+     },
+     {
+      "term": "Y_i",
+      "meaning": "Maximum additional instances process i may request while still holding X_i.",
+      "example": "Y_2 = 2 means process 2 might ask for 2 more on top of the 3 it holds.",
+      "connects": "The total need of process i is X_i + Y_i; it will release X_i + Y_i instances only after completing."
+     },
+     {
+      "term": "Available instances",
+      "meaning": "Initially 0 (all instances are in use). Becomes positive only after some process finishes and releases its X_i.",
+      "example": "If process 1 (X_1=4) finishes first, available becomes 4.",
+      "connects": "Another process j can proceed only if available >= Y_j (its remaining need)."
+     },
+     {
+      "term": "Min{X_i + Y_i}",
+      "meaning": "The process with the smallest total resource need (held + max additional).",
+      "example": "If X+Y values are [5,3,7], the minimum is 3 from process 2.",
+      "connects": "This process needs at most Y_i more; once it finishes it releases X_i units."
+     }
+    ],
+    "plan": "For deadlock avoidance with all resources in use, we need at least one process that can complete without getting new resources — but since all are allocated, we must find a process whose max additional need Y_i can be satisfied after some other process releases. The key insight: if the process with minimum (X_i + Y_i) finishes, it releases at least Min(X_i+Y_i) instances. For this to be useful to any other process, Min(X_i+Y_i) must be >= Max(X_k) so any other process can continue."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Identify the critical condition for safety",
+      "formula_raw": "For safe state: there exists a process i such that Y_i <= available",
+      "apply": "Initially available = 0. No process can proceed unless some process finishes first. But how can a process finish if it might still request more (Y_i > 0)? A process can finish if Y_i = 0, but in general we need: after some process finishes, released resources are enough for all remaining.",
+      "note": "The crux is finding an ordering where each process can complete — this is the Banker's algorithm safety check."
+     },
+     {
+      "step": 2,
+      "title": "Analyze option D: Min{X_i + Y_i} >= Max{X_k}",
+      "formula_raw": "Let m = argmin(X_i + Y_i). After m finishes: available = X_m >= Max{X_k} - Y_k?",
+      "apply": "Let process m be the one with minimum (X_m + Y_m). For m to finish, it needs Y_m more instances. These can come from any other process releasing. If Min(X_i+Y_i) >= Max(X_k), it means the minimum total need exceeds the maximum current allocation. When any process with Max(X_k) finishes, it releases Max(X_k) instances. Since Min(X_i+Y_i) >= Max(X_k), every process i satisfies X_i + Y_i >= Max(X_k), meaning even in the worst case, the released resources cover any process's additional need Y_i = (X_i+Y_i) - X_i. This guarantees a safe ordering exists.",
+      "note": "This condition ensures that once the 'greediest holder' (Max X_k) releases, every other process's remaining need is satisfiable — guaranteeing forward progress."
+     },
+     {
+      "step": 3,
+      "title": "Verify other options are insufficient",
+      "formula_raw": "",
+      "apply": "Option A (X_n < Y_n): Just says one process requests more than it holds — gives no global safety guarantee. Option B (X_i + X_k < Max{Y_j}): Compares held amounts against max additional need, not a standard safety criterion. Option C (Min{X_i} >= Max{Y_k}): Means minimum holding >= maximum additional need, which is overly restrictive and doesn't correctly capture the release-and-reuse logic.",
+      "note": "Only option D correctly captures the Banker's-style guarantee that released resources are sufficient for all remaining processes."
+     }
+    ],
+    "result": "Option D: Min{X_i + Y_i | 1 <= i <= n} >= Max{X_k | 1 <= k <= n} guarantees no deadlock."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Banker's algorithm safety condition: a safe state exists if there is an ordering of processes where each can obtain needed resources from available + previously released allocations. Here, Min(X_i+Y_i) >= Max(X_k) ensures this ordering always exists.",
+   "qid": "7.21.24",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2022",
+    "year": 2022,
+    "marks": 1,
+    "difficulty": "medium",
+    "type": "MSQ",
+    "subject": "Operating System",
+    "topic": "Resource Allocation",
+    "subtopic": "Resource Allocation"
+   },
+   "question": "Which of the following statements is/are TRUE with respect to deadlocks?\n\nA. Circular wait is a necessary condition for the formation of deadlock.\nB. In a system where each resource has more than one instance, a cycle in its wait-for graph indicates the presence of a deadlock.\nC. If the current allocation of resources to processes results in an unsafe state, then a deadlock exists.\nD. In the resource-allocation graph of a system, if every edge is an assignment edge, then the system is not in a deadlock state.",
+   "answer": "A, D",
+   "to_find": "Which statements about deadlock conditions, wait-for graphs, unsafe states, and resource allocation graphs are TRUE?",
+   "understand": {
+    "plain": "This question tests knowledge of the four necessary conditions for deadlock (Coffman conditions), the difference between resource-allocation graphs and wait-for graphs, and the relationship between unsafe states and deadlocks. You must identify which statements are correct.",
+    "keywords": [
+     {
+      "term": "Necessary condition for deadlock",
+      "explain": "A condition that MUST hold for a deadlock to occur. The four are: mutual exclusion, hold and wait, no preemption, and circular wait. If any one is absent, deadlock cannot happen.",
+      "example": "If circular wait is broken (e.g., resource ordering), deadlock is impossible even if the other three hold."
+     },
+     {
+      "term": "Wait-for graph",
+      "explain": "A simplified graph where nodes are processes and there is an edge from P_i to P_j if P_i is waiting for a resource held by P_j. Used for deadlock detection when each resource has exactly one instance.",
+      "example": "P1 -> P2 -> P3 -> P1 is a cycle meaning deadlock when each resource has one instance."
+     },
+     {
+      "term": "Unsafe state",
+      "explain": "A system state from which it is possible (but not certain) to reach a deadlock. An unsafe state does NOT guarantee a deadlock has already occurred.",
+      "example": "Banker's algorithm avoids unsafe states, but a process in an unsafe state may still complete if it does not request more resources."
+     },
+     {
+      "term": "Resource-allocation graph",
+      "explain": "A bipartite graph with process nodes and resource nodes. An assignment edge goes from resource to process (resource assigned to process); a request edge goes from process to resource.",
+      "example": "If R1 -> P1 (assignment edge), P1 holds R1. If all edges are assignment edges, all processes already have what they requested — no waiting, no deadlock."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "A resource-allocation graph with only assignment edges (R -> P) means every resource has already been granted to a process and no process is waiting, so no deadlock exists."
+   },
+   "given": {
+    "aim": "Determine which statements about deadlock theory are correct.",
+    "terms": [
+     {
+      "term": "Circular wait",
+      "meaning": "One of the four Coffman necessary conditions: P1 waits for P2, P2 waits for P3, ..., Pk waits for P1.",
+      "example": "Broken by assigning a global order to resources and requiring processes request in that order.",
+      "connects": "Statement A claims this is necessary for deadlock — this is TRUE by Coffman's conditions."
+     },
+     {
+      "term": "Multi-instance wait-for graph cycle",
+      "meaning": "When resources have multiple instances, a cycle in the wait-for graph indicates a possibility of deadlock but not certainty.",
+      "example": "P1 waits for P2, P2 waits for P1, but each resource has 2 instances and another process could release — no actual deadlock.",
+      "connects": "Statement B says cycle implies deadlock in multi-instance case — this is FALSE; only in single-instance case does a cycle guarantee deadlock."
+     },
+     {
+      "term": "Unsafe state vs deadlock",
+      "meaning": "Unsafe means Banker's algorithm cannot guarantee a safe completion order. Deadlock means processes are already stuck. An unsafe state can exist without a current deadlock.",
+      "example": "After reaching unsafe state, if all processes voluntarily release (not request more), they may all complete — no deadlock.",
+      "connects": "Statement C says unsafe state => deadlock — this is FALSE."
+     },
+     {
+      "term": "Assignment edge in RAG",
+      "meaning": "An edge from resource R to process P means P currently holds an instance of R. No request edges means no process is waiting.",
+      "example": "All edges R->P: every process has its resources, none is blocked, system runs freely.",
+      "connects": "Statement D says if every edge is an assignment edge, no deadlock — this is TRUE."
+     }
+    ],
+    "plan": "Evaluate each statement against standard OS deadlock theory: Coffman conditions (A), wait-for graph cycle detection (B), unsafe state definition (C), and resource-allocation graph semantics (D)."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Evaluate Statement A: Circular wait is necessary for deadlock",
+      "formula_raw": "Coffman (1971): Deadlock <=> Mutual Exclusion AND Hold-and-Wait AND No Preemption AND Circular Wait",
+      "apply": "The four Coffman necessary conditions for deadlock are: mutual exclusion, hold-and-wait, no preemption, and circular wait. All four must hold simultaneously for deadlock. Therefore circular wait is indeed a necessary condition — if there is no circular wait, there is no deadlock. Statement A is TRUE.",
+      "note": "Breaking any one of these four conditions is sufficient to prevent deadlock."
+     },
+     {
+      "step": 2,
+      "title": "Evaluate Statement B: Cycle in wait-for graph => deadlock (multi-instance)",
+      "formula_raw": "",
+      "apply": "For single-instance resources: a cycle in the resource-allocation graph (or equivalently the wait-for graph) is both necessary and sufficient for deadlock. For multi-instance resources: a cycle is necessary but NOT sufficient. There can be a cycle in the wait-for graph without an actual deadlock if spare instances are available. Statement B is FALSE.",
+      "note": "The Banker's algorithm handles multi-instance cases precisely because cycles alone don't detect deadlock."
+     },
+     {
+      "step": 3,
+      "title": "Evaluate Statement C: Unsafe state implies deadlock exists",
+      "formula_raw": "",
+      "apply": "An unsafe state means the OS cannot guarantee that all processes will complete — the Banker's algorithm refuses to grant requests that lead to unsafe states. However, being in an unsafe state does NOT mean a deadlock currently exists. Processes in an unsafe state might still finish if they don't request additional resources. Deadlock => unsafe state, but unsafe state does NOT => deadlock. Statement C is FALSE.",
+      "note": "Safe state subset: all safe states are non-deadlocked. Unsafe state superset: unsafe states include both deadlocked and non-deadlocked (but risky) states."
+     },
+     {
+      "step": 4,
+      "title": "Evaluate Statement D: All edges are assignment edges => no deadlock",
+      "formula_raw": "",
+      "apply": "In a resource-allocation graph, a request edge (P -> R) means process P is waiting for resource R. An assignment edge (R -> P) means resource R is assigned to process P. If every edge in the graph is an assignment edge, then NO process has any pending request — every process already holds whatever it requested. With no process waiting, no circular wait exists, so no deadlock. Statement D is TRUE.",
+      "note": "Deadlock requires at least some processes to be in a waiting state. Zero waiting processes means zero deadlock possibility."
+     }
+    ],
+    "result": "Statements A and D are TRUE. A: circular wait is a necessary condition for deadlock. D: if all edges in the resource-allocation graph are assignment edges, the system is not in deadlock."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Coffman's four necessary conditions for deadlock (mutual exclusion, hold-and-wait, no preemption, circular wait); resource-allocation graph theory distinguishing assignment edges from request edges.",
+   "qid": "7.21.25",
+   "answer_official": "A;D"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2005",
+    "year": 2005,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Resource Allocation",
+    "subtopic": "Resource Allocation"
+   },
+   "question": "Two shared resources R_1 and R_2 are used by processes P_1 and P_2. Each process has a certain priority for accessing each resource. Let T_{ij} denote the priority of process P_i for accessing resource R_j. A process P_i can snatch a resource from process P_k if T_{ij} > T_{kj} (for the resource R_j in question).\n\nGiven the following priority assignments:\nI.   T_{11} > T_{21}, T_{12} > T_{22}\nII.  T_{11} > T_{21}, T_{12} < T_{22}\nIII. T_{11} < T_{21}, T_{12} > T_{22}\nIV.  T_{11} < T_{21}, T_{12} < T_{22}\n\nWhich of the following conditions ensures that deadlock will NOT occur?\n\nA. (I) and (II) only\nB. (III) and (IV) only\nC. (I) and (IV) only\nD. (II) and (III) only",
+   "answer": "C. (I) and (IV) only",
+   "to_find": "Which priority assignment conditions between P_1, P_2 and R_1, R_2 prevent deadlock?",
+   "understand": {
+    "plain": "Two processes P_1 and P_2 compete for two resources R_1 and R_2. Each process has a priority for each resource. A higher-priority process can preempt (snatch) a resource from a lower-priority one. Deadlock occurs when P_1 holds R_1 and waits for R_2 while P_2 holds R_2 and waits for R_1, with neither able to snatch from the other. We want conditions where preemption always breaks this circular wait.",
+    "keywords": [
+     {
+      "term": "Preemption (snatching)",
+      "explain": "Process P_i can take resource R_j from P_k if P_i has strictly higher priority than P_k for that resource. This breaks the 'no preemption' Coffman condition.",
+      "example": "If T_{11} > T_{21}, P_1 can take R_1 from P_2 whenever P_2 holds R_1."
+     },
+     {
+      "term": "Deadlock scenario",
+      "explain": "P_1 holds R_1 and waits for R_2; P_2 holds R_2 and waits for R_1. For deadlock, neither can snatch from the other.",
+      "example": "Deadlock requires: P_1 cannot snatch R_2 from P_2 (T_{12} <= T_{22}) AND P_2 cannot snatch R_1 from P_1 (T_{21} <= T_{11})."
+     }
+    ],
+    "visual_svg": "<svg width='400' height='180' viewBox='0 0 400 180' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect width='400' height='180' rx='10' fill='var(--cell-bg,#F1EFE8)'/><rect x='20' y='30' width='80' height='40' rx='8' class='hi'/><text x='60' y='55' text-anchor='middle' class='lbl ink'>P_1</text><rect x='300' y='30' width='80' height='40' rx='8' class='hi'/><text x='340' y='55' text-anchor='middle' class='lbl ink'>P_2</text><rect x='160' y='10' width='80' height='40' rx='8' class='bg'/><text x='200' y='35' text-anchor='middle' class='lbl ink'>R_1</text><rect x='160' y='110' width='80' height='40' rx='8' class='bg'/><text x='200' y='135' text-anchor='middle' class='lbl ink'>R_2</text><line x1='100' y1='45' x2='160' y2='30' stroke='#1D9E75' stroke-width='2' marker-end='url(#arr)'/><line x1='240' y1='30' x2='300' y2='45' stroke='#D85A30' stroke-width='2'/><text x='200' y='85' text-anchor='middle' class='sub mut'>Deadlock: P_1 holds R_1, needs R_2; P_2 holds R_2, needs R_1</text><text x='200' y='165' text-anchor='middle' class='sub mut'>Preemption breaks deadlock if one process dominates both priorities</text></svg>",
+    "visual_alt": "P1 holds R1 and waits for R2; P2 holds R2 and waits for R1. Deadlock occurs only when neither can preempt the other's resource."
+   },
+   "given": {
+    "aim": "Find which priority assignments allow at least one process to always preempt the other, preventing deadlock.",
+    "terms": [
+     {
+      "term": "T_{ij}",
+      "meaning": "Priority of process P_i for resource R_j. Higher value = higher priority for that resource.",
+      "example": "T_{12} = 5, T_{22} = 3 means P_1 has higher priority for R_2 and can snatch it from P_2.",
+      "connects": "Deadlock requires that for the contested resource, the waiting process cannot snatch from the holder."
+     },
+     {
+      "term": "Deadlock condition with preemption",
+      "meaning": "Deadlock occurs when P_1 waits for R_2 (held by P_2) and cannot snatch it (T_{12} <= T_{22}), AND P_2 waits for R_1 (held by P_1) and cannot snatch it (T_{21} <= T_{11}).",
+      "example": "If T_{12} < T_{22} AND T_{21} < T_{11}, both processes are stuck — deadlock.",
+      "connects": "We want conditions that make this deadlock scenario impossible."
+     },
+     {
+      "term": "Preemption breaks deadlock",
+      "meaning": "If P_1 has higher priority than P_2 for ALL resources, P_1 can always snatch whatever P_2 holds. Similarly if P_2 dominates all priorities.",
+      "example": "Condition I: T_{11} > T_{21} AND T_{12} > T_{22} means P_1 wins both resources, can never be stuck.",
+      "connects": "When one process dominates all resource priorities, no circular wait can persist — deadlock impossible."
+     }
+    ],
+    "plan": "For deadlock to be impossible, at least one process must be able to preempt the other for every resource it might need. Analyze each condition: if one process has higher priority for ALL resources (dominates), deadlock cannot occur. If priorities are mixed (P_1 wins R_1 but P_2 wins R_2), circular wait can occur and deadlock is possible."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Identify when deadlock CAN occur",
+      "formula_raw": "Deadlock possible when: P_1 cannot snatch R_2 from P_2 (T_{12} < T_{22}) AND P_2 cannot snatch R_1 from P_1 (T_{21} < T_{11})",
+      "apply": "In the classic deadlock scenario: P_1 holds R_1, wants R_2; P_2 holds R_2, wants R_1. Deadlock holds if P_1 cannot take R_2 from P_2 (needs T_{12} > T_{22}, but if T_{12} < T_{22} then P_1 is stuck) AND P_2 cannot take R_1 from P_1 (needs T_{21} > T_{11}, but if T_{21} < T_{11} then P_2 is stuck). This deadlock scenario corresponds to: T_{11} > T_{21} AND T_{12} < T_{22} — exactly condition II.",
+      "note": "Similarly, condition III (T_{11} < T_{21} AND T_{12} > T_{22}) leads to the mirror deadlock: P_2 cannot take R_1, P_1 cannot take R_2."
+     },
+     {
+      "step": 2,
+      "title": "Analyze Condition I: T_{11} > T_{21} AND T_{12} > T_{22}",
+      "formula_raw": "",
+      "apply": "P_1 has higher priority than P_2 for BOTH resources. If P_1 is waiting for any resource held by P_2, P_1 can always snatch it (since T_{1j} > T_{2j} for all j). P_1 can never be permanently blocked by P_2. Therefore no deadlock involving P_1 stuck waiting for P_2 is possible. Condition I PREVENTS deadlock.",
+      "note": "P_1 dominates all resources — it always wins preemption contests."
+     },
+     {
+      "step": 3,
+      "title": "Analyze Condition IV: T_{11} < T_{21} AND T_{12} < T_{22}",
+      "formula_raw": "",
+      "apply": "P_2 has higher priority than P_1 for BOTH resources. By symmetric reasoning, P_2 can always snatch any resource from P_1. P_2 can never be permanently blocked by P_1. Therefore no deadlock is possible. Condition IV PREVENTS deadlock.",
+      "note": "P_2 dominates all resources — symmetric to condition I."
+     },
+     {
+      "step": 4,
+      "title": "Analyze Conditions II and III",
+      "formula_raw": "",
+      "apply": "Condition II: T_{11} > T_{21}, T_{12} < T_{22}. P_1 wins R_1, P_2 wins R_2. Scenario: P_1 holds R_1 and waits for R_2 — cannot snatch (T_{12} < T_{22}). P_2 holds R_2 and waits for R_1 — cannot snatch (T_{21} < T_{11}). Both stuck: DEADLOCK POSSIBLE. Condition III: T_{11} < T_{21}, T_{12} > T_{22}. P_2 wins R_1, P_1 wins R_2. Mirror of II — DEADLOCK POSSIBLE.",
+      "note": "Mixed priority assignments (each process wins one resource) allow circular wait without preemption breaking it."
+     }
+    ],
+    "result": "Conditions I and IV prevent deadlock. Answer: C. (I) and (IV) only."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Preemption as a deadlock prevention mechanism: when one process has strictly higher priority for ALL shared resources, it can always snatch what it needs, breaking the circular wait condition.",
+   "qid": "7.21.26",
+   "answer_official": "N/A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2008",
+    "year": 2008,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Resource Allocation",
+    "subtopic": "Resource Allocation"
+   },
+   "question": "An operating system implements a policy that requires a process to release all resources before making a request for another resource. Select the TRUE statement from the following:\n\nA. Both starvation and deadlock can occur\nB. Starvation can occur but deadlock cannot occur\nC. Starvation cannot occur but deadlock can occur\nD. Neither starvation nor deadlock can occur",
+   "answer": "B. Starvation can occur but deadlock cannot occur",
+   "to_find": "Under the policy of releasing all resources before requesting new ones, can deadlock or starvation occur?",
+   "understand": {
+    "plain": "The OS enforces a rule: a process must release ALL its currently held resources before it can request any new ones. This directly breaks one of the four Coffman deadlock conditions. The question asks whether this policy prevents deadlock, starvation, both, or neither.",
+    "keywords": [
+     {
+      "term": "Hold-and-wait",
+      "explain": "One of the four necessary Coffman conditions for deadlock: a process holds at least one resource while waiting to acquire additional resources. Breaking this condition prevents deadlock.",
+      "example": "P1 holds disk and waits for printer — hold-and-wait. If forced to release disk before requesting printer, hold-and-wait is broken."
+     },
+     {
+      "term": "Starvation",
+      "explain": "A situation where a process waits indefinitely because other processes keep getting resources ahead of it. Unlike deadlock, starvation involves a process that CAN eventually run but keeps getting bypassed.",
+      "example": "A low-priority process keeps waiting as high-priority processes continuously acquire and release the same resources."
+     },
+     {
+      "term": "Deadlock",
+      "explain": "A state where processes are permanently stuck in a circular waiting pattern, each holding resources others need. Requires all four Coffman conditions to hold simultaneously.",
+      "example": "P1 holds R1 waiting for R2; P2 holds R2 waiting for R1 — neither can proceed, both deadlocked."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Under this policy: a process must drop all resources, then re-request them. No process ever holds a resource while waiting for another, so the hold-and-wait condition is never satisfied, making deadlock impossible. However, a process may keep releasing and re-requesting, always losing out to others — starvation is possible."
+   },
+   "given": {
+    "aim": "Determine whether the 'release all before request' policy eliminates deadlock, starvation, both, or neither.",
+    "terms": [
+     {
+      "term": "Release-all-before-request policy",
+      "meaning": "Before a process can request any new resource, it must first release all resources it currently holds.",
+      "example": "P1 holds R1 and R2, wants R3. It must first release R1 and R2, then request R3 (or all three together).",
+      "connects": "This directly breaks the 'hold-and-wait' Coffman condition, which is necessary for deadlock."
+     },
+     {
+      "term": "Coffman condition broken",
+      "meaning": "For deadlock, all four conditions must hold: mutual exclusion, hold-and-wait, no preemption, circular wait. This policy eliminates hold-and-wait.",
+      "example": "If hold-and-wait cannot occur, the circular dependency that causes deadlock cannot form.",
+      "connects": "Eliminating hold-and-wait is sufficient to prevent deadlock entirely."
+     },
+     {
+      "term": "Starvation under this policy",
+      "meaning": "A process may repeatedly release its resources and wait to re-acquire them. If other processes keep getting scheduled ahead, the process may wait indefinitely.",
+      "example": "P1 needs R1+R2 together. It keeps releasing and re-requesting, but P2 and P3 keep grabbing R1 or R2 first. P1 starves.",
+      "connects": "The policy does not address scheduling fairness, so starvation remains possible."
+     }
+    ],
+    "plan": "Check each Coffman condition under this policy. Hold-and-wait is broken because a process must release before requesting. Without hold-and-wait, circular wait cannot form, so deadlock is impossible. For starvation: a process may be perpetually delayed if it keeps losing resource races — this is not prevented by the policy."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Show deadlock is impossible under this policy",
+      "formula_raw": "Deadlock requires: Mutual Exclusion AND Hold-and-Wait AND No Preemption AND Circular Wait",
+      "apply": "The policy states a process must release ALL held resources before requesting new ones. This means a process can never be in a state where it holds one resource and waits for another — the hold-and-wait condition is completely broken. Since hold-and-wait is a necessary condition for deadlock, and it cannot occur under this policy, DEADLOCK CANNOT OCCUR.",
+      "note": "Even one broken Coffman condition is sufficient to guarantee deadlock freedom."
+     },
+     {
+      "step": 2,
+      "title": "Show starvation can still occur",
+      "formula_raw": "",
+      "apply": "Consider process P that needs resources R1 and R2 simultaneously. Under this policy, P releases everything, then requests R1 and R2. But between P's release and its next request, other processes may immediately grab R1 or R2. P may be forced to release and retry indefinitely if the scheduling or allocation is unfair (e.g., always preferring other processes). This is starvation — P is not deadlocked (it can make requests) but never successfully acquires resources. The policy provides no fairness guarantee.",
+      "note": "Starvation is about indefinite postponement due to fairness issues, not circular waiting. It can occur with or without deadlock prevention policies."
+     }
+    ],
+    "result": "Starvation can occur but deadlock cannot occur. Answer: B."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Breaking the hold-and-wait Coffman condition (by requiring all resources to be released before new requests) is a classic deadlock prevention technique. It does not address starvation, which requires separate fairness mechanisms like aging.",
+   "qid": "7.21.27",
+   "answer_official": "B"
+  }
+ ]
+}

@@ -1,0 +1,209 @@
+{
+ "page": 484,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2002",
+    "year": 2002,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Process Synchronization",
+    "subtopic": "Process Synchronization"
+   },
+   "question": "The functionality of atomic TEST-AND-SET assembly language instruction is given by the following C function:\n\nint TEST_AND_SET(int *x) {\n    int y;\n    A1: y = *x;\n    A2: *x = 1;\n    A3: return y;\n}\n\n(i) Complete the following C functions for implementing code for entering and leaving critical sections on the above TEST-AND-SET instruction:\n\nint mutex = 0;\nvoid enter() {\n    while(__________);\n}\nvoid leave() {\n    __________;\n}\n\n(ii) Is the above solution to the critical section problem deadlock-free and starvation-free?\n\n(iii) By using an example, show that mutual exclusion is not ensured if the TEST-AND-SET instruction is not atomic.\n\nWhich of the following correctly completes the enter() and leave() functions?\nA. enter: while(TEST_AND_SET(&mutex) == 1); leave: mutex = 0;\nB. enter: while(TEST_AND_SET(&mutex) == 0); leave: mutex = 1;\nC. enter: while(TEST_AND_SET(&mutex) != 0); leave: mutex = -1;\nD. enter: while(mutex == 1); leave: mutex = 0;",
+   "answer": "A. enter: while(TEST_AND_SET(&mutex) == 1); leave: mutex = 0;",
+   "to_find": "The correct implementation of enter() and leave() using TEST-AND-SET instruction",
+   "understand": {
+    "plain": "The TEST-AND-SET instruction atomically reads a lock variable and sets it to 1. The enter() function should spin (busy-wait) as long as the lock is held (returns 1), and the leave() function should release the lock by setting it back to 0. The key property is that TEST-AND-SET is atomic, so no two processes can simultaneously observe the lock as 0.",
+    "keywords": [
+     {
+      "term": "TEST-AND-SET",
+      "explain": "An atomic hardware instruction that reads a memory location, sets it to 1, and returns the old value — all as one indivisible operation.",
+      "example": "If mutex=0 (unlocked), TEST_AND_SET(&mutex) returns 0 and sets mutex=1, acquiring the lock."
+     },
+     {
+      "term": "Critical Section",
+      "explain": "A segment of code that accesses shared resources and must not be executed concurrently by more than one process.",
+      "example": "A bank account update where balance = balance + deposit must complete without interruption."
+     },
+     {
+      "term": "Mutual Exclusion",
+      "explain": "The guarantee that only one process is inside the critical section at any given time.",
+      "example": "If P1 is updating a shared file, P2 must wait until P1 finishes before it can access the file."
+     },
+     {
+      "term": "Starvation",
+      "explain": "A condition where a process waits indefinitely to enter its critical section because other processes keep getting scheduled ahead of it.",
+      "example": "With a spinlock, if many processes repeatedly acquire the lock, a specific process may never get a turn."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 560 280'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='250' height='260' rx='8' class='bg'/><text x='135' y='38' text-anchor='middle' class='lbl ink'>Process P1</text><rect x='30' y='50' width='210' height='40' rx='4' class='hi'/><text x='135' y='75' text-anchor='middle' class='sub ink'>enter(): spin on TAS</text><rect x='30' y='100' width='210' height='60' rx='4' style='fill:#D4F5E5;stroke:#1D9E75;stroke-width:2;'/><text x='135' y='125' text-anchor='middle' class='sub ink'>CRITICAL SECTION</text><text x='135' y='145' text-anchor='middle' class='sub mut'>(shared resource)</text><rect x='30' y='170' width='210' height='40' rx='4' class='bg'/><text x='135' y='195' text-anchor='middle' class='sub ink'>leave(): mutex = 0</text><rect x='300' y='10' width='250' height='260' rx='8' class='bg'/><text x='425' y='38' text-anchor='middle' class='lbl ink'>Process P2</text><rect x='320' y='50' width='210' height='40' rx='4' class='hi'/><text x='425' y='75' text-anchor='middle' class='sub ink'>enter(): spin on TAS</text><rect x='320' y='100' width='210' height='60' rx='4' style='fill:#FDECEA;stroke:#D85A30;stroke-width:2;'/><text x='425' y='125' text-anchor='middle' class='sub ink'>BLOCKED</text><text x='425' y='145' text-anchor='middle' class='sub mut'>(mutex == 1)</text><rect x='320' y='170' width='210' height='40' rx='4' class='bg'/><text x='425' y='195' text-anchor='middle' class='sub mut'>waits for P1 to leave</text><text x='280' y='255' text-anchor='middle' class='tag ink'>mutex=0 (free) | mutex=1 (locked)</text></svg>",
+    "visual_alt": "Two processes P1 and P2. P1 is in the critical section after acquiring the lock via TEST-AND-SET (mutex became 1). P2 spins in enter() because TEST-AND-SET returns 1, blocked until P1 calls leave() which sets mutex back to 0."
+   },
+   "given": {
+    "aim": "Implement enter() and leave() functions using TEST-AND-SET to enforce mutual exclusion on a critical section.",
+    "terms": [
+     {
+      "term": "int mutex = 0",
+      "meaning": "A shared lock variable; 0 means lock is free, 1 means lock is held.",
+      "example": "Initially no process holds the lock, so mutex = 0.",
+      "connects": "TEST_AND_SET(&mutex) atomically sets mutex=1 and returns the old value, enabling lock acquisition detection."
+     },
+     {
+      "term": "TEST_AND_SET(&mutex) return value",
+      "meaning": "Returns the old value of mutex before setting it to 1. If old value was 0, lock was free and is now acquired. If old value was 1, lock was already held.",
+      "example": "If mutex=0, TAS returns 0 (lock acquired). If mutex=1, TAS returns 1 (lock busy).",
+      "connects": "enter() should loop while TAS returns 1 (lock busy), and stop looping when TAS returns 0 (lock acquired)."
+     },
+     {
+      "term": "leave()",
+      "meaning": "Releases the lock by resetting mutex to 0, allowing other waiting processes to acquire it.",
+      "example": "After finishing the critical section, set mutex=0 so another process can proceed.",
+      "connects": "Without this release, the lock stays at 1 permanently, causing deadlock for all other processes."
+     },
+     {
+      "term": "Atomicity of TEST-AND-SET",
+      "meaning": "The read-and-set operation happens as one indivisible step — no other process can interleave between the read (A1) and the write (A2).",
+      "example": "If two processes call TAS simultaneously on mutex=0, exactly one gets 0 (acquired) and the other gets 1 (blocked).",
+      "connects": "If TAS were not atomic, two processes could both read mutex=0 before either writes 1, causing both to enter the critical section — violating mutual exclusion."
+     }
+    ],
+    "plan": "In enter(), call TEST_AND_SET(&mutex) in a loop; if it returns 1 the lock is busy so keep spinning, if it returns 0 the lock was free and is now acquired (loop exits). In leave(), simply set mutex=0 to release the lock. This solution is deadlock-free (a process eventually gets the lock if others leave) but not starvation-free (with many processes, one process could spin indefinitely)."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Design enter() — acquire the lock",
+      "formula_raw": "while(TEST_AND_SET(&mutex) == 1);",
+      "apply": "TEST_AND_SET atomically reads mutex and sets it to 1. If the old value was 0, the lock was free — we just acquired it (TAS returns 0, so while-condition is false, loop exits). If the old value was 1, the lock was held — TAS returns 1, so while-condition is true and we keep spinning. This is a correct spinlock.",
+      "note": "Option B uses == 0 which is wrong: it would loop while the lock is FREE and exit when the lock is BUSY — the opposite of what we want."
+     },
+     {
+      "step": 2,
+      "title": "Design leave() — release the lock",
+      "formula_raw": "mutex = 0;",
+      "apply": "To release the lock, simply set mutex=0. This is safe because only the process currently in the critical section calls leave(), so there is no race condition on this write. After mutex=0, any spinning process can acquire the lock on its next TAS call.",
+      "note": "The solution is deadlock-free: if a process holds the lock, it will eventually exit the critical section and call leave(). It is NOT starvation-free: multiple processes spinning could indefinitely bypass a particular process."
+     },
+     {
+      "step": 3,
+      "title": "Why non-atomic TAS breaks mutual exclusion",
+      "formula_raw": "",
+      "apply": "If TAS is not atomic, suppose mutex=0 and P1 executes A1 (y=0) but is preempted before A2 (*x=1). Now P2 executes all of TAS: reads mutex=0, sets mutex=1, returns 0, and enters critical section. Now P1 resumes A2 (sets mutex=1, already 1) and returns 0 — also entering the critical section. Both P1 and P2 are now in the critical section simultaneously, violating mutual exclusion.",
+      "note": "This shows atomicity is the essential hardware guarantee that makes spinlocks correct."
+     }
+    ],
+    "result": "enter(): while(TEST_AND_SET(&mutex) == 1); — leave(): mutex = 0; (Option A). The solution is deadlock-free but not starvation-free. Non-atomic TAS allows both processes to read mutex=0 before either sets it to 1, breaking mutual exclusion."
+   },
+   "formula_ids_used": [],
+   "formula_note": "TEST-AND-SET spinlock: enter loops while TAS returns 1 (lock held); leave resets mutex to 0. Correctness relies entirely on the atomicity of the hardware TEST-AND-SET instruction.",
+   "qid": "7.20.22",
+   "answer_official": "N/A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2002",
+    "year": 2002,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Process Synchronization",
+    "subtopic": "Process Synchronization"
+   },
+   "question": "The following solution to the single producer single consumer problem uses semaphores for synchronization:\n\n#define BUFFSIZE 100\nbuffer buf[BUFFSIZE];\nint first = last = 0;\nsemaphore b_full = 0;\nsemaphore b_empty = BUFFSIZE;\n\nvoid producer() {\n    while(1) {\n        produce an item p;\n        P(b_empty);\n        buf[last] = p;\n        last = (last+1) % BUFFSIZE;\n        V(b_full);\n    }\n}\n\nvoid consumer() {\n    while(1) {\n        P(b_full);\n        c = buf[first];\n        first = (first+1) % BUFFSIZE;\n        V(b_empty);\n        consume item c;\n    }\n}\n\nA. Complete the dotted part of the above solution.\n\nB. Using another semaphore variable, insert one line statement each immediately after p1, immediately before p2, immediately before c1 and immediately before c2 so that the program works correctly for multiple producers and consumers.\n\nWhich of the following correctly completes part A (filling in the producer and consumer code shown above, where the dotted lines represent missing synchronization)?\nA. The code as given is already complete; b_full and b_empty suffice for mutual exclusion.\nB. A mutex semaphore (initialized to 1) is needed: P(mutex) before accessing buf[] and V(mutex) after, in both producer and consumer.\nC. Only the producer needs a mutex semaphore; the consumer does not.\nD. A condition variable replaces the semaphores b_full and b_empty.",
+   "answer": "B. A mutex semaphore (initialized to 1) is needed: P(mutex) before accessing buf[] and V(mutex) after, in both producer and consumer.",
+   "to_find": "How to extend the single producer-consumer semaphore solution to work correctly for multiple producers and consumers",
+   "understand": {
+    "plain": "The given code uses two semaphores: b_full (counts filled slots) and b_empty (counts empty slots). These correctly synchronize a single producer with a single consumer. However, with multiple producers or multiple consumers, two producers could both access buf[] simultaneously, corrupting the buffer. A mutex semaphore is needed to ensure only one producer (or consumer) modifies the shared buffer at a time.",
+    "keywords": [
+     {
+      "term": "Semaphore",
+      "explain": "An integer variable accessed only via two atomic operations: P (wait/decrement, block if 0) and V (signal/increment, wake a blocked process).",
+      "example": "b_empty=100 means 100 empty slots available; P(b_empty) decrements it, blocking producer when buffer is full."
+     },
+     {
+      "term": "Counting Semaphore",
+      "explain": "A semaphore that can take any non-negative integer value, used to track the count of available resources.",
+      "example": "b_full initialized to 0 counts how many filled buffer slots are ready for the consumer."
+     },
+     {
+      "term": "Mutex (Binary Semaphore)",
+      "explain": "A semaphore initialized to 1 used to enforce mutual exclusion so only one process at a time accesses a critical section.",
+      "example": "semaphore mutex=1; P(mutex); /* access shared data */ V(mutex); ensures no two threads modify the buffer simultaneously."
+     },
+     {
+      "term": "Race Condition",
+      "explain": "A bug where the outcome depends on the relative timing of two processes accessing shared data without proper synchronization.",
+      "example": "Two producers both read last=5, both write to buf[5], and both set last=6 — one item is lost."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 580 300'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='60' width='130' height='180' rx='8' class='bg'/><text x='75' y='88' text-anchor='middle' class='lbl ink'>Producers</text><rect x='25' y='100' width='100' height='30' rx='4' class='hi'/><text x='75' y='120' text-anchor='middle' class='sub ink'>P1</text><rect x='25' y='140' width='100' height='30' rx='4' class='hi'/><text x='75' y='160' text-anchor='middle' class='sub ink'>P2</text><rect x='25' y='180' width='100' height='30' rx='4' class='hi'/><text x='75' y='200' text-anchor='middle' class='sub mut'>P3 ...</text><rect x='220' y='30' width='140' height='240' rx='8' style='fill:#D4F5E5;stroke:#1D9E75;stroke-width:2;'/><text x='290' y='58' text-anchor='middle' class='lbl ink'>Buffer</text><text x='290' y='78' text-anchor='middle' class='sub mut'>(BUFFSIZE=100)</text><rect x='235' y='90' width='110' height='25' rx='3' class='bg'/><text x='290' y='108' text-anchor='middle' class='sub ink'>slot 0</text><rect x='235' y='120' width='110' height='25' rx='3' class='hi'/><text x='290' y='138' text-anchor='middle' class='sub ink'>slot 1 (last)</text><rect x='235' y='150' width='110' height='25' rx='3' class='bg'/><text x='290' y='168' text-anchor='middle' class='sub ink'>slot 2 (first)</text><rect x='235' y='180' width='110' height='25' rx='3' class='bg'/><text x='290' y='198' text-anchor='middle' class='sub ink'>...</text><rect x='430' y='60' width='130' height='180' rx='8' class='bg'/><text x='495' y='88' text-anchor='middle' class='lbl ink'>Consumers</text><rect x='445' y='100' width='100' height='30' rx='4' class='hi'/><text x='495' y='120' text-anchor='middle' class='sub ink'>C1</text><rect x='445' y='140' width='100' height='30' rx='4' class='hi'/><text x='495' y='160' text-anchor='middle' class='sub ink'>C2</text><rect x='445' y='180' width='100' height='30' rx='4' class='hi'/><text x='495' y='200' text-anchor='middle' class='sub mut'>C3 ...</text><text x='75' y='260' text-anchor='middle' class='tag no'>P(b_empty)</text><text x='75' y='278' text-anchor='middle' class='tag ink'>P(mutex)</text><text x='495' y='260' text-anchor='middle' class='tag no'>P(b_full)</text><text x='495' y='278' text-anchor='middle' class='tag ink'>P(mutex)</text></svg>",
+    "visual_alt": "Multiple producers on the left writing to a shared circular buffer in the center, and multiple consumers on the right reading from it. b_empty and b_full semaphores control capacity. A mutex semaphore is needed so that only one producer or consumer accesses the shared buffer (last/first pointers) at a time."
+   },
+   "given": {
+    "aim": "Extend the single producer-consumer solution to correctly handle multiple producers and multiple consumers using an additional semaphore.",
+    "terms": [
+     {
+      "term": "b_full (semaphore, initial=0)",
+      "meaning": "Counts the number of filled (produced but not yet consumed) buffer slots. Producer does V(b_full) after inserting; consumer does P(b_full) before removing.",
+      "example": "If buffer is empty, b_full=0 and consumer blocks at P(b_full) until producer inserts an item.",
+      "connects": "Prevents consumer from reading an empty buffer — correct for single consumer but insufficient for multiple consumers sharing 'first'."
+     },
+     {
+      "term": "b_empty (semaphore, initial=BUFFSIZE=100)",
+      "meaning": "Counts the number of available (empty) buffer slots. Producer does P(b_empty) before inserting; consumer does V(b_empty) after removing.",
+      "example": "If buffer is full, b_empty=0 and producer blocks at P(b_empty) until consumer removes an item.",
+      "connects": "Prevents producer from overwriting a full buffer — correct for single producer but insufficient for multiple producers sharing 'last'."
+     },
+     {
+      "term": "first, last (shared indices)",
+      "meaning": "'last' is the next write position (updated by producers); 'first' is the next read position (updated by consumers). Both are shared variables that require mutual exclusion with multiple processes.",
+      "example": "Two producers both read last=10, write to buf[10], and both increment last to 11 — one item is lost and one slot is skipped.",
+      "connects": "A mutex semaphore protects the read-modify-write of these shared indices so only one producer (or consumer) updates them at a time."
+     },
+     {
+      "term": "mutex semaphore (initial=1)",
+      "meaning": "A binary semaphore used to implement mutual exclusion. P(mutex) before accessing shared buffer data; V(mutex) after.",
+      "example": "semaphore mutex=1; in producer: P(mutex); buf[last]=p; last=(last+1)%BUFFSIZE; V(mutex);",
+      "connects": "For part B, P(mutex) is inserted immediately after p1 (after P(b_empty)) and V(mutex) immediately before p2 (before V(b_full)) in producer; similarly P(mutex) after c1 (after P(b_full)) and V(mutex) before c2 (before V(b_empty)) in consumer."
+     }
+    ],
+    "plan": "Part A: The given code is already complete for the single producer-consumer case — b_full and b_empty correctly synchronize one producer with one consumer. Part B: For multiple producers/consumers, add a mutex semaphore (initial=1). In the producer, add P(mutex) after P(b_empty) and V(mutex) before V(b_full). In the consumer, add P(mutex) after P(b_full) and V(mutex) before V(b_empty). This ensures exclusive access to buf[], first, and last."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Analyze the single producer-consumer solution",
+      "formula_raw": "P(b_empty) -> write buf[last] -> V(b_full) | P(b_full) -> read buf[first] -> V(b_empty)",
+      "apply": "With exactly one producer and one consumer: b_empty prevents producer overflow (blocks when full), b_full prevents consumer underflow (blocks when empty). The indices 'first' and 'last' are only modified by one process each, so no race condition exists. The given code is complete for the single case.",
+      "note": "The answer to Part A is that the given code is already the complete solution for single producer-consumer."
+     },
+     {
+      "step": 2,
+      "title": "Identify race condition with multiple producers/consumers",
+      "formula_raw": "",
+      "apply": "With multiple producers: P1 and P2 both execute P(b_empty) successfully (b_empty >= 2). Then both read 'last=5', both write to buf[5], and both compute last=(5+1)%100=6. Result: buf[6] is skipped, buf[5] is overwritten, and one item is lost. Similarly, multiple consumers can both read 'first=3', fetch buf[3], and both advance first to 4 — one consumer gets garbage data.",
+      "note": "The race is on the shared variables 'last' (producers) and 'first' (consumers), not just the semaphore values."
+     },
+     {
+      "step": 3,
+      "title": "Add mutex for Part B — multiple producers and consumers",
+      "formula_raw": "semaphore mutex = 1;",
+      "apply": "Modified producer:\n  P(b_empty);      // point p1\n  P(mutex);        // ADD: immediately after p1\n  buf[last] = p;\n  last = (last+1) % BUFFSIZE;\n  V(mutex);        // ADD: immediately before p2\n  V(b_full);       // point p2\n\nModified consumer:\n  P(b_full);       // point c1\n  P(mutex);        // ADD: immediately after c1\n  c = buf[first];\n  first = (first+1) % BUFFSIZE;\n  V(mutex);        // ADD: immediately before c2\n  V(b_empty);      // point c2\n\nNote: mutex is acquired AFTER b_empty/b_full to avoid deadlock. If mutex were acquired first, a producer holding mutex could block on P(b_empty) while a consumer waiting for mutex is also blocked — deadlock.",
+      "note": "The order P(b_empty) then P(mutex) in the producer (and P(b_full) then P(mutex) in the consumer) is critical to avoid deadlock. Reversing this order creates a deadlock scenario."
+     }
+    ],
+    "result": "Part A: The given code is complete for single producer-consumer — b_full and b_empty are sufficient. Part B: Add semaphore mutex=1. In producer: P(mutex) immediately after P(b_empty), V(mutex) immediately before V(b_full). In consumer: P(mutex) immediately after P(b_full), V(mutex) immediately before V(b_empty). This ensures correct mutual exclusion on the shared buffer for multiple producers and consumers. (Option B)"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Producer-consumer synchronization using counting semaphores (b_full, b_empty) for capacity control and a binary mutex semaphore for mutual exclusion on shared buffer indices when multiple producers/consumers are present. Always acquire capacity semaphore before mutex to prevent deadlock.",
+   "qid": "7.20.23",
+   "answer_official": "N/A"
+  }
+ ]
+}

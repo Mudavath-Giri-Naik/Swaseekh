@@ -1,0 +1,253 @@
+{
+ "page": 194,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 1991",
+    "year": 1991,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "Parameter Passing",
+    "subtopic": "Parameter Passing"
+   },
+   "question": "For the following code, indicate the output if\na. static scope rules\nb. dynamic scope rules\nare used\n\nvar a, b : integer;\nprocedure P;\n  a := 5;\n  b := 10;\nend {P};\nprocedure Q;\n  var a : integer;\n  begin\n    a := 2;\n    b := 3;\n    P;\n  end {Q};\nbegin\n  a := 1;\n  b := 2;\n  Q;\n  Write (a = ', a, ' b = ', b);\nend\n\nA. Static: a=5, b=10; Dynamic: a=1, b=10\nB. Static: a=5, b=10; Dynamic: a=5, b=10\nC. Static: a=1, b=10; Dynamic: a=1, b=10\nD. Static: a=5, b=10; Dynamic: a=2, b=10",
+   "answer": "A. Static: a=5, b=10; Dynamic: a=1, b=10",
+   "to_find": "Output of the program under static scope rules and dynamic scope rules",
+   "understand": {
+    "plain": "The program has global variables a and b, a procedure P that sets a=5, b=10, and a procedure Q that declares a local variable a, sets a=2, b=3, then calls P. The question asks what a and b are (the global ones) after Q is called, under both static and dynamic scoping rules.",
+    "keywords": [
+     {
+      "term": "Static (Lexical) Scope",
+      "explain": "Variable references are resolved based on where the procedure is defined in the source code (the textual/lexical structure).",
+      "example": "In static scope, P's 'a' refers to the global 'a' because P is defined at the top level."
+     },
+     {
+      "term": "Dynamic Scope",
+      "explain": "Variable references are resolved based on the call stack at runtime — the most recently activated binding of a variable name is used.",
+      "example": "In dynamic scope, P's 'a' could refer to Q's local 'a' if P was called from Q, since Q's 'a' is the most recent binding."
+     }
+    ],
+    "visual_svg": "<svg width='500' height='260' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect width='500' height='260' rx='10' fill='var(--cell-bg,#F1EFE8)'/><text x='20' y='30' class='lbl ink'>Scope Analysis</text><rect x='20' y='45' width='200' height='80' rx='6' class='bg'/><text x='30' y='65' class='tag ink'>Static Scope</text><text x='30' y='85' class='sub ink'>P defined at global level</text><text x='30' y='105' class='sub ink'>P's a → global a (a=5)</text><text x='30' y='120' class='sub ink'>P's b → global b (b=10)</text><rect x='270' y='45' width='210' height='80' rx='6' class='hi'/><text x='280' y='65' class='tag ink'>Dynamic Scope</text><text x='280' y='85' class='sub ink'>P called from Q at runtime</text><text x='280' y='105' class='sub ink'>P's a → Q's local a (a=2 stays)</text><text x='280' y='120' class='sub ink'>P's b → global b (b=10)</text><rect x='20' y='145' width='460' height='95' rx='6' fill='var(--ok,#1D9E75)' opacity='0.15' stroke='var(--ok,#1D9E75)' stroke-width='2'/><text x='30' y='168' class='tag ink'>Results (global a and b printed by main)</text><text x='30' y='192' class='sub ink'>Static:  global a=5 (P modified it), global b=10</text><text x='30' y='215' class='sub ink'>Dynamic: global a=1 (P modified Q's local a, not global), global b=10</text></svg>",
+    "visual_alt": "Scope analysis table showing that under static scope P assigns to global a (result a=5, b=10), while under dynamic scope P's 'a' resolves to Q's local a, so global a stays 1 (result a=1, b=10)."
+   },
+   "given": {
+    "aim": "Determine the printed values of global a and b under static and dynamic scoping after the call chain main -> Q -> P.",
+    "terms": [
+     {
+      "term": "Global a, b",
+      "meaning": "Variables declared at the outermost level; initial values set to a=1, b=2 in main.",
+      "example": "After Q is called, main prints these global values.",
+      "connects": "These are what gets printed; the key question is which 'a' procedure P modifies."
+     },
+     {
+      "term": "Q's local a",
+      "meaning": "A local variable 'a' declared inside Q, hiding the global a within Q's scope.",
+      "example": "Q sets its local a=2, then calls P.",
+      "connects": "Under dynamic scope, P inherits this local 'a' as the most recent binding."
+     },
+     {
+      "term": "Static scope rule for P",
+      "meaning": "P is defined at the global level, so in static scope all its free variables refer to global declarations.",
+      "example": "P's 'a' always refers to global a regardless of who calls P.",
+      "connects": "Under static scope, P's a:=5 modifies global a, giving final a=5."
+     },
+     {
+      "term": "Dynamic scope rule for P",
+      "meaning": "When P executes, the most recent binding of 'a' on the call stack is Q's local a (since Q called P).",
+      "example": "P's a:=5 modifies Q's local a (not global a), so global a remains 1.",
+      "connects": "Under dynamic scope, global a is unchanged (stays 1), b is still set to global b (b=10)."
+     }
+    ],
+    "plan": "Trace through the execution under each scoping rule: for static scope, P's free variable 'a' refers to global a (set to 5), b refers to global b (set to 10). For dynamic scope, when P is called from Q, the most recent 'a' binding is Q's local a, so P's assignment goes to Q's local a (global a stays 1), while 'b' has only one binding so global b becomes 10 in both cases."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Static scope analysis",
+      "formula_raw": "Free variables resolved at definition site",
+      "apply": "P is defined at the global scope. So inside P, 'a' refers to the global a and 'b' refers to global b. Execution: main sets a=1, b=2; Q sets its local a=2 and global b=3, then calls P; P sets global a=5 and global b=10. Main then prints global a=5 and global b=10.",
+      "note": "Under static scope, the local 'a' inside Q has no effect on which 'a' P uses — P always sees the global one."
+     },
+     {
+      "step": 2,
+      "title": "Dynamic scope analysis",
+      "formula_raw": "Free variables resolved at call site (most recent activation record)",
+      "apply": "At runtime when P is called from Q, the most recent binding of 'a' on the call stack is Q's local a (value 2). So P's 'a := 5' modifies Q's local a, not the global a. However 'b' has only one binding (global b=3 set by Q before calling P), so P's 'b := 10' sets global b=10. After Q and P return, main prints global a=1 (unchanged) and global b=10.",
+      "note": "Under dynamic scope, the caller's environment leaks into the callee — Q's local 'a' shadows global 'a' for P as well."
+     }
+    ],
+    "result": "Static scope: a=5, b=10; Dynamic scope: a=1, b=10 — Answer A."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Static (lexical) scoping resolves variable names at definition time using the nesting structure; dynamic scoping resolves at call time using the runtime call stack.",
+   "qid": "3.16.7",
+   "answer_official": "N/A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1993",
+    "year": 1993,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Compiler Design",
+    "topic": "Parameter Passing",
+    "subtopic": "Parameter Passing"
+   },
+   "question": "A stack is used to pass parameters to procedures in a procedure call.\nA. If a procedure P has two parameters as described in the procedure definition:\n   procedure P (var x : integer;  y : integer);\nand if P is called by P(a, b);\nState precisely in a sentence what is pushed on stack for parameters a and b.\nB. In the generated code for the body of procedure P, how will the addressing of formal parameters x and y differ?",
+   "answer": "Part A: For parameter 'a' (passed by reference as var x), the address (l-value) of a is pushed onto the stack. For parameter 'b' (passed by value as y), the value (r-value) of b is pushed onto the stack. Part B: x is accessed by indirect addressing (double indirection — fetch the address stored on the stack, then fetch the value at that address), while y is accessed by direct addressing (the value is fetched directly from its stack location).",
+   "to_find": "What is pushed on the stack for each parameter, and how formal parameters x (var/reference) and y (value) are addressed in the generated code",
+   "understand": {
+    "plain": "In this problem a procedure P has one call-by-reference parameter (var x) and one call-by-value parameter (y). When calling P(a, b), the compiler must push different things on the stack for each. We also need to explain how the generated code accesses x and y differently.",
+    "keywords": [
+     {
+      "term": "Call by Reference (var parameter)",
+      "explain": "The address (l-value) of the actual argument is passed. Any modification to the formal parameter inside the procedure modifies the original variable.",
+      "example": "For P(a, b), 'var x' means the address of a is pushed; x inside P is a pointer to a."
+     },
+     {
+      "term": "Call by Value",
+      "explain": "The value (r-value) of the actual argument is copied onto the stack. Modifications to the formal parameter do not affect the original.",
+      "example": "For P(a, b), y is value parameter so the current value of b is pushed; changing y inside P has no effect on b."
+     },
+     {
+      "term": "Indirect Addressing",
+      "explain": "To access the actual value, the code first reads the stored address from the stack, then dereferences it to get the value.",
+      "example": "x is stored as a pointer on stack; code does: load address of a from stack, then load value from that address."
+     }
+    ],
+    "visual_svg": "<svg width='460' height='220' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect width='460' height='220' rx='10' fill='var(--cell-bg,#F1EFE8)'/><text x='20' y='28' class='lbl ink'>Stack layout for call P(a, b)</text><rect x='160' y='40' width='140' height='45' rx='4' class='hi'/><text x='230' y='58' text-anchor='middle' class='tag ink'>addr(a) → x</text><text x='230' y='76' text-anchor='middle' class='sub mut'>pushed for var x (by ref)</text><rect x='160' y='90' width='140' height='45' rx='4' class='bg'/><text x='230' y='108' text-anchor='middle' class='tag ink'>value(b) → y</text><text x='230' y='126' text-anchor='middle' class='sub mut'>pushed for y (by value)</text><text x='20' y='160' class='sub ink'>Accessing x: indirect — load address from stack, then dereference</text><text x='20' y='180' class='sub ink'>Accessing y: direct — load value directly from stack slot</text><line x1='160' y1='62' x2='80' y2='62' stroke='var(--hi-line,#7F77DD)' stroke-width='2' marker-end='url(#arr)'/><text x='25' y='66' class='sub ink'>addr(a)</text></svg>",
+    "visual_alt": "Stack layout diagram showing addr(a) pushed for the reference parameter x and value(b) pushed for the value parameter y, with notes on indirect vs direct addressing."
+   },
+   "given": {
+    "aim": "Explain stack-based parameter passing for one call-by-reference and one call-by-value parameter, and describe the generated code's addressing difference.",
+    "terms": [
+     {
+      "term": "var x : integer",
+      "meaning": "x is a formal parameter declared with 'var', meaning it is passed by reference.",
+      "example": "Modifying x inside P modifies the actual argument a.",
+      "connects": "The address of a is pushed; generated code uses indirect addressing to access x."
+     },
+     {
+      "term": "y : integer",
+      "meaning": "y is a formal parameter without 'var', meaning it is passed by value.",
+      "example": "Modifying y inside P does not affect b.",
+      "connects": "The value of b is copied to the stack; generated code accesses y directly."
+     },
+     {
+      "term": "Call P(a, b)",
+      "meaning": "The actual call site where a is the argument for x (by reference) and b is the argument for y (by value).",
+      "example": "At call time: push &a (address of a) for x; push b (value of b) for y.",
+      "connects": "Drives what goes on the activation record for this call."
+     }
+    ],
+    "plan": "For Part A: identify that 'var x' is by-reference so the address of a is pushed, and y is by-value so the value of b is pushed. For Part B: explain that the generated code to read/write x must dereference the stored address (indirect addressing), while for y the code reads the value directly from the stack slot (direct addressing)."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Part A: What is pushed on stack for each parameter",
+      "formula_raw": "var param → push address; value param → push value",
+      "apply": "For the call P(a, b): since 'x' is declared as 'var x : integer' (call-by-reference), the l-value (address/pointer) of the actual argument 'a' is pushed onto the stack. Since 'y : integer' is a value parameter (call-by-value), the r-value (current integer value) of actual argument 'b' is pushed onto the stack.",
+      "note": "Passing by reference means passing the address so the callee can modify the caller's variable directly."
+     },
+     {
+      "step": 2,
+      "title": "Part B: How generated code addresses x vs y",
+      "formula_raw": "x: *stack_slot_x (indirect); y: stack_slot_y (direct)",
+      "apply": "For formal parameter x (var/reference): the stack slot contains an address. Generated code must first load this address from the stack slot, then dereference it to read or write the actual value. This is indirect (double indirection) addressing. For formal parameter y (value): the stack slot directly contains the integer value. Generated code reads or writes the value directly from/to this stack slot — direct addressing. In summary, x requires one extra level of indirection compared to y.",
+      "note": "This difference in addressing is a key reason why call-by-reference parameters are slightly more expensive to access in generated machine code."
+     }
+    ],
+    "result": "Part A: address of a (l-value of a) is pushed for var parameter x; value of b (r-value of b) is pushed for value parameter y. Part B: x is accessed via indirect addressing (dereference the stored address); y is accessed via direct addressing (read the value directly from the stack)."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Call-by-reference pushes the address (l-value) of the actual argument onto the stack; call-by-value pushes a copy of the actual value (r-value). Formal reference parameters require indirect addressing in generated code.",
+   "qid": "3.16.8",
+   "answer_official": "N/A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1995",
+    "year": 1995,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "Parameter Passing",
+    "subtopic": "Parameter Passing"
+   },
+   "question": "What is the value of X printed by the following program?\n\nprogram COMPUTE (input, output);\nvar X : integer;\nprocedure FIND (X : real);\nbegin\n  X := sqrt(X);\nend;\nbegin\n  X := 2;\n  FIND(X);\n  write(X);\nend.\n\nA. 2\nB. sqrt(2)\nC. Run time error\nD. None of the above",
+   "answer": "A. 2",
+   "to_find": "What value of the global integer variable X is printed after calling FIND(X)",
+   "understand": {
+    "plain": "The program has a global integer variable X set to 2. Procedure FIND takes X as a real parameter (by value). Inside FIND, the local parameter X is replaced with sqrt(X). But since X is passed by value, the global X is not changed. So when write(X) is called in the main block, it prints the original global X which is 2.",
+    "keywords": [
+     {
+      "term": "Call by Value",
+      "explain": "The formal parameter inside the procedure is a local copy of the actual argument. Modifications to it do not affect the original variable.",
+      "example": "FIND(X) passes a copy of X=2 to the local parameter. Changing that local copy to sqrt(2) does not change global X."
+     },
+     {
+      "term": "Type mismatch (integer vs real)",
+      "explain": "The actual argument is integer X, but the formal parameter is declared as real. In Pascal-like languages this is a widening conversion applied to the copy, not a runtime error.",
+      "example": "The integer 2 is implicitly converted to real 2.0 for the local copy inside FIND."
+     }
+    ],
+    "visual_svg": "<svg width='420' height='200' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect width='420' height='200' rx='10' fill='var(--cell-bg,#F1EFE8)'/><text x='20' y='28' class='lbl ink'>Call by Value: Global X unchanged</text><rect x='20' y='45' width='150' height='80' rx='6' class='bg'/><text x='95' y='70' text-anchor='middle' class='tag ink'>Main / Global</text><text x='95' y='92' text-anchor='middle' class='sub ink'>X : integer = 2</text><text x='95' y='112' text-anchor='middle' class='sub ink'>(printed: 2)</text><rect x='240' y='45' width='160' height='80' rx='6' class='hi'/><text x='320' y='70' text-anchor='middle' class='tag ink'>FIND (local copy)</text><text x='320' y='92' text-anchor='middle' class='sub ink'>X : real = 2.0</text><text x='320' y='112' text-anchor='middle' class='sub ink'>X := sqrt(2) ≈ 1.414</text><line x1='175' y1='85' x2='235' y2='85' stroke='var(--color-text-primary,#2C2C2A)' stroke-width='2' marker-end='url(#arr)' stroke-dasharray='6,3'/><text x='185' y='78' class='sub mut'>copy</text><text x='20' y='165' class='sub ink'>After FIND returns: global X still = 2 (call by value)</text><text x='20' y='185' class='sub ink'>write(X) prints 2</text></svg>",
+    "visual_alt": "Diagram showing global integer X=2 passed by value to FIND which has local real parameter X. The local copy becomes sqrt(2) but global X remains 2, so write(X) prints 2."
+   },
+   "given": {
+    "aim": "Determine the value printed by write(X) in the main block after calling FIND(X) where FIND computes sqrt of its local parameter.",
+    "terms": [
+     {
+      "term": "Global X : integer",
+      "meaning": "The global integer variable initialized to 2 in the main block.",
+      "example": "X := 2 sets the global X before the procedure call.",
+      "connects": "This is what write(X) prints; we need to know if FIND modifies it."
+     },
+     {
+      "term": "FIND's local X : real",
+      "meaning": "A distinct local parameter of type real inside procedure FIND; it shadows the global X within FIND.",
+      "example": "When FIND(X) is called, the value 2 is copied into a local real variable also named X.",
+      "connects": "Changes to this local X only affect the local copy, not the global integer X."
+     },
+     {
+      "term": "Pass-by-value semantics",
+      "meaning": "Since FIND's parameter is not declared with 'var', it is passed by value — only a copy of the integer 2 is passed.",
+      "example": "X := sqrt(X) inside FIND modifies only the local copy to sqrt(2) ≈ 1.414.",
+      "connects": "The global X is completely unaffected by the assignment inside FIND."
+     }
+    ],
+    "plan": "Since FIND's parameter X is not a 'var' parameter, it is call-by-value. The global integer X=2 is converted to real 2.0 and copied into FIND's local X. Inside FIND, the local X becomes sqrt(2), but this has no effect on the global X. After FIND returns, write(X) prints the global X which is still 2."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Identify parameter passing mode",
+      "formula_raw": "procedure FIND (X : real) — no 'var' keyword => call by value",
+      "apply": "The procedure FIND is declared as 'procedure FIND (X : real)' — there is no 'var' keyword before X. Therefore X is a value parameter. When FIND(X) is called in main, the current value of the global X (which is 2) is copied into a local real variable named X inside FIND. The integer 2 is widened to real 2.0 for this copy.",
+      "note": "If it had been 'var X : real', it would be by-reference and would write back to global X — but the types differ (integer vs real), which would also be a type mismatch for reference passing."
+     },
+     {
+      "step": 2,
+      "title": "Trace execution and determine printed value",
+      "formula_raw": "Global X unchanged after call-by-value procedure",
+      "apply": "Inside FIND: local X (real) := sqrt(local X) = sqrt(2.0) ≈ 1.4142. This modifies only the local copy. When FIND returns, the local X is discarded. Back in main, write(X) refers to the global integer X which is still 2. So the output is 2.",
+      "note": "There is no runtime error — integer-to-real widening in call-by-value is a standard implicit conversion in Pascal-like languages. The answer is 2."
+     }
+    ],
+    "result": "The program prints 2. The global X remains unchanged because FIND receives only a copy (call by value). Answer: A. 2"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Call-by-value semantics: only a copy of the actual argument is passed to the formal parameter; modifications inside the procedure do not propagate back to the caller's variable.",
+   "qid": "3.16.9",
+   "answer_official": "A"
+  }
+ ]
+}

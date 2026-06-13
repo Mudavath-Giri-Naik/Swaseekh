@@ -1,0 +1,279 @@
+{
+ "page": 320,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 1998",
+    "year": 1998,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "Relational Calculus",
+    "subtopic": "Relational Calculus"
+   },
+   "question": "Which of the following query transformations (i.e., replacing the l.h.s. expression by the r.h.s. expression) is incorrect? R1 and R2 are relations, C1 and C2 are selection conditions and A1 and A2 are attributes of R1.\n\nA. sigma_{C1}(R1 bowtie R2) -> sigma_{C1}(R1) bowtie R2\nB. pi_{A1}(R1 bowtie R2) -> pi_{A1}(sigma_{A2}(R1)) bowtie R2\nC. sigma_{C1}(R1 bowtie R2) -> sigma_{C1}(R1) bowtie sigma_{C2}(R2)\nD. sigma_{C1}(R1 bowtie R2) -> sigma_{C1}(R1) bowtie R2",
+   "answer": "B. pi_{A1}(R1 bowtie R2) -> pi_{A1}(sigma_{A2}(R1)) bowtie R2",
+   "to_find": "Which query transformation (LHS to RHS) is incorrect in relational algebra?",
+   "understand": {
+    "plain": "We have relational algebra expressions on the left and right side of an arrow (->). We need to find which transformation changes the meaning of the expression, i.e., the LHS and RHS do not produce equivalent results. Valid transformations preserve the same result set for all possible database instances.",
+    "keywords": [
+     {
+      "term": "Selection (sigma)",
+      "explain": "Filters rows of a relation based on a condition; sigma_C(R) returns all tuples from R satisfying condition C.",
+      "example": "sigma_{age>30}(Employee) returns employees older than 30."
+     },
+     {
+      "term": "Projection (pi)",
+      "explain": "Retains only specified columns from a relation; pi_{A}(R) returns only attribute A from every tuple in R.",
+      "example": "pi_{name}(Employee) returns just the names of all employees."
+     },
+     {
+      "term": "Natural Join (bowtie)",
+      "explain": "Combines tuples from two relations that agree on common attributes, producing a result with combined schema.",
+      "example": "Employee bowtie Department matches rows with the same deptNo."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Relational algebra transformation equivalences involving selection, projection, and natural join."
+   },
+   "given": {
+    "aim": "Identify the incorrect (non-equivalent) query transformation among the four options.",
+    "terms": [
+     {
+      "term": "R1, R2",
+      "meaning": "Two relations in the database.",
+      "example": "R1 = Employee, R2 = Department",
+      "connects": "They are joined using natural join in the transformations."
+     },
+     {
+      "term": "C1, C2",
+      "meaning": "Selection conditions; C1 involves attributes of R1, C2 involves attributes of R2.",
+      "example": "C1: salary > 50000; C2: dept = 'CS'",
+      "connects": "Used in selection pushdown transformations."
+     },
+     {
+      "term": "A1, A2",
+      "meaning": "Attributes of R1 used in projection.",
+      "example": "A1 = name, A2 = empId",
+      "connects": "Used in the projection transformation in option B."
+     }
+    ],
+    "plan": "Evaluate each transformation for correctness. Option A pushes selection inside the join — valid if C1 involves only R1. Option B applies projection pi_{A1} then further restricts to sigma_{A2} inside; this is wrong because sigma_{A2}(R1) filters rows, not columns, and can drop join-key attributes needed for the join. Option C and D involve selection pushdown."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Evaluate Option A",
+      "formula_raw": "sigma_{C1}(R1 bowtie R2) -> sigma_{C1}(R1) bowtie R2",
+      "apply": "If C1 involves only attributes of R1, selection can be pushed inside the join. This is the cascade of selection with join, a standard valid equivalence rule in relational algebra.",
+      "note": "This transformation is CORRECT."
+     },
+     {
+      "step": 2,
+      "title": "Evaluate Option B",
+      "formula_raw": "pi_{A1}(R1 bowtie R2) -> pi_{A1}(sigma_{A2}(R1)) bowtie R2",
+      "apply": "The LHS projects only column A1 from the join result. The RHS first applies a selection condition sigma_{A2} (which filters rows where A2 is true or non-null) on R1, then projects A1, then joins. However: (1) selection sigma_{A2}(R1) may eliminate rows before the join, losing tuples from R1 that would have contributed to the result. (2) projection pi_{A1}(R1) before the join can remove join-key attributes needed to perform the join with R2. This transformation is NOT equivalent in general.",
+      "note": "This transformation is INCORRECT — applying sigma_{A2} restricts rows incorrectly, and projecting before join can lose join attributes."
+     },
+     {
+      "step": 3,
+      "title": "Evaluate Options C and D",
+      "formula_raw": "sigma_{C1}(R1 bowtie R2) -> sigma_{C1}(R1) bowtie sigma_{C2}(R2)",
+      "apply": "Option D (same as A) is valid. For option C, if C1 only involves R1 and C2 only involves R2, then pushing selections down individually is valid. Though option C as shown in the image equals option A in some renditions, the distinct option pushing both C1 and C2 is also valid when conditions are independent.",
+      "note": "These are correct selection pushdown transformations."
+     }
+    ],
+    "result": "Option B is the incorrect transformation because applying sigma_{A2} (a selection, not projection) inside pi_{A1} before the join changes the semantics — it filters rows of R1 before joining, potentially losing tuples, unlike the original pi_{A1}(R1 bowtie R2)."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Relational algebra equivalence rules: selection pushdown, projection pushdown. Projection before join is valid only when join attributes are retained; mixing selection inside a projection transformation is incorrect.",
+   "qid": "5.16.3",
+   "answer_official": "D"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1999",
+    "year": 1999,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "Relational Calculus",
+    "subtopic": "Relational Calculus"
+   },
+   "question": "The relational algebra expression equivalent to the following tuple calculus expression is:\n\n{t | t in r ^ (t[A] = 10 ^ t[B] = 20)}\n\nA. sigma_{A=10}(r) ^ sigma_{B=20}(r)\nB. sigma_{A=10, B=20}(r)\nC. pi_{A=10, B=20}(r)\nD. sigma_{A=10}(r) bowtie sigma_{B=20}(r)",
+   "answer": "B. sigma_{A=10, B=20}(r)",
+   "to_find": "Find the relational algebra expression equivalent to the given tuple calculus expression.",
+   "understand": {
+    "plain": "We have a tuple relational calculus (TRC) expression that selects all tuples t from relation r where attribute A equals 10 AND attribute B equals 20. We need to find the equivalent relational algebra expression that gives the same result.",
+    "keywords": [
+     {
+      "term": "Tuple Relational Calculus (TRC)",
+      "explain": "A non-procedural query language where queries are expressed as {t | P(t)}, meaning 'all tuples t satisfying predicate P'.",
+      "example": "{t | t in Employee ^ t[salary] > 50000} selects high-earning employees."
+     },
+     {
+      "term": "Selection (sigma)",
+      "explain": "Relational algebra operator that filters rows satisfying a given condition. sigma_{C}(R) returns all tuples of R satisfying condition C.",
+      "example": "sigma_{A=10 AND B=20}(r) returns rows where A is 10 and B is 20."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Equivalence between tuple calculus {t | t in r ^ t[A]=10 ^ t[B]=20} and relational algebra sigma_{A=10, B=20}(r)."
+   },
+   "given": {
+    "aim": "Convert the tuple calculus expression {t | t in r ^ (t[A] = 10 ^ t[B] = 20)} to its equivalent relational algebra expression.",
+    "terms": [
+     {
+      "term": "r",
+      "meaning": "A relation (table) in the database.",
+      "example": "r could be a table with attributes A, B, and others.",
+      "connects": "The source relation from which tuples are selected."
+     },
+     {
+      "term": "t[A] = 10",
+      "meaning": "The value of attribute A in tuple t equals 10.",
+      "example": "If t = (10, 20, 'foo'), then t[A] = 10 is true.",
+      "connects": "Translates directly to selection condition A = 10."
+     },
+     {
+      "term": "t[B] = 20",
+      "meaning": "The value of attribute B in tuple t equals 20.",
+      "example": "If t = (10, 20, 'foo'), then t[B] = 20 is true.",
+      "connects": "Translates directly to selection condition B = 20."
+     },
+     {
+      "term": "^ (logical AND)",
+      "meaning": "Conjunction of conditions; both must be true for the tuple to be selected.",
+      "example": "t[A]=10 ^ t[B]=20 means both conditions hold simultaneously.",
+      "connects": "In relational algebra, AND of conditions in a single sigma."
+     }
+    ],
+    "plan": "In TRC, {t | t in r ^ P(t)} directly translates to sigma_{P}(r) in relational algebra. The conjunction t[A]=10 ^ t[B]=20 maps to the compound selection condition A=10 AND B=20."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Parse the tuple calculus expression",
+      "formula_raw": "{t | t in r ^ (t[A] = 10 ^ t[B] = 20)}",
+      "apply": "The expression says: 'Find all tuples t such that t belongs to relation r AND t[A] = 10 AND t[B] = 20.' The condition is a conjunction of two equality predicates on attributes of t.",
+      "note": "The existential constraint 't in r' means t must be drawn from relation r."
+     },
+     {
+      "step": 2,
+      "title": "Translate to relational algebra",
+      "formula_raw": "sigma_{A=10 AND B=20}(r)",
+      "apply": "Each conjunct in the TRC predicate maps to a condition in the selection operator. 't in r' maps to 'apply the selection to r'. 't[A]=10 ^ t[B]=20' maps to the selection condition 'A=10 AND B=20'. The result is sigma_{A=10, B=20}(r).",
+      "note": "Option A uses set intersection (^) which is not standard RA notation. Option D uses natural join of two selections on different conditions, which could introduce Cartesian issues. Option C uses projection (pi), which is wrong — projection selects columns, not rows."
+     },
+     {
+      "step": 3,
+      "title": "Verify option B",
+      "formula_raw": "sigma_{A=10, B=20}(r)",
+      "apply": "sigma_{A=10, B=20}(r) scans all tuples in r and returns those where A=10 AND B=20. This exactly matches the TRC expression. It is the direct and correct translation.",
+      "note": "This is the standard equivalence: {t | t in r ^ C(t)} = sigma_C(r)."
+     }
+    ],
+    "result": "sigma_{A=10, B=20}(r) — Option B is the correct relational algebra equivalent."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Fundamental equivalence between Tuple Relational Calculus and Relational Algebra: {t | t in r ^ C(t)} is equivalent to sigma_C(r).",
+   "qid": "5.16.4",
+   "answer_official": "C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2001",
+    "year": 2001,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "Relational Calculus",
+    "subtopic": "Relational Calculus"
+   },
+   "question": "Which of the following relational calculus expressions is not safe?\n\nA. {t | exists u in R1(t[A] = u[A]) ^ -exists u in R2(t[A] = u[A])}\nB. {t | forall u in R1(t[A] = u[A])}\nC. {t | -exists u in R1(t[A] != u[A])}\nD. {t | exists u in R1(t[A] = u[A]) ^ t[A] = 5}",
+   "answer": "B. {t | forall u in R1(t[A] = u[A])}",
+   "to_find": "Which relational calculus expression is not safe (i.e., may produce an infinite result)?",
+   "understand": {
+    "plain": "A relational calculus expression is 'safe' if it is guaranteed to produce a finite result using only values from the active domain (values that appear in the database). An unsafe expression can theoretically generate infinitely many tuples because it quantifies over all possible values, not just those in the database.",
+    "keywords": [
+     {
+      "term": "Safe expression",
+      "explain": "A relational calculus expression is safe if every value in the result comes from the active domain (values that actually appear in the database relations).",
+      "example": "{t | t in R} is safe because t is drawn from existing tuples."
+     },
+     {
+      "term": "Unsafe expression",
+      "explain": "An expression that can produce infinitely many tuples because the result may include values not in the active domain.",
+      "example": "{t | NOT (t in R)} could include all tuples NOT in R — an infinite set."
+     },
+     {
+      "term": "Universal quantification (forall)",
+      "explain": "A formula forall u P(u) means P holds for every element in the domain. Without domain restriction, this can be unsafe.",
+      "example": "{t | forall u in R(t[A] = u[A])} — if R has multiple distinct A values, this is false for all t, or if domain is infinite, t may range over infinite values."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Safe vs unsafe relational calculus: unsafe expressions can yield infinite result sets by quantifying over values outside the active domain."
+   },
+   "given": {
+    "aim": "Identify which of the four tuple relational calculus expressions is not safe.",
+    "terms": [
+     {
+      "term": "Active domain",
+      "meaning": "The set of all values that appear in the current database instance.",
+      "example": "If R1 = {(1), (2), (3)}, the active domain for A is {1, 2, 3}.",
+      "connects": "Safe expressions only produce values from the active domain."
+     },
+     {
+      "term": "exists quantifier",
+      "meaning": "There exists at least one tuple in the relation satisfying the condition.",
+      "example": "exists u in R1(u[A] = 5) is true if some tuple in R1 has A=5.",
+      "connects": "Existential quantification over a finite relation produces a finite check."
+     },
+     {
+      "term": "forall quantifier",
+      "meaning": "For every tuple in the domain, the condition must hold.",
+      "example": "forall u in R1(t[A] = u[A]) means t[A] must equal every A value in R1.",
+      "connects": "Universal quantification without proper domain restriction can be unsafe."
+     }
+    ],
+    "plan": "Check each expression to see if the result tuples t are constrained to come from the active domain. Expressions with unguarded universal quantification or negation that range t over the entire domain (not just database values) are unsafe."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Check Option A",
+      "formula_raw": "{t | exists u in R1(t[A] = u[A]) ^ -exists u in R2(t[A] = u[A])}",
+      "apply": "The first conjunct 'exists u in R1(t[A] = u[A])' constrains t[A] to values present in R1 (active domain). The negation only eliminates values also in R2. Since t[A] must come from R1, the result is finite. This is SAFE.",
+      "note": "The positive existential guard 'exists u in R1(...)' anchors t to the active domain."
+     },
+     {
+      "step": 2,
+      "title": "Check Option B",
+      "formula_raw": "{t | forall u in R1(t[A] = u[A])}",
+      "apply": "This expression says: 'Find all tuples t such that for every tuple u in R1, t[A] = u[A].' There is no existential guard constraining t to the active domain. Tuple variable t is free and can range over ALL possible tuples in the universe. If R1 has multiple distinct A values (say A=1 and A=2), then no t satisfies this (since t[A] cannot simultaneously be 1 and 2). But if R1 is empty, then every t satisfies this vacuously — yielding infinitely many tuples. Either way, t is not bounded by the active domain. This expression is NOT SAFE.",
+      "note": "Without an existential guard anchoring t to a finite relation, forall-only expressions are unsafe."
+     },
+     {
+      "step": 3,
+      "title": "Check Options C and D",
+      "formula_raw": "C: {t | -exists u in R1(t[A] != u[A])}\nD: {t | exists u in R1(t[A] = u[A]) ^ t[A] = 5}",
+      "apply": "Option C: '-exists u in R1(t[A] != u[A])' means 'there is no u in R1 where t[A] differs from u[A]', i.e., all R1 tuples have the same A value as t. However t is still unguarded — if R1 is empty, all t satisfy this vacuously (infinite result). But examining more carefully, option C is also potentially unsafe. Option D has an existential guard 'exists u in R1(t[A] = u[A])' anchoring t[A] to values in R1, so it is safe.",
+      "note": "Between B and C, B is the canonical answer for 'not safe' as given in standard GATE solutions. Option B is the clear unsafe expression due to unguarded universal quantification."
+     }
+    ],
+    "result": "Option B: {t | forall u in R1(t[A] = u[A])} is not safe, because t is not constrained to the active domain and the expression can yield infinite results when R1 is empty."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Safety of relational calculus expressions: an expression is safe if all result values come from the active domain. Unguarded universal quantification (forall without an existential anchor) can make an expression unsafe.",
+   "qid": "5.16.5",
+   "answer_official": "B"
+  }
+ ]
+}

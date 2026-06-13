@@ -1,0 +1,349 @@
+{
+ "page": 264,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2025",
+    "year": 2025,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Computer Networks",
+    "topic": "Subnetting",
+    "subtopic": "Subnetting"
+   },
+   "question": "A packet with the destination IP address 145.36.109.70 arrives at a router whose routing table is shown below. Which interface will the packet be forwarded to?\n\nSubnet Address   | Mask (in CIDR notation) | Interface\n145.36.0.0       | /16                     | E1\n145.36.128.0     | /17                     | E2\n145.36.64.0      | /18                     | E3\n145.36.255.0     | /24                     | E4\n145.36.255.0     | /21                     | E5\n\nA. E3  B. E1  C. E2  D. E5",
+   "answer": "A. E3",
+   "to_find": "Which interface the packet with destination IP 145.36.109.70 is forwarded to using longest prefix match.",
+   "understand": {
+    "plain": "A router has multiple routing table entries. When a packet arrives, the router matches the destination IP against each subnet. If multiple entries match, the router picks the most specific one (longest prefix / highest CIDR number). We need to check which subnets contain 145.36.109.70 and then pick the longest match.",
+    "keywords": [
+     {
+      "term": "Longest Prefix Match",
+      "explain": "When multiple routing table entries match a destination IP, the router forwards to the entry with the most specific (longest) subnet mask.",
+      "example": "145.36.109.70 matches both /16 and /18; /18 is more specific so it wins."
+     },
+     {
+      "term": "CIDR Notation",
+      "explain": "A /n mask means the first n bits are the network part. Higher n = smaller subnet = more specific match.",
+      "example": "/18 means the first 18 bits are fixed, covering 2^(32-18) = 16384 addresses."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 520 220'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='500' height='40' class='bg' rx='6'/><text x='20' y='35' class='lbl ink'>Destination: 145.36.109.70</text><rect x='10' y='60' width='500' height='28' class='bg'/><text x='15' y='78' class='tag mut'>145.36.0.0/16 (E1): covers 145.36.0.0 - 145.36.255.255 — MATCHES</text><rect x='10' y='90' width='500' height='28' class='bg'/><text x='15' y='108' class='tag mut'>145.36.128.0/17: covers 145.36.128.0 - 145.36.255.255 — NO (109&lt;128)</text><rect x='10' y='120' width='500' height='28' class='hi'/><text x='15' y='138' class='tag ink'>145.36.64.0/18: covers 145.36.64.0 - 145.36.127.255 — MATCHES (longest)</text><rect x='10' y='150' width='500' height='28' class='bg'/><text x='15' y='168' class='tag mut'>145.36.255.0/24: covers 145.36.255.0 - 145.36.255.255 — NO</text><rect x='10' y='180' width='500' height='28' class='bg'/><text x='15' y='198' class='tag mut'>145.36.255.0/21: network mismatch — NO</text></svg>",
+    "visual_alt": "Table showing which routing entries match destination 145.36.109.70; /18 (E3) is the longest matching prefix."
+   },
+   "given": {
+    "aim": "Find the outgoing interface for destination IP 145.36.109.70 using longest prefix match.",
+    "terms": [
+     {
+      "term": "Destination IP",
+      "meaning": "145.36.109.70 — the address we are routing",
+      "example": "Third octet = 109 (binary 01101101)",
+      "connects": "We AND this with each subnet mask to find matching entries."
+     },
+     {
+      "term": "/16 entry (E1)",
+      "meaning": "Subnet 145.36.0.0/16 covers all of 145.36.x.x",
+      "example": "Any address starting with 145.36 matches",
+      "connects": "145.36.109.70 matches, but /16 is less specific than /18."
+     },
+     {
+      "term": "/18 entry (E3)",
+      "meaning": "Subnet 145.36.64.0/18 covers 145.36.64.0 to 145.36.127.255 (third octet 64-127)",
+      "example": "109 is in [64,127] so 145.36.109.70 falls in this subnet",
+      "connects": "/18 is more specific than /16, so longest prefix match selects E3."
+     }
+    ],
+    "plan": "Check each routing table entry by ANDing the destination IP with the subnet mask and comparing to the network address. Among all matching entries, select the one with the longest (highest) prefix length."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Check each routing entry for a match",
+      "formula_raw": "Match if (dest_IP AND mask) == network_address",
+      "apply": "145.36.0.0/16: 145.36.109.70 AND /16 = 145.36.0.0 == 145.36.0.0 → MATCH\n145.36.128.0/17: /17 requires third octet >= 128; 109 < 128 → NO MATCH\n145.36.64.0/18: /18 covers third octet [64,127]; 109 in [64,127] → MATCH\n145.36.255.0/24: requires third octet = 255; 109 != 255 → NO MATCH",
+      "note": "Third octet 109 is in [64,127] which is exactly what /18 starting at 64 covers."
+     },
+     {
+      "step": 2,
+      "title": "Apply Longest Prefix Match",
+      "formula_raw": "Choose entry with maximum prefix length among all matches",
+      "apply": "Matching entries: /16 (E1) and /18 (E3). /18 > /16, so the longest prefix match selects E3.",
+      "note": "Longest prefix match ensures traffic goes to the most specific subnet, which is /18 → E3."
+     }
+    ],
+    "result": "The packet is forwarded to interface E3. Answer: A. E3"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Longest Prefix Match (LPM): among all routing table entries whose subnet contains the destination IP, the router selects the entry with the highest (longest) prefix length.",
+   "qid": "4.29.15",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2004",
+    "year": 2004,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Computer Networks",
+    "topic": "Subnetting",
+    "subtopic": "Subnetting"
+   },
+   "question": "A subnet has been assigned a subnet mask of 255.255.255.192. What is the maximum number of hosts that can belong to this subnet?\n\nA. 14  B. 30  C. 62  D. 126",
+   "answer": "C. 62",
+   "to_find": "Maximum number of usable hosts in a subnet with mask 255.255.255.192.",
+   "understand": {
+    "plain": "The subnet mask 255.255.255.192 tells us how many bits are the network part and how many are the host part. The host bits determine how many addresses (and thus hosts) are available. We subtract 2 from the total (for network and broadcast addresses) to get usable hosts.",
+    "keywords": [
+     {
+      "term": "Subnet Mask",
+      "explain": "A 32-bit number where 1-bits represent the network portion and 0-bits represent the host portion.",
+      "example": "255.255.255.192 = 11111111.11111111.11111111.11000000, so 26 network bits and 6 host bits."
+     },
+     {
+      "term": "Usable Hosts",
+      "explain": "Total addresses in subnet minus 2 (network address and broadcast address).",
+      "example": "6 host bits gives 2^6 = 64 addresses; 64 - 2 = 62 usable hosts."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 120'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='480' height='36' class='bg' rx='4'/><text x='20' y='33' class='lbl ink'>255.255.255.192 = /26</text><rect x='10' y='55' width='360' height='36' class='bg' rx='4'/><text x='20' y='78' class='tag mut'>Network bits: 26</text><rect x='380' y='55' width='110' height='36' class='hi' rx='4'/><text x='390' y='78' class='tag ink'>Host bits: 6</text><text x='10' y='112' class='sub ink'>Max hosts = 2^6 - 2 = 64 - 2 = 62</text></svg>",
+    "visual_alt": "255.255.255.192 is /26; 6 host bits give 64 addresses, minus 2 = 62 usable hosts."
+   },
+   "given": {
+    "aim": "Calculate the maximum number of hosts in the subnet with mask 255.255.255.192.",
+    "terms": [
+     {
+      "term": "255.255.255.192",
+      "meaning": "Subnet mask in dotted-decimal; 192 = 11000000 in binary, so the last octet has 2 one-bits and 6 zero-bits.",
+      "example": "Total prefix length = 8+8+8+2 = 26 bits (/26)",
+      "connects": "Gives 6 host bits → 2^6 = 64 total addresses."
+     },
+     {
+      "term": "Host bits",
+      "meaning": "The zero-bits in the subnet mask that identify individual hosts within the subnet.",
+      "example": "6 host bits means addresses .0 through .63 in the last octet.",
+      "connects": "Number of usable hosts = 2^(host bits) - 2."
+     },
+     {
+      "term": "Network and Broadcast addresses",
+      "meaning": "The first address (all host bits = 0) is the network address; the last (all host bits = 1) is the broadcast address — both are reserved and cannot be assigned to hosts.",
+      "example": "In a /26 block: .0 is network, .63 is broadcast.",
+      "connects": "Subtract 2 from total: 64 - 2 = 62 usable hosts."
+     }
+    ],
+    "plan": "Convert the subnet mask to binary to count host bits. Apply formula: max hosts = 2^h - 2, where h is the number of host bits."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Convert mask to binary and count host bits",
+      "formula_raw": "255.255.255.192 = 11111111.11111111.11111111.11000000",
+      "apply": "192 in binary = 11000000. So the last octet has 2 network bits and 6 host bits. Total host bits h = 6.",
+      "note": "CIDR prefix = /26, so host bits = 32 - 26 = 6."
+     },
+     {
+      "step": 2,
+      "title": "Calculate maximum usable hosts",
+      "formula_raw": "max_hosts = 2^h - 2",
+      "apply": "max_hosts = 2^6 - 2 = 64 - 2 = 62.",
+      "note": "We subtract 2 to account for the network address (e.g., x.x.x.0) and broadcast address (e.g., x.x.x.63)."
+     }
+    ],
+    "result": "Maximum number of hosts = 62. Answer: C. 62"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Usable hosts in a subnet = 2^h - 2, where h = number of host bits (32 minus prefix length).",
+   "qid": "4.29.16",
+   "answer_official": "C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2005",
+    "year": 2005,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Computer Networks",
+    "topic": "Subnetting",
+    "subtopic": "Subnetting"
+   },
+   "question": "A company has a class C network address of 204.204.204.0. It wishes to have three subnets, one with 100 hosts and two with 50 hosts each. Which one of the following options represents a feasible set of subnet address/subnet mask pairs?\n\nA. 204.204.204.128/255.255.255.0, 204.204.204.0/255.255.255.128, 204.204.204.64/255.255.255.128\nB. 204.204.204.0/255.255.255.128, 204.204.204.128/255.255.255.192, 204.204.204.192/255.255.255.192\nC. 204.204.204.0/255.255.255.128, 204.204.204.128/255.255.255.128, 204.204.204.192/255.255.255.192\nD. 204.204.204.0/255.255.255.0, 204.204.204.0/255.255.255.128, 204.204.204.128/255.255.255.128",
+   "answer": "B. 204.204.204.0/255.255.255.128, 204.204.204.128/255.255.255.192, 204.204.204.192/255.255.255.192",
+   "to_find": "A valid set of subnet address/mask pairs for a Class C network requiring subnets of 100 and 50 hosts.",
+   "understand": {
+    "plain": "A Class C address gives 256 total addresses. We need three subnets: the 100-host subnet needs at least 102 addresses (100 hosts + 2 reserved), requiring a /25 block (128 addresses). Each 50-host subnet needs at least 52 addresses, requiring a /26 block (64 addresses). Together 128 + 64 + 64 = 256, which exactly fills the Class C space.",
+    "keywords": [
+     {
+      "term": "Variable Length Subnet Masking (VLSM)",
+      "explain": "Technique of using different subnet masks for different subnets within the same network to use address space efficiently.",
+      "example": "Using /25 for a large subnet and /26 for smaller subnets in the same Class C network."
+     },
+     {
+      "term": "Class C network",
+      "explain": "A network with a /24 mask providing 256 addresses (254 usable hosts) in total.",
+      "example": "204.204.204.0/24 has addresses .0 through .255."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 520 160'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='500' height='30' class='bg' rx='4'/><text x='15' y='30' class='tag mut'>204.204.204.0/24 — 256 total addresses</text><rect x='10' y='50' width='245' height='50' class='hi' rx='4'/><text x='20' y='70' class='tag ink'>.0 to .127</text><text x='20' y='88' class='sub ink'>/25 — 126 usable (100 hosts) subnet1</text><rect x='260' y='50' width='120' height='50' class='bg' rx='4'/><text x='268' y='70' class='tag ink'>.128 to .191</text><text x='268' y='88' class='sub ink'>/26 — 62 usable (50 hosts)</text><rect x='385' y='50' width='120' height='50' class='bg' rx='4'/><text x='393' y='70' class='tag ink'>.192 to .255</text><text x='393' y='88' class='sub ink'>/26 — 62 usable (50 hosts)</text><text x='10' y='135' class='sub mut'>Total: 128 + 64 + 64 = 256 = full /24 space used</text></svg>",
+    "visual_alt": "Class C network split into: .0-.127 (/25, 100 hosts), .128-.191 (/26, 50 hosts), .192-.255 (/26, 50 hosts)."
+   },
+   "given": {
+    "aim": "Determine valid subnet address/mask pairs for 3 subnets (100+50+50 hosts) from 204.204.204.0/24.",
+    "terms": [
+     {
+      "term": "100-host subnet requirement",
+      "meaning": "Need at least 102 addresses (100 hosts + network + broadcast), so 2^7 = 128 addresses required → /25 (mask 255.255.255.128).",
+      "example": "204.204.204.0/25 covers .0 to .127, providing 126 usable hosts.",
+      "connects": "This subnet uses the first half of the /24 address space."
+     },
+     {
+      "term": "50-host subnet requirement",
+      "meaning": "Need at least 52 addresses (50 hosts + 2 reserved), so 2^6 = 64 addresses → /26 (mask 255.255.255.192).",
+      "example": "204.204.204.128/26 covers .128 to .191; 204.204.204.192/26 covers .192 to .255.",
+      "connects": "Two /26 subnets fill the second half (.128-.255) of the /24 space."
+     },
+     {
+      "term": "Non-overlapping subnets",
+      "meaning": "Each subnet must occupy a distinct, non-overlapping range of the address space.",
+      "example": ".0-.127, .128-.191, .192-.255 do not overlap.",
+      "connects": "Ensures all three subnets are valid and the total space equals 256 = 2^8."
+     }
+    ],
+    "plan": "Allocate the /24 space using VLSM: assign /25 for the 100-host subnet and two /26 blocks for the 50-host subnets. Verify subnet addresses are correctly aligned and non-overlapping."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Determine subnet sizes needed",
+      "formula_raw": "min addresses = hosts + 2; next power of 2 >= min",
+      "apply": "100 hosts: need 102 → 128 = 2^7 → /25, mask 255.255.255.128\n50 hosts: need 52 → 64 = 2^6 → /26, mask 255.255.255.192\nTwo /26 subnets needed.",
+      "note": "Always round up to the next power of 2."
+     },
+     {
+      "step": 2,
+      "title": "Assign non-overlapping blocks from 204.204.204.0/24",
+      "formula_raw": "subnet_start must be aligned to block_size boundary",
+      "apply": "Subnet 1 (100 hosts): 204.204.204.0/25 → addresses .0 to .127 (128 addresses, 126 usable)\nSubnet 2 (50 hosts): 204.204.204.128/26 → addresses .128 to .191 (64 addresses, 62 usable)\nSubnet 3 (50 hosts): 204.204.204.192/26 → addresses .192 to .255 (64 addresses, 62 usable)\nTotal: 128+64+64 = 256, perfectly fills /24.",
+      "note": ".128 is aligned to /26 boundary (multiple of 64), and .192 is also aligned."
+     },
+     {
+      "step": 3,
+      "title": "Match with answer options",
+      "formula_raw": "",
+      "apply": "Option B gives: 204.204.204.0/255.255.255.128 (/25), 204.204.204.128/255.255.255.192 (/26), 204.204.204.192/255.255.255.192 (/26). This matches our allocation exactly.",
+      "note": "Options A, C, D either have wrong masks, overlapping subnets, or wrong network addresses for the given masks."
+     }
+    ],
+    "result": "Option B is the correct feasible set. Answer: B."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Variable Length Subnet Masking (VLSM): allocate subnets of different sizes from a classful block, ensuring alignment and no overlap. Subnet size = 2^h where h = host bits.",
+   "qid": "4.29.17",
+   "answer_official": "D"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2006",
+    "year": 2006,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Computer Networks",
+    "topic": "Subnetting",
+    "subtopic": "Subnetting"
+   },
+   "question": "A router uses the following routing table:\n\nDestination      | Mask            | Interface\n144.16.0.0       | 255.255.0.0     | eth0\n144.16.64.0      | 255.255.255.0   | eth1\n144.16.68.0      | 255.255.255.0   | eth2\n144.16.68.64     | 255.255.255.0   | eth3\n\nA packet whose destination address is 144.16.68.117 arrives at the router. On which interface will the packet be forwarded?\n\nA. eth0  B. eth1  C. eth2  D. eth3",
+   "answer": "C. eth2",
+   "to_find": "The interface to which a packet with destination 144.16.68.117 is forwarded using longest prefix match.",
+   "understand": {
+    "plain": "The router performs longest prefix match: for destination 144.16.68.117, it checks each routing table entry by ANDing the destination with the mask and comparing to the network address. Multiple entries may match; the one with the longest (most specific) mask wins.",
+    "keywords": [
+     {
+      "term": "Longest Prefix Match",
+      "explain": "Routing rule: when multiple routing entries match, choose the one with the most specific (longest) subnet mask.",
+      "example": "Both /16 and /24 may match; /24 is chosen as more specific."
+     },
+     {
+      "term": "Network address calculation",
+      "explain": "Bitwise AND of destination IP with subnet mask gives the network address for comparison.",
+      "example": "144.16.68.117 AND 255.255.255.0 = 144.16.68.0."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 520 200'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='500' height='32' class='bg' rx='4'/><text x='18' y='30' class='lbl ink'>Destination: 144.16.68.117</text><rect x='10' y='52' width='500' height='28' class='bg' rx='4'/><text x='15' y='70' class='tag mut'>144.16.0.0 /255.255.0.0 (eth0): 144.16.68.117 AND /16 = 144.16.0.0 MATCH</text><rect x='10' y='84' width='500' height='28' class='bg' rx='4'/><text x='15' y='102' class='tag mut'>144.16.64.0 /255.255.255.0 (eth1): result=144.16.68.0 != 144.16.64.0 NO</text><rect x='10' y='116' width='500' height='28' class='hi' rx='4'/><text x='15' y='134' class='tag ink'>144.16.68.0 /255.255.255.0 (eth2): result=144.16.68.0 == 144.16.68.0 MATCH (/24)</text><rect x='10' y='148' width='500' height='28' class='bg' rx='4'/><text x='15' y='166' class='tag mut'>144.16.68.64 /255.255.255.0 (eth3): result=144.16.68.0 != 144.16.68.64 NO</text><text x='10' y='196' class='sub ink'>Longest match: eth2 (/24 &gt; /16). Forward to eth2.</text></svg>",
+    "visual_alt": "Checking each routing entry: /16 (eth0) and /24 (eth2) both match 144.16.68.117; eth2 wins as the longer prefix match."
+   },
+   "given": {
+    "aim": "Find the outgoing interface for packet with destination 144.16.68.117 using longest prefix match.",
+    "terms": [
+     {
+      "term": "Destination IP: 144.16.68.117",
+      "meaning": "The packet's target address. In binary: third octet = 68 = 01000100, fourth octet = 117 = 01110101.",
+      "example": "Third octet 68 tells us this is in the 144.16.68.x range.",
+      "connects": "Used to compute dest AND mask for each routing entry."
+     },
+     {
+      "term": "eth2 entry: 144.16.68.0/255.255.255.0",
+      "meaning": "Network 144.16.68.0 with mask /24. Matches any address in 144.16.68.0 - 144.16.68.255.",
+      "example": "144.16.68.117 AND 255.255.255.0 = 144.16.68.0 — matches.",
+      "connects": "This gives a /24 match, more specific than eth0's /16 match."
+     },
+     {
+      "term": "eth3 entry: 144.16.68.64/255.255.255.0",
+      "meaning": "Network address is 144.16.68.64 but mask is /24 (255.255.255.0). Applying /24 mask to destination gives 144.16.68.0, not 144.16.68.64 — no match.",
+      "example": "144.16.68.117 AND 255.255.255.0 = 144.16.68.0 != 144.16.68.64.",
+      "connects": "eth3 does NOT match because the network address 144.16.68.64 with a /24 mask is inconsistent — the effective network is 144.16.68.0 which is eth2."
+     }
+    ],
+    "plan": "Apply dest AND mask for each entry and compare to the stored network address. Collect all matches, then select the entry with the largest prefix length."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Test eth0: 144.16.0.0 / 255.255.0.0",
+      "formula_raw": "144.16.68.117 AND 255.255.0.0",
+      "apply": "144.16.68.117 AND 255.255.0.0 = 144.16.0.0 = stored network address. MATCH (prefix /16).",
+      "note": "The /16 mask matches any address starting with 144.16, so this always matches."
+     },
+     {
+      "step": 2,
+      "title": "Test eth1: 144.16.64.0 / 255.255.255.0",
+      "formula_raw": "144.16.68.117 AND 255.255.255.0",
+      "apply": "= 144.16.68.0. Compare to stored: 144.16.64.0. 68 != 64. NO MATCH.",
+      "note": "Third octet 68 != 64, so this subnet does not include our destination."
+     },
+     {
+      "step": 3,
+      "title": "Test eth2: 144.16.68.0 / 255.255.255.0",
+      "formula_raw": "144.16.68.117 AND 255.255.255.0",
+      "apply": "= 144.16.68.0. Compare to stored: 144.16.68.0. EQUAL. MATCH (prefix /24).",
+      "note": "Third octet 68 == 68, so 144.16.68.117 is within the 144.16.68.0/24 subnet."
+     },
+     {
+      "step": 4,
+      "title": "Test eth3: 144.16.68.64 / 255.255.255.0",
+      "formula_raw": "144.16.68.117 AND 255.255.255.0",
+      "apply": "= 144.16.68.0. Compare to stored: 144.16.68.64. 0 != 64. NO MATCH.",
+      "note": "The entry 144.16.68.64 with a /24 mask is an inconsistent entry (network address should end in 0 for /24); it doesn't match 144.16.68.117."
+     },
+     {
+      "step": 5,
+      "title": "Apply Longest Prefix Match",
+      "formula_raw": "Select entry with maximum prefix length among matches",
+      "apply": "Matching entries: eth0 (/16) and eth2 (/24). /24 > /16, so eth2 wins.",
+      "note": "Longest prefix match selects the most specific route, which is eth2."
+     }
+    ],
+    "result": "Packet is forwarded to eth2. Answer: C. eth2"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Longest Prefix Match routing: compute dest AND mask for each entry, collect all matches, select the entry with the longest (highest) prefix. This ensures the most specific route is chosen.",
+   "qid": "4.29.18",
+   "answer_official": "C"
+  }
+ ]
+}

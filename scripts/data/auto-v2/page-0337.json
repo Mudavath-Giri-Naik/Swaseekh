@@ -1,0 +1,185 @@
+{
+ "page": 337,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2017",
+    "year": 2017,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "SQL",
+    "subtopic": "SQL"
+   },
+   "question": "Consider the following database table named top_scorer:\n\nplayer       | country   | goals\n-------------|-----------|------\nKlose        | Germany   | 16\nRonaldo      | Brazil    | 15\nG.Muller     | Germany   | 14\nFontaine     | France    | 13\nPele         | Brazil    | 12\nKlinsman     | Germany   | 11\nKoosis       | Hungary   | 10\nBatistuta    | Argentina | 10\nCubillas     | Peru      | 10\nLato         | Poland    | 10\nLineker      | England   | 10\nT.Muller     | Germany   | 10\nRalas        | Germany   | 10\n\nConsider the following SQL query:\nSELECT ta.player FROM top_scorer AS ta\nWHERE ta.goals > ALL (SELECT tb.goals FROM top_scorer AS tb WHERE tb.country = 'Spain')\nAND ta.goals > ANY (SELECT tc.goals FROM top_scorer AS tc WHERE tc.country = 'Germany')\n\nThe number of tuples returned by the above SQL query is ______.\n\nA. 6\nB. 5\nC. 3\nD. 1",
+   "answer": "A. 6",
+   "to_find": "Number of tuples (rows) returned by the given SQL query on the top_scorer table.",
+   "understand": {
+    "plain": "The query selects players whose goal count is greater than ALL goals scored by Spanish players, AND greater than AT LEAST ONE goal scored by a German player. Since there are no Spanish players in the table, the ALL condition over an empty set is vacuously TRUE. The ANY condition requires the player's goals to exceed at least one German player's goal count.",
+    "keywords": [
+     {
+      "term": "> ALL (subquery)",
+      "explain": "Returns TRUE if the value is greater than every value returned by the subquery. Crucially, if the subquery returns NO rows (empty set), the condition is vacuously TRUE for all rows.",
+      "example": "5 > ALL (empty set) => TRUE; 5 > ALL (3, 4, 6) => FALSE"
+     },
+     {
+      "term": "> ANY (subquery)",
+      "explain": "Returns TRUE if the value is greater than at least one value returned by the subquery. Equivalent to EXISTS a row in the subquery that the value exceeds.",
+      "example": "5 > ANY (3, 7, 9) => TRUE (since 5 > 3)"
+     },
+     {
+      "term": "Vacuous truth",
+      "explain": "A universal statement over an empty domain is always TRUE in SQL. So x > ALL (empty) is TRUE for any x.",
+      "example": "SELECT * FROM T WHERE x > ALL (SELECT y FROM T WHERE 1=0) returns all rows of T."
+     }
+    ],
+    "visual_svg": "<svg width='520' height='220' viewBox='0 0 520 220' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='5' y='5' width='510' height='210' rx='8' class='bg'/><text x='260' y='32' text-anchor='middle' class='lbl ink'>Spain subquery = empty set  =>  > ALL is TRUE for everyone</text><text x='260' y='58' text-anchor='middle' class='sub mut'>Germany goals: 16, 14, 11, 10, 10  =>  min = 10  =>  need goals &gt; 10 for > ANY</text><rect x='20' y='70' width='220' height='130' rx='6' class='hi'/><text x='130' y='92' text-anchor='middle' class='tag ink'>Players with goals &gt; 10</text><text x='130' y='114' text-anchor='middle' class='sub ink'>Klose (16)</text><text x='130' y='132' text-anchor='middle' class='sub ink'>Ronaldo (15)</text><text x='130' y='150' text-anchor='middle' class='sub ink'>G.Muller (14)</text><text x='130' y='168' text-anchor='middle' class='sub ink'>Fontaine (13)</text><text x='130' y='178' text-anchor='middle' class='sub ink'>Pele (12)</text><text x='130' y='196' text-anchor='middle' class='sub ink'>Klinsman (11) = 6 total</text><rect x='270' y='70' width='230' height='130' rx='6' class='bg'/><text x='385' y='92' text-anchor='middle' class='tag ink'>Players with goals = 10 (excluded)</text><text x='385' y='114' text-anchor='middle' class='sub no'>Koosis (10) - NO</text><text x='385' y='132' text-anchor='middle' class='sub no'>Batistuta (10) - NO</text><text x='385' y='150' text-anchor='middle' class='sub no'>Cubillas/Lato/Lineker (10) - NO</text><text x='385' y='168' text-anchor='middle' class='sub no'>T.Muller/Ralas (10) - NO</text><text x='385' y='190' text-anchor='middle' class='tag ok'>Total qualifying: 6 players</text></svg>",
+    "visual_alt": "Players are split into those with goals > 10 (6 players: Klose, Ronaldo, G.Muller, Fontaine, Pele, Klinsman) who pass both conditions, and those with goals = 10 (Koosis, Batistuta, Cubillas, Lato, Lineker, T.Muller, Ralas) who fail the > ANY Germany condition because 10 is not strictly greater than 10 (the minimum German player's goals)."
+   },
+   "given": {
+    "aim": "Count the number of players selected by the SQL query using > ALL and > ANY subquery conditions.",
+    "terms": [
+     {
+      "term": "Spain subquery",
+      "meaning": "SELECT goals WHERE country = 'Spain' — returns no rows since no Spanish player is in the table.",
+      "example": "Empty result set {}",
+      "connects": "x > ALL ({}) is vacuously TRUE for every player, so the first condition passes for all 13 players."
+     },
+     {
+      "term": "Germany subquery",
+      "meaning": "SELECT goals WHERE country = 'Germany' — returns {16, 14, 11, 10, 10} (Klose, G.Muller, Klinsman, T.Muller, Ralas).",
+      "example": "Goals set = {10, 10, 11, 14, 16}",
+      "connects": "x > ANY {10,10,11,14,16} is TRUE iff x > min = 10, i.e., x >= 11."
+     },
+     {
+      "term": "Effective condition",
+      "meaning": "Since Spain condition is always TRUE, the query reduces to: goals > 10 (i.e., goals >= 11).",
+      "example": "Klose(16), Ronaldo(15), G.Muller(14), Fontaine(13), Pele(12), Klinsman(11) all have goals > 10. Koosis(10) and others with 10 goals are excluded since 10 > 10 is FALSE.",
+      "connects": "Count the 6 players with goals >= 11 to get the answer."
+     }
+    ],
+    "plan": "Evaluate each subquery independently: the Spain subquery returns empty (vacuous TRUE for ALL), and the Germany subquery returns {10,10,11,14,16}. The ANY condition then reduces to goals > 10. Count players satisfying this."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Evaluate the Spain subquery (> ALL condition)",
+      "formula_raw": "x > ALL (empty set) = TRUE (vacuous truth in SQL)",
+      "apply": "No player in the table has country = 'Spain', so the subquery returns an empty set. In SQL, any value compared with > ALL against an empty set returns TRUE. Therefore, ALL 13 players pass this condition.",
+      "note": "This is a crucial SQL semantics point — > ALL on empty set is always TRUE, unlike > ANY on empty set which is always FALSE."
+     },
+     {
+      "step": 2,
+      "title": "Evaluate the Germany subquery (> ANY condition)",
+      "formula_raw": "x > ANY {g1, g2, ...} = TRUE iff x > min(g1, g2, ...)",
+      "apply": "Germany players: Klose(16), G.Muller(14), Klinsman(11), T.Muller(10), Ralas(10). Minimum = 10. So the condition becomes: ta.goals > 10, meaning goals >= 11.",
+      "note": "> ANY is equivalent to > the minimum value in the set."
+     },
+     {
+      "step": 3,
+      "title": "Apply the combined filter and count",
+      "formula_raw": "Condition: TRUE AND (goals > 10) = (goals > 10)",
+      "apply": "Players with goals > 10:\n1. Klose (Germany, 16)\n2. Ronaldo (Brazil, 15)\n3. G.Muller (Germany, 14)\n4. Fontaine (France, 13)\n5. Pele (Brazil, 12)\n6. Klinsman (Germany, 11)\n\nAll other players have exactly 10 goals (Koosis, Batistuta, Cubillas, Lato, Lineker, T.Muller, Ralas) which is NOT > 10 (10 > 10 is FALSE). Total = 6 players.",
+      "note": "10 > ANY {10,10,11,14,16} asks: is 10 > 10? No. Is 10 > 11? No. No — 10 is NOT greater than ANY German player's goals because the minimum German goal is 10, and 10 > 10 is FALSE. So players with exactly 10 goals are excluded."
+     }
+    ],
+    "result": "6 tuples are returned. The 6 players are Klose(16), Ronaldo(15), G.Muller(14), Fontaine(13), Pele(12), and Klinsman(11) — all with goals strictly greater than 10."
+   },
+   "formula_ids_used": [],
+   "formula_note": "SQL semantics for ALL and ANY subquery operators: > ALL(empty set) = TRUE (vacuous); > ANY(S) = TRUE iff value > min(S). Counting rows satisfying combined WHERE conditions.",
+   "qid": "5.18.39",
+   "answer_official": "7"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2018",
+    "year": 2018,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "SQL",
+    "subtopic": "SQL"
+   },
+   "question": "Consider the following two tables and four queries in SQL.\n\nBook (isbn, bname)\nStock (isbn, copies)\n\nQuery 1: SELECT B.isbn, S.copies FROM Book B INNER JOIN Stock S ON B.isbn = S.isbn;\nQuery 2: SELECT B.isbn, S.copies FROM Book B LEFT OUTER JOIN Stock S ON B.isbn = S.isbn;\nQuery 3: SELECT B.isbn, S.copies FROM Book B RIGHT OUTER JOIN Stock S ON B.isbn = S.isbn;\nQuery 4: SELECT B.isbn, S.copies FROM Book B FULL OUTER JOIN Stock S ON B.isbn = S.isbn;\n\nWhich one of the above queries is certain to have an output that is a superset of the outputs of the other three queries?\n\nA. Query 1\nB. Query 2\nC. Query 3\nD. Query 4",
+   "answer": "D. Query 4",
+   "to_find": "Which query's output is guaranteed to be a superset of the other three queries' outputs.",
+   "understand": {
+    "plain": "We have two tables: Book (with book isbn and name) and Stock (with isbn and stock copies). Four JOIN types are applied between them. An INNER JOIN returns only rows that match in both tables. LEFT OUTER JOIN returns all Book rows. RIGHT OUTER JOIN returns all Stock rows. FULL OUTER JOIN returns all rows from both tables. The FULL OUTER JOIN output always contains everything the other joins produce.",
+    "keywords": [
+     {
+      "term": "INNER JOIN",
+      "explain": "Returns only those rows that have matching keys in BOTH tables. Non-matching rows from either side are excluded.",
+      "example": "Book has isbn=1,2,3; Stock has isbn=2,3,4. INNER JOIN returns rows for isbn 2 and 3 only."
+     },
+     {
+      "term": "LEFT OUTER JOIN",
+      "explain": "Returns all rows from the LEFT table, plus matching rows from the right table. Non-matching right-side columns are NULL.",
+      "example": "All Book rows returned; if no matching Stock row, S.copies = NULL."
+     },
+     {
+      "term": "RIGHT OUTER JOIN",
+      "explain": "Returns all rows from the RIGHT table, plus matching rows from the left table. Non-matching left-side columns are NULL.",
+      "example": "All Stock rows returned; if no matching Book row, B.isbn comes from Stock side."
+     },
+     {
+      "term": "FULL OUTER JOIN",
+      "explain": "Returns all rows from BOTH tables, with NULLs for non-matching sides. It is the union of LEFT and RIGHT OUTER JOINs.",
+      "example": "All Book rows AND all Stock rows are included, with NULLs where there is no match."
+     }
+    ],
+    "visual_svg": "<svg width='500' height='260' viewBox='0 0 500 260' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='5' y='5' width='490' height='250' rx='8' class='bg'/><text x='250' y='28' text-anchor='middle' class='lbl ink'>JOIN Types — Row Coverage</text><rect x='20' y='40' width='210' height='50' rx='5' class='bg'/><text x='125' y='60' text-anchor='middle' class='tag ink'>Book-only rows (no Stock match)</text><text x='125' y='80' text-anchor='middle' class='sub mut'>LEFT JOIN + FULL JOIN include these</text><rect x='20' y='100' width='210' height='50' rx='5' class='hi'/><text x='125' y='120' text-anchor='middle' class='tag ink'>Matched rows (both tables)</text><text x='125' y='140' text-anchor='middle' class='sub ink'>ALL four JOINs include these</text><rect x='20' y='160' width='210' height='50' rx='5' class='bg'/><text x='125' y='180' text-anchor='middle' class='tag ink'>Stock-only rows (no Book match)</text><text x='125' y='200' text-anchor='middle' class='sub mut'>RIGHT JOIN + FULL JOIN include these</text><rect x='260' y='40' width='220' height='170' rx='5' class='hi'/><text x='370' y='65' text-anchor='middle' class='lbl ink'>FULL OUTER JOIN</text><text x='370' y='90' text-anchor='middle' class='sub ink'>= Book-only rows (NULLs for Stock)</text><text x='370' y='110' text-anchor='middle' class='sub ink'>+ Matched rows</text><text x='370' y='130' text-anchor='middle' class='sub ink'>+ Stock-only rows (NULLs for Book)</text><text x='370' y='158' text-anchor='middle' class='tag ok'>Superset of all other JOINs</text><text x='250' y='230' text-anchor='middle' class='sub ink'>INNER subset LEFT/RIGHT, both subset FULL</text></svg>",
+    "visual_alt": "A diagram showing three row categories: Book-only rows, matched rows, and Stock-only rows. INNER JOIN covers only matched rows. LEFT covers Book-only + matched. RIGHT covers Stock-only + matched. FULL OUTER covers all three categories and is a superset."
+   },
+   "given": {
+    "aim": "Determine which of the four JOIN queries is guaranteed to produce output that is a superset of the other three.",
+    "terms": [
+     {
+      "term": "Query 1 (INNER JOIN)",
+      "meaning": "Returns only rows where Book.isbn = Stock.isbn. Most restrictive — misses Book-only and Stock-only rows.",
+      "example": "If isbn=5 is in Book but not Stock, it is excluded.",
+      "connects": "Output is a subset of all outer join outputs."
+     },
+     {
+      "term": "Query 2 (LEFT OUTER JOIN)",
+      "meaning": "Returns all Book rows plus matched Stock rows. Includes Book-only rows with NULL copies.",
+      "example": "isbn=5 in Book only => row (5, NULL) is included.",
+      "connects": "Superset of INNER JOIN but may miss Stock-only rows present in RIGHT/FULL JOIN."
+     },
+     {
+      "term": "Query 4 (FULL OUTER JOIN)",
+      "meaning": "Returns ALL rows from both Book and Stock — equivalent to LEFT JOIN UNION RIGHT JOIN. Covers all possible combinations.",
+      "example": "isbn=5 Book-only => (5,NULL); isbn=7 Stock-only => (NULL,copies); isbn=2 match => (2, copies).",
+      "connects": "FULL OUTER JOIN output contains every row that any of the other three queries would return, making it the guaranteed superset."
+     }
+    ],
+    "plan": "Analyze the set-theoretic relationship: INNER JOIN result subset of LEFT JOIN result and RIGHT JOIN result; both LEFT and RIGHT are subsets of FULL OUTER JOIN. Therefore FULL OUTER JOIN is the superset of all others."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Classify rows by membership in Book and Stock",
+      "formula_raw": "Rows can be: (a) in Book only, (b) in both (matched), (c) in Stock only",
+      "apply": "Let M = rows matched on isbn (in both tables), B_only = rows in Book but not Stock, S_only = rows in Stock but not Book.\nQuery 1 (INNER): returns M\nQuery 2 (LEFT): returns M + B_only (with NULLs for Stock columns)\nQuery 3 (RIGHT): returns M + S_only (with NULLs for Book columns)\nQuery 4 (FULL): returns M + B_only + S_only",
+      "note": "The SELECT list is B.isbn, S.copies — for B_only rows, S.copies is NULL; for S_only rows, B.isbn is NULL but S.isbn is used."
+     },
+     {
+      "step": 2,
+      "title": "Compare outputs as sets and identify the superset",
+      "formula_raw": "Q1 subset Q2, Q1 subset Q3, Q2 subset Q4, Q3 subset Q4",
+      "apply": "Q1 output (M) is contained in Q2 output (M + B_only): YES\nQ1 output (M) is contained in Q3 output (M + S_only): YES\nQ2 output (M + B_only) is contained in Q4 output (M + B_only + S_only): YES\nQ3 output (M + S_only) is contained in Q4 output (M + B_only + S_only): YES\nTherefore Q4 is a superset of Q1, Q2, and Q3.",
+      "note": "Q2 is NOT a superset of Q3 (it misses S_only rows) and Q3 is NOT a superset of Q2. Only Q4 (FULL OUTER JOIN) dominates all."
+     }
+    ],
+    "result": "Query 4 (FULL OUTER JOIN) is certain to have an output that is a superset of the outputs of the other three queries."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Set-theoretic containment of SQL JOIN types: INNER JOIN subset LEFT OUTER JOIN subset FULL OUTER JOIN; INNER JOIN subset RIGHT OUTER JOIN subset FULL OUTER JOIN. FULL OUTER JOIN = LEFT JOIN UNION RIGHT JOIN.",
+   "qid": "5.18.40",
+   "answer_official": "D"
+  }
+ ]
+}

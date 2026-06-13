@@ -1,0 +1,290 @@
+{
+ "page": 501,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2001",
+    "year": 2001,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Operating System",
+    "topic": "Resource Allocation",
+    "subtopic": "Resource Allocation"
+   },
+   "question": "Two concurrent processes P1 and P2 want to use resources R1 and R2 in a mutually exclusive manner. Initially, R1 and R2 are free. The programs executed by the two processes are given below.\n\nProgram for P1:\nS1: While (R1 is busy) do no-op;\nS2: Set R1 = busy;\nS3: While (R2 is busy) do no-op;\nS4: Set R2 = busy;\nS5: Use R1 and R2;\nS6: Set R1 = free;\nS7: Set R2 = free;\n\nProgram for P2:\nQ1: While (R2 is busy) do no-op;\nQ2: Set R2 = busy;\nQ3: While (R1 is busy) do no-op;\nQ4: Set R1 = busy;\nQ5: Use R1 and R2;\nQ6: Set R2 = free;\nQ7: Set R1 = free;\n\nA. Is mutual exclusion guaranteed for R1 and R2? If not, show a possible interleaving of the statements of P1 and P2 such that mutual exclusion is violated (i.e., both P1 and P2 use R1 and R2 at the same time).\nB. Can deadlock occur? If yes, show a possible interleaving of the statements of P1 and P2 that leads to deadlock.\nC. Exchange the statements Q1 and Q3 and statements Q2 and Q4. Is mutual exclusion guaranteed now? Can deadlock occur?",
+   "answer": "A. Mutual exclusion is NOT guaranteed. Interleaving: S1(P1 sees R1 free), Q1(P2 sees R2 free), S2(P1 sets R1=busy), Q2(P2 sets R2=busy), S3(P1 waits - R2 is busy), Q3(P2 sees R1 busy, waits) - wait, use: S1,Q1,S2,Q2,S3(busy wait ends if Q2 just set it), actually interleaving S1->Q1->Q2->Q3->Q4->S2->S3->S4->S5 and Q5 overlap. B. Deadlock CAN occur: S1(R1 free)->S2(R1=busy)->Q1(R2 free)->Q2(R2=busy)->S3(P1 waits for R2)->Q3(P2 waits for R1): both wait forever. C. After exchange, mutual exclusion is guaranteed and deadlock cannot occur (both processes acquire resources in same order R1 then R2).",
+   "to_find": "Whether mutual exclusion is guaranteed, whether deadlock can occur, and the effect of reordering P2's resource acquisition.",
+   "understand": {
+    "plain": "Two processes P1 and P2 each need both resources R1 and R2 to execute. P1 acquires R1 first then R2; P2 acquires R2 first then R1. This classic scenario can lead to both mutual exclusion violations (due to non-atomic check-and-set) and deadlock (circular wait). Part C asks what happens when P2 is changed to also acquire R1 first then R2.",
+    "keywords": [
+     {
+      "term": "Mutual Exclusion",
+      "explain": "Only one process uses a shared resource at a time; the check-then-set operation here is not atomic, so both processes can pass the 'while busy' check before either sets the resource to busy.",
+      "example": "P1 checks R1 is free, P2 checks R1 is free, both proceed: violation."
+     },
+     {
+      "term": "Deadlock",
+      "explain": "A state where two or more processes are each waiting for a resource held by the other, resulting in permanent blocking.",
+      "example": "P1 holds R1 and waits for R2; P2 holds R2 and waits for R1."
+     },
+     {
+      "term": "Resource Ordering (Deadlock Prevention)",
+      "explain": "If all processes request resources in the same fixed order, circular wait cannot occur, preventing deadlock.",
+      "example": "Both P1 and P2 acquire R1 before R2 eliminates circular wait."
+     }
+    ],
+    "visual_svg": "<svg width='520' height='220' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect width='520' height='220' rx='10' class='bg'/><rect x='20' y='20' width='140' height='50' rx='8' class='hi'/><text x='90' y='52' text-anchor='middle' class='lbl ink'>P1</text><rect x='360' y='20' width='140' height='50' rx='8' class='hi'/><text x='430' y='52' text-anchor='middle' class='lbl ink'>P2</text><rect x='195' y='80' width='130' height='40' rx='6' class='bg'/><text x='260' y='105' text-anchor='middle' class='tag ink'>R1 (free)</text><rect x='195' y='140' width='130' height='40' rx='6' class='bg'/><text x='260' y='165' text-anchor='middle' class='tag ink'>R2 (free)</text><line x1='90' y1='70' x2='210' y2='80' stroke='#1D9E75' stroke-width='2' marker-end='url(#a)'/><line x1='430' y1='70' x2='320' y2='140' stroke='#D85A30' stroke-width='2' marker-end='url(#b)'/><line x1='90' y1='70' x2='210' y2='140' stroke='#7F77DD' stroke-width='2' stroke-dasharray='6,3'/><line x1='430' y1='70' x2='320' y2='80' stroke='#D85A30' stroke-width='2' stroke-dasharray='6,3'/><defs><marker id='a' markerWidth='8' markerHeight='8' refX='4' refY='4' orient='auto'><path d='M0,0 L8,4 L0,8 Z' fill='#1D9E75'/></marker><marker id='b' markerWidth='8' markerHeight='8' refX='4' refY='4' orient='auto'><path d='M0,0 L8,4 L0,8 Z' fill='#D85A30'/></marker></defs><text x='260' y='210' text-anchor='middle' class='sub mut'>P1 acquires R1 first; P2 acquires R2 first -> Circular wait possible</text></svg>",
+    "visual_alt": "P1 holds R1 and waits for R2; P2 holds R2 and waits for R1, forming a circular wait deadlock cycle."
+   },
+   "given": {
+    "aim": "Determine if the given non-atomic resource-acquisition protocol ensures mutual exclusion and deadlock freedom.",
+    "terms": [
+     {
+      "term": "Non-atomic check-and-set",
+      "meaning": "The 'while busy do no-op' check and the subsequent 'set busy' are two separate instructions, not one atomic operation.",
+      "example": "Both P1 and P2 can read R1 as 'free' before either writes 'busy'.",
+      "connects": "This gap allows both processes to simultaneously believe a resource is free, violating mutual exclusion."
+     },
+     {
+      "term": "Opposite resource acquisition order",
+      "meaning": "P1 acquires R1 then R2; P2 acquires R2 then R1 — opposite orders create the possibility of circular wait.",
+      "example": "P1 holds R1, P2 holds R2, each waits for what the other has.",
+      "connects": "This is the classic circular wait condition for deadlock."
+     },
+     {
+      "term": "Resource ordering fix (Part C)",
+      "meaning": "Making P2 also acquire R1 before R2 removes the circular dependency.",
+      "example": "If both processes always acquire R1 first, no circular wait can form.",
+      "connects": "Ensures both mutual exclusion (still not atomic) ... actually deadlock is prevented but mutual exclusion remains not guaranteed by check-then-set alone."
+     }
+    ],
+    "plan": "For part A: find an interleaving where both processes pass their respective 'while busy' checks before setting the resource. For part B: find an interleaving where P1 holds R1 waiting for R2 while P2 holds R2 waiting for R1. For part C: analyze the modified P2 that acquires R1 before R2."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Check for mutual exclusion violation",
+      "formula_raw": "Non-atomic test-and-set",
+      "apply": "The check (while R1 is busy) and the set (R1=busy) are NOT atomic. Interleaving that violates mutual exclusion for R1 and R2 simultaneously: S1 (P1 sees R1 free) -> Q1 (P2 sees R2 free) -> S2 (P1 sets R1=busy) -> Q2 (P2 sets R2=busy) -> S3 (P1 sees R2 is busy, spins) -- this doesn't give both in critical section. A direct violation: S1->S2->Q1->Q2->Q3->S3->S4->Q4->S5->Q5: both reach Use R1 and R2. Actually simpler: S1,S2,S3,S4,S5 runs while Q1,Q2,Q3,Q4,Q5 also runs -- but that's sequential. The non-atomic violation: both check before either sets. E.g.: S1(R1 free) -> Q3(R1 free, since P1 hasn't set it yet in this interleaving after reorder)... For the original program: interleaving S1->Q1->Q2->S2->S3(R2 busy, spin)->Q3(R1 busy now? No - S2 just set R1)->... A clear mutual exclusion violation: S1(P1: R1 free)->S2(P1: R1=busy)->S3(P1: R2 free)->Q1(P2: R2 free)->Q2(P2: R2=busy)->Q3(P2: R1 busy, spin)->S4(P1: R2=busy)->S5(P1 uses R1,R2)->Q3 exits spin->Q4(P2: R1=busy)->Q3 keeps spinning... this shows no simultaneous use with the given program for the 'Use' step UNLESS the check-set is non-atomic. Since the operations are NOT atomic test-and-set, mutual exclusion IS NOT guaranteed in general. For a concrete violation: S1(P1 reads R1=free)->Q1(P2 reads R2=free)->Q2(P2 sets R2=busy)->Q3(P2 reads R1=free)->S2(P1 sets R1=busy)->S3(P1 reads R2=busy, spin)->Q4(P2 sets R1=busy)->Q5(P2 uses R1,R2)->S3 exits(R2 still busy until Q6)->... Here P1 is still spinning. A true simultaneous violation: S1->S2->S3->S4->S5(P1 in critical) and simultaneously Q1->Q2->Q3->Q4->Q5... not truly simultaneous in single CPU. The key point: mutual exclusion is NOT guaranteed because the test and set are separate non-atomic steps.",
+      "note": "With a single-CPU system with context switching between any two statements, mutual exclusion can be violated."
+     },
+     {
+      "step": 2,
+      "title": "Show deadlock interleaving",
+      "formula_raw": "Circular wait condition",
+      "apply": "Deadlock CAN occur. Interleaving: S1 (P1 checks R1, free) -> S2 (P1 sets R1=busy) -> Q1 (P2 checks R2, free) -> Q2 (P2 sets R2=busy) -> S3 (P1 checks R2, busy -- spins) -> Q3 (P2 checks R1, busy -- spins). Now P1 waits for R2 (held by P2) and P2 waits for R1 (held by P1). Neither can proceed: DEADLOCK.",
+      "note": "This is the classic deadlock scenario with opposite resource ordering between two processes."
+     },
+     {
+      "step": 3,
+      "title": "Analyze Part C: exchange Q1/Q3 and Q2/Q4 in P2",
+      "formula_raw": "Resource ordering deadlock prevention",
+      "apply": "After exchange, P2 becomes: While(R1 is busy) no-op; Set R1=busy; While(R2 is busy) no-op; Set R2=busy; Use R1 and R2; Set R2=free; Set R1=free. Now both P1 and P2 acquire R1 first, then R2. Deadlock CANNOT occur because there is no circular wait (both wait for R1 first; whoever gets R1 will also get R2 and complete). However, MUTUAL EXCLUSION IS STILL NOT GUARANTEED because the check-and-set is still non-atomic: both P1 and P2 can check R1='free' before either sets it to 'busy', allowing both to proceed.",
+      "note": "Resource ordering prevents deadlock (eliminates circular wait) but does NOT fix the non-atomicity that causes mutual exclusion failures."
+     }
+    ],
+    "result": "A. Mutual exclusion is NOT guaranteed (non-atomic test-and-set). B. Deadlock CAN occur (shown by S1->S2->Q1->Q2->S3 spinning->Q3 spinning). C. After reordering P2 to acquire R1 then R2: deadlock cannot occur, but mutual exclusion is still not guaranteed."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Coffman deadlock conditions (circular wait) and the requirement for atomic test-and-set for mutual exclusion.",
+   "qid": "7.21.11",
+   "answer_official": "B"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2005",
+    "year": 2005,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Resource Allocation",
+    "subtopic": "Resource Allocation"
+   },
+   "question": "Suppose n processes, P_1, ..., P_n share m identical resource units, which can be reserved and released one at a time. The maximum resource requirement of process P_i is s_i, where s_i > 0. Which one of the following is a sufficient condition for ensuring that deadlock does not occur?\n\nA. For all i, s_i < m\nB. For all i, s_i <= m\nC. sum_{i=1}^{n} s_i < m + n\nD. sum_{i=1}^{n} s_i < m * n",
+   "answer": "C. sum_{i=1}^{n} s_i < m + n",
+   "to_find": "A sufficient condition on resource requirements s_i and total resources m that guarantees no deadlock among n processes.",
+   "understand": {
+    "plain": "We have n processes each needing up to s_i resource units from a pool of m identical units. We want a condition that guarantees deadlock can never happen. The key insight from deadlock theory is: if the total maximum demand is small enough relative to m and n, at least one process can always complete even in the worst allocation scenario.",
+    "keywords": [
+     {
+      "term": "Deadlock Avoidance via Demand Bound",
+      "explain": "A system is deadlock-free if the total maximum demand cannot create a state where every process is blocked waiting for resources held by others.",
+      "example": "If total demand is less than m + n, at least one process can always get all it needs."
+     },
+     {
+      "term": "Sufficient Condition",
+      "explain": "A condition that, if true, guarantees the desired property (no deadlock), though the property might hold even when the condition is false.",
+      "example": "sum s_i < m + n is sufficient but not necessary for deadlock freedom."
+     },
+     {
+      "term": "Worst-Case Allocation",
+      "explain": "In the worst case, each process holds (s_i - 1) resources and requests one more. If the total resources needed in this worst case exceeds m, deadlock can occur.",
+      "example": "n processes each holding (s_i - 1) units = sum(s_i - 1) = sum(s_i) - n units held; if sum(s_i) - n < m, there are free resources."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "n processes each with maximum demand s_i sharing m resource units. Deadlock requires all processes blocked simultaneously."
+   },
+   "given": {
+    "aim": "Find a sufficient condition on s_i values and m such that deadlock is impossible.",
+    "terms": [
+     {
+      "term": "n",
+      "meaning": "Number of processes sharing the resources",
+      "example": "3 processes P1, P2, P3",
+      "connects": "More processes increase potential for circular wait."
+     },
+     {
+      "term": "m",
+      "meaning": "Total number of identical resource units available",
+      "example": "m = 5 resource units total",
+      "connects": "The total pool from which all processes draw resources."
+     },
+     {
+      "term": "s_i",
+      "meaning": "Maximum resource requirement of process P_i (s_i > 0)",
+      "example": "P1 needs at most 3 units, P2 needs at most 2 units",
+      "connects": "In the worst case for deadlock, each process holds s_i - 1 units (one less than its max) and requests one more."
+     },
+     {
+      "term": "Worst-case deadlock scenario",
+      "meaning": "Each process holds exactly (s_i - 1) resources and is blocked waiting for 1 more. Total held = sum(s_i) - n.",
+      "example": "If sum(s_i) - n < m, then there is at least 1 free resource, so at least one process can complete.",
+      "connects": "This leads directly to the condition sum(s_i) < m + n."
+     }
+    ],
+    "plan": "Analyze the worst-case scenario where deadlock is most likely: each process P_i holds (s_i - 1) resources and needs 1 more. The total resources held = sum(s_i - 1) = sum(s_i) - n. If this is less than m, there is at least one free resource, and at least one process can get what it needs and complete, releasing its resources for others — preventing deadlock."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Identify worst-case scenario for deadlock",
+      "formula_raw": "Total held in worst case = sum_{i=1}^{n}(s_i - 1) = sum(s_i) - n",
+      "apply": "Deadlock would require every process to be waiting. The most dangerous state is when each process P_i holds (s_i - 1) resources (one less than its maximum) and is requesting 1 more resource. In this state: total resources held = sum_{i=1}^{n}(s_i - 1) = (sum s_i) - n. All n processes are blocked waiting for 1 more resource each.",
+      "note": "This is the worst case because holding s_i - 1 is the maximum any process can hold while still being blocked (if it held s_i, it would be running, not waiting)."
+     },
+     {
+      "step": 2,
+      "title": "Derive sufficient condition for no deadlock",
+      "formula_raw": "sum(s_i) - n < m  =>  sum(s_i) < m + n",
+      "apply": "If the total resources held in the worst case is less than m, then there is at least one free resource unit. This free unit can be given to one of the waiting processes, allowing it to reach its maximum and complete. Upon completion, it releases all its resources, which can then satisfy other processes. This chain reaction prevents deadlock. Condition: sum(s_i) - n < m, which simplifies to sum(s_i) < m + n. This matches option C.",
+      "note": "Options A and B are too restrictive or don't account for multiple processes. Option D (sum < m*n) is too weak and not a useful bound."
+     },
+     {
+      "step": 3,
+      "title": "Verify the other options",
+      "formula_raw": "",
+      "apply": "A: s_i < m for all i means no single process needs more than m resources, but n processes together could still deadlock (e.g., n=3, m=3, s_1=s_2=s_3=2: each holds 1, needs 1 more, total held=3=m, all blocked). B: s_i <= m is even weaker. D: sum(s_i) < m*n is always true when m>=1 and is not a tight condition. Only C: sum(s_i) < m + n is the correct sufficient condition.",
+      "note": "The condition in C is a standard result in deadlock theory, related to the banker's algorithm analysis."
+     }
+    ],
+    "result": "Option C: sum_{i=1}^{n} s_i < m + n is the sufficient condition ensuring deadlock cannot occur."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Deadlock-free sufficient condition based on worst-case resource holding: if sum of maximum demands is less than m + n, at least one process can always proceed.",
+   "qid": "7.21.12",
+   "answer_official": "C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2006",
+    "year": 2006,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Resource Allocation",
+    "subtopic": "Resource Allocation"
+   },
+   "question": "Consider the following snapshot of a system running n processes. Process i is holding p_i instances of a resource R, p_i >= 1. Currently, all instances of R are occupied. Further, for all i, process i has placed a request for an additional p_i instances while holding the p_i instances it already has. There are exactly two processes that can complete their execution without getting any additional resource currently.\n\nWhich of the following statements is TRUE?\n\nA. min(p_1, p_2, ..., p_n) >= 2\nB. p_k + p_l > min_{i != k, i != l}(p_i) for some k, l (k != l)\nC. sum_{i=1}^{n} p_i > min_{i=1}^{n}(p_i) + 1\nD. min(p_1, p_2, ..., p_n) >= 1",
+   "answer": "C. sum_{i=1}^{n} p_i > min_{i=1}^{n}(p_i) + 1",
+   "to_find": "Which statement must be true given that exactly two processes can complete without getting additional resources.",
+   "understand": {
+    "plain": "There are n processes each holding p_i resource instances and requesting p_i more. Total resources = sum of all p_i (since all are occupied). A process can complete without additional resources only if it is NOT waiting for more — but wait, all processes have placed requests. The processes that 'can complete without getting any additional resource' must be the ones that already hold enough, meaning their current holding satisfies their need. Actually re-reading: a process can complete 'without any additional resource' if its request can be granted from resources that become available as other processes complete. Since exactly 2 processes can complete, the system is in partial deadlock.",
+    "keywords": [
+     {
+      "term": "Resource snapshot",
+      "meaning": "A point-in-time view of which process holds how many resources and what it has requested.",
+      "example": "Process i holds p_i, requests p_i more. Total resources = sum(p_i)."
+     },
+     {
+      "term": "Process can complete",
+      "meaning": "A process can run to finish if it can get all the resources it needs (either it already has them, or resources become available).",
+      "example": "If a process's total need = 2*p_i and it holds p_i, it needs p_i more from the free pool."
+     },
+     {
+      "term": "Exactly two processes complete",
+      "meaning": "Only 2 out of n processes can eventually get their requested resources and finish; the rest are deadlocked.",
+      "example": "If n=4 and exactly 2 complete, the other 2 are in deadlock."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "n processes each holding p_i resources of type R; all R instances are allocated; processes request p_i more; only 2 can complete."
+   },
+   "given": {
+    "aim": "Determine which statement is necessarily true when exactly two processes can complete execution.",
+    "terms": [
+     {
+      "term": "p_i",
+      "meaning": "Number of instances of resource R held by process i (and also the number it additionally requests); p_i >= 1",
+      "example": "If p_1=2, process 1 holds 2 instances and requests 2 more (needs 4 total).",
+      "connects": "Total resource instances = sum(p_i); available = 0 since all are occupied."
+     },
+     {
+      "term": "Total resources",
+      "meaning": "sum_{i=1}^{n} p_i (all currently held, none free)",
+      "example": "4 processes with p values 1,2,2,3 => total = 8 resources.",
+      "connects": "For a process to complete, it needs p_i additional resources freed by other completions."
+     },
+     {
+      "term": "Process with minimum p_i",
+      "meaning": "The process holding the fewest resources (and needing the fewest additional) is most likely to complete first.",
+      "example": "The process with min p_i needs min(p_i) more resources to complete.",
+      "connects": "It needs min(p_i) free resources. For it to get them, processes that together hold at least min(p_i) resources must complete first — but they need resources too. The two processes that CAN complete must supply enough freed resources."
+     },
+     {
+      "term": "Exactly two processes complete",
+      "meaning": "The total resources freed by these two processes must be enough to satisfy the third process's need, but not a third one.",
+      "example": "Two processes with holdings p_k and p_l free their resources; their total p_k + p_l must exceed the need of some (but not all) remaining processes.",
+      "connects": "This constrains the relationship between the sum p_k + p_l and remaining p_i values."
+     }
+    ],
+    "plan": "Since all resources are occupied and processes need p_i more each, a process can only complete if it receives resources freed by a completing process. Starting from the process with minimum p_i: it needs min(p_i) more resources. But no resources are free. So the only processes that can 'complete without additional resources' must mean they get resources freed by processes that complete. With exactly 2 completing, analyze which statement must hold. Option C states sum(p_i) > min(p_i) + 1, i.e., the total exceeds the minimum by more than 1."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Set up the resource allocation model",
+      "formula_raw": "Total R = sum_{i=1}^{n} p_i, all occupied",
+      "apply": "All sum(p_i) instances of R are held. Each process i holds p_i and needs p_i more. A process i can complete only if it can obtain p_i free resources. Currently 0 are free. For any process to complete, other processes must have already completed and released their resources. The process with the smallest p_i (call it p_min = min(p_i)) needs the fewest additional resources, so it would be the first to potentially complete once enough resources are freed.",
+      "note": "Since all instances are occupied with no free ones, the first process to complete must get its needed resources from some external source — but that contradicts the setup. The problem means exactly 2 processes can eventually complete using a sequence of resource grants."
+     },
+     {
+      "step": 2,
+      "title": "Analyze which processes can complete with the given constraint",
+      "formula_raw": "p_k + p_l > remaining process needs for deadlock to affect n-2 processes",
+      "apply": "Let the two processes that can complete be those with the two smallest p values, say p_a and p_b (the two smallest). For a process to be able to complete, it must be possible to grant its request eventually. In this deadlocked-like state, exactly 2 can complete means: the resources freed by completing 2 processes are NOT enough to satisfy any of the remaining n-2 processes. The two that can complete must have total resources p_a + p_b. For n-2 processes to remain stuck, each of them needs more resources than p_a + p_b (the freed amount after 2 complete). Since exactly 2 complete and they release p_a + p_b resources, the remaining processes each need p_i > p_a + p_b. Since p_a >= p_min and p_b >= p_min (the two smallest), and there are n-2 remaining processes each needing more than p_a + p_b >= 2*p_min, we have sum > 2*p_min + (n-2)*(p_a+p_b+1) which is complex. Let us check option C directly: sum(p_i) > p_min + 1.",
+      "note": "With n >= 2 processes and each p_i >= 1, sum >= n >= 2 >= p_min + 1 only when n >= 2 and p_min = 1, which may not always hold."
+     },
+     {
+      "step": 3,
+      "title": "Verify option C using the constraint that exactly 2 processes complete",
+      "formula_raw": "sum(p_i) > min(p_i) + 1",
+      "apply": "Since exactly 2 processes can complete (not all n), we must have n >= 3 (otherwise 'exactly 2 out of 2' would be 'all complete'). With n >= 3 processes each having p_i >= 1: sum(p_i) >= n >= 3 > p_min + 1 when p_min = 1. When p_min > 1, say p_min = k >= 2: sum >= n*k >= 3k > k+1 for k >= 1 and n >= 3. So sum(p_i) > min(p_i) + 1 holds whenever n >= 3. The condition 'exactly 2 complete (not all n)' requires n >= 3, making option C always true. Options A (min >= 2) is false: processes can have p_i = 1. Option D (min >= 1) is always true by definition (given p_i >= 1) but is trivially true and not specifically due to the 'exactly 2' condition. Option C correctly captures the nontrivial constraint.",
+      "note": "The problem specifies p_i >= 1 and exactly 2 (not all) processes complete, implying n >= 3. This forces sum >= 3 > min + 1 when min = 1, and sum >= 3k > k+1 when min = k >= 2."
+     }
+    ],
+    "result": "Option C is TRUE: sum_{i=1}^{n} p_i > min_{i=1}^{n}(p_i) + 1, which necessarily holds when n >= 3 processes are present and exactly 2 can complete."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Resource allocation analysis using total held resources vs. minimum individual demand; the constraint that exactly 2 of n>=3 processes complete forces the sum to exceed the minimum plus 1.",
+   "qid": "7.21.13",
+   "answer_official": "N/A"
+  }
+ ]
+}

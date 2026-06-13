@@ -1,0 +1,102 @@
+{
+ "page": 330,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2006",
+    "year": 2006,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "SQL",
+    "subtopic": "SQL"
+   },
+   "question": "Consider the relation enrolled(student, course) in which (student, course) is the primary key, and the relation paid(student, amount) where student is the primary key. Assume no null values and no foreign keys or integrity constraints. Assume that amounts 6000, 7000, 9000, and 10000 were each paid by 20% of the students. Consider these query plans (Plan 1 on left, Plan 2 on right) to 'list all courses taken by students who have paid more than x'.\n\nPlan 1:\nSelect student from paid where amount > x\nFor each such student s:\n  Select course from enrolled where student = s\n\nPlan 2:\nSelect distinct course from enrolled\nFor each course c:\n  Select student from enrolled where course = c\n  For each such student s:\n    Check if s is in the result of: Select student from paid where amount > x\n\nA disk seek takes 4ms, disk data transfer bandwidth is 300 MB/s and checking a tuple to see if amount is greater than x takes 10 microseconds. For x = 9000, which of the following statements is correct?\n\nA. Plan 1 and Plan 2 will not output identical row sets for all databases\nB. For Query2 and Query1 return identical row sets for all databases but there exist databases for which Query3 and Query2 return different row sets\nC. For x = 9000, Plan 1 executes faster than Plan 2 for some databases\nD. For x = 9000, Plan 1 executes slower than Plan 2 for all databases",
+   "answer": "C. For x = 9000, Plan 1 executes faster than Plan 2 for some databases",
+   "to_find": "Which statement about Plan 1 vs Plan 2 execution for x = 9000 is correct?",
+   "understand": {
+    "plain": "We have two relations: enrolled(student, course) and paid(student, amount). We want to find all courses taken by students who paid more than x. Two query plans are given — Plan 1 first filters students from paid table, then looks up their courses; Plan 2 first scans enrolled courses, then for each checks if the student paid more than x. For x = 9000, only 20% of students qualify. Plan 1 is efficient when few students qualify (small filter result); Plan 2 may be better when most students qualify. The question asks which statement is correct.",
+    "keywords": [
+     {
+      "term": "Query Plan",
+      "explain": "A specific strategy/order in which a database executes a query — different plans can yield the same result but with different performance.",
+      "example": "Filtering first vs joining first are two different query plans."
+     },
+     {
+      "term": "Selectivity",
+      "explain": "The fraction of tuples that satisfy a condition — high selectivity means fewer tuples pass the filter.",
+      "example": "x = 9000 means only 20% of students qualify (those who paid > 9000), so selectivity is 20%."
+     },
+     {
+      "term": "Nested Loop Join",
+      "explain": "A join strategy where for each tuple in the outer relation, all matching tuples in the inner relation are scanned.",
+      "example": "Plan 1 uses a nested loop: for each qualifying student, look up their courses."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='520' height='260'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='230' height='240' rx='8' class='bg'/><text x='125' y='35' text-anchor='middle' class='lbl ink'>Plan 1</text><rect x='20' y='45' width='210' height='40' rx='4' class='hi'/><text x='125' y='60' text-anchor='middle' class='sub ink'>Filter paid</text><text x='125' y='75' text-anchor='middle' class='sub ink'>WHERE amount &gt; x</text><text x='125' y='105' text-anchor='middle' class='sub mut'>(few students, x=9000)</text><rect x='20' y='115' width='210' height='40' rx='4' class='bg'/><text x='125' y='130' text-anchor='middle' class='sub ink'>For each student s:</text><text x='125' y='145' text-anchor='middle' class='sub ink'>lookup enrolled</text><text x='125' y='185' text-anchor='middle' class='sub ok'>Fast when few qualify</text><rect x='280' y='10' width='230' height='240' rx='8' class='bg'/><text x='395' y='35' text-anchor='middle' class='lbl ink'>Plan 2</text><rect x='290' y='45' width='210' height='40' rx='4' class='bg'/><text x='395' y='60' text-anchor='middle' class='sub ink'>Scan all courses</text><text x='395' y='75' text-anchor='middle' class='sub ink'>in enrolled</text><rect x='290' y='95' width='210' height='50' rx='4' class='bg'/><text x='395' y='112' text-anchor='middle' class='sub ink'>For each course c:</text><text x='395' y='127' text-anchor='middle' class='sub ink'>check each student s</text><text x='395' y='155' text-anchor='middle' class='sub ink'>in paid table</text><text x='395' y='185' text-anchor='middle' class='sub no'>Slow: checks all</text></svg>",
+    "visual_alt": "Two query execution plans side by side. Plan 1 filters paid table first (gets few students when x=9000), then looks up enrolled. Plan 2 scans all courses first, then checks each student against paid — less efficient when few students qualify."
+   },
+   "given": {
+    "aim": "Determine which statement about the relative performance of Plan 1 vs Plan 2 for x = 9000 is correct.",
+    "terms": [
+     {
+      "term": "enrolled(student, course)",
+      "meaning": "Relation with composite primary key (student, course) storing course enrollments.",
+      "example": "('S1', 'CS101'), ('S1', 'CS102'), ('S2', 'CS101')",
+      "connects": "Used in both plans to map students to courses."
+     },
+     {
+      "term": "paid(student, amount)",
+      "meaning": "Relation with student as primary key, storing amount paid per student.",
+      "example": "('S1', 9000), ('S2', 6000)",
+      "connects": "Filtered by amount > x to find qualifying students."
+     },
+     {
+      "term": "x = 9000",
+      "meaning": "Threshold for filtering; only students who paid > 9000 qualify, which is 20% of students.",
+      "example": "If 100 students, only 20 paid > 9000.",
+      "connects": "Low selectivity (20%) means Plan 1 — which filters paid first — produces a small intermediate result, making it efficient."
+     },
+     {
+      "term": "disk seek = 4ms, bandwidth = 300 MB/s, tuple check = 10 microseconds",
+      "meaning": "I/O and CPU cost parameters for evaluating plan performance.",
+      "example": "A large sequential scan is fast; many random seeks are expensive.",
+      "connects": "Help quantify the relative cost of the two plans for a given database size."
+     }
+    ],
+    "plan": "Analyze each plan's behavior for x = 9000 (only 20% of students qualify). Plan 1 filters paid first, producing a small set of students, then does targeted lookups in enrolled — efficient. Plan 2 scans all enrolled tuples and checks every student — less efficient when few qualify. However, for some specific databases (e.g., very small enrolled table) Plan 1 could still be faster. So we check each option."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Analyze Plan 1 for x = 9000",
+      "formula_raw": "Cost_Plan1 = seek(paid) + scan_fraction * seek(enrolled per student)",
+      "apply": "For x = 9000, only 20% of students paid more than 9000. Plan 1 first scans/filters the paid table to get this 20% subset. Then for each qualifying student, it looks up enrolled. Since only 20% of students qualify, the number of enrolled lookups is reduced to 20% of what Plan 2 would do. This makes Plan 1 efficient for high x values (low percentage qualifying).",
+      "note": "Plan 1 benefits from the high selectivity of the amount > 9000 condition."
+     },
+     {
+      "step": 2,
+      "title": "Analyze Plan 2 for x = 9000",
+      "formula_raw": "Cost_Plan2 = scan(enrolled) + for each (course, student): check paid",
+      "apply": "Plan 2 scans all courses in enrolled, then for each (course, student) pair checks if the student paid > 9000. This means checking all enrolled tuples regardless of how many students qualify. For x = 9000 where only 20% qualify, Plan 2 does unnecessary work on the other 80%. Plan 2 would be efficient if most students qualified (low x), not high x.",
+      "note": "Plan 2 always processes the entire enrolled relation regardless of selectivity."
+     },
+     {
+      "step": 3,
+      "title": "Evaluate the answer options",
+      "formula_raw": "",
+      "apply": "Option A: Both plans produce the same result set (they solve the same query), so A is false. Option B: This option is about Query2/Query1/Query3 (from the four queries at top of page) — not directly about Plan 1/Plan 2 performance comparison for x=9000. Option C: For x = 9000, Plan 1 (filter-first approach with only 20% qualifying) is generally faster, but for 'some databases' — e.g., if enrolled is tiny — Plan 1 could be faster. The statement 'Plan 1 executes faster than Plan 2 for some databases' is true because for typical realistic databases with x=9000, Plan 1's filtered approach is more efficient. Option D: 'Plan 1 executes slower than Plan 2 for ALL databases' is too strong and incorrect since Plan 1 is generally faster for x=9000.",
+      "note": "Option C is correct: Plan 1 is faster for some (in fact most realistic) databases when x = 9000, since only 20% of students qualify and Plan 1 filters first."
+     }
+    ],
+    "result": "C. For x = 9000, Plan 1 executes faster than Plan 2 for some databases."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Query plan cost analysis: filter-first (Plan 1) reduces intermediate result size when selectivity is low (x = 9000, only 20% qualify), making it faster than scan-all approach (Plan 2). This is the principle of pushing selections down in query optimization.",
+   "qid": "5.18.22",
+   "answer_official": "C"
+  }
+ ]
+}

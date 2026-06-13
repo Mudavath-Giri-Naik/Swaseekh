@@ -1,0 +1,425 @@
+{
+ "page": 197,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 1989",
+    "year": 1989,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Compiler Design",
+    "topic": "Parsing",
+    "subtopic": "Parsing"
+   },
+   "question": "Merging states with a common core may produce __________ conflicts and does not produce __________ conflicts in an LALR parser.\n\nFill in the two blanks: the type of conflict that CAN be introduced and the type that CANNOT be introduced when constructing an LALR(1) parser by merging states with the same core.",
+   "answer": "reduce-reduce; shift-reduce",
+   "to_find": "What type of conflicts can and cannot be introduced by merging states in LALR parser construction.",
+   "understand": {
+    "plain": "When building an LALR(1) parser from a canonical LR(1) automaton, states that have the same set of LR(0) items (the core) but different lookaheads are merged. This merging can sometimes introduce new reduce-reduce conflicts that were not present in the original LR(1) parser, but it can never introduce new shift-reduce conflicts. Shift-reduce conflicts depend only on the core (LR(0) items), not the lookaheads, so merging never creates them.",
+    "keywords": [
+     {
+      "term": "LALR(1) parser",
+      "explain": "Look-Ahead LR(1) parser, constructed by merging LR(1) states that share the same LR(0) core (items without lookaheads), combining their lookahead sets.",
+      "example": "Two LR(1) states [A -> a.b, {x}] and [A -> a.b, {y}] share core A -> a.b and are merged into [A -> a.b, {x,y}]."
+     },
+     {
+      "term": "Reduce-reduce conflict",
+      "explain": "A conflict in a parser state where, for a given lookahead token, two or more different reduce actions are possible.",
+      "example": "If after merging, lookahead 'a' suggests both reducing by rule 1 and rule 2, that is a reduce-reduce conflict."
+     },
+     {
+      "term": "Shift-reduce conflict",
+      "explain": "A conflict where for a given lookahead token the parser can either shift it onto the stack or perform a reduction.",
+      "example": "In the dangling-else problem, seeing 'else' can mean shift it or reduce the if-statement."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "LALR construction: LR(1) states with same core are merged; lookaheads are unioned. Merging can cause reduce-reduce conflicts (lookaheads of different reduces in same state may clash after union) but cannot cause shift-reduce conflicts (shift depends only on the LR(0) core, which is unchanged)."
+   },
+   "given": {
+    "aim": "Identify which type of conflict LALR state merging can introduce vs cannot introduce.",
+    "terms": [
+     {
+      "term": "Common core",
+      "meaning": "Two or more LR(1) states that have identical LR(0) items (ignoring lookaheads).",
+      "example": "States {[A->a.Bb, x]} and {[A->a.Bb, y]} share the core {A->a.Bb}.",
+      "connects": "These states are merged in LALR construction."
+     },
+     {
+      "term": "Shift action",
+      "meaning": "The parser reads the next token and pushes it onto the stack; determined by the LR(0) core alone.",
+      "example": "If the dot is before terminal 't', a shift on 't' is recorded.",
+      "connects": "Since shift depends only on the core (not lookaheads), merging never changes shift actions, so no new shift-reduce conflicts appear."
+     },
+     {
+      "term": "Reduce action",
+      "meaning": "The parser pops items off the stack and applies a grammar rule; triggered by a lookahead token.",
+      "example": "If [A->ab., {$}], reduce by A->ab on lookahead $.",
+      "connects": "After merging, the combined lookahead set may cause a lookahead to trigger two different reduce rules in the same state, creating a reduce-reduce conflict."
+     }
+    ],
+    "plan": "Recall: shift actions depend on the LR(0) core only, so merging states with same core cannot introduce new shift-reduce conflicts. Reduce actions use lookaheads; after merging, the union of lookahead sets could make one lookahead applicable to two different reductions in the combined state, creating a reduce-reduce conflict."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Analyze shift-reduce conflict after merging",
+      "formula_raw": "",
+      "apply": "A shift-reduce conflict occurs when the same lookahead symbol enables both a shift (dot before a terminal) and a reduce (dot at end, lookahead matches). The shift action is determined purely by the LR(0) core (position of the dot relative to terminals). Merging states with the same core does not change the set of shift actions. Therefore, if no shift-reduce conflict existed before merging, none is introduced after merging.",
+      "note": "This is why any grammar that has no shift-reduce conflict in LR(1) will also have no shift-reduce conflict in LALR(1)."
+     },
+     {
+      "step": 2,
+      "title": "Analyze reduce-reduce conflict after merging",
+      "formula_raw": "",
+      "apply": "Two LR(1) states S1 = {[A->alpha., {a}], [B->beta., {b}]} and S2 = {[A->alpha., {b}], [B->beta., {a}]} have the same core. When merged into S = {[A->alpha., {a,b}], [B->beta., {a,b}]}, on lookahead 'a' both A->alpha and B->beta are eligible for reduction — a reduce-reduce conflict that did not exist in either original state.",
+      "note": "This demonstrates that LALR(1) can fail for grammars that are valid LR(1) — the merged state introduces a new reduce-reduce conflict."
+     }
+    ],
+    "result": "Merging states with a common core may produce REDUCE-REDUCE conflicts and does not produce SHIFT-REDUCE conflicts in an LALR parser."
+   },
+   "formula_ids_used": [],
+   "formula_note": "LALR(1) parser construction: merging LR(1) states with identical cores preserves shift behavior but can create reduce-reduce conflicts when merged lookaheads clash across different reduce items.",
+   "qid": "3.17.3",
+   "answer_official": "N/A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1993",
+    "year": 1993,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "Parsing",
+    "subtopic": "Parsing"
+   },
+   "question": "A simple Pascal-like language has only three statements:\n  i.  assignment statement, e.g., x := expression\n  ii. loop construct, e.g., for i := expression to expression do statement\n  iii. sequencing, e.g., begin statement ; ... ; statement end\n\nAssume that expression has already been defined. Do not use optional parentheses and '*' operator in CFG.\n\nA. Write a context-free grammar (CFG) for statements in the above language.\nB. Show the parse tree for the following statement:\n   begin\n     x := expr1\n     for i := expr2 to expr3 do x := expr4\n   end\n\nWhich of the following is a valid CFG (for part A) for the above language?\n\nA. S -> id := E | for id := E to E do S | begin SL end\n   SL -> S | SL ; S\nB. S -> id := E | for id := E to E do S | begin S end\n   S -> S ; S\nC. S -> E := E | for E to E do S | begin SL end\n   SL -> S ; SL | S\nD. S -> id := E | for id := E to E do S | begin SL end\n   SL -> S ; SL | lambda",
+   "answer": "A. S -> id := E | for id := E to E do S | begin SL end\n   SL -> S | SL ; S",
+   "to_find": "A valid context-free grammar for the described Pascal-like language statements.",
+   "understand": {
+    "plain": "The question asks us to write a CFG for three kinds of statements in a simplified Pascal language: assignment, for-loop, and begin-end block. The grammar must correctly model sequences of statements separated by semicolons inside begin-end blocks. We need to pick which given grammar option correctly captures all three statement forms without ambiguity issues.",
+    "keywords": [
+     {
+      "term": "Context-Free Grammar (CFG)",
+      "explain": "A formal grammar with rules of the form A -> alpha, where A is a non-terminal and alpha is a string of terminals and non-terminals.",
+      "example": "S -> id := E means a statement can be an assignment of an expression to an identifier."
+     },
+     {
+      "term": "Statement List (SL)",
+      "explain": "A helper non-terminal to represent one or more statements separated by semicolons inside a begin-end block.",
+      "example": "SL -> S | SL ; S captures 'begin x:=1 ; y:=2 ; z:=3 end'."
+     },
+     {
+      "term": "For-loop construct",
+      "explain": "A loop in Pascal form: 'for id := expr to expr do statement' where the loop body is a single statement.",
+      "example": "for i := 1 to 10 do x := x + 1"
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Parse tree for 'begin x:=expr1 ; for i:=expr2 to expr3 do x:=expr4 end': root S -> begin SL end, SL -> SL ; S where left SL -> S (assignment x:=expr1) and right S is for-loop."
+   },
+   "given": {
+    "aim": "Construct a CFG capturing assignment, for-loop, and begin-end sequencing statements.",
+    "terms": [
+     {
+      "term": "Assignment: x := expression",
+      "meaning": "An identifier is assigned the value of an expression.",
+      "example": "x := 3 + y",
+      "connects": "Rule: S -> id := E"
+     },
+     {
+      "term": "For-loop: for i := E to E do S",
+      "meaning": "Loop from one expression value to another executing a single statement each iteration.",
+      "example": "for i := 1 to n do x := x + i",
+      "connects": "Rule: S -> for id := E to E do S"
+     },
+     {
+      "term": "Sequencing: begin S ; S ; ... ; S end",
+      "meaning": "A block of statements separated by semicolons enclosed in begin-end.",
+      "example": "begin a:=1 ; b:=2 end",
+      "connects": "Rule: S -> begin SL end, SL -> S | SL ; S"
+     }
+    ],
+    "plan": "The grammar must: (1) define a statement S with three alternatives, (2) define a statement list SL for sequencing inside begin-end. Option A correctly uses SL -> S | SL ; S (left-recursive, handles one or more statements) and assigns id := E for assignment."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Define the three statement rules",
+      "formula_raw": "S -> id := E | for id := E to E do S | begin SL end",
+      "apply": "The three alternatives cover: (1) assignment 'id := E', (2) for-loop 'for id := E to E do S', (3) begin-end block 'begin SL end'. Expression E is already defined. Option C incorrectly uses 'E := E' for assignment instead of 'id := E'.",
+      "note": "The assignment target must be an identifier (id), not a general expression, to match the problem statement."
+     },
+     {
+      "step": 2,
+      "title": "Define statement list for sequencing",
+      "formula_raw": "SL -> S | SL ; S",
+      "apply": "SL -> S handles a single statement. SL -> SL ; S handles a list of two or more statements separated by semicolons (left-recursive). Option D uses SL -> S ; SL | lambda which allows an empty statement list, and Option B puts S -> S ; S directly which could create ambiguity issues. Option A's SL -> S | SL ; S is the standard left-recursive definition.",
+      "note": "Left recursion is fine for bottom-up parsers; this grammar is suitable for LR parsing."
+     }
+    ],
+    "result": "Option A is the valid CFG: S -> id := E | for id := E to E do S | begin SL end; SL -> S | SL ; S."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Context-free grammar design: left-recursive statement list (SL -> SL ; S | S) for begin-end sequencing in Pascal-like languages.",
+   "qid": "3.17.4",
+   "answer_official": "N/A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1995",
+    "year": 1995,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "Parsing",
+    "subtopic": "Parsing"
+   },
+   "question": "Construct the LL(1) table for the following grammar:\n\n1. Expr -> Expr + VarTail\n2. Expr -> (Expr)\n3. Expr -> Var VarTail\n4. ExprTail -> + Expr\n5. ExprTail -> lambda\n6. Var -> id VarTail\n7. VarTail -> (Expr)\n8. VarTail -> lambda\n9. Goal -> Expr$\n\nWhich of the following statements about this grammar is correct?\n\nA. The grammar is LL(1) and the LL(1) table has no conflicts.\nB. The grammar is not LL(1) because it is left-recursive.\nC. The grammar is not LL(1) because FIRST/FOLLOW sets cause conflicts.\nD. The grammar is LL(1) after removing left recursion from rule 1.",
+   "answer": "B. The grammar is not LL(1) because it is left-recursive.",
+   "to_find": "Whether the given grammar is LL(1) and the property of its LL(1) parse table.",
+   "understand": {
+    "plain": "LL(1) parsing requires the grammar to be non-left-recursive and for FIRST and FOLLOW sets to not overlap in ways that create conflicts. The given grammar has the production Expr -> Expr + VarTail, which is directly left-recursive (Expr appears as the first symbol of its own rule). This makes the grammar immediately unsuitable for LL(1) parsing without transformation.",
+    "keywords": [
+     {
+      "term": "LL(1) Grammar",
+      "explain": "A grammar parseable top-down with one token of lookahead; must have no left recursion and no FIRST/FOLLOW conflicts.",
+      "example": "E -> T E' is LL(1) friendly; E -> E + T is not (left-recursive)."
+     },
+     {
+      "term": "Left recursion",
+      "explain": "A grammar rule where the non-terminal on the left appears as the leftmost symbol on the right-hand side.",
+      "example": "Expr -> Expr + VarTail: Expr is the leftmost symbol in its own rule."
+     },
+     {
+      "term": "LL(1) parse table",
+      "explain": "A table M[A, a] giving the production to use for non-terminal A when the lookahead is terminal a; conflicts indicate the grammar is not LL(1).",
+      "example": "If both Expr->Expr+VarTail and Expr->(Expr) put entries in M[Expr, '('], there is a conflict."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Grammar rule 1: Expr -> Expr + VarTail shows direct left recursion on Expr. This prevents top-down LL(1) parsing as the parser would recurse infinitely."
+   },
+   "given": {
+    "aim": "Determine the LL(1) property of the given grammar with 9 productions.",
+    "terms": [
+     {
+      "term": "Expr -> Expr + VarTail (rule 1)",
+      "meaning": "Direct left recursion on non-terminal Expr.",
+      "example": "Attempting to parse 'Expr' by expanding Expr -> Expr + VarTail loops indefinitely.",
+      "connects": "Makes the grammar immediately disqualified from being LL(1) as-is."
+     },
+     {
+      "term": "Left recursion elimination",
+      "meaning": "Transform A -> A alpha | beta into A -> beta A', A' -> alpha A' | lambda.",
+      "example": "Expr -> Expr + VarTail | (Expr) | Var VarTail becomes Expr -> (Expr) ExprTail | Var VarTail ExprTail and ExprTail -> + VarTail ExprTail | lambda.",
+      "connects": "Only after this transformation could the grammar be analyzed for LL(1) compatibility."
+     },
+     {
+      "term": "FIRST and FOLLOW sets",
+      "meaning": "FIRST(alpha) is the set of terminals that alpha can begin with; FOLLOW(A) is the set of terminals that can appear immediately after A.",
+      "example": "FIRST(Expr) for this grammar includes '(' and 'id'.",
+      "connects": "Used to fill the LL(1) table; conflicts arise if a terminal appears in more than one row entry for the same non-terminal."
+     }
+    ],
+    "plan": "Check rule 1: Expr -> Expr + VarTail. This is direct left recursion. A grammar with left recursion cannot be LL(1). Therefore the answer is that the grammar is not LL(1) because it is left-recursive."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Check for left recursion",
+      "formula_raw": "A -> A alpha (direct left recursion)",
+      "apply": "Rule 1 is: Expr -> Expr + VarTail. Here, Expr appears as the very first symbol on the right-hand side of an Expr production. This is direct left recursion. LL parsers (top-down parsers) cannot handle left-recursive grammars because they would enter an infinite loop trying to expand Expr.",
+      "note": "This alone is sufficient to conclude the grammar is not LL(1). No need to compute FIRST/FOLLOW sets."
+     },
+     {
+      "step": 2,
+      "title": "Confirm: left-recursive grammars are never LL(1)",
+      "formula_raw": "",
+      "apply": "For an LL(1) grammar, when the parser sees non-terminal Expr and lookahead token, say '(', it must uniquely choose a production. If Expr -> Expr + VarTail is available, the parser would need to expand Expr first, which leads to another Expr, and so on infinitely. The LL(1) table construction algorithm (filling M[Expr, a] for each a in FIRST(Expr + VarTail) and FIRST((Expr))) would place both Expr->Expr+VarTail and Expr->(Expr) in M[Expr, '('], causing a conflict. Thus the grammar is not LL(1).",
+      "note": "After left recursion removal (transform rule 1), one can recheck; the rest of the grammar may or may not be LL(1) after transformation."
+     }
+    ],
+    "result": "The grammar is not LL(1) because rule 1 (Expr -> Expr + VarTail) introduces direct left recursion. Answer: B."
+   },
+   "formula_ids_used": [],
+   "formula_note": "LL(1) parsing prerequisite: grammar must be free of left recursion. Left recursion removal: A -> A alpha | beta => A -> beta A', A' -> alpha A' | lambda.",
+   "qid": "3.17.5",
+   "answer_official": "N/A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1998",
+    "year": 1998,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "Parsing",
+    "subtopic": "Parsing"
+   },
+   "question": "Type checking is normally done during:\n\nA. lexical analysis\nB. syntax analysis\nC. syntax directed translation\nD. code optimization",
+   "answer": "C. syntax directed translation",
+   "to_find": "The phase of compilation in which type checking is normally performed.",
+   "understand": {
+    "plain": "A compiler has multiple phases: lexical analysis (tokenizing), syntax analysis (parsing), semantic analysis (including type checking), intermediate code generation, optimization, and code generation. Type checking verifies that operations are applied to compatible types (e.g., you cannot add an integer and a string). This is a semantic activity and is done during the semantic analysis phase, which is implemented via syntax-directed translation (SDT) using attribute grammars attached to parse tree nodes.",
+    "keywords": [
+     {
+      "term": "Type checking",
+      "explain": "Verifying that types of operands match the expected types for each operation (e.g., both operands of '+' must be numeric).",
+      "example": "int x; x = x + 'hello'; causes a type error — cannot add int and string."
+     },
+     {
+      "term": "Syntax directed translation (SDT)",
+      "explain": "A framework where semantic actions (including type checking) are attached to grammar productions and executed during or after parsing.",
+      "example": "In E -> E1 + E2, an SDT action checks that type(E1) == type(E2) and sets type(E) = type(E1)."
+     },
+     {
+      "term": "Semantic analysis",
+      "explain": "The compiler phase after parsing that checks for semantic errors (type mismatches, undeclared variables, etc.) using the parse tree.",
+      "example": "Assigning a boolean to a float variable is a semantic (type) error."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Compiler pipeline: Lexical Analysis -> Syntax Analysis (Parser) -> Semantic Analysis / SDT (Type Checking here) -> Intermediate Code Generation -> Optimization -> Code Generation."
+   },
+   "given": {
+    "aim": "Identify the compiler phase in which type checking occurs.",
+    "terms": [
+     {
+      "term": "Lexical analysis",
+      "meaning": "Breaks source code into tokens (identifiers, keywords, operators).",
+      "example": "Converts 'int x = 5;' into tokens: keyword(int), id(x), op(=), num(5), punct(;).",
+      "connects": "Has no concept of types — operates only on tokens."
+     },
+     {
+      "term": "Syntax analysis",
+      "meaning": "Builds a parse tree from tokens according to grammar rules; checks syntactic correctness.",
+      "example": "Verifies that 'x = y + z;' matches the grammar for assignment statements.",
+      "connects": "Does not check type compatibility — only structural correctness."
+     },
+     {
+      "term": "Syntax directed translation",
+      "meaning": "Attaches semantic rules/actions to grammar productions, enabling semantic checks like type checking during or after parse.",
+      "example": "Attribute grammar rule: for E -> E1 + E2, check type(E1) == type(E2).",
+      "connects": "This is where type checking actually happens — the correct answer."
+     }
+    ],
+    "plan": "Type checking requires knowing the types of variables (from the symbol table) and verifying compatibility in expressions and statements. This semantic activity is performed during semantic analysis, implemented via syntax-directed translation, after the parse tree is constructed."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Eliminate incorrect options",
+      "formula_raw": "",
+      "apply": "Lexical analysis (A) only identifies tokens; it cannot check types. Syntax analysis (B) builds the parse tree and checks grammar structure, but type information is not available — the parser does not consult the symbol table for types. Code optimization (D) occurs much later and assumes the program is already type-correct.",
+      "note": "Type checking needs both the parse tree structure and symbol table type information."
+     },
+     {
+      "step": 2,
+      "title": "Confirm syntax directed translation is correct",
+      "formula_raw": "",
+      "apply": "Syntax directed translation (C) occurs during or immediately after parsing, using attribute grammars. Each grammar production has associated semantic actions. Type checking actions verify that, e.g., in an assignment 'id := expr', the type of expr is compatible with the declared type of id. These actions are executed as the parse tree is traversed (typically a postorder traversal). Therefore, type checking is done during syntax directed translation.",
+      "note": "In many compilers, semantic analysis (including type checking) is implemented as SDT actions attached to the grammar used by the parser."
+     }
+    ],
+    "result": "Type checking is normally done during syntax directed translation. Answer: C."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Compiler phases: type checking is a semantic analysis task, implemented via syntax-directed translation (attribute grammars) after syntax analysis.",
+   "qid": "3.17.6",
+   "answer_official": "C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1998",
+    "year": 1998,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "Parsing",
+    "subtopic": "Parsing"
+   },
+   "question": "An identifier in a programming language consists of up to six letters and digits of which the first character must be a letter. Derive a regular expression for the identifier.\n\nWhich of the following regular expressions correctly describes identifiers of up to 6 characters starting with a letter (where L = letter, D = digit)?\n\nA. L(L+D)^5\nB. L(L|D){0,5}\nC. L + L(L|D) + L(L|D)^2 + L(L|D)^3 + L(L|D)^4 + L(L|D)^5\nD. (L|D)^6",
+   "answer": "C. L + L(L|D) + L(L|D)^2 + L(L|D)^3 + L(L|D)^4 + L(L|D)^5",
+   "to_find": "A regular expression for identifiers of 1 to 6 characters where the first is a letter and the rest are letters or digits.",
+   "understand": {
+    "plain": "An identifier starts with exactly one letter, followed by zero to five letters or digits, making the total length between 1 and 6 characters. The regular expression must capture all these lengths: length 1 (just a letter), length 2 (letter + one letter/digit), up to length 6 (letter + five letters/digits). Option C is the union of all these cases explicitly.",
+    "keywords": [
+     {
+      "term": "Regular expression",
+      "explain": "A pattern that describes a set of strings; used to specify the lexical structure of tokens in a programming language.",
+      "example": "L(L|D)* describes identifiers of any length starting with a letter."
+     },
+     {
+      "term": "Letter (L) and Digit (D)",
+      "explain": "L represents any letter (a-z, A-Z) and D represents any digit (0-9); standard building blocks for identifiers.",
+      "example": "In 'abc123', 'a', 'b', 'c' are letters and '1', '2', '3' are digits."
+     },
+     {
+      "term": "Union of fixed-length expressions",
+      "explain": "When a token has a bounded maximum length, the regular expression can be written as a union of expressions for each valid length.",
+      "example": "Strings of 1 or 2 letters: L | LL = L + LL."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Identifier structure: position 1 must be L (letter), positions 2-6 each can be L or D (letter or digit), and total length is 1 to 6. This gives L(L|D)^0 | L(L|D)^1 | ... | L(L|D)^5."
+   },
+   "given": {
+    "aim": "Write a regular expression for identifiers with length 1-6, starting with a letter, rest letters or digits.",
+    "terms": [
+     {
+      "term": "First character must be a letter",
+      "meaning": "The regex must start with L (letter).",
+      "example": "'x1y' is valid (starts with letter); '1xy' is not.",
+      "connects": "All options except D start with L, so D is immediately wrong."
+     },
+     {
+      "term": "Up to six characters total",
+      "meaning": "The identifier length ranges from 1 to 6, so after the first letter, 0 to 5 additional characters are allowed.",
+      "example": "'a' (length 1), 'ab12cd' (length 6) are both valid.",
+      "connects": "The suffix (L|D) can appear 0, 1, 2, 3, 4, or 5 times."
+     },
+     {
+      "term": "Characters 2-6: letter or digit",
+      "meaning": "After the first letter, each subsequent character can be either a letter or a digit.",
+      "example": "identifier 'x1a2b' has letters and digits mixed after first char.",
+      "connects": "The suffix is described by (L|D)."
+     }
+    ],
+    "plan": "The full set of valid identifiers = {strings of length 1} union {strings of length 2} union ... union {strings of length 6}. Length k identifier = L followed by exactly (k-1) occurrences of (L|D). So the answer is the union: L | L(L|D) | L(L|D)^2 | L(L|D)^3 | L(L|D)^4 | L(L|D)^5."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Express each valid length separately",
+      "formula_raw": "Length k: L(L|D)^(k-1), for k = 1, 2, 3, 4, 5, 6",
+      "apply": "k=1: L (just one letter)\nk=2: L(L|D) (letter + one letter/digit)\nk=3: L(L|D)^2\nk=4: L(L|D)^3\nk=5: L(L|D)^4\nk=6: L(L|D)^5\nCombined: L + L(L|D) + L(L|D)^2 + L(L|D)^3 + L(L|D)^4 + L(L|D)^5",
+      "note": "Option A [L(L+D)^5] only covers length exactly 6. Option B [L(L|D){0,5}] is actually equivalent to Option C if {0,5} means 'zero to five repetitions' — this is the compact form. In traditional regex notation for the exam, option C shows the explicit union."
+     },
+     {
+      "step": 2,
+      "title": "Verify options and choose the correct one",
+      "formula_raw": "",
+      "apply": "Option A: L(L+D)^5 — here (L+D)^5 means exactly 5 repetitions (using + as concatenation in some notations) or if + is 'one or more' then it allows arbitrary length. Either way it doesn't capture lengths 1-5 correctly. Option B: L(L|D){0,5} — compact and equivalent to C (correct, but option C is the explicit union form). Option C: L + L(L|D) + L(L|D)^2 + L(L|D)^3 + L(L|D)^4 + L(L|D)^5 — explicitly lists all valid lengths. Option D: (L|D)^6 — allows first character to be a digit and requires exactly 6 characters — wrong on both counts. The explicitly correct and unambiguous answer in the GATE context is C.",
+      "note": "In GATE 1998 era notation, option C is the standard way to express a bounded-length pattern."
+     }
+    ],
+    "result": "Regular expression: L + L(L|D) + L(L|D)^2 + L(L|D)^3 + L(L|D)^4 + L(L|D)^5. Answer: C."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Regular expression for bounded-length identifiers: union of L(L|D)^k for k = 0 to (max_length - 1), where L is a letter and D is a digit.",
+   "qid": "3.17.7",
+   "answer_official": "N/A"
+  }
+ ]
+}

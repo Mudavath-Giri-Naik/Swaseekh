@@ -1,0 +1,381 @@
+{
+ "page": 310,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 1994",
+    "year": 1994,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Databases",
+    "topic": "Relational Algebra",
+    "subtopic": "Relational Algebra"
+   },
+   "question": "Give a relational algebra expression using only the minimum number of operators from {union (U), set-difference (-)} which is equivalent to R / S (the division operator R divided by S).\n\nNote: R has attributes (A, B) and S has attribute (B). The result of R / S gives all values of A in R such that for every value in S(B), the tuple (A, B) exists in R.",
+   "answer": "pi_A(R) - pi_A((pi_A(R) x S) - R)",
+   "to_find": "Express R / S using only set-difference (-) and Cartesian product (x) or projection and difference",
+   "understand": {
+    "plain": "The division operation R / S finds all A-values in R that are paired with every B-value in S. We need to express this using only the basic set operators: union, difference, projection, and Cartesian product — finding the minimum set needed. The key insight is: A is in R/S if and only if there is NO B in S for which (A, B) is missing from R.",
+    "keywords": [
+     {
+      "term": "Division (R / S)",
+      "explain": "An operation that finds tuples in one relation that are associated with ALL tuples in another relation. If R has (A, B) and S has (B), then R/S gives all A values in R such that (A, b) exists in R for every b in S.",
+      "example": "R = {(1,a),(1,b),(2,a)} and S = {a,b} then R/S = {1} since 1 pairs with both a and b"
+     },
+     {
+      "term": "Set Difference (-)",
+      "explain": "Returns tuples in the first relation that are not in the second relation. R - S gives tuples in R that do not appear in S.",
+      "example": "{1,2,3} - {2,3} = {1}"
+     },
+     {
+      "term": "Projection (pi)",
+      "explain": "Selects only specified attributes from a relation, removing duplicates.",
+      "example": "pi_A(R) on R(A,B) returns just the A-column values"
+     }
+    ],
+    "visual_svg": "<svg width='500' height='200' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='140' height='130' class='bg'/><text x='80' y='35' text-anchor='middle' class='lbl ink'>R(A, B)</text><text x='55' y='55' text-anchor='middle' class='sub mut'>A</text><text x='105' y='55' text-anchor='middle' class='sub mut'>B</text><line x1='10' y1='60' x2='150' y2='60' stroke='#B4B2A9' stroke-width='1'/><text x='55' y='80' text-anchor='middle' class='sub ink'>1</text><text x='105' y='80' text-anchor='middle' class='sub ink'>a</text><text x='55' y='100' text-anchor='middle' class='sub ink'>1</text><text x='105' y='100' text-anchor='middle' class='sub ink'>b</text><text x='55' y='120' text-anchor='middle' class='sub ink'>2</text><text x='105' y='120' text-anchor='middle' class='sub ink'>a</text><rect x='180' y='10' width='80' height='100' class='bg'/><text x='220' y='35' text-anchor='middle' class='lbl ink'>S(B)</text><text x='220' y='55' text-anchor='middle' class='sub mut'>B</text><line x1='180' y1='60' x2='260' y2='60' stroke='#B4B2A9' stroke-width='1'/><text x='220' y='80' text-anchor='middle' class='sub ink'>a</text><text x='220' y='100' text-anchor='middle' class='sub ink'>b</text><rect x='320' y='10' width='80' height='100' class='hi'/><text x='360' y='35' text-anchor='middle' class='lbl ink'>R/S</text><text x='360' y='55' text-anchor='middle' class='sub mut'>A</text><line x1='320' y1='60' x2='400' y2='60' stroke='#7F77DD' stroke-width='1'/><text x='360' y='80' text-anchor='middle' class='sub ink'>1</text><text x='220' y='160' text-anchor='middle' class='sub mut'>Only A=1 pairs with both a and b</text></svg>",
+    "visual_alt": "Table R has (A,B) pairs: (1,a),(1,b),(2,a). Table S has B values: a,b. R/S result is {1} because only A=1 is paired with all B-values in S."
+   },
+   "given": {
+    "aim": "Express R / S using only union and set-difference (and projection, Cartesian product as auxiliary)",
+    "terms": [
+     {
+      "term": "R(A, B)",
+      "meaning": "Relation with attributes A and B",
+      "example": "R = {(1,a),(1,b),(2,a)}",
+      "connects": "Source relation from which we divide"
+     },
+     {
+      "term": "S(B)",
+      "meaning": "Relation with attribute B only; forms the divisor",
+      "example": "S = {a, b}",
+      "connects": "Every B-value in S must be paired with an A-value for it to appear in the result"
+     },
+     {
+      "term": "pi_A(R)",
+      "meaning": "All distinct A-values that appear in R",
+      "example": "pi_A({(1,a),(1,b),(2,a)}) = {1, 2}",
+      "connects": "Candidate set — we then subtract those A-values that are NOT paired with every B in S"
+     },
+     {
+      "term": "(pi_A(R) x S) - R",
+      "meaning": "Pairs (A, B) that should be in R for full coverage but are missing",
+      "example": "If pi_A(R)={1,2} and S={a,b}, cross-product gives (1,a),(1,b),(2,a),(2,b); minus R removes present tuples, leaving (2,b) — the missing pair",
+      "connects": "Projecting A from this gives the A-values that are disqualified from the result"
+     }
+    ],
+    "plan": "Use the complement approach: R/S = (all A in R) minus (A-values that are missing at least one pairing with S). The missing pairings are found by taking (pi_A(R) x S) - R, then projecting onto A."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Identify all candidate A-values",
+      "formula_raw": "Candidates = pi_A(R)",
+      "apply": "Project R onto attribute A to get all A-values that appear in R. These are all potential members of the division result.",
+      "note": "pi_A(R) uses only projection — not counted among {union, difference} but is a standard auxiliary."
+     },
+     {
+      "step": 2,
+      "title": "Find disqualified A-values",
+      "formula_raw": "Disqualified = pi_A( (pi_A(R) x S) - R )",
+      "apply": "Compute pi_A(R) x S: this gives ALL pairs (A, B) we would need if every A paired with every B in S. Subtract R from this: the remaining tuples are (A, B) pairs that SHOULD exist but DON'T — meaning those A-values are missing a partner. Project onto A to get the set of disqualified A-values.",
+      "note": "Uses Cartesian product (x) and set difference (-). Cartesian product is derivable from union and difference plus projection in the formal sense, but typically included as a primitive."
+     },
+     {
+      "step": 3,
+      "title": "Subtract disqualified from candidates",
+      "formula_raw": "R / S = pi_A(R) - pi_A( (pi_A(R) x S) - R )",
+      "apply": "Remove disqualified A-values from the candidate set. What remains are exactly those A-values paired with every B in S.",
+      "note": "This uses exactly one set-difference at the outer level. The expression uses: projection (pi), Cartesian product (x), and set-difference (-). Minimum operators from {U, -} needed: 2 occurrences of difference."
+     }
+    ],
+    "result": "R / S = pi_A(R) - pi_A( (pi_A(R) x S) - R )"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Division expressed via projection and set-difference: R/S = pi_A(R) - pi_A((pi_A(R) x S) - R). Uses 2 set-difference operators — minimum needed.",
+   "qid": "5.15.3",
+   "answer_official": "N/A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1995",
+    "year": 1995,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Databases",
+    "topic": "Relational Algebra",
+    "subtopic": "Relational Algebra"
+   },
+   "question": "Consider the relation scheme:\nAUTHOR (ANAME, INSTITUTION, ACITY, AGE)\nPUBLISHER (PNAME, PCITY)\nBOOK (TITLE, PNAME)\n\nExpress the following queries using (one or more of) SELECT, PROJECT, JOIN and DIVIDE operations:\nA. Get the names of all publishers.\nB. Get values of all attributes of all authors who have published a book for the publisher with PNAME='TECHNICAL PUBLISHERS'.\nC. Get the names of all authors who have published a book for any publisher located in Madras.",
+   "answer": "A. pi_PNAME(PUBLISHER)\nB. AUTHOR JOIN (pi_ANAME(AUTHOR) JOIN BOOK) WHERE PNAME='TECHNICAL PUBLISHERS'\nC. pi_ANAME(AUTHOR JOIN BOOK JOIN sigma_PCITY='Madras'(PUBLISHER))",
+   "to_find": "Relational algebra expressions for three queries on AUTHOR, PUBLISHER, BOOK relations",
+   "understand": {
+    "plain": "We have three relations: AUTHOR stores author details, PUBLISHER stores publisher info, and BOOK links titles to publishers. We need to write relational algebra expressions for three queries: listing publishers, finding authors who published with a specific publisher, and finding authors who published with any Madras-based publisher.",
+    "keywords": [
+     {
+      "term": "PROJECT (pi)",
+      "explain": "Selects specific columns from a relation. Similar to SELECT column FROM table in SQL.",
+      "example": "pi_PNAME(PUBLISHER) gives only the PNAME column from PUBLISHER"
+     },
+     {
+      "term": "SELECT / sigma (selection)",
+      "explain": "Filters rows based on a condition. Similar to WHERE clause in SQL.",
+      "example": "sigma_PNAME='TECHNICAL PUBLISHERS'(PUBLISHER) returns rows where PNAME matches"
+     },
+     {
+      "term": "JOIN (natural join or equi-join)",
+      "explain": "Combines two relations on matching attributes, creating a combined tuple.",
+      "example": "BOOK JOIN PUBLISHER on PNAME gives each book with its publisher details"
+     }
+    ],
+    "visual_svg": "<svg width='520' height='180' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='5' y='5' width='150' height='80' class='bg'/><text x='80' y='25' text-anchor='middle' class='lbl ink'>AUTHOR</text><text x='80' y='45' text-anchor='middle' class='sub mut'>ANAME, INSTITUTION</text><text x='80' y='62' text-anchor='middle' class='sub mut'>ACITY, AGE</text><rect x='185' y='5' width='150' height='80' class='bg'/><text x='260' y='25' text-anchor='middle' class='lbl ink'>PUBLISHER</text><text x='260' y='45' text-anchor='middle' class='sub mut'>PNAME, PCITY</text><rect x='365' y='5' width='150' height='80' class='bg'/><text x='440' y='25' text-anchor='middle' class='lbl ink'>BOOK</text><text x='440' y='45' text-anchor='middle' class='sub mut'>TITLE, PNAME</text><text x='260' y='130' text-anchor='middle' class='sub ink'>BOOK.PNAME = PUBLISHER.PNAME links books to publishers</text><text x='260' y='150' text-anchor='middle' class='sub ink'>AUTHOR and BOOK linked via ANAME (implied by schema)</text></svg>",
+    "visual_alt": "Three tables: AUTHOR(ANAME, INSTITUTION, ACITY, AGE), PUBLISHER(PNAME, PCITY), BOOK(TITLE, PNAME). BOOK connects to PUBLISHER via PNAME. AUTHOR connects to BOOK via ANAME."
+   },
+   "given": {
+    "aim": "Write relational algebra for three queries on a publication database",
+    "terms": [
+     {
+      "term": "AUTHOR (ANAME, INSTITUTION, ACITY, AGE)",
+      "meaning": "Stores author name, institution, city, and age",
+      "example": "('Knuth', 'Stanford', 'Stanford', 70)",
+      "connects": "Source for author information in all three queries"
+     },
+     {
+      "term": "PUBLISHER (PNAME, PCITY)",
+      "meaning": "Stores publisher name and city",
+      "example": "('TECHNICAL PUBLISHERS', 'Chennai')",
+      "connects": "Used in queries B and C to filter by publisher name or city"
+     },
+     {
+      "term": "BOOK (TITLE, PNAME)",
+      "meaning": "Each book has a title and its publisher name as foreign key",
+      "example": "('TAOCP', 'TECHNICAL PUBLISHERS')",
+      "connects": "Links AUTHORS to PUBLISHERS through the book they authored"
+     },
+     {
+      "term": "ANAME in BOOK",
+      "meaning": "The schema implies BOOK also contains ANAME to link author to book",
+      "example": "('TAOCP', 'Knuth', 'TECHNICAL PUBLISHERS')",
+      "connects": "Without ANAME in BOOK, queries B and C cannot link author to publisher"
+     }
+    ],
+    "plan": "For A: project PUBLISHER onto PNAME. For B: select the relevant publisher, join BOOK to get titles, then join with AUTHOR to get full author attributes. For C: select publishers in Madras, join with BOOK, join with AUTHOR, then project author names."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Query A: Names of all publishers",
+      "formula_raw": "pi_PNAME(PUBLISHER)",
+      "apply": "Simply project the PUBLISHER relation onto the PNAME attribute. This retrieves all publisher names.",
+      "note": "Only PROJECT needed; no JOIN or SELECT required."
+     },
+     {
+      "step": 2,
+      "title": "Query B: All attributes of authors who published with 'TECHNICAL PUBLISHERS'",
+      "formula_raw": "AUTHOR JOIN (sigma_PNAME='TECHNICAL PUBLISHERS'(BOOK))",
+      "apply": "First select books published by 'TECHNICAL PUBLISHERS': sigma_PNAME='TECHNICAL PUBLISHERS'(BOOK). Then join the result with AUTHOR on ANAME. The join brings in all AUTHOR attributes for matching authors. Result has all AUTHOR attributes (ANAME, INSTITUTION, ACITY, AGE).",
+      "note": "We need BOOK to contain ANAME for the join to work. If BOOK only has (TITLE, PNAME), an intermediate relation linking ANAME to TITLE is needed."
+     },
+     {
+      "step": 3,
+      "title": "Query C: Names of authors who published with any Madras publisher",
+      "formula_raw": "pi_ANAME( AUTHOR JOIN BOOK JOIN sigma_PCITY='Madras'(PUBLISHER) )",
+      "apply": "Select publishers in Madras: sigma_PCITY='Madras'(PUBLISHER). Join with BOOK on PNAME to get books from Madras publishers. Join with AUTHOR on ANAME to get author details. Finally project onto ANAME to get just author names.",
+      "note": "JOIN is done on common attributes: BOOK.PNAME = PUBLISHER.PNAME, and AUTHOR.ANAME = BOOK.ANAME."
+     }
+    ],
+    "result": "A. pi_PNAME(PUBLISHER)\nB. AUTHOR JOIN sigma_PNAME='TECHNICAL PUBLISHERS'(BOOK)\nC. pi_ANAME(AUTHOR JOIN BOOK JOIN sigma_PCITY='Madras'(PUBLISHER))"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Uses basic relational algebra operators: projection (pi), selection (sigma), and natural join. Queries follow the pattern: filter -> join -> project.",
+   "qid": "5.15.4",
+   "answer_official": "N/A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1996",
+    "year": 1996,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Databases",
+    "topic": "Relational Algebra",
+    "subtopic": "Relational Algebra"
+   },
+   "question": "A library relational database system uses the following schema:\nUSERS (User#, UserName, HomeTown)\nBOOKS (Book#, BookTitle, AuthorName)\nISSUED (Book#, User#, Date)\n\nExplain in one English sentence, what each of the following relational algebra queries is designed to determine:\na. pi_UserName( sigma_HomeTown='Delhi'(USERS) )\nb. pi_AuthorName( BOOKS JOIN (pi_Book#( sigma_User#=(pi_User#(sigma_UserName='Rama'(USERS)))(ISSUED) )) )",
+   "answer": "a. Names of all users whose home town is Delhi.\nb. Names of all authors whose books have been issued to the user named Rama.",
+   "to_find": "English interpretation of two relational algebra expressions on a library database",
+   "understand": {
+    "plain": "We have a library database with three tables: USERS for user info, BOOKS for book details, and ISSUED for loan records. We are given two relational algebra expressions and need to explain in plain English what information each query retrieves. This tests the ability to read relational algebra and translate it to natural language.",
+    "keywords": [
+     {
+      "term": "sigma (selection)",
+      "explain": "Filters tuples (rows) that satisfy a given condition.",
+      "example": "sigma_HomeTown='Delhi'(USERS) returns only users from Delhi"
+     },
+     {
+      "term": "pi (projection)",
+      "explain": "Extracts specific attributes (columns) from a relation.",
+      "example": "pi_UserName(USERS) returns only the UserName column"
+     },
+     {
+      "term": "JOIN (natural join)",
+      "explain": "Combines two relations by matching on common attribute values.",
+      "example": "BOOKS JOIN ISSUED on Book# gives each issued record with its book details"
+     }
+    ],
+    "visual_svg": "<svg width='500' height='220' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='5' y='5' width='150' height='65' class='bg'/><text x='80' y='25' text-anchor='middle' class='lbl ink'>USERS</text><text x='80' y='45' text-anchor='middle' class='sub mut'>User#, UserName</text><text x='80' y='60' text-anchor='middle' class='sub mut'>HomeTown</text><rect x='175' y='5' width='150' height='65' class='bg'/><text x='250' y='25' text-anchor='middle' class='lbl ink'>ISSUED</text><text x='250' y='45' text-anchor='middle' class='sub mut'>Book#, User#, Date</text><rect x='345' y='5' width='150' height='65' class='bg'/><text x='420' y='25' text-anchor='middle' class='lbl ink'>BOOKS</text><text x='420' y='45' text-anchor='middle' class='sub mut'>Book#, BookTitle</text><text x='420' y='60' text-anchor='middle' class='sub mut'>AuthorName</text><line x1='155' y1='37' x2='175' y2='37' stroke='#B4B2A9' stroke-width='2' marker-end='url(#arr)'/><line x1='325' y1='37' x2='345' y2='37' stroke='#B4B2A9' stroke-width='2' marker-end='url(#arr)'/><text x='250' y='120' text-anchor='middle' class='sub ink'>Query a: Filter USERS by HomeTown, project UserName</text><text x='250' y='145' text-anchor='middle' class='sub ink'>Query b: Find Rama's User#, get her issued Book#s,</text><text x='250' y='165' text-anchor='middle' class='sub ink'>join with BOOKS, project AuthorName</text></svg>",
+    "visual_alt": "USERS linked to ISSUED via User#, ISSUED linked to BOOKS via Book#. Query a filters users by city. Query b traces from a user name through issued books to author names."
+   },
+   "given": {
+    "aim": "Interpret two relational algebra expressions as English sentences",
+    "terms": [
+     {
+      "term": "USERS (User#, UserName, HomeTown)",
+      "meaning": "Stores library user information including home town",
+      "example": "User# 101, 'Rama', 'Delhi'",
+      "connects": "Query a filters on HomeTown; query b finds Rama's User#"
+     },
+     {
+      "term": "BOOKS (Book#, BookTitle, AuthorName)",
+      "meaning": "Stores book details including the author",
+      "example": "Book# 501, 'Database Systems', 'Ramakrishnan'",
+      "connects": "Joined in query b to get AuthorName"
+     },
+     {
+      "term": "ISSUED (Book#, User#, Date)",
+      "meaning": "Records which user borrowed which book on which date",
+      "example": "(501, 101, '2023-01-10') means user 101 borrowed book 501",
+      "connects": "Bridge table in query b linking users to the books they borrowed"
+     }
+    ],
+    "plan": "Read each expression from inside out. For query a: select users from Delhi, then project names. For query b: find Rama's User#, find books issued to that User#, join with BOOKS, project author names."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Interpret Query a: pi_UserName(sigma_HomeTown='Delhi'(USERS))",
+      "formula_raw": "pi_UserName( sigma_HomeTown='Delhi'(USERS) )",
+      "apply": "Step 1: sigma_HomeTown='Delhi'(USERS) selects all users whose HomeTown is 'Delhi'.\nStep 2: pi_UserName(...) projects only the UserName column from that result.\nEnglish: 'Find the names of all users whose home town is Delhi.'",
+      "note": "A straightforward select-then-project pattern."
+     },
+     {
+      "step": 2,
+      "title": "Interpret Query b (inner part): find Rama's User#",
+      "formula_raw": "pi_User#( sigma_UserName='Rama'(USERS) )",
+      "apply": "sigma_UserName='Rama'(USERS) selects the row for user named Rama. pi_User# extracts just her User# value. This gives a single-attribute relation containing Rama's User#.",
+      "note": "This sub-expression acts as a scalar value used in the outer selection."
+     },
+     {
+      "step": 3,
+      "title": "Interpret Query b (middle part): find books issued to Rama",
+      "formula_raw": "sigma_User# = (pi_User#(sigma_UserName='Rama'(USERS)))(ISSUED)",
+      "apply": "Select rows from ISSUED where User# equals Rama's User#. Then pi_Book# projects just the Book# values. This gives the set of Book# values of books borrowed by Rama.",
+      "note": "The inner sub-query result is used as the comparison value — this is a relational division-like pattern."
+     },
+     {
+      "step": 4,
+      "title": "Interpret Query b (outer part): get author names",
+      "formula_raw": "pi_AuthorName( BOOKS JOIN (pi_Book#(...)) )",
+      "apply": "Join BOOKS with the set of Book#s issued to Rama on the Book# attribute. This gives full book records for books Rama borrowed. Project onto AuthorName to get the authors.\nEnglish: 'Find the names of all authors whose books have been issued to the user named Rama.'",
+      "note": "The entire query b traces a chain: name -> user# -> book# -> author name."
+     }
+    ],
+    "result": "a. Names of all users whose home town is Delhi.\nb. Names of all authors whose books have been issued to the user named Rama."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Demonstrates reading relational algebra inside-out: selection filters rows, projection selects columns, join combines relations on common attributes.",
+   "qid": "5.15.5",
+   "answer_official": "N/A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1997",
+    "year": 1997,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "Relational Algebra",
+    "subtopic": "Relational Algebra"
+   },
+   "question": "Consider the following relational database schema:\nEMP (eno, name, age)\nPROJ (pno, name)\nINVOLVED (eno, pno)\n\nEMP contains information about employees, PROJ about projects and INVOLVED about which employees are involved in which projects. The underlined attributes are the primary keys for the respective relations.\n\nWhat is the relational algebra expression which is equivalent to the SQL query:\nselect eno from EMP where eno in (select eno from INVOLVED where pno = 3)\n\nA. pi_eno(EMP) - pi_eno(INVOLVED)\nB. pi_eno(sigma_pno=3(INVOLVED))\nC. pi_eno(EMP) - pi_eno(sigma_pno!=3(INVOLVED))\nD. pi_eno(EMP JOIN INVOLVED)",
+   "answer": "B. pi_eno(sigma_pno=3(INVOLVED))",
+   "to_find": "Relational algebra expression equivalent to the given SQL query",
+   "understand": {
+    "plain": "We have employees, projects, and involvement records. The SQL query asks: find the employee numbers (eno) of all employees who are involved in project number 3. We need to identify which relational algebra expression does exactly this. The subquery finds eno values from INVOLVED where pno=3, and the outer query retrieves those enos from EMP.",
+    "keywords": [
+     {
+      "term": "sigma (selection / WHERE clause)",
+      "explain": "Filters rows satisfying a condition, equivalent to SQL WHERE.",
+      "example": "sigma_pno=3(INVOLVED) gives only rows where pno equals 3"
+     },
+     {
+      "term": "pi (projection / SELECT clause)",
+      "explain": "Extracts specified columns, equivalent to SELECT column in SQL.",
+      "example": "pi_eno(INVOLVED) gives just the eno column from INVOLVED"
+     },
+     {
+      "term": "Subquery with IN",
+      "explain": "SQL IN clause checks if a value exists in a subquery's result set — equivalent to a selection + projection in relational algebra.",
+      "example": "eno IN (select eno from INVOLVED where pno=3) is equivalent to joining EMP with sigma_pno=3(INVOLVED)"
+     }
+    ],
+    "visual_svg": "<svg width='480' height='190' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='5' y='5' width='130' height='90' class='bg'/><text x='70' y='25' text-anchor='middle' class='lbl ink'>INVOLVED</text><text x='50' y='48' text-anchor='middle' class='sub mut'>eno</text><text x='100' y='48' text-anchor='middle' class='sub mut'>pno</text><line x1='5' y1='54' x2='135' y2='54' stroke='#B4B2A9' stroke-width='1'/><text x='50' y='70' text-anchor='middle' class='sub ink'>101</text><text x='100' y='70' text-anchor='middle' class='sub ink'>3</text><text x='50' y='88' text-anchor='middle' class='sub ink'>102</text><text x='100' y='88' text-anchor='middle' class='sub ink'>5</text><rect x='170' y='5' width='130' height='90' class='hi'/><text x='235' y='25' text-anchor='middle' class='lbl ink'>sigma_pno=3</text><text x='235' y='48' text-anchor='middle' class='sub mut'>eno</text><text x='285' y='48' text-anchor='middle' class='sub mut'>pno</text><line x1='170' y1='54' x2='300' y2='54' stroke='#7F77DD' stroke-width='1'/><text x='235' y='70' text-anchor='middle' class='sub ink'>101</text><text x='285' y='70' text-anchor='middle' class='sub ink'>3</text><rect x='335' y='5' width='130' height='70' class='ok'/><text x='400' y='28' text-anchor='middle' class='lbl ink' style='fill:white'>pi_eno result</text><text x='400' y='50' text-anchor='middle' class='sub ink' style='fill:white'>eno</text><line x1='335' y1='56' x2='465' y2='56' stroke='white' stroke-width='1'/><text x='400' y='72' text-anchor='middle' class='sub ink' style='fill:white'>101</text><text x='235' y='155' text-anchor='middle' class='sub ink'>SQL: select eno from INVOLVED where pno=3</text><text x='235' y='175' text-anchor='middle' class='sub mut'>= pi_eno(sigma_pno=3(INVOLVED))</text></svg>",
+    "visual_alt": "INVOLVED table filtered by pno=3 gives only rows with project 3. Projecting eno from that result gives the employee numbers involved in project 3 — exactly what the SQL subquery does."
+   },
+   "given": {
+    "aim": "Find the relational algebra equivalent of: select eno from EMP where eno in (select eno from INVOLVED where pno=3)",
+    "terms": [
+     {
+      "term": "EMP (eno, name, age)",
+      "meaning": "Employee relation with employee number as primary key",
+      "example": "(101, 'Alice', 30)",
+      "connects": "Outer query selects eno from EMP — but since eno values in INVOLVED are already employee numbers, we can go directly to INVOLVED"
+     },
+     {
+      "term": "INVOLVED (eno, pno)",
+      "meaning": "Maps employees to projects they are involved in",
+      "example": "(101, 3) means employee 101 is in project 3",
+      "connects": "The subquery finds eno from INVOLVED where pno=3; this is all we need"
+     },
+     {
+      "term": "pno=3",
+      "meaning": "Condition in the subquery: only project number 3",
+      "example": "sigma_pno=3(INVOLVED) selects rows where project is 3",
+      "connects": "After selection, project onto eno to get employees in project 3"
+     }
+    ],
+    "plan": "The SQL subquery 'select eno from INVOLVED where pno=3' directly translates to pi_eno(sigma_pno=3(INVOLVED)). The outer query 'select eno from EMP where eno in (...)' just confirms those enos exist in EMP, but since INVOLVED.eno is a foreign key to EMP.eno, the result is identical. So the full expression is pi_eno(sigma_pno=3(INVOLVED))."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Translate the inner subquery",
+      "formula_raw": "sigma_pno=3(INVOLVED)",
+      "apply": "The inner SQL: 'select eno from INVOLVED where pno=3' translates to:\n- sigma_pno=3(INVOLVED): filter INVOLVED for rows where pno=3\n- pi_eno(...): project onto eno\nResult: pi_eno(sigma_pno=3(INVOLVED)) — the set of employee numbers involved in project 3.",
+      "note": "This is the complete answer since eno in INVOLVED is a foreign key to EMP, so any eno in INVOLVED is guaranteed to be in EMP."
+     },
+     {
+      "step": 2,
+      "title": "Evaluate all options",
+      "formula_raw": "",
+      "apply": "A. pi_eno(EMP) - pi_eno(INVOLVED): gives employees NOT involved in any project — wrong.\nB. pi_eno(sigma_pno=3(INVOLVED)): gives employees involved in project 3 — CORRECT.\nC. pi_eno(EMP) - pi_eno(sigma_pno!=3(INVOLVED)): gives employees who are ONLY in project 3 (not in any other project) — wrong; this would miss employees involved in project 3 AND other projects.\nD. pi_eno(EMP JOIN INVOLVED): gives employees involved in any project — wrong.",
+      "note": "Option C is a common distractor: it incorrectly removes employees who are in project 3 but also in other projects."
+     }
+    ],
+    "result": "B. pi_eno(sigma_pno=3(INVOLVED))"
+   },
+   "formula_ids_used": [],
+   "formula_note": "SQL subquery with IN translates to selection then projection in relational algebra. The outer EMP reference is unnecessary since INVOLVED.eno is a foreign key referencing EMP.",
+   "qid": "5.15.6",
+   "answer_official": "N/A"
+  }
+ ]
+}

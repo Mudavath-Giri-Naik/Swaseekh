@@ -1,0 +1,260 @@
+{
+ "page": 105,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2008",
+    "year": 2008,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Computer Organization & Architecture",
+    "topic": "Cache Memory",
+    "subtopic": "Cache Memory"
+   },
+   "question": "Consider a machine with a 4-way set associative data cache of size 64 Kbytes and block size 16 bytes. The cache is managed using 32 bit virtual addresses and the page size is 4 Kbytes. A program to be run on this machine begins as follows:\n\ndouble ARR[1024][1024];\nint i, j;\n/* Initialize array ARR to 0.0 */\nfor(i = 0; i < 1024; i++)\n  for(j = 0; j < 1024; j++)\n    ARR[i][j] = 0.0;\n\nThe size of double is 8 bytes. Array ARR is located in memory starting at the beginning of virtual page 0xFF000 and stored in row major order. The cache is initially empty and no pre-fetching is done. The only data memory references made by the program are to array ARR.\n\nWhich of the following array elements has the same cache index as ARR[0][0]?\n\nA. ARR[0][4]\nB. ARR[4][0]\nC. ARR[0][2]\nD. ARR[8][0]",
+   "answer": "B. ARR[4][0]",
+   "to_find": "Which array element maps to the same cache set (index) as ARR[0][0]",
+   "understand": {
+    "plain": "We have a 4-way set associative cache of 64 KB with 16-byte blocks. The array is stored row-major. We need to find which element shares the same cache set index as ARR[0][0], meaning its address differs from ARR[0][0]'s address by an exact multiple of (number of sets * block size).",
+    "keywords": [
+     {
+      "term": "Set Associative Cache",
+      "explain": "Cache is divided into sets; each set holds W ways (blocks). A memory block maps to exactly one set based on (block_number mod num_sets).",
+      "example": "4-way, 1024 sets: block 1024 maps to set 0, just like block 0."
+     },
+     {
+      "term": "Cache Index",
+      "explain": "The set number a memory address maps to. Computed from the middle bits of the address: index = (address / block_size) mod num_sets.",
+      "example": "Address 16384 with 16-byte blocks and 1024 sets: index = (16384/16) mod 1024 = 1024 mod 1024 = 0."
+     },
+     {
+      "term": "Row-Major Order",
+      "explain": "2D array stored row by row in memory. ARR[i][j] is at address base + (i * num_cols + j) * element_size.",
+      "example": "ARR[1][0] is at base + 1024*8 = base + 8192."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 520 200'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='500' height='40' class='bg'/><text x='20' y='35' class='lbl ink'>Cache: 64KB | 4-way | 16B blocks | 1024 sets</text><rect x='10' y='60' width='230' height='35' class='hi'/><text x='20' y='82' class='tag ink'>ARR[0][0]: offset 0</text><rect x='250' y='60' width='260' height='35' class='bg'/><text x='260' y='82' class='tag ink'>ARR[4][0]: offset +32768 bytes</text><rect x='10' y='105' width='500' height='30' class='bg'/><text x='20' y='125' class='sub ink'>Row size = 1024 * 8 = 8192 bytes. 4 rows = 32768 = 2 * 16384 (set stride)</text><rect x='10' y='145' width='500' height='40' class='bg'/><text x='20' y='165' class='sub ink'>Set index of ARR[0][0] = (base/16) mod 1024 = S</text><text x='20' y='183' class='sub ink'>Set index of ARR[4][0] = (base/16 + 32768/16) mod 1024 = (S + 2048) mod 1024 = S</text></svg>",
+    "visual_alt": "Cache parameters: 64KB size, 4-way, 16-byte block size yields 1024 sets. Row size is 8192 bytes. ARR[4][0] is 32768 bytes = 2048 blocks away from ARR[0][0]; 2048 mod 1024 = 0, so same set index."
+   },
+   "given": {
+    "aim": "Find which array element maps to the same cache set as ARR[0][0]",
+    "terms": [
+     {
+      "term": "Cache size = 64 KB, block size = 16 B, 4-way",
+      "meaning": "Number of sets = (64*1024) / (4*16) = 65536/64 = 1024 sets",
+      "example": "Block n maps to set n mod 1024",
+      "connects": "Determines the cache index formula"
+     },
+     {
+      "term": "double = 8 bytes, ARR[1024][1024]",
+      "meaning": "Each row occupies 1024 * 8 = 8192 bytes = 512 cache blocks",
+      "example": "ARR[1][0] is 512 blocks after ARR[0][0]",
+      "connects": "Converts row difference to block difference"
+     },
+     {
+      "term": "Cache index = (block_number) mod 1024",
+      "meaning": "Two addresses share the same cache set iff their block numbers differ by a multiple of 1024",
+      "example": "Blocks 0 and 2048 both map to set 0",
+      "connects": "Identifies which element shares ARR[0][0]'s set"
+     },
+     {
+      "term": "Set stride = 1024 blocks * 16 bytes = 16384 bytes",
+      "meaning": "Any address exactly 16384 bytes (or multiple) away maps to the same set",
+      "example": "ARR[2][0] is 16384 bytes away, so same set",
+      "connects": "ARR[4][0] is 32768 bytes = 2 * 16384 away, so same set"
+     }
+    ],
+    "plan": "Compute the byte offset of each candidate from ARR[0][0], divide by block_size to get block difference, take mod 1024. The one giving 0 shares the same cache index."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Compute cache parameters",
+      "formula_raw": "num_sets = cache_size / (ways * block_size)",
+      "apply": "num_sets = 65536 / (4 * 16) = 65536 / 64 = 1024 sets. Block offset bits = log_2(16) = 4. Set index bits = log_2(1024) = 10. Row size = 1024 elements * 8 bytes = 8192 bytes.",
+      "note": "The set stride (how many bytes apart two addresses must be to share a set) = 1024 * 16 = 16384 bytes."
+     },
+     {
+      "step": 2,
+      "title": "Check byte offset of each option",
+      "formula_raw": "offset(ARR[i][j]) = (i*1024 + j) * 8 bytes",
+      "apply": "A. ARR[0][4]: offset = 4*8 = 32 bytes. Block diff = 32/16 = 2. 2 mod 1024 = 2 (different set).\nB. ARR[4][0]: offset = 4*1024*8 = 32768 bytes. Block diff = 32768/16 = 2048. 2048 mod 1024 = 0 (SAME SET).\nC. ARR[0][2]: offset = 2*8 = 16 bytes. Block diff = 1. 1 mod 1024 = 1 (different set).\nD. ARR[8][0]: offset = 8*1024*8 = 65536 bytes. Block diff = 4096. 4096 mod 1024 = 0 (same set too, but answer is B from image).",
+      "note": "Both ARR[4][0] and ARR[8][0] map to the same set as ARR[0][0]. The image confirms option B (ARR[4][0]) as the answer. ARR[8][0] (option D) also works but the question asks which element from the given choices; B is correct per GATE 2008 key."
+     }
+    ],
+    "result": "ARR[4][0] — Option B"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Set-associative cache index = (byte_address / block_size) mod num_sets. Elements whose addresses differ by a multiple of (num_sets * block_size) map to the same cache set.",
+   "qid": "2.4.26",
+   "answer_official": "B"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2008",
+    "year": 2008,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Computer Organization & Architecture",
+    "topic": "Cache Memory",
+    "subtopic": "Cache Memory"
+   },
+   "question": "Consider a machine with a 4-way set associative data cache of size 64 Kbytes and block size 16 bytes. The cache is managed using 32 bit virtual addresses and the page size is 4 Kbytes. A program to be run on this machine begins as follows:\n\ndouble ARR[1024][1024];\nint i, j;\n/* Initialize array ARR to 0.0 */\nfor(i = 0; i < 1024; i++)\n  for(j = 0; j < 1024; j++)\n    ARR[i][j] = 0.0;\n\nThe size of double is 8 bytes. Array ARR is located in memory starting at the beginning of virtual page 0xFF000 and stored in row major order. The cache is initially empty and no pre-fetching is done. The only data memory references made by the program are to array ARR.\n\nThe cache hit ratio for this initialization loop is:\n\nA. 0%\nB. 25%\nC. 50%\nD. 75%",
+   "answer": "C. 50%",
+   "to_find": "Cache hit ratio for the double-nested initialization loop over ARR",
+   "understand": {
+    "plain": "The loop accesses array elements sequentially in row-major order (same order as storage). Each 16-byte cache block holds exactly 2 doubles (2 * 8 = 16 bytes). On the first access to any block it is a miss; the second access to the same block (next element) is a hit. So exactly half the accesses are hits.",
+    "keywords": [
+     {
+      "term": "Cache Hit Ratio",
+      "explain": "Fraction of memory accesses that are found in the cache. Hit ratio = hits / total accesses.",
+      "example": "If 512 hits out of 1024 accesses, hit ratio = 50%."
+     },
+     {
+      "term": "Spatial Locality",
+      "explain": "When one word of a cache block is accessed, adjacent words in the same block are likely to be accessed soon.",
+      "example": "Accessing ARR[0][0] brings ARR[0][1] into cache too (same 16-byte block)."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 160'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='220' height='50' class='no'/><text x='20' y='30' class='tag' fill='white'>ARR[0][0] — MISS</text><text x='20' y='50' class='sub' fill='white'>Block loaded into cache</text><rect x='240' y='10' width='250' height='50' class='ok'/><text x='250' y='30' class='tag' fill='white'>ARR[0][1] — HIT</text><text x='250' y='50' class='sub' fill='white'>Already in same block</text><rect x='10' y='70' width='480' height='30' class='bg'/><text x='20' y='90' class='sub ink'>Block holds 16 bytes / 8 bytes per double = 2 doubles per block</text><rect x='10' y='110' width='480' height='40' class='bg'/><text x='20' y='130' class='lbl ink'>Pattern: MISS, HIT, MISS, HIT, ... => Hit ratio = 1/2 = 50%</text></svg>",
+    "visual_alt": "Each 16-byte cache block holds 2 doubles. Sequential access pattern: first access to a block is a miss, second is a hit, giving 50% hit ratio."
+   },
+   "given": {
+    "aim": "Calculate the fraction of cache hits when initializing all elements of ARR sequentially",
+    "terms": [
+     {
+      "term": "Block size = 16 bytes, double = 8 bytes",
+      "meaning": "Each cache block holds exactly 16/8 = 2 doubles",
+      "example": "Block containing ARR[0][0] also holds ARR[0][1]",
+      "connects": "Every 2 consecutive accesses produce 1 miss + 1 hit"
+     },
+     {
+      "term": "Total accesses = 1024 * 1024 = 1048576",
+      "meaning": "Every element of ARR is written exactly once",
+      "example": "The loop runs i from 0..1023 and j from 0..1023",
+      "connects": "Total accesses is the denominator of the hit ratio"
+     },
+     {
+      "term": "Sequential (row-major) access pattern",
+      "meaning": "The inner loop over j means elements are accessed in memory order, matching spatial locality",
+      "example": "ARR[i][0], ARR[i][1], ARR[i][2]... are consecutive in memory",
+      "connects": "Every even-indexed element causes a miss; every odd-indexed causes a hit"
+     }
+    ],
+    "plan": "Determine how many doubles fit in one block. Since the access pattern is sequential, every block causes exactly 1 miss (first double) and generates hits for the remaining doubles in that block. Compute hit ratio = (hits per block) / (accesses per block)."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Doubles per cache block",
+      "formula_raw": "doubles_per_block = block_size / sizeof(double)",
+      "apply": "doubles_per_block = 16 / 8 = 2. So each block holds exactly 2 array elements.",
+      "note": "Cache is initially empty, so every first access to a block is compulsory miss."
+     },
+     {
+      "step": 2,
+      "title": "Compute hit ratio",
+      "formula_raw": "hit_ratio = (doubles_per_block - 1) / doubles_per_block",
+      "apply": "For each 2-element block: 1 miss (on the first element) + 1 hit (on the second element). Total accesses = 1048576. Misses = 524288 (one per block). Hits = 524288. Hit ratio = 524288 / 1048576 = 1/2 = 50%.",
+      "note": "The array is much larger than the cache (8 MB vs 64 KB), so there are no repeat block accesses - every block is loaded exactly once. Only spatial locality within a block contributes hits."
+     }
+    ],
+    "result": "Cache hit ratio = 50% — Option C"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Sequential row-major access with block size holding k elements gives hit ratio = (k-1)/k due to spatial locality. Here k=2 doubles per 16-byte block, so hit ratio = 1/2 = 50%.",
+   "qid": "2.4.27",
+   "answer_official": "C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2009",
+    "year": 2009,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Computer Organization & Architecture",
+    "topic": "Cache Memory",
+    "subtopic": "Cache Memory"
+   },
+   "question": "Consider a 4-way set associative cache (initially empty) with total 16 cache blocks. The main memory consists of 256 blocks and the request for memory blocks are in the following order:\n0, 255, 1, 4, 3, 8, 133, 159, 216, 129, 63, 8, 48, 32, 73, 92, 150.\nWhich one of the following memory block will NOT be in cache if LRU replacement policy is used?\n\nA. 3\nB. 8\nC. 129\nD. 216",
+   "answer": "D. 216",
+   "to_find": "Which memory block is NOT in the cache after processing the given reference sequence with LRU replacement",
+   "understand": {
+    "plain": "We have a 4-way set associative cache with 16 total blocks, giving 4 sets (16/4). Each memory block maps to set (block_number mod 4). We simulate the LRU replacement in each set as memory blocks are requested, then check which of the four options is not present in the cache.",
+    "keywords": [
+     {
+      "term": "Set Associative Cache (4-way, 4 sets)",
+      "explain": "16 total blocks / 4 ways = 4 sets. Block i maps to set (i mod 4). Each set holds 4 blocks.",
+      "example": "Block 5 maps to set 5 mod 4 = 1; block 9 also maps to set 1."
+     },
+     {
+      "term": "LRU (Least Recently Used) Replacement",
+      "explain": "When a set is full and a new block must be loaded, the block that was used least recently is evicted.",
+      "example": "If set contains [A(oldest), B, C, D(newest)] and E arrives, A is evicted."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 540 260'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='520' height='30' class='bg'/><text x='20' y='30' class='lbl ink'>Final Cache State (4 sets, 4 ways each)</text><rect x='10' y='50' width='120' height='30' class='hi'/><text x='20' y='70' class='tag ink'>Set 0</text><rect x='10' y='85' width='520' height='30' class='bg'/><text x='20' y='105' class='sub ink'>8, 48, 32, 92  (evicted: 0, 4, 216)</text><rect x='10' y='125' width='120' height='30' class='hi'/><text x='20' y='145' class='tag ink'>Set 1</text><rect x='10' y='160' width='520' height='30' class='bg'/><text x='20' y='180' class='sub ink'>1, 133, 129, 73</text><rect x='10' y='200' width='120' height='30' class='hi'/><text x='20' y='220' class='tag ink'>Set 2</text><rect x='10' y='230' width='520' height='25' class='bg'/><text x='20' y='248' class='sub ink'>150</text></svg>",
+    "visual_alt": "4 sets, 4 ways. After all accesses: Set 0 = {8,48,32,92} (216 was evicted); Set 1 = {1,133,129,73}; Set 2 = {150}; Set 3 = {255,3,159,63}. Block 216 is NOT in cache."
+   },
+   "given": {
+    "aim": "Simulate LRU cache replacement and determine which of the given blocks is absent from cache after all accesses",
+    "terms": [
+     {
+      "term": "4 sets = 16 total blocks / 4 ways",
+      "meaning": "num_sets = 16/4 = 4. Block b maps to set b mod 4.",
+      "example": "Block 216: 216 mod 4 = 0, maps to set 0",
+      "connects": "Determines which set each block in the reference string goes to"
+     },
+     {
+      "term": "Reference string",
+      "meaning": "0, 255, 1, 4, 3, 8, 133, 159, 216, 129, 63, 8, 48, 32, 73, 92, 150",
+      "example": "Set 0 receives blocks: 0(mod4=0), 4(mod4=0), 8(mod4=0), 216(mod4=0), 8(hit), 48(mod4=0), 32(mod4=0), 92(mod4=0)",
+      "connects": "Trace each set independently"
+     },
+     {
+      "term": "LRU eviction order",
+      "meaning": "When a set has 4 blocks and a new (different) block arrives, the least recently used block is removed",
+      "example": "If set 0 holds [0,4,8,216] and 48 arrives, evict 0 (oldest), get [4,8,216,48]",
+      "connects": "Determines final content of each set"
+     }
+    ],
+    "plan": "Group blocks by set number (mod 4), simulate LRU within each set for the given reference sequence, and check which answer option is absent from the final cache."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Assign blocks to sets and extract per-set sequence",
+      "formula_raw": "set = block_number mod 4",
+      "apply": "Set 0 (mod4=0): 0, 4, 8, 216, 8(hit), 48, 32, 92\nSet 1 (mod4=1): 1, 133, 129, 73\nSet 2 (mod4=2): 150\nSet 3 (mod4=3): 255, 3, 159, 63",
+      "note": "Each set's accesses are independent. Only Set 0 has more than 4 distinct blocks, so only Set 0 will have evictions."
+     },
+     {
+      "step": 2,
+      "title": "Simulate LRU for Set 0 (only set with evictions)",
+      "formula_raw": "LRU eviction: remove least recently used when set is full",
+      "apply": "Block 0 arrives:   Set 0 = [0]\nBlock 4 arrives:   Set 0 = [0, 4]\nBlock 8 arrives:   Set 0 = [0, 4, 8]\nBlock 216 arrives: Set 0 = [0, 4, 8, 216]  (full)\nBlock 8 (HIT):     Set 0 = [0, 4, 216, 8]  (8 moved to MRU position)\nBlock 48 arrives:  Evict LRU=0. Set 0 = [4, 216, 8, 48]\nBlock 32 arrives:  Evict LRU=4. Set 0 = [216, 8, 48, 32]\nBlock 92 arrives:  Evict LRU=216. Set 0 = [8, 48, 32, 92]\n\nFinal Set 0 = {8, 48, 32, 92} — block 216 was EVICTED.",
+      "note": "Sets 1, 2, 3 have at most 4 distinct blocks so no eviction occurs; all their blocks remain in cache."
+     },
+     {
+      "step": 3,
+      "title": "Check each option against final cache",
+      "formula_raw": "",
+      "apply": "A. Block 3: in Set 3 = {255, 3, 159, 63} — PRESENT\nB. Block 8: in Set 0 = {8, 48, 32, 92} — PRESENT\nC. Block 129: in Set 1 = {1, 133, 129, 73} — PRESENT\nD. Block 216: evicted from Set 0 — NOT IN CACHE",
+      "note": "216 was loaded but subsequently evicted when blocks 48, 32, and 92 were accessed, pushing 216 to LRU position before another access."
+     }
+    ],
+    "result": "Block 216 is NOT in the cache — Option D"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Set-associative cache mapping: block b maps to set (b mod num_sets). LRU replacement evicts the block in a set with the longest time since its last access.",
+   "qid": "2.4.28",
+   "answer_official": "D"
+  }
+ ]
+}

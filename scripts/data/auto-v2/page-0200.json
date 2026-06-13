@@ -1,0 +1,441 @@
+{
+ "page": 200,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2006",
+    "year": 2006,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "Parsing",
+    "subtopic": "Parsing"
+   },
+   "question": "Consider the following grammar:\nS -> FR\nF -> i\nR -> +S | epsilon\n\nIn the predictive parser table M of the grammar, the entries M[S, id] and M[R, +] respectively are\n\nA. {S -> FR} and {R -> +S}\nB. {S -> FR} and {R -> epsilon}\nC. {S -> FR} and {R -> +S}\nD. {R -> id} and {R -> +i}",
+   "answer": "A. {S -> FR} and {R -> +S}",
+   "to_find": "The entries M[S, id] and M[R, +] in the predictive (LL(1)) parse table",
+   "understand": {
+    "plain": "We have a simple expression grammar where S expands to FR, F is an identifier (i/id), and R handles the optional '+S' part. We must fill in the LL(1) predictive parse table by computing FIRST and FOLLOW sets and placing each production in the correct table cell.",
+    "keywords": [
+     {
+      "term": "Predictive parse table (LL(1) table)",
+      "explain": "A 2D table M[A, a] where A is a non-terminal and a is a terminal or $. The entry tells which production to use when A is on the stack and a is the current input token.",
+      "example": "M[S, id] = S -> FR means: when S is on the stack and current token is 'id', expand using S -> FR."
+     },
+     {
+      "term": "FIRST and FOLLOW sets",
+      "explain": "FIRST(alpha) is the set of terminals that can begin strings derived from alpha. FOLLOW(A) is the set of terminals that can appear immediately after A in a sentential form. They drive which cells get which productions.",
+      "example": "FIRST(FR) = FIRST(F) = {i}. FOLLOW(R) = FOLLOW(S) = {+, $}."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "A predictive parse table with non-terminals S, F, R as rows and terminals i(id), +, $ as columns. M[S,id]={S->FR}, M[F,id]={F->i}, M[R,+]={R->+S}, M[R,$]={R->epsilon}."
+   },
+   "given": {
+    "aim": "Find M[S, id] and M[R, +] in the LL(1) parse table for the given grammar.",
+    "terms": [
+     {
+      "term": "S -> FR",
+      "meaning": "S derives F followed by R",
+      "example": "Input 'i + i' is parsed as F=i, R=+S=+i",
+      "connects": "FIRST(FR) = FIRST(F) = {i/id}, so M[S, id] = S -> FR"
+     },
+     {
+      "term": "R -> +S | epsilon",
+      "meaning": "R either consumes '+S' or derives the empty string",
+      "example": "After parsing 'i', if next token is '+', use R -> +S; if '$', use R -> epsilon",
+      "connects": "FIRST(+S) = {+}, so M[R, +] = R -> +S"
+     },
+     {
+      "term": "FOLLOW(R)",
+      "meaning": "Set of terminals that can follow R in any sentential form",
+      "example": "S -> FR, so FOLLOW(R) = FOLLOW(S) = {$} => M[R, $] = R -> epsilon",
+      "connects": "For R -> epsilon, we add it to M[R, a] for each a in FOLLOW(R)"
+     }
+    ],
+    "plan": "Compute FIRST of each production's right-hand side. For each production A -> alpha, put it in M[A, a] for every terminal a in FIRST(alpha). If epsilon is in FIRST(alpha), also put A -> alpha in M[A, b] for every b in FOLLOW(A)."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Compute FIRST sets",
+      "formula_raw": "FIRST(FR) = FIRST(F) = {i}; FIRST(+S) = {+}; FIRST(epsilon) = {epsilon}",
+      "apply": "FIRST(F) = {i} (only production F -> i). FIRST(R) = {+, epsilon} (from R -> +S and R -> epsilon). FIRST(S) = FIRST(FR) = FIRST(F) = {i}.",
+      "note": "Here 'i' stands for identifier/id terminal."
+     },
+     {
+      "step": 2,
+      "title": "Compute FOLLOW sets",
+      "formula_raw": "FOLLOW(S) = {$}; FOLLOW(R) = FOLLOW(S) = {$}",
+      "apply": "S is the start symbol so $ is in FOLLOW(S). R appears only at the end of S -> FR, so FOLLOW(R) = FOLLOW(S) = {$}. In R -> +S, S is at the end, so FOLLOW(S) also includes FOLLOW(R) = {$} (consistent).",
+      "note": "FOLLOW(F) = FIRST(R) - {epsilon} union FOLLOW(S) if epsilon in FIRST(R) = {+, $}."
+     },
+     {
+      "step": 3,
+      "title": "Fill the parse table entries",
+      "formula_raw": "M[A, a] = A -> alpha if a in FIRST(alpha), or if epsilon in FIRST(alpha) and a in FOLLOW(A)",
+      "apply": "M[S, id]: FIRST(FR) = {i/id} => M[S, id] = {S -> FR}.\nM[R, +]: FIRST(+S) = {+} => M[R, +] = {R -> +S}.\nM[R, $]: epsilon in FIRST(epsilon) and $ in FOLLOW(R) => M[R, $] = {R -> epsilon}.",
+      "note": "M[S, id] = {S -> FR} and M[R, +] = {R -> +S} matches option A."
+     }
+    ],
+    "result": "M[S, id] = {S -> FR} and M[R, +] = {R -> +S}, which is option A."
+   },
+   "formula_ids_used": [],
+   "formula_note": "LL(1) parse table construction using FIRST and FOLLOW sets: place production A -> alpha in M[A,a] for each a in FIRST(alpha), and in M[A,b] for each b in FOLLOW(A) if epsilon derives from alpha.",
+   "qid": "3.17.15",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2007",
+    "year": 2007,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "Parsing",
+    "subtopic": "Parsing"
+   },
+   "question": "Which one of the following is a top-down parser?\n\nA. Recursive descent parser.\nB. Operator precedence parser.\nC. An LR(k) parser.\nD. An LALR(k) parser.",
+   "answer": "A. Recursive descent parser.",
+   "to_find": "Which of the given parsers is a top-down parser",
+   "understand": {
+    "plain": "Parsing approaches are broadly divided into top-down (start from the root/start symbol and expand towards leaves) and bottom-up (start from leaves/input tokens and reduce towards the root). We need to identify which of the four options belongs to the top-down category.",
+    "keywords": [
+     {
+      "term": "Top-down parser",
+      "explain": "A parser that builds the parse tree from the root (start symbol) downward. It tries to match the input by predicting which production to apply.",
+      "example": "Recursive descent parser: starts with the start symbol function and calls sub-functions for each non-terminal."
+     },
+     {
+      "term": "Bottom-up parser",
+      "explain": "A parser that builds the parse tree from the leaves (input tokens) upward by reducing handles to non-terminals until it reaches the start symbol.",
+      "example": "LR parsers (LR(k), LALR, SLR) shift tokens onto a stack and reduce when a handle is found."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Diagram showing top-down parsing growing a tree downward from root S, versus bottom-up parsing growing a tree upward from input tokens."
+   },
+   "given": {
+    "aim": "Classify each parser as top-down or bottom-up and identify the top-down one.",
+    "terms": [
+     {
+      "term": "Recursive descent parser",
+      "meaning": "A top-down parser implemented as a set of mutually recursive procedures, one per non-terminal",
+      "example": "A grammar rule S -> aB becomes a function parseS() that matches 'a' and calls parseB()",
+      "connects": "It expands from the start symbol downward, making it a top-down parser"
+     },
+     {
+      "term": "Operator precedence parser",
+      "meaning": "A bottom-up parser that uses precedence relations between operators to decide shift or reduce",
+      "example": "When '+' and '*' are on the stack, precedence of '*' > '+' drives reduction decisions",
+      "connects": "It reduces input bottom-up, not top-down"
+     },
+     {
+      "term": "LR(k) and LALR(k) parsers",
+      "meaning": "Shift-reduce (bottom-up) parsers that use k lookahead tokens and a DFA of LR items",
+      "example": "LR(1) parser uses one lookahead token to decide between shift and reduce actions",
+      "connects": "Both are bottom-up parsers building the parse tree from input tokens upward"
+     }
+    ],
+    "plan": "Recall the classification: Recursive descent and LL parsers are top-down; LR, LALR, SLR, and operator-precedence parsers are bottom-up."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Classify each option",
+      "formula_raw": "",
+      "apply": "A. Recursive descent parser: TOP-DOWN (expands from start symbol, uses function calls).\nB. Operator precedence parser: BOTTOM-UP (uses operator precedence relations for shift-reduce decisions).\nC. LR(k) parser: BOTTOM-UP (canonical shift-reduce parser).\nD. LALR(k) parser: BOTTOM-UP (lookahead LR, a compressed LR(1)).",
+      "note": "LL parsers (including recursive descent) are top-down. LR family and operator-precedence are bottom-up."
+     },
+     {
+      "step": 2,
+      "title": "Select the top-down parser",
+      "formula_raw": "",
+      "apply": "Only option A (recursive descent parser) is a top-down parser. It starts with a call to the start symbol procedure and matches input left-to-right, expanding productions top-down.",
+      "note": "Recursive descent may require backtracking unless it is a predictive (LL(1)) recursive descent parser."
+     }
+    ],
+    "result": "Option A: Recursive descent parser is the top-down parser."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Classification of parsers: LL/recursive-descent = top-down; LR/LALR/SLR/operator-precedence = bottom-up.",
+   "qid": "3.17.16",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2008",
+    "year": 2008,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "Parsing",
+    "subtopic": "Parsing"
+   },
+   "question": "Which of the following describes a handle (as applicable to LR-parsing) appropriately?\n\nA. It is the position in a sentential form where the next shift or reduce operation will occur.\nB. It is a non-terminal whose production will be used for reduction in the next step.\nC. It is a production that may be used for reduction in the next step along with a position in the sentential form where the right-hand side of the production may be found.\nD. It is the right-hand side of a production that will be used for reduction in the next step along with a position in the sentential form where the right-hand side can be found.",
+   "answer": "D. It is the right-hand side of a production that will be used for reduction in the next step along with a position in the sentential form where the right-hand side can be found.",
+   "to_find": "The correct definition of a 'handle' in the context of LR-parsing",
+   "understand": {
+    "plain": "In LR (bottom-up) parsing, a 'handle' is the substring of the current sentential form that matches the right-hand side of a production and can be reduced in the next step. The definition must include both the production's RHS string and its position in the sentential form.",
+    "keywords": [
+     {
+      "term": "Handle",
+      "explain": "A handle of a right-sentential form is a pair (A -> beta, k) where A -> beta is a production and k is the position of the rightmost symbol of beta in the sentential form, such that reducing beta to A gives the previous right-sentential form.",
+      "example": "In sentential form 'aAbBc', if 'bB' matches the RHS of some production P -> bB, and it occurs at position 4, then (P -> bB, 4) is a handle."
+     },
+     {
+      "term": "Right-sentential form",
+      "explain": "A sentential form derived using rightmost derivation; LR parsing traces these right-sentential forms in reverse.",
+      "example": "If S =>* aAbBc by rightmost derivation, then aAbBc is a right-sentential form."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Stack content showing a right-sentential form with the handle (the matching RHS substring) highlighted at a specific position, ready to be reduced."
+   },
+   "given": {
+    "aim": "Identify the precise definition of a handle used in LR bottom-up parsing.",
+    "terms": [
+     {
+      "term": "LR parsing",
+      "meaning": "A shift-reduce bottom-up parsing technique that uses a DFA of LR items and a parse table",
+      "example": "The parser shifts tokens onto a stack until a handle is found, then reduces",
+      "connects": "Handle recognition is the core mechanism driving LR parsing reductions"
+     },
+     {
+      "term": "Reduction",
+      "meaning": "Replacing the RHS of a production on the top of the stack with the corresponding LHS non-terminal",
+      "example": "If A -> XYZ is a production and XYZ is on the stack top, pop XYZ and push A",
+      "connects": "A handle tells us exactly which production's RHS to pop and where it sits in the sentential form"
+     },
+     {
+      "term": "Position in sentential form",
+      "meaning": "The specific location in the current sentential form where the handle (RHS string) ends",
+      "example": "Handle (E -> T+E, 5) means the RHS 'T+E' ends at position 5 in the sentential form",
+      "connects": "Without the position, we cannot uniquely identify which occurrence of the RHS to reduce"
+     }
+    ],
+    "plan": "Analyze each option against the formal definition: a handle is (production, position-of-RHS-in-sentential-form), where reduction here means popping the RHS and pushing the LHS."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Review the formal definition of a handle",
+      "formula_raw": "Handle = (A -> beta, k): A -> beta is a production; beta ends at position k in the right-sentential form",
+      "apply": "A handle specifies (1) the production to use for reduction (i.e., its RHS beta), and (2) the position in the current sentential form where beta appears. Reducing means replacing beta at that position with A.",
+      "note": "The handle includes the RHS (not just the production name or the non-terminal) and its position."
+     },
+     {
+      "step": 2,
+      "title": "Eliminate incorrect options",
+      "formula_raw": "",
+      "apply": "A: Describes only a position, not the production — incomplete.\nB: Mentions only the non-terminal, not the RHS string or position — incomplete.\nC: Says 'a production' (LHS -> RHS pair) plus position — closer, but the definition specifically refers to the RHS (right-hand side string) that is matched and reduced, not the full production rule as a unit.\nD: States 'the right-hand side of a production' + 'position in the sentential form' — this precisely matches the formal definition.",
+      "note": "Option D correctly identifies that what is physically present in the sentential form and gets popped is the RHS (beta), and we also need to know where it sits."
+     }
+    ],
+    "result": "Option D correctly defines a handle: it is the right-hand side of a production along with a position in the sentential form where that RHS can be found."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Handle definition in LR parsing: a handle (A -> beta, k) is the RHS beta of a production together with the position k in the right-sentential form where beta ends, indicating the next reduction.",
+   "qid": "3.17.17",
+   "answer_official": "D"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2009",
+    "year": 2009,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "Parsing",
+    "subtopic": "Parsing"
+   },
+   "question": "Which of the following statements are TRUE?\n\nI. There exist parsing algorithms for some programming languages whose complexities are less than O(n^3).\nII. A programming language which allows recursion can be implemented with static storage allocation.\nIII. No L-attributed definition can be evaluated in the framework of bottom-up parsing.\nIV. Code improving transformations can be performed at both source language and intermediate code level.\n\nA. I and II\nB. I and IV\nC. III and IV\nD. I, III and IV",
+   "answer": "B. I and IV",
+   "to_find": "Which of the four statements about compilers/parsing are TRUE",
+   "understand": {
+    "plain": "This question tests several distinct compiler theory facts: parsing complexity, recursion and storage allocation, L-attributed grammars in bottom-up parsing, and code optimization levels. We evaluate each statement for truth or falsehood.",
+    "keywords": [
+     {
+      "term": "L-attributed definition",
+      "explain": "An attribute grammar where each attribute of a symbol can depend only on attributes of symbols to its left in the production, or inherited attributes of the non-terminal itself. L-attributed SDDs can be evaluated in a single left-to-right pass.",
+      "example": "In S -> A B, A can inherit attributes from S, but B cannot inherit from A in an S-attributed grammar; in L-attributed, B can depend on A's synthesized attributes."
+     },
+     {
+      "term": "Static storage allocation",
+      "explain": "Memory for all variables is allocated at compile time and remains fixed throughout execution. This does not support recursion because each recursive call needs its own stack frame.",
+      "example": "FORTRAN (early versions) used static allocation; it did not support recursion."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Four statements about compiler theory evaluated for truth: I (parsing complexity) TRUE, II (recursion with static allocation) FALSE, III (L-attributed in bottom-up) FALSE, IV (code optimization at multiple levels) TRUE."
+   },
+   "given": {
+    "aim": "Determine which of the four compiler theory statements are TRUE.",
+    "terms": [
+     {
+      "term": "Statement I: Parsing complexity < O(n^3)",
+      "meaning": "General CFG parsing is O(n^3) (CYK/Earley), but for restricted grammars like LL(1) or LR(1) it is O(n)",
+      "example": "LL(1) parsers and LR parsers run in O(n) time on their respective grammar classes",
+      "connects": "Statement I is TRUE — LL(1), SLR, LALR parsers all run in O(n)"
+     },
+     {
+      "term": "Statement II: Recursion with static allocation",
+      "meaning": "Recursion requires a new activation record (stack frame) for each call; static allocation provides only one fixed memory area per procedure",
+      "example": "If factorial is called recursively, each call needs its own 'n' — impossible with static allocation",
+      "connects": "Statement II is FALSE — recursion requires dynamic (stack) allocation"
+     },
+     {
+      "term": "Statement III: L-attributed cannot be evaluated bottom-up",
+      "meaning": "L-attributed definitions CAN be evaluated in a modified bottom-up framework using extra mechanisms",
+      "example": "Syntax-directed translation with L-attributed definitions can be incorporated into LR parsing with appropriate stack annotations",
+      "connects": "Statement III is FALSE — L-attributed SDDs can be evaluated bottom-up"
+     },
+     {
+      "term": "Statement IV: Code optimization at source and intermediate level",
+      "meaning": "Transformations like inlining, constant folding, loop optimization can be done at source level (AST) or at intermediate representation (IR/three-address code) level",
+      "example": "Constant folding can be done on the AST; loop invariant code motion is done on IR",
+      "connects": "Statement IV is TRUE"
+     }
+    ],
+    "plan": "Evaluate each statement using standard compiler theory knowledge. TRUE statements: I (O(n) parsers exist for LL/LR grammars) and IV (code optimization at multiple levels). FALSE: II (recursion needs dynamic allocation) and III (L-attributed can be evaluated bottom-up)."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Evaluate Statement I",
+      "formula_raw": "LL(1) and LR(k) parsing: O(n) time",
+      "apply": "General CFG parsing (CYK, Earley) is O(n^3), but deterministic parsers like LL(1) and LR(1)/LALR(1) run in O(n). So parsing algorithms exist that are better than O(n^3). Statement I is TRUE.",
+      "note": "The statement says 'for some programming languages', and indeed most programming languages have LL or LR grammars parseable in O(n)."
+     },
+     {
+      "step": 2,
+      "title": "Evaluate Statement II",
+      "formula_raw": "",
+      "apply": "Recursion requires a separate activation record for each invocation to hold local variables and return address. Static storage allocation allocates exactly one fixed memory block per procedure — it cannot accommodate multiple simultaneous activations. Statement II is FALSE.",
+      "note": "FORTRAN 66 used static allocation and explicitly forbade recursion for this reason."
+     },
+     {
+      "step": 3,
+      "title": "Evaluate Statement III",
+      "formula_raw": "",
+      "apply": "L-attributed definitions can be evaluated in a single left-to-right pass, which can be simulated during bottom-up (LR) parsing with appropriate mechanisms (e.g., copying inherited attributes onto the stack, using marker non-terminals). Statement III is FALSE — L-attributed SDDs CAN be evaluated in a bottom-up framework.",
+      "note": "Aho, Lam, Sethi, Ullman (Dragon Book) explicitly discusses embedding L-attributed SDDs into LR parsers."
+     },
+     {
+      "step": 4,
+      "title": "Evaluate Statement IV",
+      "formula_raw": "",
+      "apply": "Code improving transformations (optimizations) such as constant folding, dead code elimination, and loop optimizations can be performed at both the source language level (on the AST or source text) and at the intermediate code level (on TAC, SSA, etc.). Statement IV is TRUE.",
+      "note": "This is standard practice; many compilers perform multiple optimization passes at different levels."
+     }
+    ],
+    "result": "Statements I and IV are TRUE. The correct answer is option B: I and IV."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Key facts: LL(1)/LR(1) parsing runs in O(n); recursion requires dynamic/stack allocation not static; L-attributed SDDs can be evaluated bottom-up; code optimization applies at multiple abstraction levels.",
+   "qid": "3.17.18",
+   "answer_official": "B"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2011",
+    "year": 2011,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "Parsing",
+    "subtopic": "Parsing"
+   },
+   "question": "Consider two binary operators '|' and '#' with the precedence of operator '#' being lower than that of the operator '|'. Operator '|' is right associative while operator '#' is left associative. Which one of the following represents the parse tree for expression 7 | 3 # 4 | 2?\n\nA. A tree where '#' is the root, with left subtree '7 | 3' and right subtree '4 | 2', and '|' right-associative within each subtree.\nB. A tree where '#' is the root, with left child '7' and right subtree '3 # (4 | 2)'.\nC. A tree where '|' is the root (higher precedence), with '#' deeper.\nD. A tree where '#' is the root, with left subtree '(7 | 3) # 4' and right child '| 2'.",
+   "answer": "A. A tree where '#' is the root, with left subtree '7 | 3' and right subtree '4 | 2', and '|' right-associative within each subtree.",
+   "to_find": "The parse tree for expression 7 | 3 # 4 | 2 given the operator precedence and associativity rules",
+   "understand": {
+    "plain": "We have two operators: '|' with higher precedence (binds tighter) and '#' with lower precedence. '|' is right-associative and '#' is left-associative. We need to parse '7 | 3 # 4 | 2' according to these rules. Higher precedence operators are applied first (appear lower/deeper in the parse tree), and associativity determines grouping when the same operator appears in sequence.",
+    "keywords": [
+     {
+      "term": "Operator precedence",
+      "explain": "Determines which operator binds its operands first (more tightly). Higher-precedence operators appear deeper in the parse tree (closer to the leaves).",
+      "example": "In '2 + 3 * 4', * has higher precedence than +, so the tree has + at the root and * as a subtree: 2 + (3 * 4)."
+     },
+     {
+      "term": "Associativity",
+      "explain": "When the same (or same-precedence) operator appears multiple times, associativity decides how to group: left-associative groups left-to-right; right-associative groups right-to-left.",
+      "example": "Left: a # b # c = (a # b) # c. Right: a | b | c = a | (b | c)."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 420 280' width='420' height='280'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='0' y='0' width='420' height='280' rx='10' class='bg'/><rect x='185' y='20' width='50' height='32' rx='6' class='hi'/><text x='210' y='42' text-anchor='middle' class='ink lbl'>#</text><line x1='210' y1='52' x2='110' y2='100' stroke='#7F77DD' stroke-width='2'/><line x1='210' y1='52' x2='310' y2='100' stroke='#7F77DD' stroke-width='2'/><rect x='85' y='100' width='50' height='32' rx='6' class='bg' style='stroke:#B4B2A9;'/><text x='110' y='122' text-anchor='middle' class='ink lbl'>|</text><rect x='285' y='100' width='50' height='32' rx='6' class='bg' style='stroke:#B4B2A9;'/><text x='310' y='122' text-anchor='middle' class='ink lbl'>|</text><line x1='110' y1='132' x2='70' y2='180' stroke='#B4B2A9' stroke-width='2'/><line x1='110' y1='132' x2='150' y2='180' stroke='#B4B2A9' stroke-width='2'/><line x1='310' y1='132' x2='270' y2='180' stroke='#B4B2A9' stroke-width='2'/><line x1='310' y1='132' x2='350' y2='180' stroke='#B4B2A9' stroke-width='2'/><rect x='45' y='180' width='50' height='32' rx='6' class='bg'/><text x='70' y='202' text-anchor='middle' class='ink lbl'>7</text><rect x='125' y='180' width='50' height='32' rx='6' class='bg'/><text x='150' y='202' text-anchor='middle' class='ink lbl'>3</text><rect x='245' y='180' width='50' height='32' rx='6' class='bg'/><text x='270' y='202' text-anchor='middle' class='ink lbl'>4</text><rect x='325' y='180' width='50' height='32' rx='6' class='bg'/><text x='350' y='202' text-anchor='middle' class='ink lbl'>2</text><text x='210' y='265' text-anchor='middle' class='mut sub'>Parse tree for 7 | 3 # 4 | 2</text></svg>",
+    "visual_alt": "Parse tree with '#' at root (lower precedence, left-associative). Left subtree: '|' node with children 7 and 3 (right-associative). Right subtree: '|' node with children 4 and 2 (right-associative). This reflects '#' having lower precedence than '|'."
+   },
+   "given": {
+    "aim": "Build the parse tree for '7 | 3 # 4 | 2' using: '#' has lower precedence than '|'; '|' is right-associative; '#' is left-associative.",
+    "terms": [
+     {
+      "term": "Precedence: '#' < '|'",
+      "meaning": "Operator '|' binds more tightly than '#', so '|' operations are performed first",
+      "example": "In 'a | b # c | d', the '|' groups first: '(a | b) # (c | d)'",
+      "connects": "This means '#' will appear higher (at or near the root) in the parse tree, with '|' subtrees as its children"
+     },
+     {
+      "term": "Right associativity of '|'",
+      "meaning": "When '|' appears multiple times, group right-to-left: a | b | c = a | (b | c)",
+      "example": "7 | 3 means 7 | 3 (only one '|' in left part, so no ambiguity there)",
+      "connects": "For the '|' subexpressions, right-associativity determines the internal tree structure"
+     },
+     {
+      "term": "Left associativity of '#'",
+      "meaning": "When '#' appears multiple times, group left-to-right: a # b # c = (a # b) # c",
+      "example": "Only one '#' here, so left-associativity doesn't change the grouping in this expression",
+      "connects": "The '#' node becomes the root since it has lower precedence"
+     }
+    ],
+    "plan": "Step 1: Since '#' has lower precedence, it is the main operator splitting the expression: (7 | 3) # (4 | 2). Step 2: Within each half, apply '|' with right-associativity (trivial since each half has only one '|'). Step 3: Draw the parse tree accordingly."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Identify the main operator",
+      "formula_raw": "Lower precedence operator is the root of the parse tree",
+      "apply": "The expression is: 7 | 3 # 4 | 2. Operators present: '|' at positions 2 and 5, '#' at position 4. Since '#' has lower precedence, it is the last to be applied, making it the root of the parse tree. The expression splits as: (7 | 3) # (4 | 2).",
+      "note": "Lower precedence = applied last = higher in the parse tree (closer to root)."
+     },
+     {
+      "step": 2,
+      "title": "Resolve left subtree: 7 | 3",
+      "formula_raw": "Right-associativity: a | b | c = a | (b | c)",
+      "apply": "Left subtree of '#' is '7 | 3'. This is a single '|' with operands 7 and 3. The '|' node has left child 7 and right child 3. Right-associativity applies when chaining but is trivial here with one operator.",
+      "note": "If we had 7 | 3 | 5, right-assoc gives 7 | (3 | 5), but here it's just 7 | 3."
+     },
+     {
+      "step": 3,
+      "title": "Resolve right subtree: 4 | 2",
+      "formula_raw": "",
+      "apply": "Right subtree of '#' is '4 | 2'. The '|' node has left child 4 and right child 2.",
+      "note": "Both '|' subtrees are simple with one operator, so associativity of '|' doesn't change the structure here."
+     },
+     {
+      "step": 4,
+      "title": "Assemble the parse tree",
+      "formula_raw": "",
+      "apply": "Root: '#'\nLeft child of '#': '|' node with children 7 (left) and 3 (right)\nRight child of '#': '|' node with children 4 (left) and 2 (right)\n\nThis corresponds to option A: '#' is the root, left subtree is '7 | 3', right subtree is '4 | 2'.",
+      "note": "This parse tree represents the expression evaluated as (7 | 3) # (4 | 2)."
+     }
+    ],
+    "result": "The parse tree has '#' at the root, with left subtree being the '|' node for (7 | 3) and right subtree being the '|' node for (4 | 2). This is option A."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Operator precedence and associativity in parse trees: lower-precedence operator becomes the root; higher-precedence operators form subtrees. Right-associativity groups a op b op c as a op (b op c); left-associativity groups as (a op b) op c.",
+   "qid": "3.17.19",
+   "answer_official": "B"
+  }
+ ]
+}

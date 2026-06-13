@@ -1,0 +1,211 @@
+{
+ "page": 521,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2008",
+    "year": 2008,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Virtual Memory",
+    "subtopic": "Virtual Memory"
+   },
+   "question": "A paging scheme uses a Translation Look-aside Buffer (TLB). A TLB-access takes 10 ns and the main memory access takes 50 ns. What is the effective access time (in ns) if the TLB hit ratio is 90% and there is no page-fault?\nA. 54\nB. 60\nC. 65\nD. 75",
+   "answer": "C. 65",
+   "to_find": "Effective memory access time (EAT) in ns with TLB hit ratio 90%",
+   "understand": {
+    "plain": "A Translation Look-aside Buffer (TLB) is a small hardware cache that stores recent virtual-to-physical address mappings. When you access memory, the CPU first checks the TLB. If the mapping is found (TLB hit), you only need one main memory access to get the data. If not found (TLB miss), you need two main memory accesses — one to look up the page table and one to fetch the data. We compute a weighted average based on hit rate.",
+    "keywords": [
+     {
+      "term": "TLB (Translation Look-aside Buffer)",
+      "explain": "A fast associative cache that maps virtual page numbers to physical frame numbers, avoiding a full page table lookup in main memory.",
+      "example": "If VA 0x1000 was recently accessed, its physical frame is cached in TLB so the next access skips the page table."
+     },
+     {
+      "term": "TLB hit ratio",
+      "explain": "The fraction of memory accesses where the required mapping is found in the TLB.",
+      "example": "90% hit ratio means 9 out of 10 accesses find the page mapping in TLB."
+     },
+     {
+      "term": "Effective Access Time (EAT)",
+      "explain": "The weighted average time to complete a memory access, combining TLB hit and miss cases.",
+      "example": "EAT = (hit_ratio * hit_time) + (miss_ratio * miss_time)"
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 540 220' width='540' height='220'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='520' height='200' rx='10' class='bg'/><rect x='30' y='50' width='100' height='40' rx='6' class='hi'/><text x='80' y='75' text-anchor='middle' class='lbl ink'>CPU</text><line x1='130' y1='70' x2='190' y2='70' stroke='#7F77DD' stroke-width='2' marker-end='url(#arr)'/><rect x='190' y='50' width='80' height='40' rx='6' class='hi'/><text x='230' y='75' text-anchor='middle' class='lbl ink'>TLB</text><line x1='270' y1='60' x2='340' y2='40' stroke='#1D9E75' stroke-width='2'/><rect x='340' y='20' width='170' height='40' rx='6' fill='#d4f5e8' stroke='#1D9E75' stroke-width='2'/><text x='425' y='37' text-anchor='middle' class='tag ink'>HIT 90%: 10+50=60 ns</text><line x1='270' y1='80' x2='340' y2='100' stroke='#D85A30' stroke-width='2'/><rect x='340' y='80' width='170' height='40' rx='6' fill='#fde8e1' stroke='#D85A30' stroke-width='2'/><text x='425' y='97' text-anchor='middle' class='tag ink'>MISS 10%: 10+50+50=110 ns</text><text x='270' y='170' text-anchor='middle' class='lbl ink'>EAT = 0.9 x 60 + 0.1 x 110 = 65 ns</text><defs><marker id='arr' markerWidth='8' markerHeight='8' refX='6' refY='3' orient='auto'><path d='M0,0 L0,6 L8,3 z' fill='#7F77DD'/></marker></defs></svg>",
+    "visual_alt": "Memory access flow: CPU checks TLB (10 ns). On TLB hit (90%), one main memory access (50 ns) gives data total = 60 ns. On TLB miss (10%), one page table access (50 ns) plus one data access (50 ns) plus TLB lookup = 110 ns. EAT = 0.9*60 + 0.1*110 = 54+11 = 65 ns."
+   },
+   "given": {
+    "aim": "Compute the Effective Access Time (EAT) for a paged memory system with TLB.",
+    "terms": [
+     {
+      "term": "t_TLB = 10 ns",
+      "meaning": "Time to access the TLB for address translation.",
+      "example": "The CPU spends 10 ns checking the TLB for every memory reference.",
+      "connects": "This time is always incurred before any memory access."
+     },
+     {
+      "term": "t_mem = 50 ns",
+      "meaning": "Time for one main memory access.",
+      "example": "Fetching a word from RAM takes 50 ns.",
+      "connects": "On a TLB hit, 1 memory access is needed; on a miss, 2 memory accesses are needed."
+     },
+     {
+      "term": "h = 0.90 (TLB hit ratio)",
+      "meaning": "Probability that the required page mapping is found in the TLB.",
+      "example": "9 out of 10 virtual address translations are resolved by the TLB.",
+      "connects": "Determines the weight assigned to hit-time and miss-time in EAT formula."
+     },
+     {
+      "term": "No page fault",
+      "meaning": "The required page is always in physical memory, so no disk access occurs.",
+      "example": "Every page access results in either a TLB hit or a page table lookup in RAM only.",
+      "connects": "Simplifies EAT calculation to two cases: TLB hit and TLB miss (both in RAM)."
+     }
+    ],
+    "plan": "EAT = h * (TLB access + 1 memory access) + (1-h) * (TLB access + 2 memory accesses). Substitute h=0.9, t_TLB=10, t_mem=50 and compute."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Identify access times for TLB hit and TLB miss",
+      "formula_raw": "Hit time = t_TLB + t_mem; Miss time = t_TLB + 2 * t_mem",
+      "apply": "TLB hit: CPU checks TLB (10 ns) then accesses data in memory once (50 ns). Hit time = 10 + 50 = 60 ns.\nTLB miss: CPU checks TLB (10 ns), then fetches page table from memory (50 ns), then accesses data in memory (50 ns). Miss time = 10 + 50 + 50 = 110 ns.",
+      "note": "The TLB access time (10 ns) is always paid regardless of hit or miss."
+     },
+     {
+      "step": 2,
+      "title": "Apply Effective Access Time formula",
+      "formula_raw": "EAT = h * (hit_time) + (1-h) * (miss_time)",
+      "apply": "EAT = 0.90 * 60 + 0.10 * 110\nEAT = 54 + 11\nEAT = 65 ns",
+      "note": "The correct computation gives 65 ns (option C). EAT = h*(t_TLB + t_mem) + (1-h)*(t_TLB + 2*t_mem) = 0.9*60 + 0.1*110 = 65."
+     }
+    ],
+    "result": "Effective Access Time = 65 ns. Answer: C. 65"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Effective Access Time with TLB: EAT = h*(t_TLB + t_mem) + (1-h)*(t_TLB + 2*t_mem), where h is TLB hit ratio, t_TLB is TLB access time, and t_mem is main memory access time (no page fault).",
+   "qid": "7.27.42",
+   "answer_official": "C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2008",
+    "year": 2008,
+    "marks": 2,
+    "difficulty": "easy",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Virtual Memory",
+    "subtopic": "Virtual Memory"
+   },
+   "question": "Match the following flag bits used in the context of virtual memory management on the left side with the different purposes on the right side of the table below.\n\n  Name of the bit | Purpose\nI.   Dirty        | a. Page initialization\nII.  R/W          | b. Writeback policy\nIII. Reference    | c. Page protection\nIV.  Valid        | d. Page replacement policy\n\nA. I-b, II-a, III-d, IV-c\nB. I-b, II-c, III-d, IV-a\nC. I-c, II-b, III-a, IV-d\nD. I-b, II-c, III-a, IV-d",
+   "answer": "B. I-b, II-c, III-d, IV-a",
+   "to_find": "Correct matching of virtual memory flag bits (Dirty, R/W, Reference, Valid) with their purposes",
+   "understand": {
+    "plain": "Page table entries in virtual memory management contain several flag bits, each serving a specific purpose. This question asks you to match each bit with the function it performs. The Dirty bit tracks whether a page has been modified, the R/W bit controls read/write permissions, the Reference bit helps decide which page to replace, and the Valid bit indicates whether a page is currently loaded in memory.",
+    "keywords": [
+     {
+      "term": "Dirty bit (Modified bit)",
+      "explain": "Set to 1 when a page in memory has been written to (modified). Used by the OS to decide whether to write the page back to disk when it is evicted.",
+      "example": "If a process writes to page 5, the dirty bit of page 5 is set; on eviction, the OS writes it back to the swap space."
+     },
+     {
+      "term": "R/W bit (Read/Write bit)",
+      "explain": "Controls access permissions for a page: 0 = read-only, 1 = read-write. Protects pages from unauthorized writes.",
+      "example": "Code segments are marked read-only (R/W=0) so accidental writes trigger a protection fault."
+     },
+     {
+      "term": "Reference bit (Accessed bit)",
+      "explain": "Set by hardware whenever a page is accessed (read or written). The OS uses it in page replacement algorithms like LRU approximation to find the least-recently-used page.",
+      "example": "In the clock algorithm, the OS checks the reference bit to decide which page frame to reclaim."
+     },
+     {
+      "term": "Valid bit (Present bit)",
+      "explain": "Indicates whether the page is currently loaded in physical memory (1) or is on disk (0). A page fault is triggered when this bit is 0 and the page is accessed.",
+      "example": "When a process starts, most page table entries have valid=0; they are set to 1 as pages are loaded on demand."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 540 260' width='540' height='260'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='520' height='240' rx='10' class='bg'/><text x='270' y='35' text-anchor='middle' class='lbl ink'>Page Table Entry Flags</text><rect x='30' y='50' width='220' height='36' rx='4' class='hi'/><text x='140' y='73' text-anchor='middle' class='tag ink'>I. Dirty</text><line x1='250' y1='68' x2='300' y2='68' stroke='#7F77DD' stroke-width='2'/><rect x='300' y='50' width='220' height='36' rx='4' fill='#d4f5e8' stroke='#1D9E75' stroke-width='2'/><text x='410' y='73' text-anchor='middle' class='tag ink'>b. Writeback policy</text><rect x='30' y='98' width='220' height='36' rx='4' class='hi'/><text x='140' y='121' text-anchor='middle' class='tag ink'>II. R/W</text><line x1='250' y1='116' x2='300' y2='116' stroke='#7F77DD' stroke-width='2'/><rect x='300' y='98' width='220' height='36' rx='4' fill='#d4f5e8' stroke='#1D9E75' stroke-width='2'/><text x='410' y='121' text-anchor='middle' class='tag ink'>c. Page protection</text><rect x='30' y='146' width='220' height='36' rx='4' class='hi'/><text x='140' y='169' text-anchor='middle' class='tag ink'>III. Reference</text><line x1='250' y1='164' x2='300' y2='164' stroke='#7F77DD' stroke-width='2'/><rect x='300' y='146' width='220' height='36' rx='4' fill='#d4f5e8' stroke='#1D9E75' stroke-width='2'/><text x='410' y='169' text-anchor='middle' class='tag ink'>d. Page replacement policy</text><rect x='30' y='194' width='220' height='36' rx='4' class='hi'/><text x='140' y='217' text-anchor='middle' class='tag ink'>IV. Valid</text><line x1='250' y1='212' x2='300' y2='212' stroke='#7F77DD' stroke-width='2'/><rect x='300' y='194' width='220' height='36' rx='4' fill='#d4f5e8' stroke='#1D9E75' stroke-width='2'/><text x='410' y='217' text-anchor='middle' class='tag ink'>a. Page initialization</text></svg>",
+    "visual_alt": "A matching diagram showing four page table flag bits on the left (Dirty, R/W, Reference, Valid) connected by arrows to their purposes on the right (writeback policy, page protection, page replacement policy, page initialization)."
+   },
+   "given": {
+    "aim": "Match each page table flag bit to the virtual memory management purpose it serves.",
+    "terms": [
+     {
+      "term": "I. Dirty bit",
+      "meaning": "Records whether the page has been modified since it was last loaded from disk.",
+      "example": "If Dirty=1, the page must be written back to swap/disk on eviction to avoid data loss.",
+      "connects": "Dirty bit drives the writeback (write-back) policy decision — whether to copy a page back to disk when evicted."
+     },
+     {
+      "term": "II. R/W bit",
+      "meaning": "Encodes the access permission for the page: read-only or read-write.",
+      "example": "Setting R/W=0 for a shared library code page prevents any process from overwriting it.",
+      "connects": "R/W bit enforces page protection, preventing illegal write access and raising a protection fault if violated."
+     },
+     {
+      "term": "III. Reference bit",
+      "meaning": "Hardware sets this bit whenever the page is accessed; OS uses it to approximate recency of use.",
+      "example": "LRU-approximation (clock algorithm) clears reference bits periodically and replaces pages whose bit remains 0.",
+      "connects": "Reference bit feeds the page replacement policy by indicating which pages are hot or cold."
+     },
+     {
+      "term": "IV. Valid bit",
+      "meaning": "Indicates whether the page table entry is currently valid (page in physical memory).",
+      "example": "At process creation all valid bits are 0; they are set as pages are demand-paged in.",
+      "connects": "Valid bit relates to page initialization — it is 0 until the page is first brought into memory, triggering a page fault on first access."
+     }
+    ],
+    "plan": "Apply knowledge of each flag bit's role: Dirty -> writeback, R/W -> protection, Reference -> replacement, Valid -> initialization (presence in memory)."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Match Dirty bit to its purpose",
+      "formula_raw": "",
+      "apply": "The Dirty (Modified) bit is set when a page is written to. On page eviction, if Dirty=1, the OS writes the page back to disk. This is the writeback policy. So I -> b (Writeback policy).",
+      "note": "Without the dirty bit, the OS would have to write every evicted page to disk even if it was never modified, wasting I/O."
+     },
+     {
+      "step": 2,
+      "title": "Match R/W bit to its purpose",
+      "formula_raw": "",
+      "apply": "The R/W bit specifies access permissions for the page. If R/W=0, the page is read-only; writes trigger a protection fault. This is page protection. So II -> c (Page protection).",
+      "note": "This bit is also used to implement copy-on-write: both parent and child share a read-only page until one of them writes, triggering a fault and page copy."
+     },
+     {
+      "step": 3,
+      "title": "Match Reference bit to its purpose",
+      "formula_raw": "",
+      "apply": "The Reference (Accessed) bit is set by hardware whenever the page is accessed. The OS examines and clears this bit periodically to determine which pages are recently used, driving the page replacement algorithm. So III -> d (Page replacement policy).",
+      "note": "Used in the Second-Chance (Clock) algorithm and NRU (Not Recently Used) page replacement algorithm."
+     },
+     {
+      "step": 4,
+      "title": "Match Valid bit to its purpose",
+      "formula_raw": "",
+      "apply": "The Valid bit indicates whether the page is present in physical memory. It is initialized to 0 when the page table entry is created (page not yet loaded). This relates to page initialization. So IV -> a (Page initialization).",
+      "note": "When a process is first created, all valid bits are 0. Pages are loaded on demand; valid bit is set to 1 when the page is brought in (initialized in memory)."
+     },
+     {
+      "step": 5,
+      "title": "Identify the matching option",
+      "formula_raw": "",
+      "apply": "Combining: I-b, II-c, III-d, IV-a.\nLooking at options:\nA. I-b, II-a, III-d, IV-c  (wrong: II and IV swapped)\nB. I-b, II-c, III-d, IV-a  (matches our answer)\nC. I-c, II-b, III-a, IV-d  (wrong)\nD. I-b, II-c, III-a, IV-d  (wrong: III and IV swapped)\nAnswer is B.",
+      "note": "This is a standard virtual memory question testing knowledge of page table entry bits and their roles."
+     }
+    ],
+    "result": "I-b, II-c, III-d, IV-a. Answer: B. I-b, II-c, III-d, IV-a"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Page table entry flag bits: Dirty (writeback), R/W (protection), Reference (replacement policy via LRU/Clock algorithm), Valid (page initialization/presence).",
+   "qid": "7.27.43",
+   "answer_official": "D"
+  }
+ ]
+}

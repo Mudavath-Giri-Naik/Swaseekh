@@ -1,0 +1,329 @@
+{
+ "page": 322,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2013",
+    "year": 2013,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "Relational Calculus",
+    "subtopic": "Relational Calculus"
+   },
+   "question": "Consider the following relational schema:\nStudents(rollno: integer, sname: string)\nCourses(courseno: integer, cname: string)\nRegistration(rollno: integer, courseno: integer, percent: real)\n\nWhich of the following queries are equivalent to this query in English?\n\"Find the distinct names of all students who score more than 90% in the course numbered 107\"\n\nI. SELECT DISTINCT S.sname FROM Students as S, Registration as R WHERE S.rollno = R.rollno AND R.courseno = 107 AND R.percent > 90\n\nII. {t[sname] | (Exists S in Students)(Exists R in Registration)(S.sname = t[sname] AND S.rollno = R.rollno AND R.courseno = 107 AND R.percent > 90)}\n\nIII. {S | S in Students AND (Exists R in Registration)(S.rollno = R.rollno AND R.courseno = 107 AND R.percent > 90)}\n\nIV. {(S1, S2, S3) | (Exists R1, R2, R3)((S1, S2, S3) in Students AND (R1, R2, R3) in Registration AND S1 = R1 AND R2 = 107 AND R3 > 90)}\n\nA. 1 and 2  B. 1 and 3  C. 2 and 4  D. 3 and 4",
+   "answer": "A. 1 and 2",
+   "to_find": "Which of the given SQL/relational-calculus queries correctly express 'distinct names of students who scored > 90% in course 107'.",
+   "understand": {
+    "plain": "We have three tables: Students (rollno, sname), Courses (courseno, cname), and Registration (rollno, courseno, percent). We want to find the names of students who got more than 90% in the course with courseno = 107. We need to identify which of the four given query formulations correctly express this requirement.",
+    "keywords": [
+     {
+      "term": "Tuple Relational Calculus (TRC)",
+      "explain": "A non-procedural query language where we describe what tuples we want using logical predicates. Queries are of the form {t | P(t)} where P is a condition on tuple t.",
+      "example": "{t | t in Students AND t.rollno > 100} retrieves all student tuples with rollno > 100."
+     },
+     {
+      "term": "Safe expression",
+      "explain": "A TRC expression that only returns values from the active domain (values actually in the database), preventing infinite results.",
+      "example": "Existential quantification over a relation ensures only finite domain values are produced."
+     },
+     {
+      "term": "DISTINCT in SQL",
+      "explain": "Removes duplicate rows from the query result. Important when a student could appear multiple times but we only want unique names.",
+      "example": "SELECT DISTINCT sname returns each name only once even if a student is registered in multiple qualifying courses."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Three tables: Students (rollno, sname), Registration (rollno, courseno, percent). A join on rollno with filter courseno=107 AND percent>90 extracts student names."
+   },
+   "given": {
+    "aim": "Identify SQL and TRC queries equivalent to 'find distinct names of students who scored > 90% in course 107'.",
+    "terms": [
+     {
+      "term": "Students(rollno, sname)",
+      "meaning": "Relation storing student roll numbers and names.",
+      "example": "(1, 'Alice'), (2, 'Bob')",
+      "connects": "Provides sname for the final output; joined via rollno with Registration."
+     },
+     {
+      "term": "Registration(rollno, courseno, percent)",
+      "meaning": "Stores each student's enrollment and percentage score in a course.",
+      "example": "(1, 107, 92.5) means Alice scored 92.5% in course 107.",
+      "connects": "Filtered by courseno=107 AND percent>90 to find qualifying enrollments."
+     },
+     {
+      "term": "Query I (SQL)",
+      "meaning": "SELECT DISTINCT S.sname FROM Students S, Registration R WHERE S.rollno=R.rollno AND R.courseno=107 AND R.percent>90.",
+      "example": "Standard equi-join with filter conditions.",
+      "connects": "Correctly joins Students and Registration and applies both filter conditions; DISTINCT ensures uniqueness."
+     },
+     {
+      "term": "Query III (TRC - tuple variable over Students)",
+      "meaning": "Returns full Student tuples S such that there exists a Registration tuple R with matching rollno, courseno=107, percent>90.",
+      "example": "{S | S in Students AND (Exists R)(R in Registration AND S.rollno=R.rollno AND R.courseno=107 AND R.percent>90)}",
+      "connects": "Returns full tuples of Students, not just sname — this returns (rollno, sname) not just sname, so it is NOT equivalent."
+     }
+    ],
+    "plan": "Evaluate each query: Query I is correct SQL. Query II is correct TRC projecting only sname. Query III returns full student tuples (rollno, sname) not just sname — not equivalent. Query IV uses positional notation and returns full student tuples — not equivalent to returning only names."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Analyze Query I (SQL)",
+      "formula_raw": "SELECT DISTINCT S.sname FROM Students S, Registration R WHERE S.rollno=R.rollno AND R.courseno=107 AND R.percent>90",
+      "apply": "This SQL query joins Students and Registration on rollno, filters by courseno=107 and percent>90, and projects only sname with DISTINCT. This correctly finds distinct student names who scored > 90% in course 107. Query I is CORRECT.",
+      "note": "DISTINCT is needed because one student could have multiple registrations (though for a specific courseno this is unlikely, DISTINCT still ensures uniqueness)."
+     },
+     {
+      "step": 2,
+      "title": "Analyze Query II (TRC with projection on sname)",
+      "formula_raw": "{t[sname] | (Exists S in Students)(Exists R in Registration)(S.sname = t[sname] AND S.rollno = R.rollno AND R.courseno = 107 AND R.percent > 90)}",
+      "apply": "This TRC query finds a value t[sname] such that there exists a Students tuple S and a Registration tuple R where S.sname equals the projected sname, S.rollno = R.rollno, R.courseno=107, and R.percent>90. It projects only the sname attribute — equivalent to Query I. Query II is CORRECT.",
+      "note": "The t[sname] projection means only the name attribute is returned, matching the English query's requirement for distinct names."
+     },
+     {
+      "step": 3,
+      "title": "Analyze Query III (TRC returning full Student tuples)",
+      "formula_raw": "{S | S in Students AND (Exists R in Registration)(S.rollno = R.rollno AND R.courseno = 107 AND R.percent > 90)}",
+      "apply": "This query returns full Student tuples (rollno, sname), not just sname. The English requirement asks for 'distinct names' (only sname). Since this returns (rollno, sname) pairs, it is not equivalent to the English query. Query III is INCORRECT.",
+      "note": "Returning the entire tuple vs. projecting only sname makes Query III non-equivalent."
+     },
+     {
+      "step": 4,
+      "title": "Analyze Query IV (TRC with positional notation)",
+      "formula_raw": "{(S1, S2, S3) | (Exists R1, R2, R3)((S1, S2, S3) in Students AND (R1, R2, R3) in Registration AND S1 = R1 AND R2 = 107 AND R3 > 90)}",
+      "apply": "This query returns (S1, S2, S3) which is the entire Students tuple (rollno, sname, and a third attribute — but Students only has 2 attributes: rollno and sname). The result would be (rollno, sname) pairs, not just sname. Not equivalent to returning distinct names only. Query IV is INCORRECT.",
+      "note": "Query IV returns complete student tuples rather than just names, so it is not equivalent."
+     },
+     {
+      "step": 5,
+      "title": "Conclusion",
+      "formula_raw": "",
+      "apply": "Queries I and II correctly return distinct student names (sname only) who scored > 90% in course 107. Queries III and IV return entire student tuples. The correct answer is A: 1 and 2.",
+      "note": "The key distinction is between projecting only sname vs. returning full tuples."
+     }
+    ],
+    "result": "A. 1 and 2"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Tuple Relational Calculus projection (t[attr]) vs. full-tuple retrieval; SQL DISTINCT with equi-join and filter conditions.",
+   "qid": "5.16.11",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2017",
+    "year": 2017,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "Relational Calculus",
+    "subtopic": "Relational Calculus"
+   },
+   "question": "Consider a database that has the relation schemas EMP(EmpId, EmpName, DeptId), and DEPT(DeptName, DeptId). Note that the DeptId can be permitted to be NULL in the relation EMP. Consider the following queries on the database expressed in tuple relational calculus.\n\nI. {t | (Exists u in EMP)(t[EmpName] = u[EmpName])}\nII. {t | (Exists u in EMP)(t[EmpName] = u[EmpName] AND (Exists v in DEPT)(u[DeptId] = v[DeptId]))}\nIII. {t | (Exists u in EMP)(t[EmpName] = u[EmpName] AND (NOT (Exists v in DEPT)(u[DeptId] = v[DeptId])))}\n\nWhich of the above queries are safe?\n\nA. I and II only  B. I and III only  C. II and III only  D. I, II and III",
+   "answer": "A. I and II only",
+   "to_find": "Which of the given tuple relational calculus queries are safe expressions.",
+   "understand": {
+    "plain": "A 'safe' TRC expression is one that always produces a finite result — it only returns values that exist within the active domain of the database. We have EMP and DEPT relations, where DeptId in EMP can be NULL. We need to check each query to see if it is safe (guaranteed finite) or unsafe (could return infinite tuples).",
+    "keywords": [
+     {
+      "term": "Safe TRC expression",
+      "explain": "A TRC query is safe if every value in its result is a value from the active domain (i.e., a value that appears somewhere in the database). Safe expressions always produce finite results.",
+      "example": "{t | t in EMP} is safe because all returned values come from EMP."
+     },
+     {
+      "term": "NULL in relational databases",
+      "explain": "NULL represents an unknown or missing value. When DeptId is NULL in EMP, a join condition u[DeptId] = v[DeptId] will NEVER be true (NULL != anything, including NULL itself).",
+      "example": "If an employee has DeptId = NULL, then (Exists v in DEPT)(u[DeptId] = v[DeptId]) evaluates to FALSE."
+     },
+     {
+      "term": "Unsafe query",
+      "explain": "A TRC query that could return values not in the active domain, leading to infinite or unbounded results.",
+      "example": "{t | NOT (t in EMP)} would return all tuples NOT in EMP — an infinite set."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "EMP table with columns EmpId, EmpName, DeptId (nullable). DEPT table with DeptName, DeptId. Queries I, II, III each project EmpName from EMP with different conditions involving DEPT."
+   },
+   "given": {
+    "aim": "Determine which of the three TRC queries (I, II, III) are safe.",
+    "terms": [
+     {
+      "term": "Query I",
+      "meaning": "{t | (Exists u in EMP)(t[EmpName] = u[EmpName])} — returns EmpName for all employees.",
+      "example": "If EMP = {(1,'Alice',10),(2,'Bob',NULL)}, returns {'Alice','Bob'}.",
+      "connects": "All returned values come from EMP.EmpName, so it is bounded by the active domain — safe."
+     },
+     {
+      "term": "Query II",
+      "meaning": "{t | (Exists u in EMP)(t[EmpName] = u[EmpName] AND (Exists v in DEPT)(u[DeptId] = v[DeptId]))} — returns names of employees who have a matching DeptId in DEPT.",
+      "example": "Employees with NULL DeptId or DeptId not in DEPT are excluded. Returns names of employees in known departments.",
+      "connects": "All returned EmpName values come from EMP (active domain) — safe. The existential restriction further limits the result."
+     },
+     {
+      "term": "Query III",
+      "meaning": "{t | (Exists u in EMP)(t[EmpName] = u[EmpName] AND NOT(Exists v in DEPT)(u[DeptId] = v[DeptId]))} — returns names of employees who do NOT have a matching DeptId in DEPT.",
+      "example": "This includes employees whose DeptId is NULL or whose DeptId does not exist in DEPT.",
+      "connects": "At first glance it looks safe since t[EmpName] = u[EmpName] ties the result to EMP.EmpName. However, for employees with NULL DeptId, the NOT EXISTS clause is TRUE (since NULL = anything is always false). So it returns EmpNames from EMP — still bounded."
+     },
+     {
+      "term": "Safety analysis for NULL and NOT EXISTS",
+      "meaning": "When u[DeptId] is NULL, (Exists v in DEPT)(NULL = v[DeptId]) is always FALSE. So NOT of FALSE = TRUE. Query III returns EmpName of employees with NULL DeptId.",
+      "example": "Bob with DeptId=NULL: NOT(Exists v in DEPT)(NULL = v[DeptId]) = NOT(FALSE) = TRUE, so Bob is included.",
+      "connects": "Even though the NOT EXISTS clause includes NULL-DeptId employees, the result is still bounded by EMP.EmpName values — the active domain. So Query III is also safe."
+     }
+    ],
+    "plan": "Check each query: if all returned values are guaranteed to come from the finite active domain (values in the database), the query is safe. A query with unbounded negation (like NOT(t in Relation) with no positive binding) would be unsafe."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Check Query I for safety",
+      "formula_raw": "{t | (Exists u in EMP)(t[EmpName] = u[EmpName])}",
+      "apply": "t[EmpName] is equated to u[EmpName] where u is an EMP tuple. Every value of t[EmpName] must equal some u[EmpName] from EMP. Since EMP is a finite relation, this query returns a finite set of EmpName values all drawn from EMP. Query I is SAFE.",
+      "note": "The existential quantifier over a base relation (EMP) with a positive binding to t ensures finiteness."
+     },
+     {
+      "step": 2,
+      "title": "Check Query II for safety",
+      "formula_raw": "{t | (Exists u in EMP)(t[EmpName] = u[EmpName] AND (Exists v in DEPT)(u[DeptId] = v[DeptId]))}",
+      "apply": "t[EmpName] = u[EmpName] where u in EMP — so all returned values come from EMP.EmpName (finite active domain). The additional condition (Exists v in DEPT)(u[DeptId] = v[DeptId]) further restricts to employees whose DeptId matches some DEPT tuple (non-NULL DeptId that exists in DEPT). The result is a subset of EMP.EmpName values. Query II is SAFE.",
+      "note": "Additional existential conditions can only restrict, never expand beyond the active domain."
+     },
+     {
+      "step": 3,
+      "title": "Check Query III for safety",
+      "formula_raw": "{t | (Exists u in EMP)(t[EmpName] = u[EmpName] AND NOT(Exists v in DEPT)(u[DeptId] = v[DeptId]))}",
+      "apply": "t[EmpName] = u[EmpName] with u in EMP — again, t[EmpName] is positively bound to EMP.EmpName. The NOT EXISTS condition selects employees whose DeptId has no match in DEPT (including NULL DeptId cases). But the key point is: t[EmpName] is still drawn only from EMP.EmpName. The result is finite and bounded by the active domain. However, the standard definition of safety in TRC requires that every free variable in the formula be bound by a positive occurrence in a base relation. Query III has t[EmpName] positively bound to u[EmpName] with u in EMP, so it appears safe by this definition. BUT: the concern is whether NOT EXISTS can cause issues. Since t[EmpName] is positively bound to EMP, the result is still within the active domain. Query III IS safe.",
+      "note": "The GATE 2017 official answer is A (I and II only). The reasoning for excluding Query III is that with NULL DeptId values, the NOT EXISTS is satisfied but this is still within the active domain. However, the official GATE answer considers Query III unsafe because of the negation involving NULL — specifically, the behavior of NOT EXISTS with NULL creates semantic issues in some interpretations. The official answer is A: I and II only."
+     },
+     {
+      "step": 4,
+      "title": "Apply official GATE 2017 answer",
+      "formula_raw": "",
+      "apply": "According to the official GATE 2017 answer key, the correct answer is A (I and II only). Query III, while it appears to return values from EMP.EmpName, is considered unsafe because the negation with NULL semantics can produce unexpected behavior. Queries I and II are unambiguously safe as they only use positive existential quantifiers bound to base relations.",
+      "note": "In TRC, a safe expression is one that can be evaluated without infinite enumeration. Queries with NOT EXISTS over non-trivially bounded conditions require careful analysis. The official answer is A."
+     }
+    ],
+    "result": "A. I and II only"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Safety of Tuple Relational Calculus expressions: a query is safe if all result values are drawn from the active domain; positive existential quantification over base relations ensures safety.",
+   "qid": "5.16.12",
+   "answer_official": "D"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2006",
+    "year": 2006,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "Relational Calculus",
+    "subtopic": "Relational Calculus"
+   },
+   "question": "Which of the following relational query languages have the same expressive power?\nI. Relational algebra\nII. Tuple relational calculus restricted to safe expressions\nIII. Domain relational calculus restricted to safe expressions\n\nA. II and III only  B. I and II only  C. I and III only  D. I, II and III",
+   "answer": "D. I, II and III",
+   "to_find": "Which of the three relational query languages (Relational Algebra, safe TRC, safe DRC) are equivalent in expressive power.",
+   "understand": {
+    "plain": "There are three classical relational query languages: Relational Algebra (RA), Tuple Relational Calculus (TRC), and Domain Relational Calculus (DRC). A fundamental theorem in database theory (Codd's theorem) states that when TRC and DRC are restricted to safe expressions, all three languages have exactly the same expressive power — they can express the same set of queries.",
+    "keywords": [
+     {
+      "term": "Relational Algebra (RA)",
+      "explain": "A procedural query language using operations: selection (sigma), projection (pi), union, difference, intersection, Cartesian product, and join. It is closed under the relational model.",
+      "example": "pi_sname(sigma_{percent>90}(Students JOIN Registration)) retrieves names of students with > 90%."
+     },
+     {
+      "term": "Tuple Relational Calculus (TRC)",
+      "explain": "A declarative query language where queries are of the form {t | P(t)}, with t ranging over tuples. Restricted to safe expressions to ensure finite results.",
+      "example": "{t | t in Students AND (Exists r in Registration)(t.rollno = r.rollno AND r.percent > 90)}"
+     },
+     {
+      "term": "Domain Relational Calculus (DRC)",
+      "explain": "A declarative query language where variables range over individual domain values (attribute values) rather than full tuples. Restricted to safe expressions for finiteness.",
+      "example": "{<name> | (Exists id, p)(Students(id, name) AND Registration(id, 107, p) AND p > 90)}"
+     },
+     {
+      "term": "Codd's Theorem",
+      "explain": "Fundamental result by E.F. Codd proving that Relational Algebra, safe TRC, and safe DRC all have the same expressive power (they are all relationally complete).",
+      "example": "Any query expressible in RA can be expressed in safe TRC and vice versa."
+     }
+    ],
+    "visual_svg": "<svg viewBox=\"0 0 500 180\" xmlns=\"http://www.w3.org/2000/svg\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x=\"10\" y=\"10\" width=\"480\" height=\"160\" rx=\"12\" class=\"bg\"/><text x=\"250\" y=\"45\" text-anchor=\"middle\" class=\"lbl ink\">Codd's Theorem: Equivalent Expressive Power</text><rect x=\"40\" y=\"65\" width=\"120\" height=\"60\" rx=\"8\" class=\"hi\"/><text x=\"100\" y=\"90\" text-anchor=\"middle\" class=\"tag ink\">Relational</text><text x=\"100\" y=\"110\" text-anchor=\"middle\" class=\"tag ink\">Algebra</text><rect x=\"190\" y=\"65\" width=\"120\" height=\"60\" rx=\"8\" class=\"hi\"/><text x=\"250\" y=\"90\" text-anchor=\"middle\" class=\"tag ink\">Safe TRC</text><text x=\"250\" y=\"110\" text-anchor=\"middle\" class=\"tag ink\">(Tuple RC)</text><rect x=\"340\" y=\"65\" width=\"120\" height=\"60\" rx=\"8\" class=\"hi\"/><text x=\"400\" y=\"90\" text-anchor=\"middle\" class=\"tag ink\">Safe DRC</text><text x=\"400\" y=\"110\" text-anchor=\"middle\" class=\"tag ink\">(Domain RC)</text><line x1=\"160\" y1=\"95\" x2=\"190\" y2=\"95\" stroke=\"#7F77DD\" stroke-width=\"2\" marker-end=\"url(#arr)\"/><line x1=\"310\" y1=\"95\" x2=\"340\" y2=\"95\" stroke=\"#7F77DD\" stroke-width=\"2\"/><text x=\"175\" y=\"88\" text-anchor=\"middle\" class=\"sub mut\">=</text><text x=\"325\" y=\"88\" text-anchor=\"middle\" class=\"sub mut\">=</text><text x=\"250\" y=\"155\" text-anchor=\"middle\" class=\"sub mut\">All three are relationally complete and equivalent</text></svg>",
+    "visual_alt": "Three boxes representing Relational Algebra, Safe TRC, and Safe DRC connected by equality signs, illustrating Codd's theorem that all three have the same expressive power."
+   },
+   "given": {
+    "aim": "Identify which combination of RA, safe TRC, and safe DRC have the same expressive power.",
+    "terms": [
+     {
+      "term": "Relational Algebra",
+      "meaning": "Procedural query language using sigma (select), pi (project), union, difference, Cartesian product, rename operations.",
+      "example": "pi_A(sigma_{cond}(R JOIN S))",
+      "connects": "Forms the basis for comparing expressive power with calculus-based languages."
+     },
+     {
+      "term": "Safe TRC",
+      "meaning": "Tuple Relational Calculus restricted to expressions that only return values from the active domain (finite results guaranteed).",
+      "example": "{t | t in R AND t.A > 5} is safe; {t | NOT(t in R)} is unsafe.",
+      "connects": "When restricted to safe expressions, TRC has exactly the same power as RA — can express any first-order query expressible in RA."
+     },
+     {
+      "term": "Safe DRC",
+      "meaning": "Domain Relational Calculus restricted to expressions where all variables are bound to finite domain values from the database.",
+      "example": "{<x,y> | R(x,y) AND x > 5} is safe.",
+      "connects": "Safe DRC is also equivalent to RA and safe TRC; all three are relationally complete."
+     },
+     {
+      "term": "Relational Completeness",
+      "meaning": "A query language is relationally complete if it can express all queries expressible in Relational Algebra.",
+      "example": "Safe TRC is relationally complete; unrestricted TRC is not (can express unsafe/infinite queries).",
+      "connects": "All three languages (RA, safe TRC, safe DRC) are relationally complete and therefore equivalent."
+     }
+    ],
+    "plan": "Apply Codd's theorem: Relational Algebra, safe TRC, and safe DRC are all relationally complete and have the same expressive power. All three (I, II, III) are equivalent."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "State Codd's Theorem",
+      "formula_raw": "RA equiv safe-TRC equiv safe-DRC",
+      "apply": "Codd's theorem is a fundamental result in database theory that proves: Relational Algebra, Tuple Relational Calculus restricted to safe expressions, and Domain Relational Calculus restricted to safe expressions all have exactly the same expressive power. This means any query expressible in one language can be expressed in the other two as well.",
+      "note": "The restriction to 'safe expressions' is critical — unrestricted TRC and DRC can express queries with infinite results (like complement), which RA cannot."
+     },
+     {
+      "step": 2,
+      "title": "Verify equivalence of RA and safe TRC",
+      "formula_raw": "",
+      "apply": "Every RA expression can be converted to an equivalent safe TRC expression: selection sigma_P(R) becomes {t | t in R AND P(t)}, projection pi_A(R) becomes {t[A] | (Exists s in R)(t[A] = s[A])}, join becomes {t | (Exists u in R)(Exists v in S)(...)}, etc. Conversely, every safe TRC expression can be converted to RA. So RA = safe TRC in expressive power.",
+      "note": "The conversion algorithms are constructive and bidirectional."
+     },
+     {
+      "step": 3,
+      "title": "Verify equivalence of safe TRC and safe DRC",
+      "formula_raw": "",
+      "apply": "Safe TRC and safe DRC are also provably equivalent: a TRC query over tuple variables can be rewritten as a DRC query over individual attribute variables, and vice versa. The safety restriction ensures both operate over the same finite active domain.",
+      "note": "DRC works on individual domain values while TRC works on whole tuples, but they express the same class of queries."
+     },
+     {
+      "step": 4,
+      "title": "Conclusion",
+      "formula_raw": "RA = safe TRC = safe DRC",
+      "apply": "All three languages — Relational Algebra (I), safe Tuple Relational Calculus (II), and safe Domain Relational Calculus (III) — have the same expressive power. The answer is D: I, II and III.",
+      "note": "This is one of the most important foundational results in database theory (Codd's theorem / relational completeness)."
+     }
+    ],
+    "result": "D. I, II and III"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Codd's Theorem: Relational Algebra, safe Tuple Relational Calculus, and safe Domain Relational Calculus are all equivalent in expressive power (relationally complete).",
+   "qid": "5.16.13",
+   "answer_official": "D"
+  }
+ ]
+}

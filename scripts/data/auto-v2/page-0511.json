@@ -1,0 +1,353 @@
+{
+ "page": 511,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2017",
+    "year": 2017,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Threads",
+    "subtopic": "Threads"
+   },
+   "question": "Threads of a process share\nA. global variables but not heap\nB. heap but not global variables\nC. neither global variables nor heap\nD. both heap and global variables",
+   "answer": "D. both heap and global variables",
+   "to_find": "Which memory regions are shared among all threads of a process",
+   "understand": {
+    "plain": "A process can have multiple threads running concurrently. These threads share certain memory regions (like global variables and heap) while each thread has its own private stack, registers, and program counter. This question asks which memory regions are shared.",
+    "keywords": [
+     {
+      "term": "Thread",
+      "explain": "A lightweight unit of execution within a process. Multiple threads share the same address space.",
+      "example": "A web browser uses multiple threads: one for UI rendering, one for network I/O."
+     },
+     {
+      "term": "Heap",
+      "explain": "Dynamically allocated memory region used during runtime (malloc/new). It is part of the process address space shared by all threads.",
+      "example": "int *p = malloc(100); — this allocation resides in the heap accessible to all threads."
+     },
+     {
+      "term": "Global Variables",
+      "explain": "Variables declared outside any function. They reside in the data segment of the process, shared by all threads.",
+      "example": "int counter = 0; declared at file scope is accessible and modifiable by all threads."
+     }
+    ],
+    "visual_svg": "<svg width=\"480\" height=\"200\" xmlns=\"http://www.w3.org/2000/svg\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x=\"10\" y=\"10\" width=\"460\" height=\"180\" rx=\"8\" class=\"bg\"/><text x=\"240\" y=\"35\" text-anchor=\"middle\" class=\"lbl ink\">Process Address Space</text><rect x=\"30\" y=\"50\" width=\"120\" height=\"40\" rx=\"4\" class=\"hi\"/><text x=\"90\" y=\"75\" text-anchor=\"middle\" class=\"tag ink\">Global/Data</text><rect x=\"170\" y=\"50\" width=\"120\" height=\"40\" rx=\"4\" class=\"hi\"/><text x=\"230\" y=\"75\" text-anchor=\"middle\" class=\"tag ink\">Heap</text><rect x=\"310\" y=\"50\" width=\"140\" height=\"40\" rx=\"4\" class=\"bg\"/><text x=\"380\" y=\"75\" text-anchor=\"middle\" class=\"tag mut\">Code (Text)</text><text x=\"90\" y=\"115\" text-anchor=\"middle\" class=\"sub ok\">SHARED</text><text x=\"230\" y=\"115\" text-anchor=\"middle\" class=\"sub ok\">SHARED</text><text x=\"380\" y=\"115\" text-anchor=\"middle\" class=\"sub ok\">SHARED</text><rect x=\"30\" y=\"130\" width=\"120\" height=\"40\" rx=\"4\" class=\"bg\"/><text x=\"90\" y=\"155\" text-anchor=\"middle\" class=\"tag mut\">Stack (T1)</text><rect x=\"170\" y=\"130\" width=\"120\" height=\"40\" rx=\"4\" class=\"bg\"/><text x=\"230\" y=\"155\" text-anchor=\"middle\" class=\"tag mut\">Stack (T2)</text><rect x=\"310\" y=\"130\" width=\"140\" height=\"40\" rx=\"4\" class=\"bg\"/><text x=\"380\" y=\"155\" text-anchor=\"middle\" class=\"tag mut\">Registers/PC</text><text x=\"90\" y=\"183\" text-anchor=\"middle\" class=\"sub no\">PRIVATE</text><text x=\"230\" y=\"183\" text-anchor=\"middle\" class=\"sub no\">PRIVATE</text><text x=\"380\" y=\"183\" text-anchor=\"middle\" class=\"sub no\">PRIVATE</text></svg>",
+    "visual_alt": "Process address space diagram showing Global/Data and Heap as SHARED among threads, while Stack and Registers/PC are PRIVATE per thread."
+   },
+   "given": {
+    "aim": "Determine which memory regions (global variables and/or heap) are shared among all threads of a process.",
+    "terms": [
+     {
+      "term": "Global variables",
+      "meaning": "Variables declared at file/global scope, stored in the data segment of the process.",
+      "example": "int count = 0; at top of a C file",
+      "connects": "All threads in the process can read/write the same global variable — it is shared."
+     },
+     {
+      "term": "Heap",
+      "meaning": "Memory region used for dynamic allocation (malloc, new), part of the process virtual address space.",
+      "example": "char *buf = malloc(256);",
+      "connects": "All threads share the same heap — one thread can pass a heap pointer to another."
+     },
+     {
+      "term": "Stack",
+      "meaning": "Per-thread private memory holding function call frames, local variables, return addresses.",
+      "example": "int local = 5; inside a function uses stack.",
+      "connects": "Stacks are NOT shared — each thread has its own stack."
+     }
+    ],
+    "plan": "Recall the thread memory model: threads within a process share the code segment, data segment (global variables), and heap. Each thread has its own stack, registers, and program counter. So both heap and global variables are shared."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Identify what is shared between threads",
+      "formula_raw": "",
+      "apply": "Threads share: (1) Code segment (text), (2) Data segment — which includes global/static variables, (3) Heap (dynamically allocated memory), (4) Open file descriptors, (5) Signal handlers. These are all part of the process address space accessible to every thread.",
+      "note": "The operating system maps the same address space to all threads within the same process."
+     },
+     {
+      "step": 2,
+      "title": "Identify what is NOT shared (private per thread)",
+      "formula_raw": "",
+      "apply": "Each thread has its own: (1) Program counter (each thread executes independently), (2) Register set (CPU registers are per-thread context), (3) Stack (local variables and call frames are private). So A (global but not heap) and B (heap but not global) are both wrong. C (neither) is wrong. D (both) is correct.",
+      "note": "Confusing stack with heap is a common mistake. Stack is private; heap is shared."
+     }
+    ],
+    "result": "D. both heap and global variables"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Thread memory model: threads share code, data (globals), and heap; private stack, registers, and PC per thread.",
+   "qid": "7.26.5",
+   "answer_official": "D"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2017",
+    "year": 2017,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Threads",
+    "subtopic": "Threads"
+   },
+   "question": "Which of the following is/are shared by all the threads in a process?\nI. Program counter\nII. Stack\nIII. Address space\nIV. Registers\n\nA. (I) and (II) only\nB. (III) only\nC. (IV) only\nD. (III) and (IV) only",
+   "answer": "B. (III) only",
+   "to_find": "Which of Program counter, Stack, Address space, and Registers are shared by all threads in a process",
+   "understand": {
+    "plain": "Multiple threads within a process share some resources and keep others private. This question checks knowledge of exactly which items from the given list are shared versus private. The address space (virtual memory) is shared, while program counter, stack, and registers are private to each thread.",
+    "keywords": [
+     {
+      "term": "Address space",
+      "explain": "The complete virtual memory map of a process, including code, data, heap, and stack regions. All threads see and share the same virtual address space.",
+      "example": "If thread T1 sets global x = 5, thread T2 reads x = 5 because they share the same address space."
+     },
+     {
+      "term": "Program Counter (PC)",
+      "explain": "A register that points to the next instruction to be executed. Each thread executes independently, so each has its own PC.",
+      "example": "T1 may be executing at address 0x1000 while T2 is at 0x2000 simultaneously."
+     },
+     {
+      "term": "Registers",
+      "explain": "CPU registers (general-purpose, flag registers) are part of the thread execution context. When a thread is context-switched, its registers are saved and restored.",
+      "example": "T1's %eax might hold 10 while T2's %eax holds 20 at the same time."
+     }
+    ],
+    "visual_svg": "<svg width=\"460\" height=\"220\" xmlns=\"http://www.w3.org/2000/svg\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x=\"10\" y=\"10\" width=\"440\" height=\"200\" rx=\"8\" class=\"bg\"/><text x=\"230\" y=\"36\" text-anchor=\"middle\" class=\"lbl ink\">Thread Shared vs Private Resources</text><rect x=\"30\" y=\"50\" width=\"180\" height=\"140\" rx=\"6\" class=\"hi\"/><text x=\"120\" y=\"72\" text-anchor=\"middle\" class=\"tag ink\">SHARED (all threads)</text><text x=\"120\" y=\"98\" text-anchor=\"middle\" class=\"sub ink\">III. Address Space</text><text x=\"120\" y=\"120\" text-anchor=\"middle\" class=\"sub ink\">(Code, Data, Heap,</text><text x=\"120\" y=\"140\" text-anchor=\"middle\" class=\"sub ink\">Open Files, Signals)</text><rect x=\"240\" y=\"50\" width=\"190\" height=\"140\" rx=\"6\" class=\"bg\"/><text x=\"335\" y=\"72\" text-anchor=\"middle\" class=\"tag mut\">PRIVATE (per thread)</text><text x=\"335\" y=\"98\" text-anchor=\"middle\" class=\"sub mut\">I. Program Counter</text><text x=\"335\" y=\"120\" text-anchor=\"middle\" class=\"sub mut\">II. Stack</text><text x=\"335\" y=\"142\" text-anchor=\"middle\" class=\"sub mut\">IV. Registers</text><text x=\"335\" y=\"164\" text-anchor=\"middle\" class=\"sub mut\">(Thread ID, Signal mask)</text></svg>",
+    "visual_alt": "Two columns: SHARED (Address Space) vs PRIVATE (Program Counter, Stack, Registers) per thread."
+   },
+   "given": {
+    "aim": "Identify which of the four given items (PC, Stack, Address space, Registers) are shared by all threads in a process.",
+    "terms": [
+     {
+      "term": "Program Counter (I)",
+      "meaning": "Points to the next instruction for each thread. Private because threads execute different code paths concurrently.",
+      "example": "T1 at instruction 100, T2 at instruction 200 simultaneously — different PCs.",
+      "connects": "NOT shared — eliminates options A and D partially."
+     },
+     {
+      "term": "Stack (II)",
+      "meaning": "Each thread has a private stack for local variables, return addresses, and function frames.",
+      "example": "Function foo() called by T1 pushes its frame onto T1's stack only.",
+      "connects": "NOT shared — eliminates option A."
+     },
+     {
+      "term": "Address space (III)",
+      "meaning": "The entire virtual memory layout of the process. All threads see the same virtual addresses.",
+      "example": "If global int x is at address 0x4000, all threads access x at 0x4000.",
+      "connects": "SHARED — this is the correct shared item."
+     },
+     {
+      "term": "Registers (IV)",
+      "meaning": "CPU execution state per thread. Context-switched in/out with the thread.",
+      "example": "%rax may differ between threads at any moment.",
+      "connects": "NOT shared — eliminates options C and D."
+     }
+    ],
+    "plan": "Go through each item: PC is private (each thread has its own), Stack is private (each thread has its own), Address space is shared (all threads of a process share the same virtual memory), Registers are private (each thread has its own execution state). Only III is shared."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Check Program Counter and Stack",
+      "formula_raw": "",
+      "apply": "Program Counter: Each thread executes independently — it has its own PC indicating where it is in the instruction stream. So PC is NOT shared. Stack: Each thread needs its own call stack to manage function calls, local variables, and return addresses independently. So Stack is NOT shared. => Items I and II are private.",
+      "note": "If threads shared a stack, concurrent function calls would corrupt each other's local variables."
+     },
+     {
+      "step": 2,
+      "title": "Check Address Space and Registers",
+      "formula_raw": "",
+      "apply": "Address Space: By definition, all threads within the same process share the same process address space (code, global data, heap). This is what distinguishes threads from processes. So Address Space IS shared. Registers: CPU registers are part of the thread context — saved and restored on context switch. Each thread has its own register values. So Registers are NOT shared. => Only item III (Address Space) is shared.",
+      "note": "Address space sharing is the fundamental property that makes threads 'lightweight' compared to processes."
+     }
+    ],
+    "result": "B. (III) only"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Thread model: only the process address space is shared; each thread has a private PC, stack, and register set.",
+   "qid": "7.26.6",
+   "answer_official": "B"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2021",
+    "year": 2021,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Threads",
+    "subtopic": "Threads"
+   },
+   "question": "Consider the following multi-threaded code segment (in a mix of C and pseudo-code), invoked by two processes P1 and P2, and each of the processes spawns two threads T1 and T2:\n\nint x = 0;  // global\nLock L1;    // global\n\nmain() {\n    create a thread to execute foo();  // Thread T1\n    create a thread to execute foo();  // Thread T2\n    wait for T1 and T2 to finish;\n}\n\nfoo() {\n    int y = 0;  // local\n    acquire(L1);\n    x = x + 1;\n    y = y + x;\n    release(L1);\n    print(y);\n}\n\nWhich of the following statement(s) is/are correct?\nA. Both T1 and T2 will print the value of x as 2\nB. At least one of P1 and P2 will print the value of x as 4\nC. At least one of the threads will print the value of y as 2\nD. Both T1 and T2 will print the value of y as 1",
+   "answer": "C. At least one of the threads will print the value of y as 2",
+   "to_find": "Which statements about the printed values of x and y are correct given the multi-threaded, multi-process execution",
+   "understand": {
+    "plain": "Two processes P1 and P2 each run main(), spawning two threads T1 and T2 each. All four threads run foo(). The global variable x is per-process (not shared between processes), so each process has its own x starting at 0. Within one process, both T1 and T2 share x and use a lock L1. The local variable y is private to each thread call.",
+    "keywords": [
+     {
+      "term": "Per-process global variable",
+      "explain": "Global variables are shared within a process but NOT between separate processes, since processes have separate address spaces.",
+      "example": "P1 has its own copy of x; P2 has its own copy of x. Changes by P1 don't affect P2's x."
+     },
+     {
+      "term": "Mutex Lock (acquire/release)",
+      "explain": "A synchronization primitive that ensures only one thread at a time executes the critical section. acquire blocks if lock is held; release frees the lock.",
+      "example": "If T1 acquires L1, T2 must wait until T1 calls release(L1) before it can proceed."
+     },
+     {
+      "term": "Local variable y",
+      "explain": "y is declared inside foo(), so each thread call has its own copy of y on its private stack. It starts at 0 each time foo() is called.",
+      "example": "T1's y and T2's y are independent; modifying one doesn't affect the other."
+     }
+    ],
+    "visual_svg": "<svg width=\"500\" height=\"260\" xmlns=\"http://www.w3.org/2000/svg\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x=\"10\" y=\"10\" width=\"220\" height=\"240\" rx=\"8\" class=\"hi\"/><text x=\"120\" y=\"34\" text-anchor=\"middle\" class=\"lbl ink\">Process P1</text><text x=\"120\" y=\"56\" text-anchor=\"middle\" class=\"sub ink\">x=0 (own copy), L1</text><rect x=\"30\" y=\"70\" width=\"80\" height=\"60\" rx=\"4\" class=\"bg\"/><text x=\"70\" y=\"93\" text-anchor=\"middle\" class=\"tag ink\">T1</text><text x=\"70\" y=\"113\" text-anchor=\"middle\" class=\"sub mut\">y=0 (local)</text><rect x=\"130\" y=\"70\" width=\"80\" height=\"60\" rx=\"4\" class=\"bg\"/><text x=\"170\" y=\"93\" text-anchor=\"middle\" class=\"tag ink\">T2</text><text x=\"170\" y=\"113\" text-anchor=\"middle\" class=\"sub mut\">y=0 (local)</text><text x=\"120\" y=\"160\" text-anchor=\"middle\" class=\"sub ink\">T1 gets x=1, y=1</text><text x=\"120\" y=\"178\" text-anchor=\"middle\" class=\"sub ink\">T2 gets x=2, y=2</text><text x=\"120\" y=\"200\" text-anchor=\"middle\" class=\"sub ok\">OR</text><text x=\"120\" y=\"220\" text-anchor=\"middle\" class=\"sub ink\">T1 gets x=1,y=1 &amp; T2 x=2,y=2</text><rect x=\"270\" y=\"10\" width=\"220\" height=\"240\" rx=\"8\" class=\"hi\"/><text x=\"380\" y=\"34\" text-anchor=\"middle\" class=\"lbl ink\">Process P2</text><text x=\"380\" y=\"56\" text-anchor=\"middle\" class=\"sub ink\">x=0 (own copy), L1</text><rect x=\"290\" y=\"70\" width=\"80\" height=\"60\" rx=\"4\" class=\"bg\"/><text x=\"330\" y=\"93\" text-anchor=\"middle\" class=\"tag ink\">T1</text><text x=\"330\" y=\"113\" text-anchor=\"middle\" class=\"sub mut\">y=0 (local)</text><rect x=\"390\" y=\"70\" width=\"80\" height=\"60\" rx=\"4\" class=\"bg\"/><text x=\"430\" y=\"93\" text-anchor=\"middle\" class=\"tag ink\">T2</text><text x=\"430\" y=\"113\" text-anchor=\"middle\" class=\"sub mut\">y=0 (local)</text><text x=\"380\" y=\"160\" text-anchor=\"middle\" class=\"sub ink\">T1 gets x=1, y=1</text><text x=\"380\" y=\"178\" text-anchor=\"middle\" class=\"sub ink\">T2 gets x=2, y=2</text></svg>",
+    "visual_alt": "Two separate processes P1 and P2, each with their own x and L1. Within each process, T1 and T2 execute foo() sequentially due to the lock, incrementing x from 0 to 1 to 2. y is local and equals x at the time of assignment."
+   },
+   "given": {
+    "aim": "Determine the possible values printed by threads in both processes, given a shared lock ensures serialized execution of the critical section within each process.",
+    "terms": [
+     {
+      "term": "x (global per process)",
+      "meaning": "A global integer initialized to 0 within each process. Not shared between P1 and P2.",
+      "example": "P1's x and P2's x are independent; both start at 0.",
+      "connects": "Within each process, T1 and T2 both increment x. After both run, x = 2 in each process."
+     },
+     {
+      "term": "L1 (Lock per process)",
+      "meaning": "A mutex lock, also global and per-process. Ensures only one thread at a time runs the critical section (x = x+1; y = y+x;).",
+      "example": "If T1 holds L1, T2 blocks until T1 calls release(L1).",
+      "connects": "The lock serializes increments within a process. Each thread sees either x=1 or x=2."
+     },
+     {
+      "term": "y (local per thread call)",
+      "meaning": "Declared inside foo() as int y = 0. It is a stack variable, private to each invocation.",
+      "example": "T1's y starts at 0, then y = y + x; assigns T1's local y.",
+      "connects": "y takes the value of x at the moment of the assignment y = y + x. If the thread runs first, y = 0 + 1 = 1. If second, y = 0 + 2 = 2."
+     }
+    ],
+    "plan": "Since L1 serializes the critical section within each process, the two threads within a process execute x=x+1; y=y+x one at a time. The first thread to get the lock sets x=1, y=1; the second sets x=2, y=2. Evaluate each answer option against these possible outcomes. Note x is per-process so max x per process is 2, not 4."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Analyze execution within one process",
+      "formula_raw": "",
+      "apply": "Within process P1 (and similarly P2): x starts at 0, y is local = 0 for each thread.\nBecause of acquire(L1)/release(L1), the critical section is serialized.\nCase: T1 runs first: x = 0+1 = 1; y = 0+1 = 1. T1 prints y=1.\n       Then T2 runs: x = 1+1 = 2; y = 0+2 = 2. T2 prints y=2.\nCase: T2 runs first: x = 0+1 = 1; y = 0+1 = 1. T2 prints y=1.\n       Then T1 runs: x = 1+1 = 2; y = 0+2 = 2. T1 prints y=2.\nIn either case within a process, one thread prints y=1 and the other prints y=2.",
+      "note": "The lock guarantees atomicity of the critical section but not the order of thread execution."
+     },
+     {
+      "step": 2,
+      "title": "Evaluate each option",
+      "formula_raw": "",
+      "apply": "Option A: 'Both T1 and T2 print x as 2' — WRONG. The x printed is not inside the critical section; but even if both read x after, the thread that ran first would have x=1 when printing (x is only 2 after the second thread). Actually x is printed by printing y (not x). The option says 'value of x' but the code prints y — so this option is about printing x. Since x is not printed, the statement is vacuously odd, but if interpreted as x=2 being the final value, x=2 after both threads finish is true, but 'both T1 and T2 print x' is not what the code does — the code prints y. This option is FALSE.\nOption B: 'At least one of P1 and P2 will print x as 4' — WRONG. x is per-process and is incremented twice (2 threads per process), so maximum x = 2 per process. x cannot reach 4.\nOption C: 'At least one of the threads will print y as 2' — CORRECT. As shown, the second thread to execute (in either process) will have x=2 when computing y = 0 + 2 = 2, so y=2 is definitely printed.\nOption D: 'Both T1 and T2 will print y as 1' — WRONG. Only one thread per process prints y=1; the other prints y=2.",
+      "note": "Key insight: x is per-process global (max 2), and within each process one thread always prints y=2."
+     }
+    ],
+    "result": "C. At least one of the threads will print the value of y as 2"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Mutex serialization within a process: two threads increment shared x sequentially under a lock; local y captures x's value at increment time. Process isolation means x cannot exceed 2 per process.",
+   "qid": "7.26.7",
+   "answer_official": "A;D"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2024",
+    "year": 2024,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Threads",
+    "subtopic": "Threads"
+   },
+   "question": "Which of the following statements about threads is/are TRUE?\nA. Threads can only be implemented in kernel space\nB. Each thread has its own file descriptor table for open files\nC. All the threads belonging to a process share a common stack\nD. Threads belonging to a process are by default not protected from each other",
+   "answer": "D. Threads belonging to a process are by default not protected from each other",
+   "to_find": "Which statement(s) about threads are TRUE",
+   "understand": {
+    "plain": "This question tests knowledge of thread characteristics. Threads can be implemented in user space or kernel space (user-level vs kernel-level threads). File descriptor tables are shared among threads of a process. Each thread has its own private stack. Threads within the same process share the address space, so they can access each other's data — no protection between them by default.",
+    "keywords": [
+     {
+      "term": "User-level threads",
+      "explain": "Threads managed entirely in user space by a thread library (e.g., POSIX pthreads in M:1 model). The kernel sees only one process; thread scheduling is done in user space.",
+      "example": "Green threads in early Java were user-level threads."
+     },
+     {
+      "term": "Kernel-level threads",
+      "explain": "Threads that are directly managed by the OS kernel. The kernel schedules individual threads.",
+      "example": "Modern Linux POSIX threads (NPTL) are kernel-level; each thread maps to a kernel task."
+     },
+     {
+      "term": "Memory protection between processes",
+      "explain": "Different processes have separate address spaces protected by the MMU. In contrast, threads within the same process share the address space with no hardware memory protection between them.",
+      "example": "Thread T1 can read/write T2's stack memory (bad practice, but possible)."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Comparison of thread properties: threads can be user-level or kernel-level; file descriptors are shared; each thread has private stack; no protection between threads of the same process."
+   },
+   "given": {
+    "aim": "Identify which of the four statements about threads is/are true.",
+    "terms": [
+     {
+      "term": "Thread implementation space (A)",
+      "meaning": "Threads can be implemented in user space (user-level threads managed by a library) OR in kernel space (kernel-level threads). Both exist.",
+      "example": "POSIX pthreads can use either model; early Solaris had both user and kernel threads.",
+      "connects": "Option A says 'only kernel space' — this is FALSE."
+     },
+     {
+      "term": "File descriptor table (B)",
+      "meaning": "The file descriptor table is a per-process data structure. All threads of the same process share the same file descriptor table.",
+      "example": "If T1 opens a file and gets fd=3, T2 can read from fd=3 directly.",
+      "connects": "Option B says each thread has its OWN file descriptor table — this is FALSE."
+     },
+     {
+      "term": "Stack sharing (C)",
+      "meaning": "Each thread has its own private stack; stacks are NOT shared among threads of a process.",
+      "example": "T1 and T2 each have separate regions of memory for their call stacks.",
+      "connects": "Option C says threads share a common stack — this is FALSE."
+     },
+     {
+      "term": "Inter-thread protection (D)",
+      "meaning": "Threads within the same process share the address space. There is no hardware memory protection between them by default — one thread can corrupt another's data.",
+      "example": "T1 can directly write to T2's stack address if it obtains that pointer.",
+      "connects": "Option D says threads are NOT protected from each other by default — this is TRUE."
+     }
+    ],
+    "plan": "Evaluate each option against the standard thread memory model: threads can be user-level or kernel-level (not only kernel), they share file descriptors (no separate table per thread), they have private stacks (not shared), and they share address space with no default protection between each other."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Eliminate false statements (A, B, C)",
+      "formula_raw": "",
+      "apply": "A is FALSE: Threads can be implemented in both user space (user-level threads, e.g., many-to-one model) and kernel space (kernel-level threads, one-to-one model). The statement 'only in kernel space' is incorrect.\nB is FALSE: The file descriptor table is per-process, shared by all threads. If one thread opens a file, all threads can access it via the same fd. Threads do NOT have separate fd tables.\nC is FALSE: Each thread has its own private stack segment. A shared common stack would make concurrent function calls impossible — each call frame would overwrite others.",
+      "note": "Stack privacy is essential for correct function call semantics in multi-threaded programs."
+     },
+     {
+      "step": 2,
+      "title": "Verify option D",
+      "formula_raw": "",
+      "apply": "D is TRUE: Since all threads in a process share the same virtual address space, there is no hardware memory protection between threads of the same process (unlike between separate processes where the MMU enforces address space isolation). Thread T1 can access (and corrupt) memory belonging to T2 or any other thread in the process, including other threads' stacks if it somehow obtains the pointer. This lack of protection is a fundamental characteristic: bugs in one thread can silently corrupt shared data structures or even other threads' stacks.",
+      "note": "This is why multi-threaded programming requires careful synchronization — there is no OS-enforced protection barrier between threads of the same process."
+     }
+    ],
+    "result": "D. Threads belonging to a process are by default not protected from each other"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Thread isolation model: threads share process address space (no inter-thread memory protection); file descriptors are per-process shared; user-level and kernel-level thread implementations both exist; each thread has a private stack.",
+   "qid": "7.26.8",
+   "answer_official": "D"
+  }
+ ]
+}

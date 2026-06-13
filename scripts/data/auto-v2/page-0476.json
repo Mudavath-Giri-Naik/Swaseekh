@@ -1,0 +1,350 @@
+{
+ "page": 476,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2007",
+    "year": 2007,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Process Scheduling",
+    "subtopic": "Process Scheduling"
+   },
+   "question": "Consider n jobs J_1, J_2, ..., J_n such that job J_i has execution time t_i and a non-negative integer weight w_i. The weighted mean completion time of the jobs is defined to be sum_{i=1}^{n} w_i * C_i, where C_i is the completion time of job J_i. Assuming that there is only one processor available, in what order must the jobs be executed in order to minimize sum_{i=1}^{n} w_i * C_i?\n\nA. Non-decreasing order of t_i\nB. Non-increasing order of w_i\nC. Non-increasing order of w_i/t_i\nD. Non-increasing order of w_i * t_i",
+   "answer": "C. Non-increasing order of w_i/t_i",
+   "to_find": "The scheduling order that minimizes the weighted mean completion time sum w_i * C_i",
+   "understand": {
+    "plain": "We have n jobs, each with an execution time t_i and a weight w_i. The cost of a schedule is the sum of each job's weight multiplied by its completion time. We want to find the order that makes this total cost as small as possible. This is solved by the weighted shortest-job-first (WSJF) rule.",
+    "keywords": [
+     {
+      "term": "Completion time C_i",
+      "explain": "The time at which job J_i finishes executing in a given schedule. It includes all waiting time plus execution time.",
+      "example": "If jobs A (t=2) and B (t=3) run in that order, C_A = 2 and C_B = 5."
+     },
+     {
+      "term": "Weighted completion time",
+      "explain": "The sum sum w_i * C_i, which assigns more importance to high-weight jobs completing early.",
+      "example": "If w_1=3, C_1=2 and w_2=1, C_2=5, weighted sum = 3*2 + 1*5 = 11."
+     },
+     {
+      "term": "Smith's rule (WSPT)",
+      "explain": "The optimal rule: schedule jobs in decreasing order of ratio w_i/t_i (weight per unit time) to minimize total weighted completion time.",
+      "example": "Job A with w/t = 3/2 = 1.5 should run before Job B with w/t = 1/3 = 0.33."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Jobs ordered by decreasing w_i/t_i ratio to minimize total weighted completion time."
+   },
+   "given": {
+    "aim": "Find the scheduling order that minimizes sum_{i=1}^{n} w_i * C_i on a single processor.",
+    "terms": [
+     {
+      "term": "t_i",
+      "meaning": "Execution time of job J_i",
+      "example": "Job J_1 may require t_1 = 3 time units to complete.",
+      "connects": "Determines how long processor is busy and thus delays subsequent jobs."
+     },
+     {
+      "term": "w_i",
+      "meaning": "Non-negative integer weight of job J_i representing its importance or priority.",
+      "example": "w_i = 5 means completing J_i early has high benefit.",
+      "connects": "Multiplied by completion time C_i in the objective function."
+     },
+     {
+      "term": "C_i",
+      "meaning": "Completion time of job J_i = sum of t_j for all jobs j scheduled at or before position i.",
+      "example": "If J_1 (t=2) runs first and J_2 (t=3) second, C_2 = 2+3 = 5.",
+      "connects": "The objective is to minimize sum w_i * C_i by choosing the right ordering."
+     }
+    ],
+    "plan": "Use an exchange argument (adjacent job swap): compare two orderings, one with J_i before J_j and the other reversed, then find which ordering gives a smaller weighted completion time. The optimal condition gives w_i/t_i >= w_j/t_j for J_i to precede J_j."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Set up the exchange argument",
+      "formula_raw": "Compare C(i before j) vs C(j before i)",
+      "apply": "Suppose jobs J_i and J_j are adjacent. Let S be the total processing time of all jobs before them. If J_i runs before J_j:\n  C_i = S + t_i, C_j = S + t_i + t_j\n  Cost = w_i*(S+t_i) + w_j*(S+t_i+t_j)\n       = (w_i+w_j)*S + w_i*t_i + w_j*(t_i+t_j)\n\nIf J_j runs before J_i:\n  Cost = (w_i+w_j)*S + w_j*t_j + w_i*(t_j+t_i)",
+      "note": "The term (w_i+w_j)*S is common to both and cancels."
+     },
+     {
+      "step": 2,
+      "title": "Derive the optimality condition",
+      "formula_raw": "J_i before J_j is better iff w_i*t_i + w_j*(t_i+t_j) <= w_j*t_j + w_i*(t_j+t_i)",
+      "apply": "Simplify: w_i*t_i + w_j*t_i + w_j*t_j <= w_j*t_j + w_i*t_j + w_i*t_i\n=> w_j*t_i <= w_i*t_j\n=> w_j/t_j <= w_i/t_i\n=> w_i/t_i >= w_j/t_j\n\nSo J_i should precede J_j when its ratio w_i/t_i is LARGER. This means we schedule jobs in NON-INCREASING order of w_i/t_i.",
+      "note": "This is Smith's rule for minimizing total weighted completion time on a single machine."
+     },
+     {
+      "step": 3,
+      "title": "Check the options",
+      "formula_raw": "",
+      "apply": "Option A: non-decreasing t_i (shortest first) — ignores weights, not optimal in general.\nOption B: non-increasing w_i — ignores execution times, not optimal.\nOption C: non-increasing w_i/t_i — matches Smith's rule, CORRECT.\nOption D: non-increasing w_i*t_i — wrong; large weight AND large time is bad, not good.",
+      "note": "Only option C correctly implements the weight-to-processing-time ratio rule."
+     }
+    ],
+    "result": "Jobs must be scheduled in non-increasing order of w_i/t_i. Answer: C."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Smith's rule (WSPT — Weighted Shortest Processing Time): schedule in decreasing order of w_i/t_i to minimize total weighted completion time on a single machine. Proven via adjacent exchange argument.",
+   "qid": "7.19.47",
+   "answer_official": "D"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2008",
+    "year": 2008,
+    "marks": 2,
+    "difficulty": "easy",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Process Scheduling",
+    "subtopic": "Process Scheduling"
+   },
+   "question": "If the time-slice used in the round-robin scheduling policy is more than the maximum time required to execute any process, then the policy will\n\nA. degenerate to shortest job first\nB. degenerate to priority scheduling\nC. degenerate to first come first serve\nD. none of the above",
+   "answer": "C. degenerate to first come first serve",
+   "to_find": "What scheduling algorithm does round-robin degenerate to when the time slice exceeds the maximum execution time of any process?",
+   "understand": {
+    "plain": "Round-robin gives each process a fixed time quantum. If the quantum is larger than any process's total execution time, every process finishes in its very first turn without preemption. Processes then complete in the order they first entered the ready queue, which is exactly FCFS behavior.",
+    "keywords": [
+     {
+      "term": "Round-Robin (RR)",
+      "explain": "A preemptive scheduling algorithm where each process gets the CPU for a fixed time slice (quantum); if not done, it goes to the back of the ready queue.",
+      "example": "With quantum=2: P1(burst=5), P2(burst=3) run as P1(2), P2(2), P1(2), P2(1), P1(1)."
+     },
+     {
+      "term": "Time quantum / time slice",
+      "explain": "The maximum CPU time a process can use before being preempted in RR scheduling.",
+      "example": "If quantum=100ms and all processes finish in <100ms, none is ever preempted."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "With large quantum, each process runs to completion in its first turn — identical to FCFS."
+   },
+   "given": {
+    "aim": "Determine the effective scheduling algorithm when RR time-slice > max process execution time.",
+    "terms": [
+     {
+      "term": "Time-slice (quantum)",
+      "meaning": "The CPU time allocated per turn in round-robin.",
+      "example": "quantum = 1000ms",
+      "connects": "If quantum > every process's burst time, no preemption ever occurs."
+     },
+     {
+      "term": "Maximum process execution time",
+      "meaning": "The longest burst time among all ready processes.",
+      "example": "If processes have burst times 3, 5, 7 — max = 7.",
+      "connects": "When quantum > 7, every process finishes within its first quantum."
+     },
+     {
+      "term": "No preemption condition",
+      "meaning": "When a process never uses its full quantum, it completes without being interrupted.",
+      "example": "A process with burst=5 and quantum=100 runs for 5ms then exits voluntarily.",
+      "connects": "Without preemption, RR reduces to non-preemptive execution in arrival order = FCFS."
+     }
+    ],
+    "plan": "If every process completes within one quantum, no process is ever preempted or put back in the queue. Processes execute in the order they originally arrived, which matches FCFS."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Analyze behavior when quantum > all burst times",
+      "formula_raw": "quantum > max(burst_i) for all i",
+      "apply": "Each process, when given the CPU, will finish entirely within its quantum since quantum > its burst time. It will not be preempted and will not re-enter the queue. The next process in the queue then runs.",
+      "note": "This means every process runs exactly once, in the order it was queued."
+     },
+     {
+      "step": 2,
+      "title": "Compare to known algorithms",
+      "formula_raw": "",
+      "apply": "- FCFS: processes run in arrival order, each to completion, no preemption. This matches.\n- SJF: requires sorting by burst time — arrival order is NOT preserved.\n- Priority: requires sorting by priority — arrival order is NOT preserved.\nSince RR with large quantum = arrival order, non-preemptive execution, it IS FCFS.",
+      "note": "The key insight: no sorting by burst/priority occurs; the queue is FIFO by arrival."
+     }
+    ],
+    "result": "The policy degenerates to First Come First Serve (FCFS). Answer: C."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Round-Robin with quantum >= max burst time is equivalent to FCFS: each process completes in one turn, served in arrival (FIFO queue) order.",
+   "qid": "7.19.48",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1987",
+    "year": 1987,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Process Synchronization",
+    "subtopic": "Process Synchronization"
+   },
+   "question": "A critical region is\n\nA. One which is enclosed by a pair of P and V operations on semaphores.\nB. A program segment that has not been proved bug-free.\nC. A program segment that often causes unexpected system crashes.\nD. A program segment where shared resources are accessed.",
+   "answer": "D. A program segment where shared resources are accessed.",
+   "to_find": "The correct definition of a critical region (critical section) in operating systems.",
+   "understand": {
+    "plain": "A critical region (also called critical section) is any part of a program that accesses shared resources such as shared memory or files. Only one process should be allowed inside its critical region at a time to prevent data inconsistency. The P and V operations on semaphores are mechanisms to PROTECT a critical region, not what defines it.",
+    "keywords": [
+     {
+      "term": "Critical region / Critical section",
+      "explain": "A segment of code where a process accesses shared resources (variables, files, hardware). Mutual exclusion must be enforced here.",
+      "example": "Code that increments a shared counter: counter++ is a critical section if multiple threads access it."
+     },
+     {
+      "term": "Mutual exclusion",
+      "explain": "The guarantee that only one process executes in its critical section at a time.",
+      "example": "If P1 is inside its critical section, P2 must wait before entering its own critical section for the same resource."
+     },
+     {
+      "term": "P and V operations (semaphore)",
+      "explain": "P (wait/down) decrements a semaphore to acquire a lock; V (signal/up) increments it to release. They GUARD a critical section but do not define it.",
+      "example": "P(mutex); /* critical section */; V(mutex) — the middle part is the critical region."
+     }
+    ],
+    "visual_svg": "<svg width='460' height='160' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='20' width='440' height='120' rx='8' class='bg'/><rect x='80' y='40' width='300' height='60' rx='6' class='hi'/><text x='230' y='76' text-anchor='middle' class='lbl ink'>Critical Region</text><text x='230' y='96' text-anchor='middle' class='sub mut'>(shared resource accessed here)</text><text x='30' y='76' text-anchor='middle' class='tag ok'>P(s)</text><text x='410' y='76' text-anchor='middle' class='tag ok'>V(s)</text><text x='30' y='95' text-anchor='middle' class='sub mut'>entry</text><text x='410' y='95' text-anchor='middle' class='sub mut'>exit</text></svg>",
+    "visual_alt": "A critical region is the code block (highlighted) between P(s) and V(s) semaphore operations where shared resources are accessed."
+   },
+   "given": {
+    "aim": "Identify the correct definition of a critical region from four options.",
+    "terms": [
+     {
+      "term": "Shared resource",
+      "meaning": "A resource (memory, file, device) accessible by more than one process concurrently.",
+      "example": "A global variable 'balance' shared by multiple banking threads.",
+      "connects": "The critical region is precisely the code that reads/writes such shared resources."
+     },
+     {
+      "term": "P operation (wait/down)",
+      "meaning": "Semaphore operation that decrements value; blocks if value becomes negative, used to enter a critical section.",
+      "example": "P(mutex) before accessing shared data.",
+      "connects": "Guards entry to the critical region — does not define it."
+     },
+     {
+      "term": "V operation (signal/up)",
+      "meaning": "Semaphore operation that increments value and unblocks a waiting process, used to exit a critical section.",
+      "example": "V(mutex) after finishing shared data access.",
+      "connects": "Guards exit from the critical region — does not define it."
+     }
+    ],
+    "plan": "Evaluate each option against the OS definition: a critical region is defined by WHAT it does (accesses shared resources), not by HOW it is protected (P/V) or any connotation of bugs or crashes."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Eliminate incorrect options",
+      "formula_raw": "",
+      "apply": "Option A: P and V operations PROTECT a critical region but do not define it. A critical region can exist without semaphores (though it would be unsafe).\nOption B: 'Not proved bug-free' is a software quality concept, unrelated to OS scheduling/synchronization.\nOption C: 'Causes system crashes' is incorrect; improperly protected critical regions may cause issues, but crashes are not the definition.",
+      "note": "These options confuse the mechanism of protection with the definition of the concept."
+     },
+     {
+      "step": 2,
+      "title": "Confirm the correct definition",
+      "formula_raw": "",
+      "apply": "Option D: A program segment where shared resources are accessed — this is the exact definition. The critical region is any code section in which a process reads or writes shared data. Mutual exclusion algorithms (like semaphores) exist to ensure that at most one process is in its critical region at any time.",
+      "note": "Dijkstra's original definition: a critical section is the part of the program in which shared memory is accessed."
+     }
+    ],
+    "result": "A critical region is a program segment where shared resources are accessed. Answer: D."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Definition of critical section/region: the code segment accessing shared resources. Mutual exclusion (via semaphores, locks, etc.) ensures only one process executes its critical section at a time.",
+   "qid": "7.20.1",
+   "answer_official": "D"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1987",
+    "year": 1987,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Process Synchronization",
+    "subtopic": "Process Synchronization"
+   },
+   "question": "Consider the following proposal to the 'readers and writers problem.'\n\nShared variables and semaphores:\n  aw, ar, rw, rr : integer;\n  mutex, reading, writing : semaphore;\n\nInitial values: ar = rr = aw = rw = 0\n  reading_value = writing_value = 0\n  mutex_value = 1\n\nProcess writer:\n  repeat\n    P(mutex);\n    if rr > 0\n      then begin\n        aw := aw + 1;\n        V(mutex);\n        P(writing)\n      end\n    else begin\n        rw := rw + 1;\n        V(mutex);\n        while (rr > 0) do skip\n      end;\n    critical section;\n    P(mutex);\n    rw := rw - 1;\n    if aw > 0\n      then begin\n        aw := aw - 1;\n        V(writing)\n      end\n    else\n      while ar > 0 do begin\n        ar := ar - 1;\n        V(reading)\n      end;\n    V(mutex);\n  until false;\n\nProcess granter:\n  begin\n    P(mutex);\n    if aw = 0\n      then begin\n        rr := rr + 1;\n        V(reading)\n      end\n    else\n      ar := ar + 1;\n    V(mutex);\n    P(reading);\n    other work\n  end;\n\na. Give the value of the shared variables and the states of semaphores when 12 readers are reading and writers are writing.\nb. Can a group of readers make waiting writers starve? Can writers starve readers?\nc. Explain if the above solution is incorrect.",
+   "answer": "See solution for detailed answers to all three sub-parts.",
+   "to_find": "Values of shared variables when 12 readers and 1 writer are active, starvation analysis, and correctness of the solution.",
+   "understand": {
+    "plain": "This is a classic readers-writers problem. Multiple readers can read simultaneously but a writer needs exclusive access. The proposed solution uses shared counters (rr = active readers, rw = active writers, ar = waiting readers, aw = waiting writers) and three semaphores. We need to determine the state of these variables when 12 readers are actively reading and a writer is in its critical section.",
+    "keywords": [
+     {
+      "term": "Readers-Writers problem",
+      "explain": "A synchronization problem where multiple readers can access shared data simultaneously, but writers need exclusive access (no readers or other writers).",
+      "example": "A database allowing multiple concurrent reads but blocking all others during a write."
+     },
+     {
+      "term": "Semaphore state",
+      "explain": "The current integer value of a semaphore. Positive value means resources available; negative or zero means processes may be blocked.",
+      "example": "mutex = 1 means it is free; mutex = 0 means one process holds it."
+     },
+     {
+      "term": "Starvation",
+      "explain": "A process is starved if it waits indefinitely for a resource because other processes continuously get priority.",
+      "example": "If new readers always arrive before a waiting writer gets to proceed, the writer starves."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Readers-writers protocol with counters rr (readers reading), rw (writers writing), ar (readers waiting), aw (writers waiting) guarded by mutex semaphore."
+   },
+   "given": {
+    "aim": "Analyze the state of shared variables/semaphores under specific conditions and evaluate correctness.",
+    "terms": [
+     {
+      "term": "rr (readers reading)",
+      "meaning": "Count of readers currently in their critical section (actively reading).",
+      "example": "rr = 12 means 12 readers are currently reading.",
+      "connects": "Used by writer process to decide whether to wait or proceed."
+     },
+     {
+      "term": "rw (writers writing)",
+      "meaning": "Count of writers currently in or about to enter their critical section.",
+      "example": "rw = 1 means one writer is active.",
+      "connects": "Checked by readers to determine if they should wait."
+     },
+     {
+      "term": "aw and ar (waiting writers and readers)",
+      "meaning": "aw = count of writers blocked on P(writing); ar = count of readers waiting (not yet granted reading).",
+      "example": "aw = 2 means 2 writers are queued waiting for their turn.",
+      "connects": "Used for wake-up decisions after a writer or reader finishes."
+     }
+    ],
+    "plan": "a) Trace the code to find variable values when 12 readers are active and 1 writer is in critical section. b) Analyze whether the wake-up logic prevents or allows starvation. c) Check if the busy-wait (while rr > 0 do skip) in the writer process is safe/correct."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Part (a): Variable states with 12 readers reading and 1 writer writing",
+      "formula_raw": "",
+      "apply": "When 12 readers are actively reading:\n  rr = 12 (12 readers in their critical section)\n  ar = 0 (no readers waiting; all 12 already granted)\n\nWhen 1 writer is in its critical section:\n  The writer went through the else branch (rr > 0 was false when it checked — but actually a writer cannot proceed via rw path while rr > 0; it would busy-wait). For a writer to be in critical section, it must have found rr = 0 at some point and set rw = 1.\n\n  However, since 12 readers are CURRENTLY reading, and the writer is ALSO in its critical section simultaneously — this reveals a race condition / correctness flaw (see part c).\n\n  Assuming the scenario is possible in this (flawed) solution:\n  rr = 12, rw = 1, ar = 0, aw = 0\n  mutex_value = 1 (released after last operation)\n  reading semaphore = 0 (all granted readers have passed P(reading))\n  writing semaphore = 0",
+      "note": "The busy-wait loop 'while (rr > 0) do skip' is not atomic with mutex, so a writer can exit this loop and enter critical section even while rr > 0, which is a critical flaw."
+     },
+     {
+      "step": 2,
+      "title": "Part (b): Starvation analysis",
+      "formula_raw": "",
+      "apply": "Can readers starve writers?\n  YES. If readers continuously arrive and get added to rr (incremented via granter), a waiting writer (blocked on P(writing) with aw > 0) will be woken only when rw goes to 0 AND aw > 0. But if new readers keep arriving and rr never drops to 0, the writer waits indefinitely — this is reader-preference starvation of writers.\n\nCan writers starve readers?\n  In this solution, when a writer finishes (rw-- = 0), it first wakes all waiting writers (if aw > 0). Only if aw = 0 does it wake waiting readers. So if writers continuously arrive after one finishes, waiting readers (ar > 0) may never be woken — writer preference can starve readers.\n\n  This solution gives NEITHER writers-prefer NOR readers-prefer guarantees; both starvation scenarios are possible.",
+      "note": "The solution does not enforce a strict fairness policy; starvation of both kinds is theoretically possible."
+     },
+     {
+      "step": 3,
+      "title": "Part (c): Is the solution correct?",
+      "formula_raw": "",
+      "apply": "The solution is INCORRECT. The critical flaw is in the writer process:\n\n  rw := rw + 1;\n  V(mutex);\n  while (rr > 0) do skip;  // busy-wait WITHOUT holding mutex\n  critical section;\n\nAfter V(mutex), the writer releases the lock and then busy-waits on rr. However, between V(mutex) and checking rr, a reader can enter its critical section (rr is incremented by granter under mutex). So the writer may observe rr = 0 just as a reader increments rr outside the writer's view, and both proceed to their critical sections simultaneously.\n\nThis violates mutual exclusion: a writer and readers can be in their critical sections at the same time, which is the fundamental requirement of the readers-writers problem.\n\nConclusion: The solution is incorrect because the busy-wait on rr outside mutex does not guarantee mutual exclusion between readers and writers.",
+      "note": "The correct approach is to use the reading semaphore (like the aw path does) rather than busy-waiting, ensuring atomic check-and-block under mutex protection."
+     }
+    ],
+    "result": "a) rr=12, rw=1, ar=0, aw=0, mutex=1, reading=0, writing=0 (though this state itself reveals the flaw). b) Both readers can starve writers and writers can starve readers in this scheme. c) The solution is incorrect — the busy-wait on rr after releasing mutex allows simultaneous reader and writer access, violating mutual exclusion."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Readers-Writers problem synchronization: correctness requires mutual exclusion (at most one writer, or multiple readers but no writer, in critical section). Busy-waiting outside a mutex lock breaks atomicity and violates this invariant.",
+   "qid": "7.20.2",
+   "answer_official": "N/A"
+  }
+ ]
+}

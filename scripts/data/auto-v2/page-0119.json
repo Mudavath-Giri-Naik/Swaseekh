@@ -1,0 +1,207 @@
+{
+ "page": 119,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2005",
+    "year": 2005,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Computer Organization & Architecture",
+    "topic": "Data Path",
+    "subtopic": "Data Path"
+   },
+   "question": "Consider the following data path of a CPU.\n\n[Diagram: Bus-based datapath with MAR, MDR, IR, PC, GPRs (GPR0..GPRn), and ALU connected via a single bus]\n\nThe ALU, the bus and all the registers in the data path are of identical size. All operations including incrementation of the PC and the GPRs are to be carried out in the ALU. Two clock cycles are needed for memory read operation - the first one for loading address in the MAR and the next one for loading data from the memory bus into the MDR.\n\nThe instruction 'Add R0, R1' has the register transfer interpretation R0 = R0 + R1. The minimum number of clock cycles needed for execution cycle of this instruction is:\n\nA. 2\nB. 3\nC. 4\nD. 5",
+   "answer": "B. 3",
+   "to_find": "Minimum number of clock cycles needed for the execution cycle of 'Add R0, R1'",
+   "understand": {
+    "plain": "We have a single-bus CPU datapath where all operations (including addition) go through the ALU. The instruction 'Add R0, R1' means R0 = R0 + R1. We need to count only the execution cycle clock steps (not the fetch cycle). Since there is only one bus, only one transfer can happen per clock cycle.",
+    "keywords": [
+     {
+      "term": "Single bus datapath",
+      "explain": "All registers and the ALU share one common bus; only one register can drive the bus and one can receive per clock cycle.",
+      "example": "To move R0 to ALU input A requires one clock cycle."
+     },
+     {
+      "term": "Execution cycle",
+      "explain": "The phase after instruction fetch/decode where the actual operation (here, addition) is performed.",
+      "example": "For Add R0, R1: read both operands, compute sum, write back — each step takes at least one cycle."
+     },
+     {
+      "term": "ALU temporary register",
+      "explain": "In a single-bus design the ALU typically has an internal temp (latch) register to hold the first operand while the second is placed on the bus.",
+      "example": "Cycle 1: R0 -> bus -> temp; Cycle 2: R1 -> bus -> ALU compute; Cycle 3: ALU result -> R0."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='420' height='220'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='80' height='36' class='bg'/><text x='50' y='33' text-anchor='middle' class='lbl ink'>R0</text><rect x='120' y='10' width='80' height='36' class='bg'/><text x='160' y='33' text-anchor='middle' class='lbl ink'>R1</text><rect x='230' y='10' width='80' height='36' class='hi'/><text x='270' y='33' text-anchor='middle' class='lbl ink'>TEMP</text><rect x='160' y='120' width='80' height='50' class='hi'/><text x='200' y='150' text-anchor='middle' class='lbl ink'>ALU</text><line x1='50' y1='46' x2='50' y2='90' stroke='#7F77DD' stroke-width='2'/><line x1='160' y1='46' x2='160' y2='90' stroke='#7F77DD' stroke-width='2'/><line x1='270' y1='46' x2='270' y2='90' stroke='#7F77DD' stroke-width='2'/><line x1='10' y1='90' x2='350' y2='90' stroke='#7F77DD' stroke-width='3'/><text x='185' y='107' text-anchor='middle' class='sub mut'>Single Bus</text><line x1='270' y1='90' x2='270' y2='120' stroke='#7F77DD' stroke-width='2'/><line x1='160' y1='90' x2='160' y2='120' stroke='#7F77DD' stroke-width='2'/><line x1='200' y1='170' x2='200' y2='190' stroke='#1D9E75' stroke-width='2'/><line x1='50' y1='190' x2='200' y2='190' stroke='#1D9E75' stroke-width='2'/><line x1='50' y1='46' x2='50' y2='190' stroke='#1D9E75' stroke-width='2' stroke-dasharray='4'/><text x='10' y='210' class='sub ok'>ALU result -&gt; R0</text></svg>",
+    "visual_alt": "Single-bus datapath: R0, R1, TEMP, PC, MAR, MDR, IR all connect to a common bus; ALU reads from bus and TEMP register; result goes back onto bus to destination register."
+   },
+   "given": {
+    "aim": "Find minimum execution-cycle clock cycles for R0 = R0 + R1 on a single-bus datapath.",
+    "terms": [
+     {
+      "term": "Single bus",
+      "meaning": "Only one data transfer can happen per clock cycle.",
+      "example": "Cannot simultaneously read R0 and R1.",
+      "connects": "Forces sequential operand reads, adding cycles."
+     },
+     {
+      "term": "ALU temp latch",
+      "meaning": "Holds first operand inside ALU while second operand is fetched on bus.",
+      "example": "R0 -> bus -> ALU_A_latch in cycle 1.",
+      "connects": "Enables two-operand operation over two bus cycles."
+     },
+     {
+      "term": "Write-back",
+      "meaning": "ALU result must be placed back on bus and stored in destination register.",
+      "example": "ALU_out -> bus -> R0 in cycle 3.",
+      "connects": "Adds one more clock cycle to the execution."
+     }
+    ],
+    "plan": "Enumerate the micro-operations for the execution cycle: (1) transfer R0 to ALU temp, (2) send R1 to ALU and compute, (3) write ALU result back to R0. Each step requires one clock cycle on a single-bus design, giving a minimum of 3 cycles."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Cycle 1 — Load first operand into ALU temp register",
+      "formula_raw": "TEMP <- R0",
+      "apply": "R0 is placed on the bus and loaded into the ALU's internal temporary (latch) register. This frees the bus for the next operand. One clock cycle.",
+      "note": "The temp register is internal to the ALU and does not need the bus to hold its value."
+     },
+     {
+      "step": 2,
+      "title": "Cycle 2 — Send second operand to ALU and perform addition",
+      "formula_raw": "ALU_out <- TEMP + R1  (R1 on bus)",
+      "apply": "R1 is placed on the bus; the ALU adds TEMP (holding R0) and R1, producing the result in the ALU output latch. One clock cycle.",
+      "note": "The ALU computes in the same cycle as the second operand arrives."
+     },
+     {
+      "step": 3,
+      "title": "Cycle 3 — Write result back to R0",
+      "formula_raw": "R0 <- ALU_out",
+      "apply": "The ALU output is placed on the bus and written into R0. One clock cycle.",
+      "note": "This completes the execution cycle. Total = 3 cycles."
+     }
+    ],
+    "result": "Minimum clock cycles for execution cycle = 3. Answer: B. 3"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Single-bus datapath micro-operation sequencing: each register transfer uses one clock cycle; two-operand ALU operation needs a temp latch, requiring 3 cycles for R_dst = R_src1 op R_src2.",
+   "qid": "2.8.3",
+   "answer_official": "B"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2005",
+    "year": 2005,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Computer Organization & Architecture",
+    "topic": "Data Path",
+    "subtopic": "Data Path"
+   },
+   "question": "Consider the following data path of a CPU.\n\n[Diagram: Bus-based datapath with MAR, MDR, IR, PC, GPRs (GPR0..GPRn), and ALU connected via a single bus]\n\nThe ALU, the bus and all the registers in the data path are of identical size. All operations including incrementation of the PC and the GPRs are to be carried out in the ALU. Two clock cycles are needed for memory read operation - the first one for loading address in the MAR and the next one for loading data from the memory bus into the MDR.\n\nThe instruction 'call Rn, sub' is a two word instruction. Assuming that PC is incremented during the fetch cycle of the first word of the instruction, its register transfer interpretation is:\n\nR_n = PC + 1;\nPC = MPC\n\nThe minimum number of CPU clock cycles needed during the execution cycle of this instruction is:\n\nA. 2\nB. 3\nC. 4\nD. 5",
+   "answer": "D. 5",
+   "to_find": "Minimum number of CPU clock cycles needed during execution cycle of 'call Rn, sub'",
+   "understand": {
+    "plain": "The 'call Rn, sub' instruction saves the return address (PC+1) into register Rn and then jumps to subroutine address stored in the second word (MPC, the memory at PC). Because PC was already incremented during fetch of word 1, the current PC points to word 2 (the address field 'sub'). The execution must: read word 2 from memory (2 cycles), compute PC+1 (for return address), save it to Rn, and set PC to the fetched address. All on a single-bus datapath.",
+    "keywords": [
+     {
+      "term": "Call instruction",
+      "meaning": "A subroutine call that saves the return address and jumps to the target address.",
+      "example": "call Rn, sub: Rn = return address; PC = address of sub."
+     },
+     {
+      "term": "Two-word instruction",
+      "meaning": "The instruction occupies two consecutive memory locations: opcode+Rn in word 1, target address 'sub' in word 2.",
+      "example": "Word 1 at address 100; Word 2 (address of sub) at address 101."
+     },
+     {
+      "term": "MPC (Memory at PC)",
+      "meaning": "The contents of memory at the current PC value, i.e., the second word of the instruction which is the subroutine target address.",
+      "example": "If PC = 101, then MPC = Memory[101] = address of subroutine."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='440' height='200'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='100' height='34' class='hi'/><text x='60' y='32' text-anchor='middle' class='lbl ink'>PC (=101)</text><rect x='130' y='10' width='100' height='34' class='bg'/><text x='180' y='32' text-anchor='middle' class='lbl ink'>MAR</text><rect x='260' y='10' width='100' height='34' class='bg'/><text x='310' y='32' text-anchor='middle' class='lbl ink'>MDR</text><rect x='370' y='10' width='60' height='34' class='bg'/><text x='400' y='32' text-anchor='middle' class='lbl ink'>Rn</text><line x1='60' y1='44' x2='60' y2='80' stroke='#7F77DD' stroke-width='2'/><line x1='180' y1='44' x2='180' y2='80' stroke='#7F77DD' stroke-width='2'/><line x1='310' y1='44' x2='310' y2='80' stroke='#7F77DD' stroke-width='2'/><line x1='400' y1='44' x2='400' y2='80' stroke='#7F77DD' stroke-width='2'/><line x1='10' y1='80' x2='430' y2='80' stroke='#7F77DD' stroke-width='3'/><text x='220' y='98' text-anchor='middle' class='sub mut'>Single Bus</text><rect x='160' y='130' width='100' height='40' class='hi'/><text x='210' y='156' text-anchor='middle' class='lbl ink'>ALU</text><line x1='210' y1='80' x2='210' y2='130' stroke='#7F77DD' stroke-width='2'/><text x='10' y='185' class='sub ink'>Steps: MAR=PC(1), MDR=Mem(2), TEMP=PC(3),</text><text x='10' y='200' class='sub ink'>Rn=TEMP+1(4), PC=MDR(5)</text></svg>",
+    "visual_alt": "Single-bus datapath showing PC=101 (pointing to second word), MAR, MDR, Rn, and ALU. Execution reads word 2 from memory (2 cycles), computes PC+1 for return address (uses ALU), stores in Rn, and loads target address into PC."
+   },
+   "given": {
+    "aim": "Find minimum execution-cycle clock cycles for 'call Rn, sub': R_n = PC+1; PC = MPC.",
+    "terms": [
+     {
+      "term": "PC after fetch of word 1",
+      "meaning": "PC was incremented during fetch of word 1, so PC now points to word 2 (the target address 'sub' in memory).",
+      "example": "If word 1 at 100, then after fetch PC = 101.",
+      "connects": "MPC = Memory[PC] = Memory[101] = subroutine address."
+     },
+     {
+      "term": "PC + 1 = return address",
+      "meaning": "The return address is PC+1 = 102, the instruction after the two-word call.",
+      "example": "After call, execution should return to address 102.",
+      "connects": "Must compute PC+1 using ALU and store in Rn."
+     },
+     {
+      "term": "Memory read (2 cycles)",
+      "meaning": "Fetching word 2 from memory requires: cycle 1 to load PC into MAR, cycle 2 to load memory data into MDR.",
+      "example": "MAR = PC (cycle 1); MDR = Memory[MAR] (cycle 2).",
+      "connects": "MDR will contain the subroutine target address to be loaded into PC."
+     },
+     {
+      "term": "ALU for PC+1",
+      "meaning": "All arithmetic including increment is done in ALU; need to move PC to TEMP, then compute TEMP+1.",
+      "example": "TEMP = PC (1 cycle); Rn = TEMP+1 via ALU (1 cycle).",
+      "connects": "Two more cycles for computing and storing return address."
+     }
+    ],
+    "plan": "The execution cycle must: (1) load PC into MAR, (2) read memory into MDR (memory read = 2 cycles), (3) save current PC value to TEMP for computing return address, (4) compute TEMP+1 and store in Rn, (5) load MDR (subroutine address) into PC. However, steps can be optimally ordered to avoid redundancy. Careful micro-operation sequencing gives a minimum of 5 cycles."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Cycle 1 — Load PC into MAR (start memory read of word 2)",
+      "formula_raw": "MAR <- PC",
+      "apply": "PC is placed on the bus and loaded into MAR. This initiates the memory read to fetch the target subroutine address (second word of the instruction). One clock cycle.",
+      "note": "Simultaneously we can latch PC into TEMP if the datapath supports it, but on a strict single-bus design this is one transfer per cycle."
+     },
+     {
+      "step": 2,
+      "title": "Cycle 2 — Load PC into TEMP (prepare for PC+1 computation)",
+      "formula_raw": "TEMP <- PC",
+      "apply": "While waiting for memory (memory takes 2 cycles: MAR load + MDR load), we use this cycle to move PC into the ALU temp register so we can later compute PC+1 = return address.",
+      "note": "Memory read cycle 1 was MAR=PC. Memory will complete (MDR loaded) in the next cycle."
+     },
+     {
+      "step": 3,
+      "title": "Cycle 3 — Memory read completes: MDR loaded with target address",
+      "formula_raw": "MDR <- Memory[MAR]",
+      "apply": "The second clock cycle of the memory read: memory data (subroutine address 'sub') is loaded into MDR. One clock cycle.",
+      "note": "MDR now holds the jump target address."
+     },
+     {
+      "step": 4,
+      "title": "Cycle 4 — Compute return address and store in Rn",
+      "formula_raw": "Rn <- TEMP + 1",
+      "apply": "ALU computes TEMP+1 (= original PC+1 = return address) and stores result in Rn via the bus. One clock cycle.",
+      "note": "This satisfies the R_n = PC+1 part of the register transfer."
+     },
+     {
+      "step": 5,
+      "title": "Cycle 5 — Load target address into PC",
+      "formula_raw": "PC <- MDR",
+      "apply": "MDR (containing the subroutine target address) is placed on the bus and loaded into PC. One clock cycle.",
+      "note": "This satisfies the PC = MPC part of the register transfer. Total execution cycles = 5, which corresponds to answer D. 5."
+     }
+    ],
+    "result": "Minimum number of CPU clock cycles for execution cycle of 'call Rn, sub' = 5. Answer: D. 5"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Single-bus datapath micro-operation scheduling for a two-word call instruction; memory read takes 2 cycles (MAR load + MDR load); ALU increment for return address requires temp register; total 5 micro-operations each taking 1 cycle.",
+   "qid": "2.8.4",
+   "answer_official": "B"
+  }
+ ]
+}

@@ -1,0 +1,376 @@
+{
+ "page": 680,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2021",
+    "year": 2021,
+    "marks": 2,
+    "difficulty": "easy",
+    "type": "MCQ",
+    "subject": "Theory of Computation",
+    "topic": "Recursive and Recursively Enumerable Languages",
+    "subtopic": "Recursive and Recursively Enumerable Languages"
+   },
+   "question": "For a Turing machine M, <M> denotes an encoding of M. Consider the following two languages:\nL_1 = {<M> | M is a DFA such that L(M) = Sigma*}\nL_2 = {<M> | M takes more than 2021 steps on some input}\n\nWhich one of the following options is correct?\nA. Both L_1 and L_2 are decidable\nB. L_1 is decidable and L_2 is undecidable\nC. L_1 is undecidable and L_2 is decidable\nD. Both L_1 and L_2 are undecidable",
+   "answer": "B. L_1 is decidable and L_2 is undecidable",
+   "to_find": "Decidability of L_1 (DFA totality) and L_2 (TM takes more than 2021 steps on some input)",
+   "understand": {
+    "plain": "L_1 asks whether a given DFA accepts ALL strings (totality). Since we are given it is a DFA (not a general TM), we can decide this algorithmically. L_2 asks whether a given TM (encoded as <M>) has at least one input on which it takes more than 2021 computation steps. This requires reasoning about TM behavior over infinitely many possible inputs, which turns out to be undecidable.",
+    "keywords": [
+     {
+      "term": "Decidable language",
+      "explain": "A language is decidable if there exists a TM that always halts and correctly accepts or rejects every input.",
+      "example": "Checking if a DFA accepts the empty string is decidable."
+     },
+     {
+      "term": "DFA totality",
+      "explain": "Checking whether a DFA accepts all strings over Sigma* is decidable: complement the DFA and check emptiness.",
+      "example": "If DFA M's complement has no reachable accepting state, then L(M) = Sigma*."
+     },
+     {
+      "term": "Undecidable language",
+      "explain": "A language for which no TM can decide membership for all inputs — the TM may loop forever on some inputs.",
+      "example": "The halting problem: does TM M halt on input w? This is undecidable."
+     }
+    ],
+    "visual_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"460\" height=\"180\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x=\"10\" y=\"10\" width=\"200\" height=\"160\" rx=\"10\" class=\"bg\"/><rect x=\"230\" y=\"10\" width=\"220\" height=\"160\" rx=\"10\" class=\"bg\"/><text x=\"110\" y=\"40\" text-anchor=\"middle\" class=\"lbl ink\">L_1</text><text x=\"110\" y=\"65\" text-anchor=\"middle\" class=\"sub ink\">Input: DFA encoding &lt;M&gt;</text><text x=\"110\" y=\"90\" text-anchor=\"middle\" class=\"sub ink\">Q: Does L(M) = Sigma* ?</text><text x=\"110\" y=\"120\" text-anchor=\"middle\" class=\"sub ok\">Decidable</text><text x=\"110\" y=\"145\" text-anchor=\"middle\" class=\"sub mut\">(complement + emptiness)</text><text x=\"340\" y=\"40\" text-anchor=\"middle\" class=\"lbl ink\">L_2</text><text x=\"340\" y=\"65\" text-anchor=\"middle\" class=\"sub ink\">Input: TM encoding &lt;M&gt;</text><text x=\"340\" y=\"90\" text-anchor=\"middle\" class=\"sub ink\">Q: Does M take &gt;2021 steps</text><text x=\"340\" y=\"110\" text-anchor=\"middle\" class=\"sub ink\">on some input?</text><text x=\"340\" y=\"140\" text-anchor=\"middle\" class=\"sub no\">Undecidable</text></svg>",
+    "visual_alt": "Two boxes side by side: L_1 (DFA totality — decidable) and L_2 (TM step count on some input — undecidable)."
+   },
+   "given": {
+    "aim": "Determine whether L_1 (DFA accepts Sigma*) and L_2 (TM takes >2021 steps on some input) are decidable or undecidable.",
+    "terms": [
+     {
+      "term": "L_1 = {<M> | M is DFA, L(M) = Sigma*}",
+      "meaning": "The set of encodings of DFAs that accept every string.",
+      "example": "A DFA with a single accepting state and self-loops on all symbols encodes a member of L_1.",
+      "connects": "Since the model is restricted to DFAs (not TMs), DFA properties are decidable."
+     },
+     {
+      "term": "L_2 = {<M> | M takes more than 2021 steps on some input}",
+      "meaning": "The set of TM encodings where some input string causes the TM to perform at least 2022 computation steps.",
+      "example": "A TM that loops on input 'aaa' is in L_2 (infinitely many steps > 2021).",
+      "connects": "There are infinitely many possible inputs; deciding existence of such an input reduces to the halting problem."
+     },
+     {
+      "term": "Many-one reduction",
+      "meaning": "A way to show undecidability: if an undecidable problem reduces to L, then L is undecidable.",
+      "example": "The halting problem reduces to L_2, making L_2 undecidable.",
+      "connects": "Used to classify L_2 as undecidable."
+     }
+    ],
+    "plan": "For L_1: the input is restricted to DFAs, and DFA language equality/totality is decidable by complementation and emptiness testing. For L_2: the halting problem reduces to L_2 — if we could decide L_2, we could simulate any TM for 2022 steps on all inputs of growing length, but the number of possible inputs is infinite and identifying existence of a long run is undecidable in general."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Decide L_1",
+      "formula_raw": "L(M) = Sigma* iff L(complement(M)) = empty",
+      "apply": "Given DFA M: (1) Construct the complement DFA M' by swapping accepting and non-accepting states. (2) Run DFA emptiness check on M': if L(M') is empty, then L(M) = Sigma*. Both steps are algorithmic and always terminate — DFA emptiness is decidable (BFS/DFS from start state). Therefore L_1 is decidable.",
+      "note": "This only works because M is guaranteed to be a DFA. For a general TM, universality (does it accept Sigma*?) is undecidable."
+     },
+     {
+      "step": 2,
+      "title": "Classify L_2 via reduction from the Halting Problem",
+      "formula_raw": "HP <=_m L_2",
+      "apply": "Suppose L_2 were decidable. Given any TM M and input w (an instance of the halting problem), construct TM M' that on any input x first simulates M on w for 2022 steps; if M on w halts within 2022 steps, M' accepts x (running for > 2021 steps). If M on w does not halt in 2022 steps, M' immediately rejects. Then: M halts on w within 2022 steps iff M' takes >2021 steps on some input iff <M'> in L_2. This would decide the halting problem, contradiction. More generally, whether a TM takes more than any fixed number of steps on SOME input is undecidable (Rice's theorem flavor / direct reduction). Therefore L_2 is undecidable.",
+      "note": "The existential quantifier over infinitely many inputs is what makes L_2 undecidable; one cannot enumerate all possible inputs."
+     }
+    ],
+    "result": "L_1 is decidable and L_2 is undecidable — Option B."
+   },
+   "formula_ids_used": [],
+   "formula_note": "DFA totality is decidable via complementation and emptiness. TM step-count existence over all inputs is undecidable via reduction from the Halting Problem.",
+   "qid": "10.15.16",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2005",
+    "year": 2005,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Theory of Computation",
+    "topic": "Reduction",
+    "subtopic": "Reduction"
+   },
+   "question": "Consider three decision problems P_1, P_2 and P_3. It is known that P_1 is decidable and P_2 is undecidable. Which one of the following is TRUE?\nA. P_3 is decidable if P_1 is reducible to P_3\nB. P_3 is undecidable if P_3 is reducible to P_2\nC. P_3 is undecidable if P_2 is reducible to P_3\nD. P_3 is decidable if P_3 is reducible to P_2's complement",
+   "answer": "C. P_3 is undecidable if P_2 is reducible to P_3",
+   "to_find": "Which statement about decidability under reduction is always TRUE given P_1 decidable, P_2 undecidable?",
+   "understand": {
+    "plain": "Many-one reduction (<=_m) is a key tool in computability theory. If problem A reduces to problem B (written A <=_m B), it means B is at least as hard as A. Knowing that an undecidable problem reduces to P_3 immediately tells us P_3 cannot be decidable. Conversely, reducing a decidable problem TO something does not necessarily make that something decidable.",
+    "keywords": [
+     {
+      "term": "Many-one reduction (A <=_m B)",
+      "explain": "A computable function f such that x in A iff f(x) in B. If A <=_m B and B is decidable, then A is decidable. Equivalently, if A is undecidable and A <=_m B, then B is undecidable.",
+      "example": "Halting problem <=_m empty tape halting problem — both are undecidable."
+     },
+     {
+      "term": "Decidability transfer via reduction",
+      "explain": "Decidability transfers DOWNWARD (from B to A when A <=_m B). Undecidability transfers UPWARD (from A to B when A <=_m B).",
+      "example": "If HP (undecidable) <=_m L, then L is undecidable."
+     },
+     {
+      "term": "Complement of undecidable",
+      "explain": "The complement of an undecidable language is also undecidable (unless it is co-RE, and even then it may not be decidable).",
+      "example": "The complement of the halting problem is not decidable and not even RE."
+     }
+    ],
+    "visual_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"420\" height=\"160\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x=\"10\" y=\"50\" width=\"120\" height=\"60\" rx=\"8\" class=\"hi\"/><text x=\"70\" y=\"75\" text-anchor=\"middle\" class=\"lbl ink\">P_2</text><text x=\"70\" y=\"97\" text-anchor=\"middle\" class=\"sub no\">(undecidable)</text><line x1=\"130\" y1=\"80\" x2=\"190\" y2=\"80\" stroke=\"#7F77DD\" stroke-width=\"3\" marker-end=\"url(#arr)\"/><defs><marker id=\"arr\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"3\" orient=\"auto\"><path d=\"M0,0 L0,6 L8,3 z\" fill=\"#7F77DD\"/></marker></defs><text x=\"160\" y=\"68\" text-anchor=\"middle\" class=\"sub mut\">&lt;=_m</text><rect x=\"195\" y=\"50\" width=\"120\" height=\"60\" rx=\"8\" class=\"bg\"/><text x=\"255\" y=\"75\" text-anchor=\"middle\" class=\"lbl ink\">P_3</text><text x=\"255\" y=\"97\" text-anchor=\"middle\" class=\"sub no\">(undecidable!)</text><text x=\"210\" y=\"30\" text-anchor=\"middle\" class=\"sub ink\">If P_2 &lt;=_m P_3 and P_2 undecidable,</text><text x=\"210\" y=\"145\" text-anchor=\"middle\" class=\"sub ink\">then P_3 must be undecidable (Option C)</text></svg>",
+    "visual_alt": "Arrow from P_2 (undecidable) to P_3 via many-one reduction; since P_2 undecidable and reduces to P_3, P_3 must also be undecidable."
+   },
+   "given": {
+    "aim": "Identify the correct statement about P_3's decidability given reductions involving P_1 (decidable) and P_2 (undecidable).",
+    "terms": [
+     {
+      "term": "P_1 is decidable",
+      "meaning": "There exists a TM that always halts and correctly decides P_1.",
+      "example": "Membership in a regular language is decidable.",
+      "connects": "Reducing P_3 to P_1 (P_3 <=_m P_1) would make P_3 decidable. But P_1 reducing to P_3 says nothing useful about P_3."
+     },
+     {
+      "term": "P_2 is undecidable",
+      "meaning": "No TM can decide P_2 for all inputs.",
+      "example": "The halting problem is undecidable.",
+      "connects": "If P_2 reduces to P_3 (P_2 <=_m P_3), then P_3 inherits undecidability from P_2."
+     },
+     {
+      "term": "Reduction direction matters",
+      "meaning": "A <=_m B means A is easier-than-or-equal-to B. Decidability goes from B to A; undecidability goes from A to B.",
+      "example": "HP <=_m HALT-ON-EPSILON means HALT-ON-EPSILON is undecidable.",
+      "connects": "Only option C correctly uses: undecidable P_2 <=_m P_3 implies P_3 is undecidable."
+     }
+    ],
+    "plan": "Apply the fundamental rule: if an undecidable language reduces (many-one) to a language L, then L is undecidable. Check each option against this rule."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Evaluate option A: P_1 <=_m P_3 implies P_3 decidable?",
+      "formula_raw": "P_1 <=_m P_3 does NOT imply decidability of P_3",
+      "apply": "P_1 reducible to P_3 (P_1 <=_m P_3) means P_1 is at most as hard as P_3. This says P_3 is AT LEAST as hard as P_1 (decidable). P_3 could be anything — even undecidable. Example: HP reduces to itself and is undecidable. Option A is FALSE.",
+      "note": "P_1 <=_m P_3 only implies P_3 is undecidable if P_1 is undecidable — but P_1 is decidable here."
+     },
+     {
+      "step": 2,
+      "title": "Evaluate option B: P_3 <=_m P_2 implies P_3 undecidable?",
+      "formula_raw": "P_3 <=_m P_2 means P_3 is easier than P_2",
+      "apply": "P_3 <=_m P_2 means P_3 is at most as hard as P_2. This does NOT mean P_3 is undecidable — P_3 could be decidable (e.g., the empty language reduces to anything). Option B is FALSE.",
+      "note": "A decidable problem can reduce to an undecidable one."
+     },
+     {
+      "step": 3,
+      "title": "Evaluate option C: P_2 <=_m P_3 implies P_3 undecidable?",
+      "formula_raw": "A undecidable, A <=_m B => B undecidable",
+      "apply": "P_2 <=_m P_3 means there is a computable function f such that x in P_2 iff f(x) in P_3. Suppose P_3 were decidable with TM D. Then we could decide P_2 by: on input x, compute f(x), then run D on f(x). This contradicts P_2 being undecidable. Therefore P_3 must be undecidable. Option C is TRUE.",
+      "note": "This is the standard transfer of undecidability upward through reductions."
+     },
+     {
+      "step": 4,
+      "title": "Evaluate option D: P_3 <=_m complement(P_2) implies P_3 decidable?",
+      "formula_raw": "complement(P_2) is also undecidable",
+      "apply": "The complement of an undecidable language is not necessarily decidable. In fact, complement(P_2) is also undecidable (if P_2 is undecidable). So P_3 <=_m complement(P_2) says P_3 is at most as hard as an undecidable language — P_3 could still be decidable or undecidable. We cannot conclude P_3 is decidable. Option D is FALSE.",
+      "note": "A language is decidable iff its complement is decidable, so complement(P_2) is also undecidable."
+     }
+    ],
+    "result": "Option C is TRUE: P_3 is undecidable if P_2 is reducible to P_3."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Undecidability transfers upward through many-one reductions: if A (undecidable) <=_m B, then B is undecidable. Decidability transfers downward: if A <=_m B and B is decidable, then A is decidable.",
+   "qid": "10.16.1",
+   "answer_official": "C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2016",
+    "year": 2016,
+    "marks": 2,
+    "difficulty": "easy",
+    "type": "MCQ",
+    "subject": "Theory of Computation",
+    "topic": "Reduction",
+    "subtopic": "Reduction"
+   },
+   "question": "Let X be a recursive language and Y be a recursively enumerable but not recursive language. Let W and Z be two languages such that Y reduces to W, and Z reduces to X (reduction means the standard many-one reduction). Which one of the following statements is TRUE?\nA. W can be recursively enumerable and Z is recursive\nB. W can be recursively enumerable and Z is recursively enumerable\nC. Z is recursively enumerable and W is recursive\nD. W is not recursively enumerable and Z is recursive",
+   "answer": "A. W can be recursively enumerable and Z is recursive",
+   "to_find": "Which statement about W and Z is necessarily true given the reductions Y <=_m W and Z <=_m X?",
+   "understand": {
+    "plain": "We have Y (RE but not recursive) reducing to W, and Z reducing to X (recursive). By reduction rules: since Y (RE, not recursive) reduces to W, W must be at least as hard as Y — so W is RE but not recursive (or harder, i.e., not even RE). Since Z reduces to X (recursive), Z is at most as hard as X — so Z must be recursive (or simpler). We need the option consistent with these constraints.",
+    "keywords": [
+     {
+      "term": "Recursive language",
+      "explain": "A language decidable by a TM that always halts; closed under complement.",
+      "example": "The set of valid C programs that compile is (approximately) recursive."
+     },
+     {
+      "term": "Recursively enumerable (RE) language",
+      "explain": "A language accepted by some TM; the TM may loop on non-members. RE is broader than recursive.",
+      "example": "The halting problem is RE but not recursive."
+     },
+     {
+      "term": "Many-one reduction and closure",
+      "explain": "A <=_m B: if B is recursive then A is recursive; if B is RE then A is RE; if A is not recursive then B is not recursive; if A is not RE then B is not RE.",
+      "example": "Y (not recursive) <=_m W means W is not recursive."
+     }
+    ],
+    "visual_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"460\" height=\"180\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x=\"10\" y=\"30\" width=\"130\" height=\"65\" rx=\"8\" class=\"hi\"/><text x=\"75\" y=\"55\" text-anchor=\"middle\" class=\"lbl ink\">Y</text><text x=\"75\" y=\"75\" text-anchor=\"middle\" class=\"sub no\">RE, not recursive</text><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"3\" orient=\"auto\"><path d=\"M0,0 L0,6 L8,3 z\" fill=\"#7F77DD\"/></marker><marker id=\"b\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"3\" orient=\"auto\"><path d=\"M0,0 L0,6 L8,3 z\" fill=\"#1D9E75\"/></marker></defs><line x1=\"140\" y1=\"62\" x2=\"200\" y2=\"62\" stroke=\"#7F77DD\" stroke-width=\"3\" marker-end=\"url(#a)\"/><text x=\"170\" y=\"52\" text-anchor=\"middle\" class=\"sub mut\">&lt;=_m</text><rect x=\"205\" y=\"30\" width=\"130\" height=\"65\" rx=\"8\" class=\"bg\"/><text x=\"270\" y=\"55\" text-anchor=\"middle\" class=\"lbl ink\">W</text><text x=\"270\" y=\"75\" text-anchor=\"middle\" class=\"sub no\">not recursive (at least RE)</text><rect x=\"10\" y=\"115\" width=\"130\" height=\"55\" rx=\"8\" class=\"bg\"/><text x=\"75\" y=\"138\" text-anchor=\"middle\" class=\"lbl ink\">Z</text><text x=\"75\" y=\"158\" text-anchor=\"middle\" class=\"sub ok\">recursive</text><line x1=\"140\" y1=\"142\" x2=\"200\" y2=\"142\" stroke=\"#1D9E75\" stroke-width=\"3\" marker-end=\"url(#b)\"/><text x=\"170\" y=\"132\" text-anchor=\"middle\" class=\"sub mut\">&lt;=_m</text><rect x=\"205\" y=\"115\" width=\"130\" height=\"55\" rx=\"8\" class=\"bg\"/><text x=\"270\" y=\"138\" text-anchor=\"middle\" class=\"lbl ink\">X</text><text x=\"270\" y=\"158\" text-anchor=\"middle\" class=\"sub ok\">recursive</text></svg>",
+    "visual_alt": "Two reduction chains: Y (RE not recursive) reduces to W (so W is at least RE not recursive); Z reduces to X (recursive) so Z is recursive."
+   },
+   "given": {
+    "aim": "Determine what we can correctly conclude about W and Z given Y <=_m W and Z <=_m X, where Y is RE-not-recursive and X is recursive.",
+    "terms": [
+     {
+      "term": "Y <=_m W (Y reduces to W)",
+      "meaning": "W is at least as hard as Y. Since Y is not recursive, W cannot be recursive. W is at least RE (could be RE-not-recursive or non-RE).",
+      "example": "Halting problem <=_m W makes W at least as hard as the halting problem.",
+      "connects": "W is NOT recursive. W could be RE (e.g., if W = Y itself)."
+     },
+     {
+      "term": "Z <=_m X (Z reduces to X, X recursive)",
+      "meaning": "Z is at most as hard as X. Since X is recursive and Z <=_m X, Z must be recursive.",
+      "example": "Any language <=_m a decidable language is itself decidable.",
+      "connects": "Z is recursive — this is a firm conclusion."
+     },
+     {
+      "term": "Closure of recursive under reduction",
+      "meaning": "If B is recursive and A <=_m B, then A is recursive. Recursive languages are closed downward under many-one reduction.",
+      "example": "Context-free languages reduce to recursive languages and are themselves recursive.",
+      "connects": "Z <=_m X (recursive) => Z is recursive."
+     }
+    ],
+    "plan": "For Z: Z <=_m X and X is recursive => Z is recursive (decidability transfers downward). For W: Y <=_m W and Y is not recursive => W is not recursive (undecidability/non-recursiveness transfers upward). W could still be RE. Check which option matches: Z recursive and W possibly RE-not-recursive."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Determine nature of Z using Z <=_m X",
+      "formula_raw": "A <=_m B, B recursive => A recursive",
+      "apply": "Z <=_m X and X is recursive. By the closure property: if X is decidable by TM D, then we can decide Z by: on input z, compute f(z) (the reduction function), then run D on f(z). This always halts. Therefore Z is recursive (decidable).",
+      "note": "This is a definitive conclusion — Z MUST be recursive."
+     },
+     {
+      "step": 2,
+      "title": "Determine nature of W using Y <=_m W",
+      "formula_raw": "A <=_m B, A not recursive => B not recursive",
+      "apply": "Y <=_m W and Y is RE but not recursive. If W were recursive, then by the closure property Z <=_m X, we'd have Y recursive — contradiction. So W is NOT recursive. W could be RE (e.g., take W = Y, then Y <=_m W trivially with identity function, and W is RE). So W CAN BE recursively enumerable (but not recursive).",
+      "note": "W can be RE but cannot be recursive. It could also be non-RE (harder than Y)."
+     },
+     {
+      "step": 3,
+      "title": "Match with answer options",
+      "formula_raw": "",
+      "apply": "Z is recursive (definite). W is not recursive but can be RE. Option A: 'W can be recursively enumerable and Z is recursive' — this is consistent: W is RE-not-recursive (possible), Z is recursive (definite). Options B, C, D either claim W is recursive or Z is not recursive — both contradicting our analysis. Option A is TRUE.",
+      "note": "The word 'can be' in option A is important — it says W is possibly RE, which is consistent with W being RE-not-recursive."
+     }
+    ],
+    "result": "Option A is TRUE: W can be recursively enumerable (but not recursive), and Z is recursive."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Closure properties of recursive and RE classes under many-one reduction: decidability transfers downward (Z <=_m X, X decidable => Z decidable); non-recursiveness transfers upward (Y not recursive, Y <=_m W => W not recursive).",
+   "qid": "10.16.2",
+   "answer_official": "C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1987",
+    "year": 1987,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Theory of Computation",
+    "topic": "Regular Expression",
+    "subtopic": "Regular Expression"
+   },
+   "question": "Give a regular expression over the alphabet {0, 1} to denote the set of proper non-null substrings of the string 0110.",
+   "answer": "0 + 1 + 01 + 11 + 10 + 011 + 110",
+   "to_find": "A regular expression that denotes all proper non-null substrings of the string '0110'",
+   "understand": {
+    "plain": "A 'proper non-null substring' of a string s means any contiguous subsequence of s that is (1) non-empty and (2) not equal to the entire string s itself. For s = '0110', we need to find all such substrings and express them as a regular expression — which is simply their union (since the set is finite).",
+    "keywords": [
+     {
+      "term": "Substring",
+      "explain": "A contiguous sequence of characters appearing within a string. For string s of length n, substrings are s[i..j] for 0 <= i <= j <= n.",
+      "example": "Substrings of 'ab': '', 'a', 'b', 'ab'."
+     },
+     {
+      "term": "Proper substring",
+      "explain": "A substring that is strictly shorter than the original string (excludes the string itself). Some definitions also exclude the empty string.",
+      "example": "Proper non-null substrings of 'abc': 'a', 'b', 'c', 'ab', 'bc' (not 'abc', not '')."
+     },
+     {
+      "term": "Regular expression for a finite set",
+      "explain": "Any finite language is regular. A regular expression for a finite set is the union (+) of all its elements.",
+      "example": "Finite set {0, 1, 10} has regular expression 0 + 1 + 10."
+     }
+    ],
+    "visual_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"480\" height=\"220\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x=\"10\" y=\"10\" width=\"460\" height=\"40\" rx=\"6\" class=\"hi\"/><text x=\"240\" y=\"38\" text-anchor=\"middle\" class=\"lbl ink\">String: 0 1 1 0</text><rect x=\"50\" y=\"20\" width=\"30\" height=\"22\" rx=\"3\" style=\"fill:none;stroke:#7F77DD;stroke-width:2;\"/><rect x=\"80\" y=\"20\" width=\"30\" height=\"22\" rx=\"3\" style=\"fill:none;stroke:#7F77DD;stroke-width:2;\"/><rect x=\"110\" y=\"20\" width=\"30\" height=\"22\" rx=\"3\" style=\"fill:none;stroke:#7F77DD;stroke-width:2;\"/><rect x=\"140\" y=\"20\" width=\"30\" height=\"22\" rx=\"3\" style=\"fill:none;stroke:#7F77DD;stroke-width:2;\"/><text x=\"60\" y=\"120\" text-anchor=\"middle\" class=\"sub ink\">Length 1: 0, 1</text><text x=\"180\" y=\"120\" text-anchor=\"middle\" class=\"sub ink\">Length 2: 01, 11, 10</text><text x=\"320\" y=\"120\" text-anchor=\"middle\" class=\"sub ink\">Length 3: 011, 110</text><text x=\"240\" y=\"155\" text-anchor=\"middle\" class=\"sub no\">Length 4: 0110 (excluded — whole string)</text><text x=\"240\" y=\"195\" text-anchor=\"middle\" class=\"sub ok\">RE = 0 + 1 + 01 + 11 + 10 + 011 + 110</text></svg>",
+    "visual_alt": "The string 0110 broken into substrings by length: length-1 (0,1), length-2 (01,11,10), length-3 (011,110). Length-4 (0110) is excluded as the whole string."
+   },
+   "given": {
+    "aim": "Enumerate all proper non-null substrings of '0110' and write a regular expression for their union.",
+    "terms": [
+     {
+      "term": "String s = '0110'",
+      "meaning": "The string over {0,1} of length 4 whose characters are 0, 1, 1, 0.",
+      "example": "s[0]=0, s[1]=1, s[2]=1, s[3]=0.",
+      "connects": "We extract all non-empty proper substrings by varying start and end positions."
+     },
+     {
+      "term": "Proper non-null substrings",
+      "meaning": "All substrings s[i..j] where 0 <= i <= j < 4 and (i,j) != (0,3) (not the whole string), and length j-i+1 >= 1.",
+      "example": "s[0..1] = '01', s[1..2] = '11', s[2..3] = '10'.",
+      "connects": "Gives us 7 distinct strings: 0, 1, 01, 11, 10, 011, 110."
+     },
+     {
+      "term": "Union in regular expressions (+)",
+      "meaning": "The + operator in a regular expression denotes the union of languages. For a finite language, list each element separated by +.",
+      "example": "L = {a, bb} has regular expression a + bb.",
+      "connects": "The regular expression for the finite set of proper non-null substrings is their union."
+     }
+    ],
+    "plan": "Systematically list all non-empty substrings of '0110' by length (1, 2, 3), remove duplicates, exclude the full string '0110', then write the union as a regular expression."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Enumerate substrings of length 1",
+      "formula_raw": "s[i..i] for i = 0,1,2,3",
+      "apply": "s[0..0] = '0'\ns[1..1] = '1'\ns[2..2] = '1' (duplicate of '1')\ns[3..3] = '0' (duplicate of '0')\nDistinct length-1 substrings: {0, 1}",
+      "note": "Remove duplicates."
+     },
+     {
+      "step": 2,
+      "title": "Enumerate substrings of length 2",
+      "formula_raw": "s[i..i+1] for i = 0,1,2",
+      "apply": "s[0..1] = '01'\ns[1..2] = '11'\ns[2..3] = '10'\nDistinct length-2 substrings: {01, 11, 10}",
+      "note": "All three are distinct."
+     },
+     {
+      "step": 3,
+      "title": "Enumerate substrings of length 3",
+      "formula_raw": "s[i..i+2] for i = 0,1",
+      "apply": "s[0..2] = '011'\ns[1..3] = '110'\nDistinct length-3 substrings: {011, 110}",
+      "note": "Length-3 substrings are always proper (shorter than 4-character string)."
+     },
+     {
+      "step": 4,
+      "title": "Exclude the full string and write the regular expression",
+      "formula_raw": "RE = union of all proper non-null substrings",
+      "apply": "Length-4 substring is '0110' itself — excluded as it equals the whole string.\nAll proper non-null substrings: {0, 1, 01, 11, 10, 011, 110}\nRegular expression: 0 + 1 + 01 + 11 + 10 + 011 + 110",
+      "note": "Since the set is finite, this is a valid regular expression. Note '1' appears from both s[1] and s[2] but we list it once."
+     }
+    ],
+    "result": "Regular expression for proper non-null substrings of '0110': 0 + 1 + 01 + 11 + 10 + 011 + 110"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Any finite language over a finite alphabet is regular. A regular expression for a finite language is formed by taking the union (+) of all its strings. Substrings are enumerated by varying starting index and length.",
+   "qid": "10.17.1",
+   "answer_official": "N/A"
+  }
+ ]
+}

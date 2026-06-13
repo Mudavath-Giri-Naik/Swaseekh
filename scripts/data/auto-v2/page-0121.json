@@ -1,0 +1,326 @@
+{
+ "page": 121,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 1987",
+    "year": 1987,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Computer Organization & Architecture",
+    "topic": "IO Handling",
+    "subtopic": "IO Handling"
+   },
+   "question": "State whether the following statement is TRUE or FALSE:\n\nIn a microprocessor-based system, if a bus (DMA) request and an interrupt request arrive simultaneously, the microprocessor attends first to the bus request.\n\nA. TRUE\nB. FALSE",
+   "answer": "A. TRUE",
+   "to_find": "Whether DMA bus request takes priority over interrupt request when both arrive simultaneously.",
+   "understand": {
+    "plain": "When a DMA controller and an interrupt source both request the CPU at the same time, the CPU must decide which to handle first. DMA requests are given higher priority because they need the bus for a very short time (one bus cycle) to transfer data, and delaying them can cause data loss. Interrupt requests, on the other hand, can wait until the current instruction completes.",
+    "keywords": [
+     {
+      "term": "DMA (Direct Memory Access)",
+      "explain": "A mechanism that allows an I/O device to transfer data directly to/from memory without CPU intervention, by temporarily taking control of the system bus.",
+      "example": "A disk controller uses DMA to transfer a block of data to RAM while the CPU does other work."
+     },
+     {
+      "term": "Bus Request",
+      "explain": "A signal sent by the DMA controller to the CPU asking to take control of the address and data bus for a memory transfer cycle.",
+      "example": "DMA controller asserts BUSREQ; CPU grants it via BUSACK and tri-states its bus lines."
+     },
+     {
+      "term": "Interrupt Request",
+      "explain": "A signal sent by a device to notify the CPU that it needs service, causing the CPU to save its state and jump to an Interrupt Service Routine (ISR).",
+      "example": "A keyboard press asserts an IRQ line; the CPU finishes the current instruction then vectors to the keyboard ISR."
+     }
+    ],
+    "visual_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 520 200\" width=\"520\" height=\"200\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x=\"10\" y=\"70\" width=\"120\" height=\"60\" rx=\"8\" class=\"hi\"/><text x=\"70\" y=\"97\" text-anchor=\"middle\" class=\"lbl ink\">CPU</text><text x=\"70\" y=\"117\" text-anchor=\"middle\" class=\"sub ink\">(Microprocessor)</text><rect x=\"200\" y=\"20\" width=\"130\" height=\"50\" rx=\"8\" class=\"bg\"/><text x=\"265\" y=\"42\" text-anchor=\"middle\" class=\"tag ink\">DMA Controller</text><text x=\"265\" y=\"60\" text-anchor=\"middle\" class=\"sub mut\">(Bus Request)</text><rect x=\"200\" y=\"120\" width=\"130\" height=\"50\" rx=\"8\" class=\"bg\"/><text x=\"265\" y=\"142\" text-anchor=\"middle\" class=\"tag ink\">I/O Device</text><text x=\"265\" y=\"160\" text-anchor=\"middle\" class=\"sub mut\">(Interrupt Request)</text><line x1=\"200\" y1=\"45\" x2=\"130\" y2=\"90\" stroke=\"#1D9E75\" stroke-width=\"3\" marker-end=\"url(#arrowok)\"/><text x=\"150\" y=\"60\" class=\"sub ok\">Priority 1</text><line x1=\"200\" y1=\"145\" x2=\"130\" y2=\"110\" stroke=\"#D85A30\" stroke-width=\"2\" stroke-dasharray=\"6,4\" marker-end=\"url(#arrowno)\"/><text x=\"148\" y=\"140\" class=\"sub no\">Priority 2</text><defs><marker id=\"arrowok\" markerWidth=\"10\" markerHeight=\"7\" refX=\"9\" refY=\"3.5\" orient=\"auto\"><polygon points=\"0 0, 10 3.5, 0 7\" fill=\"#1D9E75\"/></marker><marker id=\"arrowno\" markerWidth=\"10\" markerHeight=\"7\" refX=\"9\" refY=\"3.5\" orient=\"auto\"><polygon points=\"0 0, 10 3.5, 0 7\" fill=\"#D85A30\"/></marker></defs><text x=\"390\" y=\"100\" text-anchor=\"middle\" class=\"sub ink\">DMA bus request</text><text x=\"390\" y=\"118\" text-anchor=\"middle\" class=\"sub ink\">served FIRST</text></svg>",
+    "visual_alt": "Diagram showing CPU receiving both a DMA bus request (higher priority, solid arrow) and an interrupt request (lower priority, dashed arrow) simultaneously, with DMA served first."
+   },
+   "given": {
+    "aim": "Determine the priority order when a DMA bus request and an interrupt request arrive simultaneously at the CPU.",
+    "terms": [
+     {
+      "term": "DMA bus request",
+      "meaning": "Request from DMA controller to take over the system bus for a memory cycle.",
+      "example": "DMA asserts BUSREQ to perform a cycle-steal transfer.",
+      "connects": "DMA has higher priority because it needs the bus for only one cycle and data may be lost if not served promptly."
+     },
+     {
+      "term": "Interrupt request",
+      "meaning": "Request from a peripheral device asking the CPU for software service via an ISR.",
+      "example": "A timer asserts INT line after its count expires.",
+      "connects": "Interrupts are deferred to after the current instruction completes, so they can wait longer than DMA."
+     },
+     {
+      "term": "Simultaneous arrival",
+      "meaning": "Both requests occur at the same clock edge.",
+      "example": "At t=100ns, both BUSREQ and INT are asserted.",
+      "connects": "CPU arbitration logic must choose; the standard design gives DMA higher priority."
+     }
+    ],
+    "plan": "Recall the standard priority scheme: DMA (cycle steal) > Interrupt > Normal execution. DMA must be granted immediately to avoid missing real-time data; interrupt can be handled after the current instruction completes. So the statement is TRUE."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Understand why DMA needs higher priority",
+      "formula_raw": "",
+      "apply": "DMA uses 'cycle stealing' — it borrows the bus for exactly one memory cycle to transfer one word of data. If the DMA request is not honored immediately, the I/O device (e.g., disk spinning at high speed) may lose data that cannot be retrieved. Therefore, the hardware design gives DMA the highest priority.",
+      "note": "DMA does not interrupt the CPU's register state; it only freezes the CPU for one bus cycle (cycle steal). This is less disruptive than a full interrupt context save/restore."
+     },
+     {
+      "step": 2,
+      "title": "Compare with interrupt priority",
+      "formula_raw": "Priority: DMA Bus Request > Interrupt Request > Normal Instruction Fetch",
+      "apply": "When both arrive simultaneously: (1) CPU completes the current bus cycle, (2) grants the bus to DMA (BUSACK), (3) DMA performs its transfer, (4) CPU reclaims the bus, (5) CPU then checks for pending interrupts and vectors to the ISR. The interrupt is not lost — it is simply serviced after the DMA grant.",
+      "note": "This is TRUE as stated. The microprocessor attends to the DMA bus request before the interrupt request."
+     }
+    ],
+    "result": "TRUE — When a DMA (bus) request and an interrupt request arrive simultaneously, the microprocessor services the DMA bus request first, then handles the interrupt."
+   },
+   "formula_ids_used": [],
+   "formula_note": "DMA cycle-stealing priority: DMA bus grant takes precedence over interrupt acknowledgment in standard microprocessor arbitration design.",
+   "qid": "2.9.1",
+   "answer_official": ""
+  },
+  {
+   "meta": {
+    "exam": "GATE 1987",
+    "year": 1987,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Computer Organization & Architecture",
+    "topic": "IO Handling",
+    "subtopic": "IO Handling"
+   },
+   "question": "State whether the following statement is TRUE or FALSE:\n\nData transfer between a microprocessor and an I/O device is usually faster in memory-mapped I/O scheme than in I/O-mapped I/O scheme.\n\nA. TRUE\nB. FALSE",
+   "answer": "B. FALSE",
+   "to_find": "Whether memory-mapped I/O is faster than I/O-mapped I/O for data transfer between CPU and I/O device.",
+   "understand": {
+    "plain": "In I/O-mapped I/O (also called port-mapped I/O or isolated I/O), the CPU uses special IN/OUT instructions to access I/O ports, which are separate from the memory address space. In memory-mapped I/O, I/O registers appear as memory locations and are accessed with regular memory instructions (MOV, LOAD, etc.). The transfer speed between the two schemes is essentially equivalent; neither is inherently faster than the other. The statement is FALSE.",
+    "keywords": [
+     {
+      "term": "Memory-Mapped I/O",
+      "explain": "I/O device registers are assigned addresses in the same address space as RAM. Any memory instruction can access them.",
+      "example": "A UART register at address 0xFFFF0000 is read with: MOV AX, [0xFFFF0000]."
+     },
+     {
+      "term": "I/O-Mapped (Port-Mapped) I/O",
+      "explain": "I/O devices have a separate address space (I/O ports) accessed using dedicated IN and OUT instructions.",
+      "example": "x86 CPU reads keyboard status with: IN AL, 0x60."
+     }
+    ],
+    "visual_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 540 200\" width=\"540\" height=\"200\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x=\"10\" y=\"60\" width=\"120\" height=\"80\" rx=\"8\" class=\"hi\"/><text x=\"70\" y=\"105\" text-anchor=\"middle\" class=\"lbl ink\">CPU</text><rect x=\"180\" y=\"20\" width=\"160\" height=\"70\" rx=\"8\" class=\"bg\"/><text x=\"260\" y=\"48\" text-anchor=\"middle\" class=\"tag ink\">Memory-Mapped I/O</text><text x=\"260\" y=\"68\" text-anchor=\"middle\" class=\"sub mut\">MOV/LOAD (memory instr.)</text><text x=\"260\" y=\"84\" text-anchor=\"middle\" class=\"sub mut\">Same address space</text><rect x=\"180\" y=\"110\" width=\"160\" height=\"70\" rx=\"8\" class=\"bg\"/><text x=\"260\" y=\"138\" text-anchor=\"middle\" class=\"tag ink\">I/O-Mapped I/O</text><text x=\"260\" y=\"158\" text-anchor=\"middle\" class=\"sub mut\">IN/OUT instructions</text><text x=\"260\" y=\"174\" text-anchor=\"middle\" class=\"sub mut\">Separate I/O space</text><line x1=\"130\" y1=\"85\" x2=\"180\" y2=\"60\" stroke=\"#7F77DD\" stroke-width=\"2\"/><line x1=\"130\" y1=\"115\" x2=\"180\" y2=\"140\" stroke=\"#7F77DD\" stroke-width=\"2\"/><text x=\"400\" y=\"100\" text-anchor=\"middle\" class=\"lbl ink\">Speed:</text><text x=\"400\" y=\"120\" text-anchor=\"middle\" class=\"sub ink\">Both ~equal</text><text x=\"400\" y=\"140\" text-anchor=\"middle\" class=\"tag no\">FALSE</text></svg>",
+    "visual_alt": "Comparison of Memory-Mapped I/O (uses memory instructions, same address space) vs I/O-Mapped I/O (uses IN/OUT instructions, separate I/O space), showing both have similar data transfer speed."
+   },
+   "given": {
+    "aim": "Compare the data transfer speed of memory-mapped I/O versus I/O-mapped (port-mapped) I/O.",
+    "terms": [
+     {
+      "term": "Memory-Mapped I/O",
+      "meaning": "I/O registers share the CPU's memory address space and are accessed via standard memory read/write instructions.",
+      "example": "ARM processors use memory-mapped I/O exclusively since they have no separate IN/OUT instructions.",
+      "connects": "Transfer speed depends on the bus cycle time, which is the same whether accessing RAM or I/O registers."
+     },
+     {
+      "term": "I/O-Mapped (Isolated) I/O",
+      "meaning": "I/O ports occupy a separate address space; special IN/OUT instructions activate the I/O read/write control signal (M/IO# pin).",
+      "example": "x86 architecture uses IN/OUT for port 0x60 (keyboard) separate from memory space.",
+      "connects": "IN/OUT instructions directly address the device; bus timing is similar to memory accesses."
+     },
+     {
+      "term": "Transfer speed",
+      "meaning": "How fast a data word moves between CPU and I/O device register.",
+      "example": "One bus cycle ~ 100ns regardless of whether the address is in memory or I/O space.",
+      "connects": "Speed is determined by bus clock and device response time, not by which address space is used."
+     }
+    ],
+    "plan": "Compare the number of bus cycles and instruction types: memory-mapped I/O uses standard LOAD/STORE; I/O-mapped uses IN/OUT. Both complete the physical transfer in one bus cycle. Neither is inherently faster; the statement claims memory-mapped is 'usually faster', which is FALSE."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Analyze memory-mapped I/O speed",
+      "formula_raw": "",
+      "apply": "In memory-mapped I/O, a register read is done with a LOAD instruction (e.g., MOV AX, [addr]). The CPU places the address on the bus, the I/O decoder activates the device, and data is returned on the data bus — one bus cycle. Memory-mapped I/O does allow richer addressing modes (indexed, indirect), which can simplify programming, but does not make the actual transfer faster.",
+      "note": "Memory-mapped I/O reduces the available memory address space by the amount reserved for I/O."
+     },
+     {
+      "step": 2,
+      "title": "Analyze I/O-mapped I/O speed and compare",
+      "formula_raw": "",
+      "apply": "In I/O-mapped I/O, the IN or OUT instruction places the port address on the bus and asserts the I/O control signal. The device responds with data in one bus cycle — the same physical timing as a memory read. Data transfer rate is determined by bus frequency and device speed, not by the addressing scheme. Therefore, memory-mapped I/O is NOT 'usually faster' than I/O-mapped I/O. The statement is FALSE.",
+      "note": "Memory-mapped I/O has advantages (richer instruction set for I/O manipulation) but speed is not one of them; I/O-mapped I/O can actually be slightly simpler to decode in hardware."
+     }
+    ],
+    "result": "FALSE — Data transfer speed is essentially the same in both schemes; memory-mapped I/O is not inherently faster than I/O-mapped I/O."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Memory-mapped vs I/O-mapped I/O comparison: transfer speed is governed by bus cycle time, which is identical in both schemes.",
+   "qid": "2.9.2",
+   "answer_official": ""
+  },
+  {
+   "meta": {
+    "exam": "GATE 1990",
+    "year": 1990,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Computer Organization & Architecture",
+    "topic": "IO Handling",
+    "subtopic": "IO Handling"
+   },
+   "question": "State whether the following statement is TRUE or FALSE with reason:\n\nThe data transfer between memory and I/O devices using programmed I/O is faster than interrupt-driven I/O.\n\nA. TRUE\nB. FALSE",
+   "answer": "B. FALSE",
+   "to_find": "Whether programmed I/O (polling) is faster than interrupt-driven I/O for data transfer between memory and I/O devices.",
+   "understand": {
+    "plain": "Programmed I/O (polling) means the CPU continuously checks whether an I/O device is ready — wasting CPU cycles. Interrupt-driven I/O means the CPU does other work and is notified by a hardware interrupt when the device is ready. Interrupt-driven I/O is generally faster in terms of effective system throughput because the CPU is not wasted in busy-waiting. However, each interrupt has overhead (context save/restore). The statement says programmed I/O is faster — this is FALSE.",
+    "keywords": [
+     {
+      "term": "Programmed I/O (Polling)",
+      "explain": "The CPU repeatedly tests a status bit of the I/O device in a tight loop until the device signals it is ready, then performs the transfer.",
+      "example": "while (!(status_reg & READY)); data = data_reg; — CPU spins until READY bit is set."
+     },
+     {
+      "term": "Interrupt-Driven I/O",
+      "explain": "The I/O device sends an interrupt signal when it is ready; the CPU handles other tasks in the meantime and services the I/O only upon receiving the interrupt.",
+      "example": "CPU starts a disk read, continues executing other code, and an interrupt triggers when the disk sector is ready."
+     }
+    ],
+    "visual_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 540 220\" width=\"540\" height=\"220\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><text x=\"10\" y=\"25\" class=\"lbl ink\">Programmed I/O (Polling):</text><rect x=\"10\" y=\"35\" width=\"80\" height=\"30\" rx=\"4\" class=\"no\" opacity=\"0.7\"/><text x=\"50\" y=\"55\" text-anchor=\"middle\" class=\"sub ink\">Poll loop</text><rect x=\"100\" y=\"35\" width=\"80\" height=\"30\" rx=\"4\" class=\"no\" opacity=\"0.7\"/><text x=\"140\" y=\"55\" text-anchor=\"middle\" class=\"sub ink\">Poll loop</text><rect x=\"190\" y=\"35\" width=\"80\" height=\"30\" rx=\"4\" class=\"no\" opacity=\"0.7\"/><text x=\"230\" y=\"55\" text-anchor=\"middle\" class=\"sub ink\">Poll loop</text><rect x=\"280\" y=\"35\" width=\"80\" height=\"30\" rx=\"4\" class=\"bg\"/><text x=\"320\" y=\"55\" text-anchor=\"middle\" class=\"sub ink\">Transfer</text><text x=\"10\" y=\"90\" class=\"sub mut\">CPU wastes cycles polling until device ready</text><text x=\"10\" y=\"120\" class=\"lbl ink\">Interrupt-Driven I/O:</text><rect x=\"10\" y=\"130\" width=\"80\" height=\"30\" rx=\"4\" class=\"ok\" opacity=\"0.8\"/><text x=\"50\" y=\"150\" text-anchor=\"middle\" class=\"sub ink\">CPU work</text><rect x=\"100\" y=\"130\" width=\"80\" height=\"30\" rx=\"4\" class=\"ok\" opacity=\"0.8\"/><text x=\"140\" y=\"150\" text-anchor=\"middle\" class=\"sub ink\">CPU work</text><rect x=\"190\" y=\"130\" width=\"30\" height=\"30\" rx=\"4\" class=\"hi\"/><text x=\"205\" y=\"150\" text-anchor=\"middle\" class=\"sub ink\">ISR</text><rect x=\"230\" y=\"130\" width=\"80\" height=\"30\" rx=\"4\" class=\"bg\"/><text x=\"270\" y=\"150\" text-anchor=\"middle\" class=\"sub ink\">Transfer</text><text x=\"10\" y=\"195\" class=\"sub mut\">CPU does useful work; interrupt signals device ready</text></svg>",
+    "visual_alt": "Timeline comparison: Programmed I/O shows CPU stuck in polling loops before transfer; Interrupt-Driven I/O shows CPU doing useful work until interrupt signals readiness, then transferring."
+   },
+   "given": {
+    "aim": "Determine whether programmed I/O provides faster data transfer than interrupt-driven I/O.",
+    "terms": [
+     {
+      "term": "Programmed I/O",
+      "meaning": "CPU-controlled I/O where the CPU executes a busy-wait loop testing the device status register repeatedly.",
+      "example": "CPU reads a status port in a loop: while (inb(0x64) & 0x02); — waiting for keyboard buffer empty.",
+      "connects": "CPU cycles are wasted polling; no other computation can proceed during the wait."
+     },
+     {
+      "term": "Interrupt-Driven I/O",
+      "meaning": "CPU initiates I/O and then continues other work; the device asserts an interrupt line when ready.",
+      "example": "CPU sends a command to a printer, continues executing the next process, and handles the printer interrupt when done.",
+      "connects": "CPU utilization is higher since it does productive work between I/O initiations."
+     },
+     {
+      "term": "System throughput",
+      "meaning": "The total amount of useful work completed per unit time, considering both CPU and I/O activity.",
+      "example": "With interrupt-driven I/O, CPU runs two processes while disk I/O proceeds in parallel.",
+      "connects": "Interrupt-driven I/O yields higher effective throughput; programmed I/O wastes CPU time that could be used productively."
+     }
+    ],
+    "plan": "Compare wasted CPU cycles: in programmed I/O, the CPU wastes cycles in a tight poll loop. In interrupt-driven I/O, the CPU does useful work while the device processes the request, and is interrupted only when the device is ready. Interrupt-driven I/O is therefore NOT slower — the statement is FALSE."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Evaluate programmed I/O (polling) performance",
+      "formula_raw": "",
+      "apply": "In programmed I/O, the CPU executes a busy-wait loop: it repeatedly reads the device status register and checks for a 'ready' flag. During this time, no other useful computation happens. If the I/O device is slow (e.g., a disk or network), the CPU wastes many cycles. The data transfer itself, once the device is ready, takes the same time as in other schemes.",
+      "note": "Programmed I/O is simple to implement but is CPU-intensive; it is appropriate only for very fast devices or dedicated control systems."
+     },
+     {
+      "step": 2,
+      "title": "Evaluate interrupt-driven I/O and compare",
+      "formula_raw": "",
+      "apply": "In interrupt-driven I/O, the CPU initiates the I/O operation and then continues executing other instructions. When the device is ready, it asserts an interrupt line. The CPU saves its context, executes the Interrupt Service Routine (ISR) to complete the transfer, then resumes the interrupted task. Overhead: context save/restore (~10-100 cycles). Gain: all the cycles that would have been wasted in polling are now productive. For any non-trivial I/O latency, interrupt-driven I/O gives better throughput. The statement 'programmed I/O is faster' is FALSE.",
+      "note": "Interrupt-driven I/O has per-interrupt overhead, but for slow devices this is negligible compared to the polling overhead it eliminates."
+     }
+    ],
+    "result": "FALSE — Interrupt-driven I/O is generally faster (higher throughput) than programmed I/O because the CPU does useful work while waiting for the device, rather than busy-waiting in a polling loop."
+   },
+   "formula_ids_used": [],
+   "formula_note": "I/O technique comparison: Programmed I/O wastes CPU in busy-wait; Interrupt-Driven I/O allows CPU overlap with I/O latency, giving higher effective throughput.",
+   "qid": "2.9.3",
+   "answer_official": ""
+  },
+  {
+   "meta": {
+    "exam": "GATE 1996",
+    "year": 1996,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Computer Organization & Architecture",
+    "topic": "IO Handling",
+    "subtopic": "IO Handling"
+   },
+   "question": "For the daisy chain scheme of connecting I/O devices, which of the following statements is true?\n\nA. It gives non-uniform priority to various devices\nB. It gives uniform priority to all devices\nC. It is only useful for connecting slow devices to a processor device\nD. It requires a separate interrupt pin on the processor for each device",
+   "answer": "A. It gives non-uniform priority to various devices",
+   "to_find": "Which property correctly describes the daisy chain interrupt scheme.",
+   "understand": {
+    "plain": "In a daisy chain interrupt scheme, all I/O devices share a single interrupt line to the CPU. When an interrupt occurs, the CPU sends an interrupt acknowledge (INTA) signal down a chain of devices one by one. The first device in the chain gets to respond first — so devices closer to the CPU in the chain have higher priority. This means priority is non-uniform: the device physically first in the chain always wins over devices further down the chain.",
+    "keywords": [
+     {
+      "term": "Daisy Chain",
+      "explain": "An interrupt priority scheme where a single INTA (Interrupt Acknowledge) signal is passed through devices in series; the first requesting device in the chain captures the signal and puts its vector on the bus.",
+      "example": "Devices A-B-C are chained. If all assert INT simultaneously, A gets priority, then B, then C."
+     },
+     {
+      "term": "Non-uniform Priority",
+      "explain": "Different devices have different priority levels; the device earlier in the chain has higher priority than those later.",
+      "example": "Device 1 (first in chain) always preempts Device 3 (last in chain) when both request interrupt simultaneously."
+     }
+    ],
+    "visual_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 560 160\" width=\"560\" height=\"160\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x=\"10\" y=\"55\" width=\"80\" height=\"50\" rx=\"8\" class=\"hi\"/><text x=\"50\" y=\"82\" text-anchor=\"middle\" class=\"lbl ink\">CPU</text><rect x=\"140\" y=\"55\" width=\"80\" height=\"50\" rx=\"8\" class=\"bg\"/><text x=\"180\" y=\"78\" text-anchor=\"middle\" class=\"tag ink\">Dev 1</text><text x=\"180\" y=\"96\" text-anchor=\"middle\" class=\"sub ok\">High Pri</text><rect x=\"280\" y=\"55\" width=\"80\" height=\"50\" rx=\"8\" class=\"bg\"/><text x=\"320\" y=\"78\" text-anchor=\"middle\" class=\"tag ink\">Dev 2</text><text x=\"320\" y=\"96\" text-anchor=\"middle\" class=\"sub mut\">Med Pri</text><rect x=\"420\" y=\"55\" width=\"80\" height=\"50\" rx=\"8\" class=\"bg\"/><text x=\"460\" y=\"78\" text-anchor=\"middle\" class=\"tag ink\">Dev 3</text><text x=\"460\" y=\"96\" text-anchor=\"middle\" class=\"sub no\">Low Pri</text><line x1=\"90\" y1=\"80\" x2=\"140\" y2=\"80\" stroke=\"#7F77DD\" stroke-width=\"3\" marker-end=\"url(#arr)\"/><line x1=\"220\" y1=\"80\" x2=\"280\" y2=\"80\" stroke=\"#7F77DD\" stroke-width=\"2\" marker-end=\"url(#arr)\"/><line x1=\"360\" y1=\"80\" x2=\"420\" y2=\"80\" stroke=\"#7F77DD\" stroke-width=\"2\" marker-end=\"url(#arr)\"/><text x=\"115\" y=\"73\" text-anchor=\"middle\" class=\"sub mut\">INTA</text><text x=\"250\" y=\"73\" text-anchor=\"middle\" class=\"sub mut\">INTA</text><text x=\"390\" y=\"73\" text-anchor=\"middle\" class=\"sub mut\">INTA</text><line x1=\"180\" y1=\"55\" x2=\"180\" y2=\"30\" stroke=\"#D85A30\" stroke-width=\"2\"/><line x1=\"320\" y1=\"55\" x2=\"320\" y2=\"30\" stroke=\"#D85A30\" stroke-width=\"2\"/><line x1=\"460\" y1=\"55\" x2=\"460\" y2=\"30\" stroke=\"#D85A30\" stroke-width=\"2\"/><line x1=\"180\" y1=\"30\" x2=\"50\" y2=\"30\" stroke=\"#D85A30\" stroke-width=\"2\" marker-end=\"url(#arrint)\"/><line x1=\"320\" y1=\"30\" x2=\"182\" y2=\"30\" stroke=\"#D85A30\" stroke-width=\"1\" stroke-dasharray=\"4,3\"/><line x1=\"460\" y1=\"30\" x2=\"322\" y2=\"30\" stroke=\"#D85A30\" stroke-width=\"1\" stroke-dasharray=\"4,3\"/><text x=\"280\" y=\"20\" text-anchor=\"middle\" class=\"sub no\">INT line (shared)</text><defs><marker id=\"arr\" markerWidth=\"10\" markerHeight=\"7\" refX=\"9\" refY=\"3.5\" orient=\"auto\"><polygon points=\"0 0, 10 3.5, 0 7\" fill=\"#7F77DD\"/></marker><marker id=\"arrint\" markerWidth=\"10\" markerHeight=\"7\" refX=\"9\" refY=\"3.5\" orient=\"auto\"><polygon points=\"0 0, 10 3.5, 0 7\" fill=\"#D85A30\"/></marker></defs></svg>",
+    "visual_alt": "Daisy chain diagram: CPU sends INTA signal through Device 1 (highest priority) -> Device 2 -> Device 3 (lowest priority) in series. All devices share one INT line to CPU. Device position in chain determines priority level."
+   },
+   "given": {
+    "aim": "Identify the correct property of the daisy chain I/O interrupt scheme.",
+    "terms": [
+     {
+      "term": "Daisy chain connection",
+      "meaning": "Devices are connected in a series chain; the CPU's INTA (Interrupt Acknowledge) signal propagates from device to device.",
+      "example": "CPU -> Dev A -> Dev B -> Dev C: INTA is passed left to right; the first requesting device captures it.",
+      "connects": "Position in chain directly determines priority: earlier devices always have higher priority."
+     },
+     {
+      "term": "Non-uniform priority",
+      "meaning": "Each device has a different, fixed priority level based on its physical position in the chain.",
+      "example": "Device A (position 1) always wins over Device B (position 2) when both request interrupt.",
+      "connects": "This is the defining characteristic of daisy chain — priority is inherently non-uniform."
+     },
+     {
+      "term": "Single interrupt line",
+      "meaning": "All devices share one interrupt request line to the CPU; no separate per-device interrupt pins are needed.",
+      "example": "All 8 devices in the chain connect their INT output to the same CPU interrupt pin.",
+      "connects": "This refutes option D (which incorrectly says separate interrupt pins are needed per device)."
+     }
+    ],
+    "plan": "Analyze each option: (A) Non-uniform priority — TRUE, position in chain sets priority. (B) Uniform priority — FALSE, priority varies by position. (C) Only for slow devices — FALSE, speed is not a constraint. (D) Separate interrupt pin per device — FALSE, only one shared interrupt line is needed. Answer is A."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Analyze the daisy chain mechanism",
+      "formula_raw": "",
+      "apply": "In a daisy chain scheme: (1) All devices share a single interrupt request (INT) line connected to the CPU. (2) When any device needs service, it asserts the shared INT line. (3) The CPU responds with an Interrupt Acknowledge (INTA) signal. (4) INTA propagates through the chain: it reaches Device 1 first. If Device 1 requested an interrupt, it captures INTA, places its vector on the data bus, and does not pass INTA further. If Device 1 did NOT request, it passes INTA to Device 2, and so on. (5) Devices earlier in the chain always have higher priority — this is non-uniform priority.",
+      "note": "Daisy chain is a hardware-based priority scheme requiring no software arbitration, but the priority is fixed by wiring."
+     },
+     {
+      "step": 2,
+      "title": "Evaluate each option",
+      "formula_raw": "",
+      "apply": "A. Non-uniform priority — CORRECT. Priority is determined by position in chain; Device 1 > Device 2 > Device 3. B. Uniform priority — INCORRECT. Priority is NOT uniform; position determines priority. C. Only for slow devices — INCORRECT. Daisy chain applies to any I/O device regardless of speed. D. Requires separate interrupt pin per device — INCORRECT. Only one shared INT line is used; no separate pins per device are needed (that describes a vectored interrupt controller with separate lines).",
+      "note": "The key advantage of daisy chain is using only one interrupt line for multiple devices; its disadvantage is that the priority is fixed and cannot be easily changed."
+     }
+    ],
+    "result": "A. It gives non-uniform priority to various devices — devices closer to the CPU in the daisy chain have higher interrupt priority."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Daisy chain interrupt priority: INTA propagates serially; device position in chain determines priority (non-uniform). Only one shared interrupt line required.",
+   "qid": "2.9.4",
+   "answer_official": "A"
+  }
+ ]
+}

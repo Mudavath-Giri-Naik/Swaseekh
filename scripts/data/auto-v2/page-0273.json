@@ -1,0 +1,352 @@
+{
+ "page": 273,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 1989",
+    "year": 1989,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Databases",
+    "topic": "B Tree",
+    "subtopic": "B Tree"
+   },
+   "question": "The below figure shows a B+ tree where only key values are indicated in the records. Each block can hold up to three records. A record with a key value 34 is inserted into the B+ tree. Obtain the modified B+ tree after insertion.\n\nInitial B+ tree (order 3, each node holds up to 3 keys):\nRoot: [92]\nLeft subtree root: [32, 52]\n  Left leaf: [10, 20, 30]\n  Middle leaf: [32, 40, 50]\n  Right leaf: [52, 60, 70]\nRight subtree root: [126, 250]\n  Left leaf: [92, 100, 110]\n  Middle leaf: [126, 140, 180]\n  Right leaf: [250, 260, 270]\n\nWhat does the B+ tree look like after inserting key value 34?",
+   "answer": "34 is inserted into leaf [32, 40, 50]. The leaf overflows to [32, 34, 40, 50], splits into [32, 34] and [40, 50]. Key 40 is pushed up to the parent [32, 52], giving [32, 40, 52] which overflows, splits into [32, 40] and [52]. Key 40 is pushed up to root [92], giving root [40, 92]. The final tree has root [40, 92] with three subtrees.",
+   "to_find": "The modified B+ tree after inserting key 34 into the given B+ tree of order 3.",
+   "understand": {
+    "plain": "We have a B+ tree where each block holds at most 3 records (order 3). We need to insert the key 34 into this tree. When a node overflows (gets more than 3 keys), it splits and the middle key is promoted to the parent. This may cause a chain of splits up to the root.",
+    "keywords": [
+     {
+      "term": "B+ tree",
+      "explain": "A balanced tree data structure where all data records are at the leaf level, and internal nodes store only keys as routing guides.",
+      "example": "In a B+ tree of order 3, each internal node has 2 to 3 keys and 3 to 4 child pointers."
+     },
+     {
+      "term": "Node split",
+      "explain": "When a node exceeds its maximum capacity after insertion, it is divided into two nodes and the median key is pushed up to the parent.",
+      "example": "Inserting into a full leaf [32, 40, 50] after adding 34 gives [32, 34, 40, 50]; this splits into [32, 34] and [40, 50] with 40 promoted."
+     },
+     {
+      "term": "Order of B+ tree",
+      "explain": "The order d means each node (except root) has between ceil(d/2) and d keys; here order 3 means each block holds up to 3 records.",
+      "example": "Order 3: minimum 2 keys per internal node, maximum 3 keys."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='600' height='300' viewBox='0 0 600 300'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='230' y='10' width='140' height='36' rx='6' class='hi'/><text x='300' y='34' text-anchor='middle' class='lbl ink'>40 | 92</text><line x1='260' y1='46' x2='100' y2='100' stroke='#7F77DD' stroke-width='2'/><line x1='300' y1='46' x2='300' y2='100' stroke='#7F77DD' stroke-width='2'/><line x1='340' y1='46' x2='500' y2='100' stroke='#7F77DD' stroke-width='2'/><rect x='30' y='100' width='140' height='36' rx='6' class='bg'/><text x='100' y='124' text-anchor='middle' class='lbl ink'>32</text><rect x='230' y='100' width='140' height='36' rx='6' class='bg'/><text x='300' y='124' text-anchor='middle' class='lbl ink'>52</text><rect x='430' y='100' width='140' height='36' rx='6' class='bg'/><text x='500' y='124' text-anchor='middle' class='lbl ink'>126 | 250</text><text x='300' y='280' text-anchor='middle' class='sub mut'>B+ tree after inserting 34 (root splits to [40,92])</text></svg>",
+    "visual_alt": "B+ tree after inserting 34: new root is [40, 92] with three child subtrees. The split propagated from leaf up to the root."
+   },
+   "given": {
+    "aim": "Insert key 34 into a B+ tree of order 3 (max 3 keys per node) and show the resulting tree.",
+    "terms": [
+     {
+      "term": "Order 3 B+ tree",
+      "meaning": "Each node holds at most 3 keys; a node with 4 keys after insertion must split.",
+      "example": "Leaf [32, 40, 50] has 3 keys; inserting 34 causes overflow.",
+      "connects": "Determines when splits occur during insertion."
+     },
+     {
+      "term": "Key 34",
+      "meaning": "The new record key to be inserted; belongs in the leaf containing keys between 32 and 40.",
+      "example": "34 > 32 and 34 < 40, so it goes into leaf [32, 40, 50].",
+      "connects": "Triggers the insertion and subsequent cascading splits."
+     },
+     {
+      "term": "Split and promote",
+      "meaning": "When a leaf overflows, split it in two; copy the smallest key of the right half up to the parent. For internal nodes, push (not copy) the median up.",
+      "example": "[32, 34, 40, 50] splits into [32, 34] | [40, 50] with 40 promoted.",
+      "connects": "The promoted key 40 causes the parent [32, 52] to overflow, leading to another split and finally a new root."
+     }
+    ],
+    "plan": "Find the correct leaf for key 34, insert it, handle the overflow by splitting and promoting up the tree. If the root also splits, create a new root with the promoted key."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Locate the correct leaf and insert 34",
+      "formula_raw": "",
+      "apply": "Starting from root [92]: 34 < 92, go left to internal node [32, 52]. Then 32 <= 34 < 52, so go to the middle leaf [32, 40, 50]. Insert 34 to get overflow leaf [32, 34, 40, 50] (4 keys, max is 3).",
+      "note": "In a B+ tree of order 3 (max 3 keys), having 4 keys triggers a split."
+     },
+     {
+      "step": 2,
+      "title": "Split the overflowed leaf",
+      "formula_raw": "Split position = ceil(4/2) = 2",
+      "apply": "Split [32, 34, 40, 50] into left = [32, 34] and right = [40, 50]. In B+ tree leaf splits, the first key of the right sibling (40) is copied up to the parent.",
+      "note": "For leaf nodes in B+ trees, the separator key is copied (not moved) to keep all data in leaves."
+     },
+     {
+      "step": 3,
+      "title": "Promote 40 to the parent and handle parent overflow",
+      "formula_raw": "",
+      "apply": "Parent was [32, 52]. Insert separator 40 gives [32, 40, 52] (3 keys) — wait, that's exactly 3 keys which is the max, so no overflow at parent level here. Actually checking: if order means max 3 keys then 3 keys is full but not overflowed. However since we need 4 child pointers (left:[32,34], mid:[40,50], right:[52,60,70] plus original right), [32, 40, 52] has 3 keys and 4 children — this overflows for a node of order 3 (max degree 4 children means max 3 keys). So parent [32, 40, 52] overflows to internal split: left = [32] with children (old-left, new-left), right = [52] with children (new-right, old-right-52). The median key 40 is pushed up to the root.",
+      "note": "Internal node splits push the median key up (not copy) unlike leaf splits."
+     },
+     {
+      "step": 4,
+      "title": "Update the root",
+      "formula_raw": "",
+      "apply": "Root was [92]. Inserting promoted 40 gives [40, 92] — 2 keys, no overflow. New root = [40, 92] with 3 children: subtree-left (rooted at [32]), subtree-mid (rooted at [52]), and subtree-right (rooted at [126, 250]).",
+      "note": "The tree height remains the same since the root does not split."
+     }
+    ],
+    "result": "After inserting 34, the new root is [40, 92]. The left child subtree has internal node [32] with leaves [10,20,30] and [32,34]. The middle subtree has internal node [52] with leaves [40,50] and [52,60,70]. The right subtree has internal node [126,250] with leaves [92,100,110], [126,140,180], and [250,260,270]."
+   },
+   "formula_ids_used": [],
+   "formula_note": "B+ tree insertion with node splitting: when a leaf node overflows, split and copy the median up; when an internal node overflows, split and push the median up to the parent.",
+   "qid": "5.1.1",
+   "answer_official": "N/A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1994",
+    "year": 1994,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Databases",
+    "topic": "B Tree",
+    "subtopic": "B Tree"
+   },
+   "question": "Consider a B+ tree of order d shown in the figure. (A B+ tree of order d contains between d and 2d keys in each node.)\n\nInitial B+ tree (order 2, so 2 to 4 keys per node, i.e., each node holds 2 to 4 keys):\nThe tree has the following structure:\nInternal node: [21, 28, 38, 51]\nLeaves: [10, 15, 20] | [21, 25] | [28, 30, 35] | [38, 40, 45, 48] | [51, 55, 60]\nAnd additional leaves: [69, 71, 75] | [81, 85] | [99, 100] | [101, 105]\n\nDraw the resulting B+ tree after 100 is inserted in the tree.",
+   "answer": "Inserting 100 into leaf [99, 100] which already has 2 keys (becomes [99, 100, 100] - but 100 already exists; assuming the tree initially has leaf [99] or [95, 99], inserting 100 fills to capacity or overflows. The leaf containing 99 gets 100 inserted; if it overflows it splits and the separator is pushed up.",
+   "to_find": "The B+ tree structure after inserting key 100 into the given B+ tree of order 2 (each node holds 2 to 4 keys).",
+   "understand": {
+    "plain": "We have a B+ tree of order d=2, meaning each node (except possibly root) holds between 2 and 4 keys. We need to insert the key 100. The key 100 belongs in one of the rightmost leaves. If the target leaf is full (has 4 keys), it splits into two nodes and the separator key is pushed up to the parent.",
+    "keywords": [
+     {
+      "term": "B+ tree of order d",
+      "explain": "Each non-root node has between d and 2d keys; the root has between 1 and 2d keys. Here d=2 so nodes have 2 to 4 keys.",
+      "example": "A node with 4 keys is full; inserting one more causes it to split into two nodes with 2 keys each."
+     },
+     {
+      "term": "Leaf node insertion",
+      "explain": "New keys are always inserted at the leaf level in a B+ tree; if the leaf overflows (exceeds 2d keys), it is split.",
+      "example": "If the leaf [95, 99, 102, 110] is full (4 keys for d=2) and we insert 100, it becomes [95, 99, 100, 102, 110] — 5 keys — which overflows and must split."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='620' height='200' viewBox='0 0 620 200'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='200' y='10' width='220' height='36' rx='6' class='bg'/><text x='310' y='34' text-anchor='middle' class='lbl ink'>... | 69 | 81 | 99 | ...</text><rect x='430' y='80' width='160' height='36' rx='6' class='hi'/><text x='510' y='104' text-anchor='middle' class='lbl ink'>99 | 100 inserted</text><text x='310' y='175' text-anchor='middle' class='sub mut'>Leaf containing 99 receives key 100</text></svg>",
+    "visual_alt": "The rightmost portion of the B+ tree showing where key 100 is inserted into the leaf containing 99."
+   },
+   "given": {
+    "aim": "Insert key 100 into the given B+ tree of order 2 and show the resulting tree.",
+    "terms": [
+     {
+      "term": "Order d = 2",
+      "meaning": "Each node holds between 2 and 4 (= 2d) keys; overflow occurs when a node gets 5 keys.",
+      "example": "A leaf with keys [69, 71, 75, 81] has 4 keys — it is full but not overflowed.",
+      "connects": "Determines the split threshold during insertion."
+     },
+     {
+      "term": "Key 100",
+      "meaning": "The key to be inserted; it belongs in the rightmost area of the tree between existing keys near 99-101.",
+      "example": "100 lies between 99 and 101 in sorted order.",
+      "connects": "Locating the leaf that should contain 100 and checking if it overflows."
+     },
+     {
+      "term": "Leaf [99, 100] region",
+      "meaning": "The leaf in the B+ tree that contains keys in the 99-105 range based on the image.",
+      "example": "If the leaf currently has [99] or [95, 99], inserting 100 does not cause overflow.",
+      "connects": "If the leaf already has 4 keys, insertion causes a split."
+     }
+    ],
+    "plan": "Traverse from root to the leaf where 100 belongs (between keys 99 and 101). Insert 100 into that leaf. If the leaf overflows (gets more than 2d=4 keys), split it and push the median key up to the parent, handling cascading splits if needed."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Find the target leaf for key 100",
+      "formula_raw": "",
+      "apply": "Navigate from the root. Key 100 falls in the range corresponding to the leaf containing values around 99-105. Based on the figure, the leaf [99, 100] or [95, 99] is the target. The image shows leaves that include values 99 and 101, 105 in adjacent leaves.",
+      "note": "Always follow the B+ tree search path: compare with internal node separators to choose the correct child pointer."
+     },
+     {
+      "step": 2,
+      "title": "Insert 100 and check for overflow",
+      "formula_raw": "Overflow condition: number of keys > 2d = 4",
+      "apply": "Based on the image, the tree shows a leaf [99, 100] already containing those values, or the leaf [95, 99] receiving 100 to become [95, 99, 100]. If the leaf has fewer than 4 keys, no split is needed. If the leaf with 99 has 4 keys already (e.g., [69, 71, 75, 81] is a different leaf), inserting 100 into its leaf (say [99, 101, 105]) gives [99, 100, 101, 105] — still 4 keys, no overflow. The resulting tree has 100 placed in the appropriate leaf without structural changes.",
+      "note": "The key insight is that for order d=2 (max 4 keys), as long as the leaf has <= 3 keys before insertion, no split is needed."
+     }
+    ],
+    "result": "Key 100 is inserted into the appropriate leaf node. Based on the initial B+ tree structure with order d=2, inserting 100 into the leaf containing values near 99-105 (specifically into the leaf [99, 101] or similar) results in [99, 100, 101] or similar with no overflow, so the tree structure remains the same with only the target leaf updated to include 100."
+   },
+   "formula_ids_used": [],
+   "formula_note": "B+ tree of order d insertion: each non-root node has between d and 2d keys; overflow occurs when a node has 2d+1 keys and triggers a split with the median key pushed to the parent.",
+   "qid": "5.1.2",
+   "answer_official": "N/A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1994",
+    "year": 1994,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Databases",
+    "topic": "B Tree",
+    "subtopic": "B Tree"
+   },
+   "question": "For a B+ tree of order d with n leaf nodes, the number of nodes accessed during a search is O(___).",
+   "answer": "O(log_d(n))",
+   "to_find": "The time complexity (in Big-O notation) for the number of nodes accessed during a search in a B+ tree of order d with n leaf nodes.",
+   "understand": {
+    "plain": "In a B+ tree of order d, each internal node has between d and 2d children. If there are n leaf nodes at the bottom, the height of the tree (number of levels from root to leaf) determines how many nodes we must visit during a search. We need to express this as a function of d and n.",
+    "keywords": [
+     {
+      "term": "B+ tree height",
+      "explain": "The number of levels in the tree from the root down to the leaves. A shorter tree means fewer node accesses per search.",
+      "example": "A B+ tree of order 2 with 8 leaves has height at most log_2(8) = 3 levels above leaves."
+     },
+     {
+      "term": "Fanout",
+      "explain": "The number of child pointers per internal node, which determines how quickly the tree fans out. For order d, maximum fanout is 2d+1.",
+      "example": "With fanout d (minimum), n leaves require at most log_d(n) levels of internal nodes."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='500' height='220' viewBox='0 0 500 220'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='200' y='10' width='100' height='34' rx='6' class='hi'/><text x='250' y='32' text-anchor='middle' class='lbl ink'>Root</text><line x1='250' y1='44' x2='100' y2='90' stroke='#7F77DD' stroke-width='2'/><line x1='250' y1='44' x2='250' y2='90' stroke='#7F77DD' stroke-width='2'/><line x1='250' y1='44' x2='400' y2='90' stroke='#7F77DD' stroke-width='2'/><rect x='50' y='90' width='100' height='34' rx='6' class='bg'/><text x='100' y='112' text-anchor='middle' class='sub ink'>Level 1</text><rect x='200' y='90' width='100' height='34' rx='6' class='bg'/><text x='250' y='112' text-anchor='middle' class='sub ink'>Level 1</text><rect x='350' y='90' width='100' height='34' rx='6' class='bg'/><text x='400' y='112' text-anchor='middle' class='sub ink'>Level 1</text><text x='250' y='170' text-anchor='middle' class='lbl ink'>Height = O(log_d(n))</text><text x='250' y='195' text-anchor='middle' class='sub mut'>Each level has up to 2d children per node</text></svg>",
+    "visual_alt": "A B+ tree showing the root at top with branching factor d to 2d at each level, height proportional to log_d(n) where n is the number of leaf nodes."
+   },
+   "given": {
+    "aim": "Find the number of node accesses (in Big-O) for a search in a B+ tree of order d with n leaf nodes.",
+    "terms": [
+     {
+      "term": "n leaf nodes",
+      "meaning": "The total number of leaf nodes in the B+ tree, which determines the size of the data set.",
+      "example": "If n = 1000, the leaves store all 1000 data records.",
+      "connects": "The number of internal nodes (and hence height) is determined by n and the branching factor."
+     },
+     {
+      "term": "Order d (branching factor)",
+      "meaning": "Each internal node has at least d and at most 2d child pointers.",
+      "example": "Order d=100 means each internal node has 100 to 200 children, giving very short trees.",
+      "connects": "Higher d means lower tree height for the same n, so fewer node accesses."
+     },
+     {
+      "term": "Tree height h",
+      "meaning": "The number of levels from root to leaf (excluding leaves), which directly equals the number of internal nodes accessed per search.",
+      "example": "If every internal node has exactly d children, then d^h = n, so h = log_d(n).",
+      "connects": "Search accesses one node per level, so total accesses = h + 1 = O(log_d(n))."
+     }
+    ],
+    "plan": "Compute the maximum height of a B+ tree with n leaves and branching factor d. At minimum branching d, we have d^h = n leaves, giving h = log_d(n). Adding the leaf level gives O(log_d(n)) total node accesses."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Relate tree height to leaf count",
+      "formula_raw": "n <= (2d)^h => h >= log_{2d}(n)",
+      "apply": "In a B+ tree of order d, each internal node has between d and 2d children. In the worst case (minimum fanout d), the height h satisfies d^h = n (all internal nodes have exactly d children). Thus h = log_d(n).",
+      "note": "The minimum fanout gives maximum height; using 2d gives minimum height. Both are O(log_d(n))."
+     },
+     {
+      "step": 2,
+      "title": "Count total node accesses during search",
+      "formula_raw": "accesses = h + 1 = O(log_d(n))",
+      "apply": "A search visits one node per level: the root, then h-1 internal nodes, then 1 leaf node. Total = h + 1 levels. Since h = O(log_d(n)), the total number of nodes accessed is O(log_d(n)).",
+      "note": "The +1 for the leaf is absorbed into the Big-O notation, so the answer is simply O(log_d(n))."
+     }
+    ],
+    "result": "The number of nodes accessed during a search in a B+ tree of order d with n leaf nodes is O(log_d(n))."
+   },
+   "formula_ids_used": [],
+   "formula_note": "B+ tree search complexity: height of a B+ tree with n leaves and branching factor d is O(log_d(n)); each search visits one node per level, giving O(log_d(n)) total node accesses.",
+   "qid": "5.1.3",
+   "answer_official": "N/A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1997",
+    "year": 1997,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "B Tree",
+    "subtopic": "B Tree"
+   },
+   "question": "A B+ tree of order d is a tree in which each internal node has between d and 2d key values. An internal node with M key values has M+1 children. The root (if it is an internal node) has between 1 and 2d key values. The values of all keys in the subtree rooted at a child c_i are between the key values k_{i-1} and k_i that surround the pointer to c_i.\n\nWhich of the following is TRUE about a B+ tree?\n\nA. What is the total number of key values in the internal nodes of a B+ tree with f leaves, if f >= 2?\nB. What is the maximum number of internal nodes in a B+ tree of order 4 with 32 leaves?\nC. What is the minimum number of leaves in a B+ tree of order d with height h(h >= 1)?",
+   "answer": "A. f - 1\nB. 7\nC. (d+1)^(h-1)",
+   "to_find": "Properties of B+ trees: total internal key values, maximum internal nodes for specific order/leaves, and minimum leaves for given height.",
+   "understand": {
+    "plain": "This question tests understanding of B+ tree structural properties. In a B+ tree, all data is stored at the leaf level. We need to derive formulas for: (A) how many key values appear in internal nodes given f leaves, (B) the maximum number of internal nodes for a specific B+ tree, and (C) the minimum number of leaf nodes given the tree's height and order.",
+    "keywords": [
+     {
+      "term": "Internal node key count",
+      "explain": "Internal nodes store keys only as routing guides; the total number of internal keys is related to the number of leaves because each internal key separates exactly two subtrees.",
+      "example": "A B+ tree with 4 leaves has 3 internal keys total (one fewer than leaves), similar to a binary tree with n leaves having n-1 internal nodes."
+     },
+     {
+      "term": "B+ tree order d",
+      "explain": "Controls the branching factor: internal nodes have between d and 2d keys (d+1 to 2d+1 children); root has 1 to 2d keys.",
+      "example": "Order 4 means internal nodes have 4 to 8 keys and 5 to 9 children."
+     },
+     {
+      "term": "Tree height h",
+      "explain": "The number of levels in the tree (counting the root as level 1). Height h=1 means only a root node (leaf).",
+      "example": "Height h=2 means root plus one level of leaves."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='560' height='240' viewBox='0 0 560 240'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='210' y='10' width='140' height='34' rx='6' class='hi'/><text x='280' y='32' text-anchor='middle' class='lbl ink'>Root (1 key)</text><line x1='250' y1='44' x2='100' y2='100' stroke='#7F77DD' stroke-width='2'/><line x1='310' y1='44' x2='460' y2='100' stroke='#7F77DD' stroke-width='2'/><rect x='30' y='100' width='140' height='34' rx='6' class='bg'/><text x='100' y='122' text-anchor='middle' class='lbl ink'>Leaf 1</text><rect x='390' y='100' width='140' height='34' rx='6' class='bg'/><text x='460' y='122' text-anchor='middle' class='lbl ink'>Leaf 2</text><text x='280' y='180' text-anchor='middle' class='lbl ink'>f=2 leaves, 1 internal key</text><text x='280' y='205' text-anchor='middle' class='sub mut'>Total internal keys = f - 1 = 1</text></svg>",
+    "visual_alt": "B+ tree with 2 leaves and 1 internal key in the root, illustrating that total internal keys equals f-1 where f is the number of leaves."
+   },
+   "given": {
+    "aim": "Derive or verify formulas for B+ tree structural properties: internal key count, max internal nodes, and min leaves.",
+    "terms": [
+     {
+      "term": "f leaves",
+      "meaning": "The total number of leaf nodes in the B+ tree.",
+      "example": "f=32 means there are 32 leaf nodes storing all data records.",
+      "connects": "The number of internal keys in a B+ tree is f-1 (each internal key separates two leaf subtrees)."
+     },
+     {
+      "term": "Order 4, 32 leaves",
+      "meaning": "Specific case: internal nodes have 4 to 8 keys (5 to 9 children); tree has exactly 32 leaves.",
+      "example": "Max children per internal node = 2*4+1 = 9; so levels needed = log_9(32) rounded up.",
+      "connects": "Maximum internal nodes = sum of nodes at each level in worst case (minimum fanout)."
+     },
+     {
+      "term": "Height h, minimum leaves",
+      "meaning": "Minimum leaves occur when the tree is as 'thin' as possible: root has 1 key (2 children), each non-root internal node has d keys (d+1 children).",
+      "example": "Height 2: root has 2 children, each is a leaf. Min leaves = 2 = (d+1)^(2-1) doesn't work... min leaves = 2*(d+1)^(h-2) for h >= 2.",
+      "connects": "The minimum leaf count gives the worst-case (shallowest tree for fewest leaves) scenario."
+     }
+    ],
+    "plan": "For (A): Use the fact that in any tree, number of internal keys = number of leaves - 1 (each internal key acts as a separator). For (B): With max fanout 2d+1=9, compute levels for 32 leaves. For (C): Use minimum fanout to find minimum leaves at height h."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Part A: Total internal key values for f leaves",
+      "formula_raw": "Total internal keys = f - 1",
+      "apply": "In a B+ tree, each internal key acts as a separator between two subtrees. With f leaves, there are f-1 separators in total across all internal nodes. This is analogous to a binary search tree where n-1 internal comparisons separate n items. Each key in an internal node corresponds to one 'split' between adjacent leaf ranges. Total internal keys = f - 1.",
+      "note": "This is a fundamental property: total internal key count = number of leaf nodes - 1."
+     },
+     {
+      "step": 2,
+      "title": "Part B: Maximum internal nodes for order 4, 32 leaves",
+      "formula_raw": "Max internal nodes = ceil(32 / (d+1)) + ceil(32 / (d+1)^2) + ... = sum over levels",
+      "apply": "Order 4 means each internal node has between 5 and 9 children (4 to 8 keys). To maximize internal nodes, use minimum fanout (5 children per node). Level above leaves: ceil(32/5) = 7 nodes. Level above that: ceil(7/5) = 2 nodes. Level above that: ceil(2/5) = 1 node (root). Total internal nodes = 7 + 2 + 1 = 10. But with maximum fanout 9: level above 32 leaves with fanout 9 = ceil(32/9) = 4 nodes. Then ceil(4/9) = 1 (root). Total = 4 + 1 = 5. The question asks for maximum, which uses minimum fanout: total = 7 + 2 + 1 = 10. However, if the question uses order 4 meaning 4 to 8 keys (5 to 9 children), then minimum fanout = 5: 32/5 = 7 nodes, 7/5 = 2 nodes, 2/5 = 1 node. Max internal nodes = 7 + 2 + 1 = 10. Actually with exactly 32 leaves and min fanout 5: first level above leaves has at least ceil(32/9)=4 and at most ceil(32/5)=7. For max internal nodes use min fanout: 7 + 2 + 1 = 10.",
+      "note": "Maximum internal nodes occurs when each node has the minimum number of children (minimum fanout d+1)."
+     },
+     {
+      "step": 3,
+      "title": "Part C: Minimum leaves for B+ tree of height h",
+      "formula_raw": "Min leaves = 2 * (ceil(d/2) + 1)^(h-2) for a B tree; for B+ tree = 2*(d+1)^(h-1)",
+      "apply": "Minimum leaves occur with the sparsest tree. Root has 1 key (2 children). Each non-root internal node has d keys (d+1 children, the minimum). At height h, there are h-1 levels of internal nodes above the leaves. Min leaves = 2 * (d+1)^(h-2) when height is measured from root to leaf (root=1, leaf=h). Actually: with root having 2 children and each subsequent internal node having d+1 children, at height h the minimum number of leaves = 2 * (d+1)^(h-2).",
+      "note": "Height h=1 means the tree is just a single root leaf node (1 leaf). Height h=2 means root with 2 leaf children (min 2 leaves). For height h >= 2: min leaves = 2*(d+1)^(h-2)."
+     }
+    ],
+    "result": "A: Total internal key values = f - 1 (one less than the number of leaves). B: Maximum number of internal nodes in a B+ tree of order 4 with 32 leaves = 10 (using minimum fanout of 5). C: Minimum number of leaves in a B+ tree of order d with height h = 2*(d+1)^(h-2) for h >= 2."
+   },
+   "formula_ids_used": [],
+   "formula_note": "B+ tree structural properties: (1) total internal keys = f-1 for f leaves; (2) maximum internal nodes computed using minimum fanout (d+1 children per node); (3) minimum leaves computed using maximum sparsity (root has 2 children, others have d+1 children).",
+   "qid": "5.1.4",
+   "answer_official": "N/A"
+  }
+ ]
+}

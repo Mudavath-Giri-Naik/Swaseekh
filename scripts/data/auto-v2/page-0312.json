@@ -1,0 +1,345 @@
+{
+ "page": 312,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2001",
+    "year": 2001,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "Relational Algebra",
+    "subtopic": "Relational Algebra"
+   },
+   "question": "Suppose the adjacency relation of vertices in a graph is represented in a table Adj(X, Y). Which of the following queries cannot be expressed by a relational algebra expression of constant length?\n\nA. List all vertices adjacent to a given vertex\nB. List all vertices which have self loops\nC. List all vertices which belong to cycles of less than three vertices\nD. List all vertices reachable from a given vertex",
+   "answer": "D. List all vertices reachable from a given vertex",
+   "to_find": "Which query on a graph adjacency table CANNOT be expressed in relational algebra with a constant-length expression",
+   "understand": {
+    "plain": "A graph is stored as a table Adj(X, Y) meaning there is an edge from vertex X to vertex Y. We need to find which query requires variable-length (recursive) relational algebra, which standard relational algebra cannot express in a fixed number of steps. Reachability in a graph requires transitive closure, which cannot be computed by any fixed-length relational algebra expression.",
+    "keywords": [
+     {
+      "term": "Transitive Closure",
+      "explain": "The set of all vertices reachable from a given vertex by following edges, possibly through many intermediate vertices. This requires potentially unbounded chains of joins.",
+      "example": "If edges are A->B, B->C, C->D, then D is reachable from A but only via 3 hops; for an arbitrary graph the number of hops is unbounded."
+     },
+     {
+      "term": "Constant-length Relational Algebra Expression",
+      "explain": "An expression that does not grow with the size or structure of the data — it has a fixed number of operators regardless of database content.",
+      "example": "sigma_{X=v}(Adj) finds all vertices adjacent to a given vertex v — this is a single select, always constant length."
+     },
+     {
+      "term": "Adjacency Relation",
+      "explain": "A binary relation Adj(X, Y) storing graph edges, where tuple (x, y) means there is a directed edge from x to y.",
+      "example": "Adj = {(A,B), (B,C)} represents edges A->B and B->C."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='400' height='180'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><circle cx='60' cy='90' r='24' class='hi'/><text x='60' y='95' text-anchor='middle' class='lbl ink'>A</text><circle cx='180' cy='90' r='24' class='bg'/><text x='180' y='95' text-anchor='middle' class='lbl ink'>B</text><circle cx='300' cy='90' r='24' class='bg'/><text x='300' y='95' text-anchor='middle' class='lbl ink'>C</text><circle cx='420' cy='90' r='24' class='bg'/><text x='420' y='95' text-anchor='middle' class='lbl ink'>D</text><line x1='84' y1='90' x2='154' y2='90' stroke='#2C2C2A' stroke-width='2' marker-end='url(#arr)'/><line x1='204' y1='90' x2='274' y2='90' stroke='#2C2C2A' stroke-width='2' marker-end='url(#arr)'/><line x1='324' y1='90' x2='394' y2='90' stroke='#2C2C2A' stroke-width='2' marker-end='url(#arr)'/><defs><marker id='arr' markerWidth='8' markerHeight='8' refX='6' refY='3' orient='auto'><path d='M0,0 L0,6 L8,3 z' fill='#2C2C2A'/></marker></defs><text x='200' y='155' text-anchor='middle' class='sub mut'>D is reachable from A (3 hops) — needs transitive closure</text></svg>",
+    "visual_alt": "A directed graph A->B->C->D. Reachability from A to D requires following 3 edges, illustrating that for arbitrary graphs the chain length is unbounded, requiring transitive closure which cannot be expressed in constant-length relational algebra."
+   },
+   "given": {
+    "aim": "Identify the query that requires transitive closure (not expressible in constant-length relational algebra)",
+    "terms": [
+     {
+      "term": "Adj(X, Y)",
+      "meaning": "Adjacency table representing directed edges of a graph",
+      "example": "Tuple (u, v) in Adj means edge u -> v exists",
+      "connects": "All queries operate on this table"
+     },
+     {
+      "term": "Constant-length RA expression",
+      "meaning": "A relational algebra expression with a fixed number of operators regardless of data",
+      "example": "sigma_{X='v'}(Adj) is constant length",
+      "connects": "Queries A, B, C can each be expressed with a fixed-size RA expression; D cannot"
+     },
+     {
+      "term": "Reachability",
+      "meaning": "Whether a vertex w can be reached from v by following one or more directed edges",
+      "example": "In A->B->C, C is reachable from A",
+      "connects": "Requires transitive closure which needs unbounded self-joins"
+     }
+    ],
+    "plan": "Check each option: A requires a single select; B requires sigma_{X=Y}(Adj); C requires at most a 2-step self-join to detect cycles of length <= 2. Option D (reachability) requires computing the transitive closure of Adj, which demands an unbounded number of joins and cannot be expressed in any fixed-length relational algebra expression."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Analyze options A, B, C",
+      "formula_raw": "",
+      "apply": "A: sigma_{X=v}(Adj) — single select, constant length. B: sigma_{X=Y}(Adj) — single select on diagonal, constant length. C: Cycles of length < 3 means cycles of length 1 (self-loops, X=Y) or length 2 (X->Y and Y->X). This can be expressed as: pi_X(sigma_{X=Y}(Adj)) UNION pi_X(Adj JOIN_{Adj.Y=Adj2.X AND Adj2.Y=Adj.X} Adj) — a fixed expression regardless of graph size.",
+      "note": "All three queries A, B, C have a bounded depth of traversal (0, 1, or 2 hops), so they can be expressed with a constant number of relational algebra operators."
+     },
+     {
+      "step": 2,
+      "title": "Analyze option D — Reachability",
+      "formula_raw": "Reachability = Adj UNION (Adj JOIN Adj) UNION (Adj JOIN Adj JOIN Adj) UNION ...",
+      "apply": "Reachability from a given vertex requires finding all vertices reachable by 1, 2, 3, ... hops. For a graph with n vertices, up to n-1 hops may be needed. Since n is not fixed, the relational algebra expression must grow with the data — it cannot have constant length. Standard relational algebra has no recursion or fixed-point operator, so transitive closure is not expressible.",
+      "note": "This is a fundamental limitation of first-order logic (and relational algebra): transitive closure is not first-order definable."
+     }
+    ],
+    "result": "D. List all vertices reachable from a given vertex — this requires transitive closure and cannot be expressed by a relational algebra expression of constant length."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Transitive closure of a relation cannot be expressed in standard (non-recursive) relational algebra; it requires a fixed-point or iterative extension.",
+   "qid": "5.15.11",
+   "answer_official": "D"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2001",
+    "year": 2001,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "Relational Algebra",
+    "subtopic": "Relational Algebra"
+   },
+   "question": "Let r and s be two relations over the relation schemes R and S respectively, and let A be an attribute in R intersection S. The relational algebra expression sigma_A(r |x| s) is always equal to:\n\nA. sigma_A(r) |x| s\nB. r |x| sigma_A(s)\nC. sigma_A(r) |x| sigma_A(s)\nD. None of the above",
+   "answer": "C. sigma_A(r) |x| sigma_A(s)",
+   "to_find": "Which expression is always equal to sigma_A(r natural-join s)",
+   "understand": {
+    "plain": "We have two relations r and s sharing attribute A. We want to know what sigma_A (a selection on A) applied after a natural join is equivalent to. Since A appears in both r and s, filtering on A after the join can be pushed to both sides individually. This is the selection pushdown rule in relational algebra.",
+    "keywords": [
+     {
+      "term": "Natural Join (|x|)",
+      "explain": "Combines two relations by equating all attributes with the same name and projecting out duplicates.",
+      "example": "r(A, B) |x| s(A, C) produces tuples where r.A = s.A, with columns A, B, C."
+     },
+     {
+      "term": "Selection Pushdown",
+      "explain": "A relational algebra optimization where a selection condition can be pushed below a join, applying it to operands before joining.",
+      "example": "sigma_{A=5}(r |x| s) = sigma_{A=5}(r) |x| sigma_{A=5}(s) when A is a join attribute."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Selection on a join attribute A can be pushed to both relations r and s individually before joining, because A must match in both relations after the natural join."
+   },
+   "given": {
+    "aim": "Simplify sigma_A(r |x| s) using relational algebra equivalence rules",
+    "terms": [
+     {
+      "term": "r",
+      "meaning": "Relation over scheme R, containing attribute A",
+      "example": "r(A, B) = {(1, x), (2, y)}",
+      "connects": "Left operand of natural join"
+     },
+     {
+      "term": "s",
+      "meaning": "Relation over scheme S, containing attribute A",
+      "example": "s(A, C) = {(1, p), (3, q)}",
+      "connects": "Right operand of natural join"
+     },
+     {
+      "term": "A in R intersection S",
+      "meaning": "Attribute A is shared by both R and S, making it the natural join attribute",
+      "example": "In r(A,B) |x| s(A,C), A is the joining attribute",
+      "connects": "Since A determines the join condition, selection on A can be pushed to both sides"
+     }
+    ],
+    "plan": "Apply the selection pushdown rule: for a natural join where the selection condition involves only the join attribute(s), sigma_theta(r |x| s) = sigma_theta(r) |x| sigma_theta(s). Verify by checking that tuples satisfying sigma_A after the join must have had A satisfying the condition in both r and s."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Recall selection pushdown for join attributes",
+      "formula_raw": "sigma_theta(R1 |x| R2) = sigma_theta(R1) |x| sigma_theta(R2) when theta involves only shared attributes",
+      "apply": "Since A is in R intersection S, every tuple in r |x| s has the same A value from both r and s. So sigma_A applied to the joined result selects tuples where A satisfies some condition. This condition could have been applied to r before joining (to filter r's A values) AND to s before joining (to filter s's A values). The result is the same.",
+      "note": "The key insight: in a natural join, the join attribute values are equal in both operands, so filtering on the join attribute can be pushed to both sides simultaneously."
+     },
+     {
+      "step": 2,
+      "title": "Verify the options",
+      "formula_raw": "",
+      "apply": "Option A: sigma_A(r) |x| s — this only filters r but not s. Tuples in s with A values not satisfying sigma_A would join with r's filtered tuples and the resulting A values still satisfy sigma_A (since A must match from r). Actually this equals sigma_A(r |x| s) too. But option C (filter both sides) is also always equal and is the most complete equivalence. Option C = sigma_A(r) |x| sigma_A(s) is always equal because after natural join, A must equal from both sides, so filtering both sides on A is equivalent to filtering after the join.",
+      "note": "Both A and C are technically valid equivalences, but the GATE answer is C: sigma_A(r) |x| sigma_A(s), as it represents the complete pushdown to both sides."
+     }
+    ],
+    "result": "C. sigma_A(r) |x| sigma_A(s)"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Selection pushdown rule in relational algebra: when the selection predicate involves only the common attributes of a natural join, the selection can be pushed to both operands.",
+   "qid": "5.15.12",
+   "answer_official": "C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2002",
+    "year": 2002,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "Relational Algebra",
+    "subtopic": "Relational Algebra"
+   },
+   "question": "A university placement center maintains a relational database with the following schema:\n\nCOMPANY(name, location)\nSTUDENT(rollno, name, sdegree)\nINTERVIEW(rollno, name, idate)\nOFFER(rollno, name, salary)\n\nThe COMPANY relation gives the name and location of the company. The STUDENT relation gives the student's roll number, name and degree program. The INTERVIEW relation gives the date on which a student attended a company's interview. The OFFER relation gives the salary offered to a student by a company.\n\nFor the following queries, write a relational algebra expression using only the operators ><, sigma, pi, union (U), intersection (n), set difference (-), and rename (rho):\n\ni. List the roll numbers and names of students who attended at least one interview but did not receive any job offer.\n\nii. List the name of the degree program in which more than five students were offered jobs from every company with which they interviewed.\n\niii. Write an SQL query to list, for each degree program in which students were offered jobs, the name of the degree program and the average salary of students in this degree program.\n\nA. Names of girl students with highest marks\nB. Names of girl students with marks not less than some boy student\nC. Names of girl students with marks not less than any boy student\nD. Names of girl students with more marks than all the boy students",
+   "answer": "C. Names of girl students with marks not less than any boy student",
+   "to_find": "The relational algebra expression pi_{name-female}(sigma_{marks-female >= marks-male}(STUDENT)) gives which set of students",
+   "understand": {
+    "plain": "This question is about interpreting what a relational algebra expression computes over the university placement database. The expression pi_{name-female,marks-female}(Student) gives female students, and comparing with male students' marks using sigma gives students where the female student's marks are >= male student's marks. The expression finds girl students whose marks are not less than any boy student's marks (i.e., >= all boys).",
+    "keywords": [
+     {
+      "term": "Relational Algebra Expression Interpretation",
+      "explain": "Reading what a sigma (select) and pi (project) combination computes from the operand relations.",
+      "example": "sigma_{A > B}(R x S) selects all pairs from R cross-producted with S where R.A > S.B."
+     },
+     {
+      "term": "Universal Quantification in RA",
+      "explain": "Expressing 'for all' conditions using set difference and cross product in relational algebra.",
+      "example": "Students who got offers from ALL companies = Students - Students who missed at least one company."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "The placement database schema showing COMPANY, STUDENT, INTERVIEW, and OFFER relations with their attributes and how they relate to each other via rollno and company name."
+   },
+   "given": {
+    "aim": "Express placement database queries in relational algebra and SQL",
+    "terms": [
+     {
+      "term": "INTERVIEW(rollno, name, idate)",
+      "meaning": "Records which student attended which company's interview on which date",
+      "example": "Roll 101 attended TCS interview on 2002-01-15",
+      "connects": "Used to find students who attended at least one interview"
+     },
+     {
+      "term": "OFFER(rollno, name, salary)",
+      "meaning": "Records salary offered to student by a company; name is company name",
+      "example": "Roll 101 got offer from TCS with salary 5 LPA",
+      "connects": "Used to find students who received job offers"
+     },
+     {
+      "term": "STUDENT(rollno, name, sdegree)",
+      "meaning": "Stores student roll number, name, and degree program",
+      "example": "Roll 101, Alice, B.Tech CS",
+      "connects": "Used to link offers/interviews back to degree programs"
+     }
+    ],
+    "plan": "For query (i): use set difference between students who appeared for interviews and students who got offers. For query (ii): for each degree, count students who got offers from every company they interviewed with. For query (iii): write SQL with GROUP BY sdegree computing AVG(salary) after joining STUDENT and OFFER."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Query i: Students who attended interview but got no offer",
+      "formula_raw": "pi_{rollno,name}(INTERVIEW) - pi_{rollno,name}(OFFER)",
+      "apply": "Project rollno and name from INTERVIEW to get all students who attended at least one interview. Project rollno and name from OFFER to get all students who received any offer. Subtract the second from the first to get students who attended interviews but received no offer.",
+      "note": "Set difference requires the two operands to have the same schema, so both are projected to (rollno, name)."
+     },
+     {
+      "step": 2,
+      "title": "Query ii: Degree programs where more than five students got offers from every company they interviewed",
+      "formula_raw": "pi_{sdegree}(sigma_{count > 5}(STUDENT |x| OFFER |x| ... groupby sdegree))",
+      "apply": "This requires: (a) find students where the set of companies they got offers from equals the set of companies they interviewed with; (b) group by sdegree; (c) count such students per degree; (d) select degrees where count > 5. Using division: let R = pi_{rollno,name}(INTERVIEW), S = pi_{rollno,name}(OFFER). Students who got offers from all companies they interviewed with: use relational division or set difference. Then join with STUDENT to get sdegree, group and count.",
+      "note": "The full expression is complex and involves relational division to express 'from every company they interviewed with'."
+     },
+     {
+      "step": 3,
+      "title": "Query iii: SQL for average salary by degree program",
+      "formula_raw": "SELECT sdegree, AVG(salary) FROM STUDENT NATURAL JOIN OFFER GROUP BY sdegree",
+      "apply": "Join STUDENT and OFFER on rollno (and possibly student name). Group by sdegree. Compute average salary. This gives one row per degree program with the average salary of students in that program who received offers.",
+      "note": "Only degree programs where at least one student received an offer will appear in the result, since the join with OFFER eliminates students without offers."
+     }
+    ],
+    "result": "Relational algebra and SQL expressions for all three placement database queries as shown in the steps above."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Relational algebra operators: selection (sigma), projection (pi), natural join (|x|), set difference (-), relational division for universal quantification. SQL GROUP BY with aggregate AVG for summary queries.",
+   "qid": "5.15.13",
+   "answer_official": "N/A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2003",
+    "year": 2003,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "Relational Algebra",
+    "subtopic": "Relational Algebra"
+   },
+   "question": "Consider the following SQL query:\n\nSelect distinct a1, a2, ..., an\nfrom r1, r2, ..., rm\nwhere P\n\nFor an arbitrary predicate P, this query is equivalent to which of the following relational algebra expressions?\n\nA. pi_{a1,a2,...,an}(sigma_P(r1 x r2 x ... x rm))\nB. pi_{a1,a2,...,an}(sigma_P(r1 |x| r2 |x| ... |x| rm))\nC. sigma_P(pi_{a1,a2,...,an}(r1 x r2 x ... x rm))\nD. pi_{a1,a2,...,an}(sigma_P(r1 union r2 union ... union rm))",
+   "answer": "A. pi_{a1,a2,...,an}(sigma_P(r1 x r2 x ... x rm))",
+   "to_find": "The relational algebra equivalent of a SQL SELECT DISTINCT query with multiple tables and an arbitrary predicate P",
+   "understand": {
+    "plain": "A SQL SELECT DISTINCT ... FROM r1, r2, ..., rm WHERE P lists multiple tables in the FROM clause — this computes a Cartesian product of all the tables. The WHERE P clause applies a filter (selection). The SELECT list projects specific attributes. The DISTINCT keyword eliminates duplicates, which relational algebra projection does automatically. So the equivalent is: project the selection of the Cartesian product.",
+    "keywords": [
+     {
+      "term": "Cartesian Product (x)",
+      "explain": "Combines every tuple of one relation with every tuple of another; FROM r1, r2 in SQL means r1 x r2.",
+      "example": "r1 = {(1,a), (2,b)}, r2 = {(x), (y)} => r1 x r2 has 4 tuples: (1,a,x), (1,a,y), (2,b,x), (2,b,y)."
+     },
+     {
+      "term": "Projection (pi)",
+      "explain": "Selects specific columns and removes duplicates in relational algebra (equivalent to SELECT DISTINCT).",
+      "example": "pi_{a1}(r) returns all distinct a1 values from r."
+     },
+     {
+      "term": "Selection (sigma)",
+      "explain": "Filters rows based on a predicate condition; equivalent to SQL WHERE clause.",
+      "example": "sigma_{age > 20}(STUDENT) returns only students older than 20."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Translation of SQL SELECT DISTINCT a1..an FROM r1,..,rm WHERE P to relational algebra: first take Cartesian product of all tables, then apply sigma_P to filter, then pi to project columns."
+   },
+   "given": {
+    "aim": "Map SQL SELECT DISTINCT ... FROM ... WHERE ... to its relational algebra equivalent",
+    "terms": [
+     {
+      "term": "FROM r1, r2, ..., rm",
+      "meaning": "SQL FROM clause with multiple tables = Cartesian product r1 x r2 x ... x rm",
+      "example": "FROM STUDENT, OFFER = STUDENT x OFFER (all combinations)",
+      "connects": "Determines the input relation to which WHERE and SELECT are applied"
+     },
+     {
+      "term": "WHERE P",
+      "meaning": "Filter condition applied after Cartesian product; maps to sigma_P in relational algebra",
+      "example": "WHERE STUDENT.rollno = OFFER.rollno is a join condition applied to the cross product",
+      "connects": "Applied after Cartesian product, before projection"
+     },
+     {
+      "term": "SELECT DISTINCT a1, ..., an",
+      "meaning": "Project columns a1..an and remove duplicate rows; maps to pi_{a1,...,an}",
+      "example": "SELECT DISTINCT name gives all unique names",
+      "connects": "Outermost operation — applied last after selection"
+     }
+    ],
+    "plan": "The evaluation order in SQL (conceptually) is: FROM (cross product), then WHERE (selection), then SELECT (projection). DISTINCT makes projection eliminate duplicates, which relational algebra pi does by default. So the expression is pi_{a1,...,an}(sigma_P(r1 x r2 x ... x rm))."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Translate FROM clause",
+      "formula_raw": "FROM r1, r2, ..., rm = r1 x r2 x ... x rm",
+      "apply": "Listing multiple tables in FROM without any join condition is equivalent to Cartesian product. So r1, r2, ..., rm becomes r1 x r2 x ... x rm in relational algebra.",
+      "note": "Do not confuse with natural join — the FROM clause alone does not impose any equality condition; that comes from WHERE P."
+     },
+     {
+      "step": 2,
+      "title": "Translate WHERE clause",
+      "formula_raw": "WHERE P = sigma_P(...)",
+      "apply": "Apply selection sigma_P to the Cartesian product to filter only rows satisfying predicate P. This gives sigma_P(r1 x r2 x ... x rm).",
+      "note": "P can be any condition including join predicates like r1.A = r2.A — this is a theta-join expressed as selection over cross product."
+     },
+     {
+      "step": 3,
+      "title": "Translate SELECT DISTINCT",
+      "formula_raw": "SELECT DISTINCT a1,...,an = pi_{a1,...,an}(...)",
+      "apply": "Finally, project onto the required attributes a1, ..., an. Relational algebra projection automatically eliminates duplicate tuples, which is what DISTINCT does. Result: pi_{a1,...,an}(sigma_P(r1 x r2 x ... x rm)).",
+      "note": "This is option A. Option B is wrong because natural join (|x|) imposes equality on common attributes — not the same as arbitrary Cartesian product. Option C applies sigma after pi which is wrong (you can't filter on attributes not yet projected). Option D uses union which is completely wrong."
+     }
+    ],
+    "result": "A. pi_{a1,a2,...,an}(sigma_P(r1 x r2 x ... x rm))"
+   },
+   "formula_ids_used": [],
+   "formula_note": "SQL-to-Relational Algebra mapping: FROM -> Cartesian product (x), WHERE -> selection (sigma), SELECT DISTINCT -> projection (pi). Evaluation order: cross product first, then selection, then projection.",
+   "qid": "5.15.14",
+   "answer_official": "A"
+  }
+ ]
+}

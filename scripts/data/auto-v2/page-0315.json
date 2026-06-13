@@ -1,0 +1,218 @@
+{
+ "page": 315,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2018",
+    "year": 2018,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "Relational Algebra",
+    "subtopic": "Relational Algebra"
+   },
+   "question": "Consider the relations r(A, B) and s(B, C), where B is a primary key in s and r.B is a foreign key referencing s. Consider the query Q : r join (sigma_{B=5}(s)). Let LOJ denote the natural left outer-join operation. Assume that r and s contain no null values. Which of the following is NOT equivalent to Q?\nA. sigma_{B=5}(r join s)\nB. sigma_{B=5}(r LOJ s)\nC. r LOJ (sigma_{B=5}(s))\nD. sigma_{B=5}(r) join s",
+   "answer": "C. r LOJ (sigma_{B=5}(s))",
+   "to_find": "Which expression is NOT equivalent to Q : r join (sigma_{B=5}(s))",
+   "understand": {
+    "plain": "We have two relations r and s joined via a foreign key on attribute B. The query Q first filters s to only those tuples where B=5, then does a natural join with r. We must identify which of the four given relational algebra expressions does NOT produce the same result as Q. The key difference between natural join and left outer join is that LOJ preserves all tuples from the left relation even when there is no matching tuple on the right.",
+    "keywords": [
+     {
+      "term": "Natural Join (join)",
+      "explain": "Combines tuples from two relations that agree on all common attributes; only matching pairs are kept.",
+      "example": "r join s keeps only tuples where r.B = s.B."
+     },
+     {
+      "term": "Left Outer Join (LOJ)",
+      "explain": "Like natural join but preserves all tuples from the left relation; unmatched right-side attributes are filled with NULL.",
+      "example": "r LOJ s keeps all rows of r; rows with no matching s.B get NULL for s's attributes."
+     },
+     {
+      "term": "Foreign key constraint",
+      "explain": "Every value of r.B must appear in s.B (since s.B is the primary key). This means every tuple in r has a match in s.",
+      "example": "If r has (a1, 3) then s must have a tuple with B=3."
+     },
+     {
+      "term": "Selection pushdown",
+      "explain": "Applying selection before or after a join may yield the same result when the selection predicate involves only one relation's attributes.",
+      "example": "sigma_{B=5}(r join s) = sigma_{B=5}(r) join s when B is a shared join attribute."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Relations r(A,B) and s(B,C) joined on attribute B. s.B is primary key; r.B is foreign key. Q filters s where B=5 then joins with r."
+   },
+   "given": {
+    "aim": "Determine which of the four expressions does NOT produce the same result as Q : r join (sigma_{B=5}(s)).",
+    "terms": [
+     {
+      "term": "r(A, B)",
+      "meaning": "Left relation with attributes A and B; B is a foreign key referencing s.B.",
+      "example": "r = {(a1,5),(a2,7),(a3,5)}",
+      "connects": "All tuples in r must have a match in s due to the FK constraint."
+     },
+     {
+      "term": "s(B, C)",
+      "meaning": "Right relation with B as primary key and attribute C.",
+      "example": "s = {(5,c1),(7,c2)}",
+      "connects": "Filtering s to B=5 keeps only the subset of s we join with."
+     },
+     {
+      "term": "Q : r join (sigma_{B=5}(s))",
+      "meaning": "First restrict s to tuples where B=5, then natural-join with r; result has only r tuples with B=5.",
+      "example": "From r={(a1,5),(a2,7),(a3,5)} and s_filtered={(5,c1)}: result={(a1,5,c1),(a3,5,c1)}.",
+      "connects": "This is the reference result against which we check each option."
+     },
+     {
+      "term": "LOJ (Left Outer Join)",
+      "meaning": "Keeps all left-side tuples; pads non-matching ones with NULL on right.",
+      "example": "r LOJ sigma_{B=5}(s) keeps r tuples with B!=5 too, with NULL for C.",
+      "connects": "When LOJ is applied with a filter that excludes some r tuples, extra rows with NULL may appear compared to natural join."
+     }
+    ],
+    "plan": "Check each option by reasoning about whether the result matches Q. For options involving natural join and selection, use commutativity/pushdown rules. For options involving LOJ, check whether extra tuples with NULL appear in the output. The FK constraint ensures every r tuple matches some s tuple, which is key to deciding when LOJ equals inner join."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Evaluate Q and establish the reference result",
+      "formula_raw": "Q = r join (sigma_{B=5}(s))",
+      "apply": "sigma_{B=5}(s) keeps only those s-tuples where B=5. Natural joining with r keeps only r-tuples where r.B=5 (since only B=5 tuples exist in the filtered s). Result: all r tuples with B=5, extended with their matching C value from s.",
+      "note": "Because of the FK constraint, every r tuple with B=5 definitely has a match in s."
+     },
+     {
+      "step": 2,
+      "title": "Check Option A: sigma_{B=5}(r join s)",
+      "formula_raw": "sigma_{B=5}(r join s) = r join (sigma_{B=5}(s))  [selection pushdown on join attribute]",
+      "apply": "r join s joins all matching pairs on B. Then sigma_{B=5} keeps only B=5 tuples. By selection pushdown, sigma_{B=5}(r join s) = (sigma_{B=5}(r)) join s = r join (sigma_{B=5}(s)) = Q. This IS equivalent.",
+      "note": "Selection on a join attribute can be pushed to either side before the join."
+     },
+     {
+      "step": 3,
+      "title": "Check Option B: sigma_{B=5}(r LOJ s)",
+      "formula_raw": "r LOJ s = r join s  [when r.B is FK into s.B primary key, no dangling tuples in r]",
+      "apply": "Because r.B is a foreign key into s.B (primary key), every tuple in r has a matching tuple in s. Therefore r LOJ s = r join s (no NULLs are introduced). Applying sigma_{B=5} then gives sigma_{B=5}(r join s) = Q. This IS equivalent.",
+      "note": "The FK constraint is the crucial reason LOJ collapses to inner join for r LOJ s."
+     },
+     {
+      "step": 4,
+      "title": "Check Option C: r LOJ (sigma_{B=5}(s))",
+      "formula_raw": "r LOJ (sigma_{B=5}(s)): left outer join of r with s filtered to B=5",
+      "apply": "sigma_{B=5}(s) contains only B=5 tuples. Now r LOJ (sigma_{B=5}(s)) keeps ALL tuples of r. Tuples in r with B=5 get matched and get a C value. Tuples in r with B != 5 have NO match in sigma_{B=5}(s), so they appear with NULL for C. The result therefore contains extra rows (r tuples with B != 5) that are NOT present in Q. Q only contains tuples with B=5. This is NOT equivalent to Q.",
+      "note": "This is the critical difference: LOJ on a pre-filtered s does not benefit from the FK guarantee, because r tuples with B != 5 have no match in the filtered s."
+     },
+     {
+      "step": 5,
+      "title": "Check Option D: sigma_{B=5}(r) join s",
+      "formula_raw": "sigma_{B=5}(r) join s = r join (sigma_{B=5}(s))  [selection pushdown]",
+      "apply": "First filter r to B=5 tuples, then join with s. Since these r tuples have B=5 and s.B is PK, each matches exactly the B=5 tuple in s. Result equals Q. This IS equivalent.",
+      "note": "Selection on B can be pushed from r to s because B is the join attribute."
+     }
+    ],
+    "result": "Option C: r LOJ (sigma_{B=5}(s)) is NOT equivalent to Q because it preserves all tuples of r (including those with B != 5, padded with NULL), whereas Q only contains tuples with B=5."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Selection pushdown through natural joins, and the property that a foreign key constraint makes left outer join equivalent to inner join when every left-side tuple has a match (r LOJ s = r join s under FK constraint).",
+   "qid": "5.15.22",
+   "answer_official": "C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2019",
+    "year": 2019,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Databases",
+    "topic": "Relational Algebra",
+    "subtopic": "Relational Algebra"
+   },
+   "question": "Consider the following relations P(X, Y, Z), Q(X, Y, T), and R(Y, V).\n\nTable P:\nX   Y   Z\nX1  Y1  Z1\nX1  Y1  Z2\nX2  Y1  Z3\nX1  Y2  Z4\n\nTable Q:\nX   Y   T\nX2  Y1  T1\nX1  Y2  T2\nX1  Y1  T3\n\nTable R:\nY   V\nY1  V1\nY2  V2\n\nHow many tuples will be returned by the following relational algebra query?\nPi_{(P.X, R.V)} ((P x R) - Pi_{(P.X, R.V)} (Q x R))\n\nAnswer: ___",
+   "answer": "0",
+   "to_find": "Number of tuples returned by the relational algebra query Pi_{(P.X,R.V)}((P x R) - Pi_{(P.X,R.V)}(Q x R))",
+   "understand": {
+    "plain": "We are given three tables P, Q, and R. The query computes the cross product of P with R, projects down to just the (X, V) columns (keeping distinct pairs), then subtracts those (X, V) pairs that also appear in the projection of Q cross R. We need to count the remaining tuples. The key insight is whether the (X, V) pairs reachable via P are all also reachable via Q.",
+    "keywords": [
+     {
+      "term": "Cross Product (x)",
+      "explain": "Combines every tuple of one relation with every tuple of another, producing all possible pairs.",
+      "example": "If P has 4 rows and R has 2 rows, P x R has 8 rows."
+     },
+     {
+      "term": "Projection (Pi)",
+      "explain": "Selects specific columns from a relation, removing duplicates from the result.",
+      "example": "Pi_{X,V}(P x R) returns distinct (X,V) pairs from the cross product."
+     },
+     {
+      "term": "Set Difference (-)",
+      "explain": "Returns tuples in the first relation that are not in the second relation.",
+      "example": "{(X1,V1),(X2,V1)} - {(X1,V1)} = {(X2,V1)}."
+     }
+    ],
+    "visual_svg": "<svg width='520' height='200' viewBox='0 0 520 200' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='140' height='150' class='bg' rx='6'/><text x='80' y='32' text-anchor='middle' class='lbl ink'>Table P</text><text x='30' y='52' class='tag ink'>X</text><text x='80' y='52' class='tag ink'>Y</text><text x='125' y='52' class='tag ink'>Z</text><text x='30' y='72' class='sub ink'>X1</text><text x='80' y='72' class='sub ink'>Y1</text><text x='125' y='72' class='sub ink'>Z1</text><text x='30' y='92' class='sub ink'>X1</text><text x='80' y='92' class='sub ink'>Y1</text><text x='125' y='92' class='sub ink'>Z2</text><text x='30' y='112' class='sub ink'>X2</text><text x='80' y='112' class='sub ink'>Y1</text><text x='125' y='112' class='sub ink'>Z3</text><text x='30' y='132' class='sub ink'>X1</text><text x='80' y='132' class='sub ink'>Y2</text><text x='125' y='132' class='sub ink'>Z4</text><rect x='170' y='10' width='135' height='130' class='bg' rx='6'/><text x='237' y='32' text-anchor='middle' class='lbl ink'>Table Q</text><text x='185' y='52' class='tag ink'>X</text><text x='237' y='52' class='tag ink'>Y</text><text x='280' y='52' class='tag ink'>T</text><text x='185' y='72' class='sub ink'>X2</text><text x='237' y='72' class='sub ink'>Y1</text><text x='280' y='72' class='sub ink'>T1</text><text x='185' y='92' class='sub ink'>X1</text><text x='237' y='92' class='sub ink'>Y2</text><text x='280' y='92' class='sub ink'>T2</text><text x='185' y='112' class='sub ink'>X1</text><text x='237' y='112' class='sub ink'>Y1</text><text x='280' y='112' class='sub ink'>T3</text><rect x='325' y='10' width='100' height='100' class='bg' rx='6'/><text x='375' y='32' text-anchor='middle' class='lbl ink'>Table R</text><text x='345' y='52' class='tag ink'>Y</text><text x='395' y='52' class='tag ink'>V</text><text x='345' y='72' class='sub ink'>Y1</text><text x='395' y='72' class='sub ink'>V1</text><text x='345' y='92' class='sub ink'>Y2</text><text x='395' y='92' class='sub ink'>V2</text></svg>",
+    "visual_alt": "Three tables: P(X,Y,Z) with 4 rows (X values: X1,X1,X2,X1), Q(X,Y,T) with 3 rows (X values: X2,X1,X1), R(Y,V) with 2 rows (Y1->V1, Y2->V2). Both P and Q contain X1 and X2, so their (X,V) projections with R are equal."
+   },
+   "given": {
+    "aim": "Count tuples returned by Pi_{(P.X,R.V)}((P x R) - Pi_{(P.X,R.V)}(Q x R)).",
+    "terms": [
+     {
+      "term": "P(X, Y, Z) — 4 tuples",
+      "meaning": "Relation P: {(X1,Y1,Z1),(X1,Y1,Z2),(X2,Y1,Z3),(X1,Y2,Z4)}. Distinct X values in P: {X1, X2}.",
+      "example": "P has both X1 and X2 as X-values.",
+      "connects": "Pi_{X,V}(P x R) = all combinations of P's X-values with R's V-values = {X1,X2} x {V1,V2} = 4 pairs."
+     },
+     {
+      "term": "Q(X, Y, T) — 3 tuples",
+      "meaning": "Relation Q: {(X2,Y1,T1),(X1,Y2,T2),(X1,Y1,T3)}. Distinct X values in Q: {X1, X2}.",
+      "example": "Q also has both X1 and X2 as X-values.",
+      "connects": "Pi_{X,V}(Q x R) = {X1,X2} x {V1,V2} = 4 pairs — the same 4 pairs as from P."
+     },
+     {
+      "term": "R(Y, V) — 2 tuples",
+      "meaning": "Relation R: {(Y1,V1),(Y2,V2)}. Distinct V values: {V1, V2}.",
+      "example": "R has exactly 2 V-values.",
+      "connects": "Cross product with R generates one entry per (X-value, V-value) combination."
+     },
+     {
+      "term": "Set difference of projected cross products",
+      "meaning": "After projection, both sets contain exactly the same 4 (X,V) pairs; their difference is empty.",
+      "example": "{(X1,V1),(X1,V2),(X2,V1),(X2,V2)} - {(X1,V1),(X1,V2),(X2,V1),(X2,V2)} = empty.",
+      "connects": "The result has 0 tuples."
+     }
+    ],
+    "plan": "First, determine the distinct X-values in P and in Q. Then compute all (X,V) pairs in Pi_{X,V}(P x R) and Pi_{X,V}(Q x R). Since the cross product with R generates all combinations of X and V values, and since P and Q have the same set of distinct X values {X1,X2}, both projections yield the same 4 pairs. The set difference is empty."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Compute Pi_{P.X, R.V}(P x R) — all distinct (X,V) pairs from P cross R",
+      "formula_raw": "Pi_{P.X, R.V}(P x R)",
+      "apply": "P x R pairs each of the 4 P-tuples with each of the 2 R-tuples. Projected (X,V) pairs (before dedup):\n(X1,Y1,Z1) x (Y1,V1) -> (X1,V1)\n(X1,Y1,Z1) x (Y2,V2) -> (X1,V2)\n(X1,Y1,Z2) x (Y1,V1) -> (X1,V1) [dup]\n(X1,Y1,Z2) x (Y2,V2) -> (X1,V2) [dup]\n(X2,Y1,Z3) x (Y1,V1) -> (X2,V1)\n(X2,Y1,Z3) x (Y2,V2) -> (X2,V2)\n(X1,Y2,Z4) x (Y1,V1) -> (X1,V1) [dup]\n(X1,Y2,Z4) x (Y2,V2) -> (X1,V2) [dup]\nDistinct set A = {(X1,V1),(X1,V2),(X2,V1),(X2,V2)} — 4 distinct tuples.",
+      "note": "All 4 combinations arise because P contains both X1 and X2, and R contains both V1 and V2."
+     },
+     {
+      "step": 2,
+      "title": "Compute Pi_{Q.X, R.V}(Q x R) — all distinct (X,V) pairs from Q cross R",
+      "formula_raw": "Pi_{Q.X, R.V}(Q x R)",
+      "apply": "Q x R pairs each of the 3 Q-tuples with each of the 2 R-tuples. Projected (X,V) pairs:\n(X2,Y1,T1) x (Y1,V1) -> (X2,V1)\n(X2,Y1,T1) x (Y2,V2) -> (X2,V2)\n(X1,Y2,T2) x (Y1,V1) -> (X1,V1)\n(X1,Y2,T2) x (Y2,V2) -> (X1,V2)\n(X1,Y1,T3) x (Y1,V1) -> (X1,V1) [dup]\n(X1,Y1,T3) x (Y2,V2) -> (X1,V2) [dup]\nDistinct set B = {(X2,V1),(X2,V2),(X1,V1),(X1,V2)} — 4 distinct tuples.",
+      "note": "Q also contains both X1 and X2, so all 4 combinations appear."
+     },
+     {
+      "step": 3,
+      "title": "Compute set difference A - B and count",
+      "formula_raw": "A - B",
+      "apply": "A = {(X1,V1),(X1,V2),(X2,V1),(X2,V2)}\nB = {(X1,V1),(X1,V2),(X2,V1),(X2,V2)}\nA - B = {} (empty set)\nNumber of tuples returned = 0.",
+      "note": "Since both P and Q contain the same set of distinct X-values {X1,X2}, their (X,V) projections with R are identical, making the difference empty."
+     }
+    ],
+    "result": "The query returns 0 tuples."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Cross product followed by projection extracts all (X,V) value combinations. If two relations share the same set of distinct X-values, their projected cross products with R are identical, giving an empty set difference.",
+   "qid": "5.15.23",
+   "answer_official": "1"
+  }
+ ]
+}

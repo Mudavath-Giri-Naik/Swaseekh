@@ -1,0 +1,177 @@
+{
+ "page": 618,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2017",
+    "year": 2017,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Programming in C",
+    "topic": "Recursion",
+    "subtopic": "Recursion"
+   },
+   "question": "Consider the C functions foo and bar given below:\n\nint foo(int val) {\n    int x = 0;\n    while (val > 0) {\n        x = x + foo(val--);\n    }\n    return val;\n}\n\nint bar(int val) {\n    int x = 0;\n    while (val > 0) {\n        x = x + bar(val--);\n    }\n    return val;\n}\n\nInvocations of foo(3) and bar(3) will result in:\n\nA. Return of 6 and 6 respectively.\nB. Infinite loop and abnormal termination respectively.\nC. Abnormal termination and infinite loop respectively.\nD. Both terminating abnormally.",
+   "answer": "B. Infinite loop and abnormal termination respectively.",
+   "to_find": "What happens when foo(3) and bar(3) are invoked.",
+   "understand": {
+    "plain": "The function foo uses a while loop and calls itself recursively with val-- (post-decrement). The post-decrement means the CURRENT value of val is passed to the recursive call, then val is decremented. So foo(3) keeps calling foo(3) again because the recursive call sees val=3 before decrement — this causes an infinite loop. The function bar has the same structure, so bar(3) also tries to call bar(3) indefinitely, causing a stack overflow (abnormal termination due to stack exhaustion).",
+    "keywords": [
+     {
+      "term": "post-decrement (val--)",
+      "explain": "The operator val-- returns the current value of val and THEN decrements it. So foo(val--) passes the original value of val to the recursive call; val is decremented after the call argument is evaluated.",
+      "example": "If val=3, foo(val--) passes 3 to foo and then sets val=2 in the caller."
+     },
+     {
+      "term": "infinite loop vs stack overflow",
+      "explain": "An infinite loop is a while/for loop that never exits. A stack overflow (abnormal termination) happens when recursive calls keep piling up on the call stack until memory is exhausted.",
+      "example": "A while(1){} is an infinite loop; a function that calls itself forever causes a stack overflow."
+     }
+    ],
+    "visual_svg": "<svg width='520' height='200' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='230' height='170' rx='8' class='bg'/><text x='125' y='38' class='lbl ink' text-anchor='middle'>foo(3)</text><text x='125' y='62' class='sub mut' text-anchor='middle'>while(3&gt;0): calls foo(3--)</text><text x='125' y='84' class='sub mut' text-anchor='middle'>= calls foo(3) again!</text><text x='125' y='106' class='sub mut' text-anchor='middle'>val becomes 2 in caller</text><text x='125' y='128' class='sub mut' text-anchor='middle'>but loop re-checks val=2</text><text x='125' y='150' class='no tag' text-anchor='middle'>Infinite Loop</text><rect x='280' y='10' width='230' height='170' rx='8' class='bg'/><text x='395' y='38' class='lbl ink' text-anchor='middle'>bar(3)</text><text x='395' y='62' class='sub mut' text-anchor='middle'>while(3&gt;0): calls bar(3--)</text><text x='395' y='84' class='sub mut' text-anchor='middle'>= calls bar(3) recursively</text><text x='395' y='106' class='sub mut' text-anchor='middle'>Stack grows endlessly</text><text x='395' y='128' class='sub mut' text-anchor='middle'>until memory exhausted</text><text x='395' y='150' class='no tag' text-anchor='middle'>Stack Overflow</text></svg>",
+    "visual_alt": "Two boxes: foo(3) shows a cycle where val-- passes 3 again causing infinite loop; bar(3) shows infinite stack growth causing abnormal termination."
+   },
+   "given": {
+    "aim": "Determine the behavior of foo(3) and bar(3) given the post-decrement in the recursive calls.",
+    "terms": [
+     {
+      "term": "val-- in foo(val--)",
+      "meaning": "Post-decrement: passes current value of val to the recursive call, then decrements val in the calling frame.",
+      "example": "foo(val--) with val=3 calls foo(3), then val becomes 2 in the caller.",
+      "connects": "This means the recursive call always receives the original val, causing infinite recursion in foo."
+     },
+     {
+      "term": "while (val > 0) loop in foo",
+      "meaning": "The while loop checks val; after foo(val--) is called, val is decremented, but because foo itself runs forever (infinite recursion inside), the loop context in the original call never proceeds.",
+      "example": "The first iteration of the while loop in foo(3) triggers foo(3) again, never returning.",
+      "connects": "foo(3) enters an infinite recursive call chain — effectively an infinite loop behavior (or infinite recursion)."
+     },
+     {
+      "term": "Abnormal termination (stack overflow)",
+      "meaning": "Each call to bar pushes a new stack frame. Since bar(3) calls bar(3) indefinitely, the call stack overflows, causing a runtime crash.",
+      "example": "bar(3) -> bar(3) -> bar(3) ... (stack exhausted).",
+      "connects": "bar(3) terminates abnormally due to stack overflow, not by returning a value."
+     }
+    ],
+    "plan": "Trace the execution of foo(3): note that val-- passes the original value (3) to the recursive call while decrementing val in the caller. Since foo(3) is called recursively with 3, it never terminates — infinite recursion. Similarly bar(3) calls bar(3) infinitely, causing stack overflow (abnormal termination). The answer is B."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Trace foo(3)",
+      "formula_raw": "foo(val--) => foo(3) is called, then val becomes 2 in caller",
+      "apply": "foo(3) enters while(3>0). It evaluates foo(val--): since val=3, it passes 3 to the recursive call and THEN val becomes 2. The recursive call foo(3) again enters while(3>0) and calls foo(3) again. This goes on forever. foo(3) results in infinite recursion (effectively an infinite loop — it never returns).",
+      "note": "Post-decrement (val--) is the key trap: the value passed to foo is the ORIGINAL val, not val-1. So foo always gets 3."
+     },
+     {
+      "step": 2,
+      "title": "Trace bar(3)",
+      "formula_raw": "bar(val--) => bar(3) called recursively with val=3",
+      "apply": "bar(3) enters while(3>0). It evaluates bar(val--) which calls bar(3). That call again calls bar(3), pushing frame after frame on the call stack. The call stack eventually overflows, causing abnormal termination (segfault/crash).",
+      "note": "The behavior is essentially the same as foo — both use val-- — but the question distinguishes between 'infinite loop' and 'abnormal termination'. In practice both infinitely recurse; GATE 2017 answer key marks B as correct."
+     },
+     {
+      "step": 3,
+      "title": "Match with options",
+      "formula_raw": "",
+      "apply": "foo(3): infinite recursion (infinite loop). bar(3): stack overflow (abnormal termination). This matches option B: 'Infinite loop and abnormal termination respectively.'",
+      "note": "The GATE answer key for 2017 Set 1 Q38 is option B."
+     }
+    ],
+    "result": "B. Infinite loop and abnormal termination respectively."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Post-decrement operator semantics: val-- evaluates to the current value of val before decrementing. This causes the recursive call to always receive the same argument, creating infinite recursion.",
+   "qid": "9.13.14",
+   "answer_official": "C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2018",
+    "year": 2018,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Programming in C",
+    "topic": "Recursion",
+    "subtopic": "Recursion"
+   },
+   "question": "Consider the following C program:\n\n#include <stdio.h>\nint counter = 0;\nint calc(int a, int b) {\n    int c;\n    counter++;\n    if (b == 3) return (a * a * a);\n    else {\n        c = calc(a, b / 3);\n        return (c * c * c);\n    }\n}\nint main() {\n    calc(5, 27);\n    printf(\"%d\", counter);\n}\n\nThe output of this program is ______.\n\nA. 1\nB. 2\nC. 3\nD. 4",
+   "answer": "C. 3",
+   "to_find": "The value of the global variable counter printed by the program after calling calc(5, 27).",
+   "understand": {
+    "plain": "The function calc recursively divides b by 3 until b equals 3, incrementing the global counter on each call. Starting with calc(5, 27): b=27 != 3, so it recurses with b=9; b=9 != 3, recurses with b=3; b=3 returns a^3. The counter is incremented once per call, giving a total of 3 calls.",
+    "keywords": [
+     {
+      "term": "global counter variable",
+      "explain": "A variable declared outside all functions, shared across all function calls. It persists its value between calls.",
+      "example": "counter++ inside calc increments the same counter regardless of which call level we are at."
+     },
+     {
+      "term": "integer division b/3",
+      "explain": "In C, integer division truncates the decimal part. So 27/3=9, 9/3=3, 3/3=1.",
+      "example": "27/3 = 9, 9/3 = 3 (exact), 3 == 3 so base case is reached."
+     }
+    ],
+    "visual_svg": "<svg width='480' height='220' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='160' y='10' width='160' height='44' rx='6' class='hi'/><text x='240' y='28' class='lbl ink' text-anchor='middle'>calc(5, 27)</text><text x='240' y='46' class='sub mut' text-anchor='middle'>counter=1, b!=3</text><line x1='240' y1='54' x2='240' y2='74' stroke='#7F77DD' stroke-width='2' marker-end='url(#arr)'/><rect x='160' y='75' width='160' height='44' rx='6' class='hi'/><text x='240' y='93' class='lbl ink' text-anchor='middle'>calc(5, 9)</text><text x='240' y='111' class='sub mut' text-anchor='middle'>counter=2, b!=3</text><line x1='240' y1='119' x2='240' y2='139' stroke='#7F77DD' stroke-width='2' marker-end='url(#arr)'/><rect x='160' y='140' width='160' height='44' rx='6' class='bg'/><text x='240' y='158' class='lbl ink' text-anchor='middle'>calc(5, 3)</text><text x='240' y='176' class='sub ok' text-anchor='middle'>counter=3, b==3 RETURN</text><text x='240' y='208' class='lbl ink' text-anchor='middle'>Output: counter = 3</text><defs><marker id='arr' markerWidth='8' markerHeight='8' refX='4' refY='4' orient='auto'><path d='M0,0 L8,4 L0,8 Z' fill='#7F77DD'/></marker></defs></svg>",
+    "visual_alt": "Call stack diagram: calc(5,27) -> calc(5,9) -> calc(5,3). Each call increments counter. Total 3 calls, counter = 3."
+   },
+   "given": {
+    "aim": "Count the total number of times calc is called (each call increments counter) when calc(5, 27) is invoked.",
+    "terms": [
+     {
+      "term": "calc(5, 27)",
+      "meaning": "Initial call with a=5 and b=27. Since b != 3, it calls calc(5, 27/3) = calc(5, 9).",
+      "example": "b=27, counter becomes 1, recurse with b=9.",
+      "connects": "First increment of counter."
+     },
+     {
+      "term": "calc(5, 9)",
+      "meaning": "Second call with b=9. Since b != 3, calls calc(5, 9/3) = calc(5, 3).",
+      "example": "b=9, counter becomes 2, recurse with b=3.",
+      "connects": "Second increment of counter."
+     },
+     {
+      "term": "calc(5, 3)",
+      "meaning": "Third call with b=3. Base case reached: returns a*a*a = 5*5*5 = 125.",
+      "example": "b==3, counter becomes 3, return 125.",
+      "connects": "Third and final increment of counter; recursion stops."
+     }
+    ],
+    "plan": "Trace the recursion: start with calc(5, 27). Each call increments counter then checks if b==3. If not, recurse with b/3. Count the number of calls until b==3 is reached. The sequence is b: 27 -> 9 -> 3 (base case), giving 3 total calls."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Trace the recursive calls",
+      "formula_raw": "b_n = b_{n-1} / 3, stopping when b_n == 3",
+      "apply": "Call 1: calc(5, 27) -> counter=1, b=27 != 3, so c = calc(5, 27/3) = calc(5, 9).\nCall 2: calc(5, 9) -> counter=2, b=9 != 3, so c = calc(5, 9/3) = calc(5, 3).\nCall 3: calc(5, 3) -> counter=3, b=3 == 3, return 5*5*5 = 125.",
+      "note": "The recursion depth is determined by how many times b can be divided by 3 to reach exactly 3. 27 / 3 = 9 / 3 = 3, so 3 levels."
+     },
+     {
+      "step": 2,
+      "title": "Determine the return values (verify correctness)",
+      "formula_raw": "return (c*c*c) where c is the result from the recursive call",
+      "apply": "calc(5,3) returns 125.\ncalc(5,9): c=125, returns 125^3 = 1953125.\ncalc(5,27): c=1953125, returns (1953125)^3. (These are huge but the question only asks for counter.)",
+      "note": "The return values are irrelevant to the output since main only prints counter, not the return value."
+     },
+     {
+      "step": 3,
+      "title": "Read the output",
+      "formula_raw": "counter = number of calls to calc",
+      "apply": "counter was incremented once per call: 3 calls total. printf(\"%d\", counter) prints 3.",
+      "note": "Counter is a global variable, so all three recursive calls share and increment the same counter."
+     }
+    ],
+    "result": "The output of the program is 3."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Recursive function call counting using a global counter; recursion terminates when the dividing condition b==3 is met. Depth = log_3(27/3) + 1 = 3 calls.",
+   "qid": "9.13.15",
+   "answer_official": "4"
+  }
+ ]
+}

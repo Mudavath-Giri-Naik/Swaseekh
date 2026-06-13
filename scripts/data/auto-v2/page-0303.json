@@ -1,0 +1,462 @@
+{
+ "page": 303,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2011",
+    "year": 2011,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "Indexing",
+    "subtopic": "Indexing"
+   },
+   "question": "Consider a relational table with sufficient number of records, having attributes A_1, A_2, ..., A_k and let 1 <= p <= k. Two queries Q1 and Q2 are given below:\n- Q1 : SELECT * FROM T WHERE A_p = c, where c is a constant\n- Q2 : SELECT * FROM T WHERE c_1 <= A_p <= c_2, where c_1 and c_2 are constants.\nThe database can be configured to do ordered indexing on A_p or hashing on A_p. Which of the following statements is TRUE?\nA. Ordered indexing will always outperform hashing for both queries\nB. Hashing will always outperform ordered indexing for both queries\nC. Hashing will outperform ordered indexing on Q1 but not on Q2\nD. Hashing will always outperform ordered indexing on Q1 but not on Q2",
+   "answer": "D. Hashing will always outperform ordered indexing on Q1 but not on Q2",
+   "to_find": "Which index structure (ordered indexing or hashing) is better for each type of query",
+   "understand": {
+    "plain": "We have a table and two types of queries: Q1 is a point/equality query (find records where A_p equals a constant), and Q2 is a range query (find records where A_p falls between two constants). We need to determine which indexing scheme performs better for each query. Hashing is O(1) for equality lookups but cannot handle range queries efficiently. Ordered indexing (like B+ trees) supports both equality and range queries via binary search.",
+    "keywords": [
+     {
+      "term": "Ordered indexing",
+      "explain": "An index where entries are stored in sorted order (e.g., B+ tree). Supports both equality and range queries efficiently using binary search.",
+      "example": "A B+ tree on employee salary supports queries like 'salary = 50000' and 'salary BETWEEN 40000 AND 60000'."
+     },
+     {
+      "term": "Hashing",
+      "explain": "An index that maps keys to buckets via a hash function. Gives O(1) average lookup for equality queries but cannot support range queries because keys are distributed non-contiguously.",
+      "example": "A hash index on employee ID instantly finds the record for ID=12345 but cannot efficiently retrieve all IDs between 100 and 200."
+     },
+     {
+      "term": "Range query",
+      "explain": "A query that retrieves all records where a key attribute falls within a given interval (c_1 <= A_p <= c_2).",
+      "example": "SELECT * FROM Products WHERE price BETWEEN 10 AND 50."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Two queries: Q1 is equality (point) query, Q2 is range query. Hashing wins on Q1 (O(1) vs O(log n)), but ordered indexing wins on Q2 (sequential scan possible vs full hash table scan needed)."
+   },
+   "given": {
+    "aim": "Determine which indexing scheme (ordered index or hashing) is better for an equality query (Q1) and a range query (Q2).",
+    "terms": [
+     {
+      "term": "Q1: A_p = c",
+      "meaning": "Point/equality query — find all records with a specific value of A_p.",
+      "example": "Find all students with roll number = 101.",
+      "connects": "Hashing directly computes the bucket in O(1). Ordered index does binary search in O(log n)."
+     },
+     {
+      "term": "Q2: c_1 <= A_p <= c_2",
+      "meaning": "Range query — find all records with A_p in a given interval.",
+      "example": "Find all students with marks between 60 and 80.",
+      "connects": "Ordered index can use binary search to find c_1 then scan sequentially to c_2. Hashing requires scanning all buckets — O(n) effectively."
+     },
+     {
+      "term": "Hashing vs ordered indexing performance",
+      "meaning": "Hashing gives O(1) equality lookup; ordered indexing gives O(log n) equality lookup but O(log n + k) range lookup where k is the result size.",
+      "example": "For 1 million records, hashing does 1 step for equality; B+ tree does about 20 steps. But for ranges, hashing scans everything.",
+      "connects": "Determines the correct answer comparing both methods on both query types."
+     }
+    ],
+    "plan": "Analyze the efficiency of hashing and ordered indexing on each query type. Hashing is faster for Q1 (equality) since it avoids traversal, but it cannot support Q2 (range) efficiently. Ordered indexing supports both but is slower than hashing for Q1."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Analyze Q1 (equality query) for both index types",
+      "formula_raw": "Hashing: O(1) average; Ordered indexing: O(log n)",
+      "apply": "For Q1 (A_p = c), hashing directly computes hash(c) and retrieves the bucket in constant time O(1). Ordered indexing (B+ tree) must traverse from root to leaf in O(log n) time. Therefore hashing ALWAYS outperforms ordered indexing on Q1.",
+      "note": "Hashing is specifically designed for equality lookups and is always faster than B+ tree traversal for them."
+     },
+     {
+      "step": 2,
+      "title": "Analyze Q2 (range query) for both index types",
+      "formula_raw": "Ordered indexing: O(log n + k); Hashing: O(n) worst case",
+      "apply": "For Q2 (c_1 <= A_p <= c_2), ordered indexing finds the first matching key via binary search, then scans sequentially to c_2 — very efficient. Hashing has no concept of order: every bucket must potentially be examined since hash values are unordered. So hashing does NOT efficiently support range queries. Ordered indexing is better for Q2.",
+      "note": "Range queries are the fundamental weakness of hash-based indexes. Ordered indexes excel here."
+     },
+     {
+      "step": 3,
+      "title": "Select the correct statement",
+      "formula_raw": "",
+      "apply": "Hashing ALWAYS outperforms ordered indexing on Q1 (equality). Hashing does NOT outperform ordered indexing on Q2 (range). This matches option D: 'Hashing will always outperform ordered indexing on Q1 but not on Q2'.",
+      "note": "Option C says 'will outperform ... but not on Q2' while D says 'will ALWAYS outperform ... but not on Q2'. The word 'always' is key — hashing always beats ordered indexing on equality queries regardless of data distribution."
+     }
+    ],
+    "result": "D. Hashing will always outperform ordered indexing on Q1 but not on Q2"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Hashing gives O(1) average for equality lookups; ordered indexing (B+ tree) gives O(log n) for equality and O(log n + k) for range queries; hashing cannot support range queries efficiently.",
+   "qid": "5.9.7",
+   "answer_official": "N/A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2013",
+    "year": 2013,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "Indexing",
+    "subtopic": "Indexing"
+   },
+   "question": "An index is clustered, if\nA. it is on a set of fields that form a candidate key\nB. it is on a set of fields that include the primary key\nC. the data records of the file are organized in the same order as the data entries of the index\nD. the data records of the file are organized not in the same order as the data entries of the index",
+   "answer": "C. the data records of the file are organized in the same order as the data entries of the index",
+   "to_find": "The correct definition of a clustered index",
+   "understand": {
+    "plain": "A clustered index physically orders the data rows in the table to match the order of the index. This means if you walk through the index in order, the corresponding data records are also encountered in that order. There can be at most one clustered index per table because the data can only be physically sorted one way.",
+    "keywords": [
+     {
+      "term": "Clustered index",
+      "explain": "An index where the physical order of data records on disk matches the logical order of the index entries. The data file is sorted on the indexed attribute.",
+      "example": "A phone book is a clustered index on last name — the actual names appear in alphabetical order matching the index."
+     },
+     {
+      "term": "Unclustered (non-clustered) index",
+      "explain": "An index where the physical order of data records does NOT match the order of index entries. The index has pointers to scattered data records.",
+      "example": "A book's index at the back pointing to page numbers is unclustered — entries are alphabetical but pages referenced are in random order."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Clustered index: index entries in order 1,2,3,4 map to data blocks that are also in order 1,2,3,4. Unclustered: index entries in order but data blocks scattered randomly."
+   },
+   "given": {
+    "aim": "Identify the defining property of a clustered index.",
+    "terms": [
+     {
+      "term": "Clustered index",
+      "meaning": "Index where data file ordering matches index entry ordering.",
+      "example": "Student file sorted by roll number, with index also ordered by roll number.",
+      "connects": "This is precisely option C — the correct answer."
+     },
+     {
+      "term": "Candidate key index",
+      "meaning": "Index built on a candidate key attribute (option A).",
+      "example": "Index on SSN (unique key).",
+      "connects": "Being on a candidate key does NOT define clustered — the clustering property is about physical ordering of data."
+     },
+     {
+      "term": "Primary key index",
+      "meaning": "Index built on the primary key (option B).",
+      "example": "Index on StudentID.",
+      "connects": "A primary key index is often clustered by default in practice, but by definition, clustering is about ordering, not key type."
+     }
+    ],
+    "plan": "Recall the standard database definition: a clustered index is one where the physical storage order of data records matches the index order. Match this to the given options."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Eliminate incorrect options",
+      "formula_raw": "",
+      "apply": "Option A: Being on a candidate key is about uniqueness, not physical ordering — not the definition of clustered. Option B: Including the primary key is a special case, not the general definition of clustering. Option D: This is the definition of an UNCLUSTERED (non-clustered) index — opposite of what we want.",
+      "note": "Options A and B confuse key type with physical ordering; option D is the exact opposite definition."
+     },
+     {
+      "step": 2,
+      "title": "Confirm option C",
+      "formula_raw": "Clustered index <==> data records ordered same as index entries",
+      "apply": "Option C states: 'the data records of the file are organized in the same order as the data entries of the index.' This exactly matches the standard definition. When a file is clustered on an index, sequential index scans correspond to sequential disk reads — very efficient for range queries.",
+      "note": "A clustered index allows efficient range scans because related records are stored together on disk."
+     }
+    ],
+    "result": "C. the data records of the file are organized in the same order as the data entries of the index"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Clustered index: physical ordering of data records matches logical ordering of index entries; at most one clustered index per table.",
+   "qid": "5.9.8",
+   "answer_official": "C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2015",
+    "year": 2015,
+    "marks": 2,
+    "difficulty": "easy",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "Indexing",
+    "subtopic": "Indexing"
+   },
+   "question": "A file is organized so that the ordering of the data records is the same as or close to the ordering of data entries in some index. Then that index is called:\nA. Dense\nB. Sparse\nC. Clustered\nD. Unclustered",
+   "answer": "C. Clustered",
+   "to_find": "The name of an index where data record ordering matches index entry ordering",
+   "understand": {
+    "plain": "This question gives the definition of a specific type of index and asks for its name. When a data file is physically sorted in the same order as the index, that index is called a clustered index. This allows very efficient sequential access and range queries.",
+    "keywords": [
+     {
+      "term": "Clustered index",
+      "explain": "An index where the data file is physically sorted in the same order as the index entries. Enables efficient range queries and sequential scans.",
+      "example": "Employee file sorted by employee ID with an index on employee ID — the index is clustered."
+     },
+     {
+      "term": "Dense index",
+      "explain": "An index that has one entry for every record in the data file.",
+      "example": "If a file has 1000 records, a dense index has exactly 1000 entries, one per record."
+     },
+     {
+      "term": "Sparse index",
+      "explain": "An index that has entries only for some records (typically one per block), relying on the data file being sorted.",
+      "example": "A sparse index on a sorted file with 100 blocks has only 100 entries instead of one per record."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Data file blocks in order: [1,2,3], [4,5,6], [7,8,9]. Index entries also in order: 1->block1, 4->block2, 7->block3. This is a clustered (sparse) index."
+   },
+   "given": {
+    "aim": "Identify the type of index where data record order matches index entry order.",
+    "terms": [
+     {
+      "term": "Ordering of data records same as index",
+      "meaning": "Physical layout of records on disk mirrors the sequence of index keys.",
+      "example": "Records stored as 10, 20, 30, 40, ... and index entries also in order 10, 20, 30, 40, ...",
+      "connects": "This is the definition of a clustered index — directly maps to option C."
+     },
+     {
+      "term": "Dense vs Sparse",
+      "meaning": "Dense: one index entry per data record. Sparse: one index entry per block or group of records.",
+      "example": "Dense: 1000 records = 1000 index entries. Sparse: 1000 records in 50 blocks = 50 index entries.",
+      "connects": "These describe coverage of the index, not the ordering relationship — so options A and B are wrong."
+     },
+     {
+      "term": "Unclustered index",
+      "meaning": "Index where data records are NOT stored in the same order as index entries.",
+      "example": "An index on salary over a file sorted by employee ID is unclustered.",
+      "connects": "Option D is the opposite of what the question describes."
+     }
+    ],
+    "plan": "Match the description (data ordering = index ordering) to the standard index classification. Dense/Sparse describe entry coverage; Clustered/Unclustered describe ordering relationship."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Understand what Dense and Sparse mean",
+      "formula_raw": "",
+      "apply": "Dense index: one entry per record regardless of ordering. Sparse index: one entry per block, requires data to be sorted. Neither dense nor sparse directly describes whether the data ORDER matches the index order — they describe index COVERAGE.",
+      "note": "A sparse index requires the data file to be sorted (so it is inherently clustered), but 'sparse' is not the term for the ordering property itself."
+     },
+     {
+      "step": 2,
+      "title": "Apply the definition of clustered index",
+      "formula_raw": "Clustered index <==> ordering of data records same as ordering of index entries",
+      "apply": "The question directly gives the definition of a clustered index: 'the ordering of the data records is the same as or close to the ordering of data entries in some index.' This is textbook definition of a clustered index. Option C is correct.",
+      "note": "Option D (unclustered) is the opposite — data records are NOT in the same order as index entries."
+     }
+    ],
+    "result": "C. Clustered"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Clustered index definition: data file is physically organized in the same order as the index entries, enabling sequential disk access for range queries.",
+   "qid": "5.9.9",
+   "answer_official": "B;C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2020",
+    "year": 2020,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Databases",
+    "topic": "Indexing",
+    "subtopic": "Indexing"
+   },
+   "question": "Consider a database implemented using B+ tree for file indexing and installed on a disk drive with block size of 4 KB. The size of search key is 12 bytes and the size of tree/disk pointer is 8 bytes. Assume that the database has one million (10^6) records. Also assume that no node of the B+ tree and no records are present initially in the main memory. Consider that the B+ tree is of minimum height and all its nodes are completely full. The minimum number of disk accesses required to find a record in the database is ___.",
+   "answer": "4",
+   "to_find": "Minimum number of disk accesses to find a record using B+ tree index",
+   "understand": {
+    "plain": "We have a B+ tree index on a database with 1 million records. The disk block size is 4 KB. Internal nodes store (key, pointer) pairs and leaf nodes store (key, record pointer) pairs. We need to find how tall this B+ tree is (in levels), then add 1 for fetching the actual data record. The total path from root to leaf plus the data block access gives the total disk accesses.",
+    "keywords": [
+     {
+      "term": "B+ tree order",
+      "explain": "The maximum number of children (pointers) an internal node can have. Determined by block size and sizes of keys and pointers.",
+      "example": "If block = 4096 bytes, key = 12 bytes, pointer = 8 bytes: n*8 + (n-1)*12 <= 4096 gives n <= 205."
+     },
+     {
+      "term": "B+ tree height",
+      "explain": "Number of levels in the tree from root to leaf. A tree of height h with order n can index up to n^h leaf nodes.",
+      "example": "Height 2 with order 205: up to 205^2 = 42025 leaf nodes."
+     },
+     {
+      "term": "Disk access",
+      "explain": "Each time we load a node (block) from disk into memory, it counts as one disk access.",
+      "example": "Root access + 1 internal node + leaf node + data block = 4 disk accesses."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='480' height='220' viewBox='0 0 480 220'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='180' y='10' width='120' height='36' rx='6' class='hi'/><text x='240' y='33' text-anchor='middle' class='lbl ink'>Root (L0)</text><line x1='240' y1='46' x2='120' y2='86' stroke='#7F77DD' stroke-width='2'/><line x1='240' y1='46' x2='240' y2='86' stroke='#7F77DD' stroke-width='2'/><line x1='240' y1='46' x2='360' y2='86' stroke='#7F77DD' stroke-width='2'/><rect x='60' y='86' width='120' height='36' rx='6' class='bg'/><rect x='180' y='86' width='120' height='36' rx='6' class='bg'/><rect x='300' y='86' width='120' height='36' rx='6' class='bg'/><text x='120' y='109' text-anchor='middle' class='sub ink'>Internal (L1)</text><text x='240' y='109' text-anchor='middle' class='sub ink'>Internal (L1)</text><text x='360' y='109' text-anchor='middle' class='sub ink'>Internal (L1)</text><line x1='120' y1='122' x2='60' y2='155' stroke='#B4B2A9' stroke-width='2'/><line x1='120' y1='122' x2='120' y2='155' stroke='#B4B2A9' stroke-width='2'/><line x1='120' y1='122' x2='180' y2='155' stroke='#B4B2A9' stroke-width='2'/><rect x='20' y='155' width='80' height='30' rx='4' class='bg'/><rect x='100' y='155' width='80' height='30' rx='4' class='bg'/><rect x='160' y='155' width='80' height='30' rx='4' class='bg'/><text x='60' y='174' text-anchor='middle' class='sub ink'>Leaf</text><text x='140' y='174' text-anchor='middle' class='sub ink'>Leaf</text><text x='200' y='174' text-anchor='middle' class='sub ink'>Leaf</text><text x='370' y='174' class='sub mut'>...4902 leaves</text><rect x='100' y='193' width='120' height='22' rx='4' style='fill:#E8F5E9;stroke:#1D9E75;stroke-width:1.5'/><text x='160' y='208' text-anchor='middle' class='sub ok'>Data block (+1)</text><text x='240' y='15' text-anchor='middle' class='tag mut' dy='0'></text></svg>",
+    "visual_alt": "B+ tree with 3 levels: root (level 0), internal nodes (level 1), leaf nodes (level 2). Traversing root->internal->leaf = 3 disk accesses, then fetching the actual data record = 1 more, total = 4 disk accesses."
+   },
+   "given": {
+    "aim": "Calculate minimum disk accesses to find a record using a fully-packed B+ tree.",
+    "terms": [
+     {
+      "term": "Block size = 4 KB = 4096 bytes",
+      "meaning": "Each disk block and each B+ tree node occupies 4096 bytes.",
+      "example": "One node read = one disk access = 4096 bytes transferred.",
+      "connects": "Used to compute the order (fan-out) of internal nodes and capacity of leaf nodes."
+     },
+     {
+      "term": "Search key size = 12 bytes, pointer size = 8 bytes",
+      "meaning": "Each key occupies 12 bytes; each pointer (to child node or record) occupies 8 bytes.",
+      "example": "Internal node with n pointers and n-1 keys: 8n + 12(n-1) <= 4096.",
+      "connects": "Determines maximum fan-out n of the B+ tree internal nodes."
+     },
+     {
+      "term": "1 million records, tree is of minimum height, all nodes completely full",
+      "meaning": "We need a B+ tree that holds 10^6 records with maximum fan-out at every level.",
+      "example": "With leaf capacity 204 and 10^6 records: need ceil(10^6 / 204) = 4902 leaf nodes.",
+      "connects": "Determines how many levels the tree needs, and hence the number of disk accesses for traversal."
+     }
+    ],
+    "plan": "Step 1: Calculate internal node order n. Step 2: Calculate leaf node capacity. Step 3: Calculate number of leaf nodes needed. Step 4: Calculate tree height. Step 5: Add 1 for the data record access."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Calculate internal node order (fan-out)",
+      "formula_raw": "n * pointer_size + (n-1) * key_size <= block_size",
+      "apply": "Internal node stores n pointers and n-1 keys:\nn * 8 + (n-1) * 12 <= 4096\n8n + 12n - 12 <= 4096\n20n <= 4108\nn <= 205.4\nSo maximum order n = 205 (each internal node has up to 205 children).",
+      "note": "The B+ tree internal node fan-out determines how many subtrees each node can branch to."
+     },
+     {
+      "step": 2,
+      "title": "Calculate leaf node capacity",
+      "formula_raw": "leaf_capacity = floor(block_size / (key_size + record_pointer_size))",
+      "apply": "Each leaf node entry stores a search key (12 bytes) and a record pointer (8 bytes) = 20 bytes per entry.\nLeaf capacity = floor(4096 / 20) = 204 entries per leaf node.",
+      "note": "Leaf nodes in a B+ tree store actual (key, record-pointer) pairs, not child pointers."
+     },
+     {
+      "step": 3,
+      "title": "Calculate number of leaf nodes",
+      "formula_raw": "num_leaves = ceil(num_records / leaf_capacity)",
+      "apply": "With 10^6 records and 204 records per leaf:\nnum_leaves = ceil(1,000,000 / 204) = ceil(4901.96) = 4902 leaf nodes.",
+      "note": "All nodes are completely full as stated, so we use exactly 204 entries per leaf."
+     },
+     {
+      "step": 4,
+      "title": "Determine tree height",
+      "formula_raw": "height = ceil(log_n(num_leaves))",
+      "apply": "With fan-out n = 205:\n- 1 level above leaves (root only): can index 205 leaf nodes. But 205 < 4902, so one internal level is insufficient.\n- 2 levels above leaves (root + 1 internal level): can index 205^2 = 42025 leaf nodes. Since 42025 > 4902, this is sufficient.\nSo the tree has: root (L0) + 1 internal level (L1) + leaf level (L2) = 3 levels total.\nNumber of disk accesses to reach leaf = 3.",
+      "note": "log_205(4902) = log(4902)/log(205) = 3.690/2.312 = 1.596, so ceil = 2 levels above leaves, meaning 3 total levels."
+     },
+     {
+      "step": 5,
+      "title": "Add data record access",
+      "formula_raw": "total_accesses = tree_height + 1",
+      "apply": "Traversal path: root (1 access) -> internal node (1 access) -> leaf node (1 access) = 3 accesses to find the record pointer. Then we must fetch the actual data block containing the record = 1 more access.\nTotal minimum disk accesses = 3 + 1 = 4.",
+      "note": "The leaf node gives us a pointer to where the actual record is stored; we still need one more disk access to read that data block."
+     }
+    ],
+    "result": "4 disk accesses (3 to traverse the B+ tree from root to leaf + 1 to read the actual data block)"
+   },
+   "formula_ids_used": [],
+   "formula_note": "B+ tree height calculation: internal node order n = floor((block_size + key_size) / (key_size + pointer_size)); leaf capacity = floor(block_size / (key_size + pointer_size)); height = ceil(log_n(ceil(records / leaf_capacity))); total disk accesses = height + 1 for data block.",
+   "qid": "5.9.10",
+   "answer_official": "4"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2021",
+    "year": 2021,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "Indexing",
+    "subtopic": "Indexing"
+   },
+   "question": "A data file consisting of student-records is stored on a hard disk with block size of 4096 bytes. The data file is sorted on the primary key RollNo. The size of a record pointer for this disk is 7 bytes. Each student-record has a candidate key attribute called AName of size 32 bytes. Suppose an index file with records consisting of two fields, AName and record pointer, is built and stored on the disk. The data file has 25,000 records with each record of size 100 bytes. Assume that the data file is block-aligned and the index file is also block-aligned. The system uses binary search to look up the index file. The minimum number of block accesses required to find the block in the data file that contains a record with a given AName value is ___.\nA. 5\nB. 6\nC. 8\nD. 9",
+   "answer": "D. 9",
+   "to_find": "Minimum number of block accesses to find a data block using binary search on an index file",
+   "understand": {
+    "plain": "We have a student data file sorted by RollNo (primary key). We also have a secondary index on AName (a candidate key, but not the sort key). The index file has entries of (AName, record pointer). To find a record with a given AName, we binary search the index file to find the record pointer, then use that pointer to access the data block. We need to count total block accesses: binary search on index file + 1 data block access.",
+    "keywords": [
+     {
+      "term": "Index file",
+      "explain": "A separate file containing (key, pointer) entries, sorted on the key, allowing fast lookup.",
+      "example": "Index entry: (AName='Alice', record pointer to block 5, offset 3)."
+     },
+     {
+      "term": "Binary search on index",
+      "explain": "Since the index file is sorted on AName, we can binary search it. Binary search on B blocks takes ceil(log_2(B)) block accesses.",
+      "example": "If index has 239 blocks, binary search takes ceil(log_2(239)) = 8 block accesses."
+     },
+     {
+      "term": "Record pointer",
+      "explain": "A 7-byte pointer that points to the exact location (block and offset) of a data record on disk.",
+      "example": "After binary search finds the index entry for AName='Bob', the record pointer directs us to block 150 of the data file."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Index file (sorted by AName) binary searched for target AName -> find record pointer -> access data file block. Binary search takes ceil(log_2(index_blocks)) accesses, plus 1 data block access."
+   },
+   "given": {
+    "aim": "Calculate total disk block accesses to find a data record using binary search on a secondary index.",
+    "terms": [
+     {
+      "term": "Index entry size = AName + record pointer = 32 + 7 = 39 bytes",
+      "meaning": "Each entry in the index file takes 39 bytes of storage.",
+      "example": "One disk block of 4096 bytes holds floor(4096/39) = 105 index entries.",
+      "connects": "Determines how many index blocks are needed for 25,000 entries."
+     },
+     {
+      "term": "Number of index blocks",
+      "meaning": "Total blocks occupied by the index file.",
+      "example": "25,000 entries / 105 entries per block = ceil(238.09) = 239 blocks.",
+      "connects": "The number of index blocks determines the number of binary search steps."
+     },
+     {
+      "term": "Binary search on index file",
+      "meaning": "We search the sorted index file using binary search to find a specific AName value.",
+      "example": "Binary search on 239 blocks requires ceil(log_2(239)) = 8 block accesses (since 2^7 = 128 < 239 <= 2^8 = 256).",
+      "connects": "These 8 accesses give us the index entry with the record pointer."
+     }
+    ],
+    "plan": "Step 1: Calculate index entry size and entries per block. Step 2: Calculate number of index blocks. Step 3: Apply binary search formula ceil(log_2(blocks)). Step 4: Add 1 for the data block access."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Calculate index entry size and entries per block",
+      "formula_raw": "entry_size = AName_size + record_pointer_size; entries_per_block = floor(block_size / entry_size)",
+      "apply": "Index entry consists of: AName (32 bytes) + record pointer (7 bytes) = 39 bytes per entry.\nEntries per index block = floor(4096 / 39) = floor(105.02) = 105 entries per block.",
+      "note": "Block-aligned means we use floor() for entries per block — no partial entries."
+     },
+     {
+      "step": 2,
+      "title": "Calculate total number of index blocks",
+      "formula_raw": "num_index_blocks = ceil(num_records / entries_per_block)",
+      "apply": "Index file has one entry per data record (since AName is a candidate key covering all 25,000 students).\nNumber of index blocks = ceil(25,000 / 105) = ceil(238.095) = 239 blocks.",
+      "note": "The index file is sorted on AName (a candidate key), so it has exactly 25,000 entries."
+     },
+     {
+      "step": 3,
+      "title": "Apply binary search formula",
+      "formula_raw": "binary_search_accesses = ceil(log_2(num_index_blocks))",
+      "apply": "Binary search on 239 blocks: ceil(log_2(239)).\n2^7 = 128 < 239 <= 2^8 = 256, so log_2(239) is between 7 and 8.\nceil(log_2(239)) = 8 block accesses to search the index file.",
+      "note": "Each step of binary search halves the search space, requiring at most ceil(log_2(B)) block reads for B blocks."
+     },
+     {
+      "step": 4,
+      "title": "Add data block access",
+      "formula_raw": "total_accesses = binary_search_accesses + 1",
+      "apply": "After 8 binary search accesses, we find the index entry containing the record pointer to the data file. We then need 1 more block access to read the data block containing the student record.\nTotal = 8 + 1 = 9 block accesses.",
+      "note": "The index gives us a direct pointer to the exact data block, so only 1 data block access is needed after finding the index entry."
+     }
+    ],
+    "result": "D. 9 block accesses (8 for binary search on index file + 1 for the data block)"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Binary search on sorted index file: ceil(log_2(B)) block accesses where B = ceil(num_records / floor(block_size / entry_size)); total = ceil(log_2(B)) + 1 for the data block.",
+   "qid": "5.9.11",
+   "answer_official": "N/A"
+  }
+ ]
+}

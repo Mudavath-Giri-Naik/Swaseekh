@@ -1,0 +1,383 @@
+{
+ "page": 663,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2020",
+    "year": 2020,
+    "marks": 1,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Theory of Computation",
+    "topic": "Identify Class Language",
+    "subtopic": "Identify Class Language"
+   },
+   "question": "Consider the language L = {a^n | n >= 0} union {a^n b^m | n != m} and the following statements.\nI. L is deterministic context-free.\nII. L is context-free but not deterministic context-free.\nIII. L is not LL(k) for any k.\nWhich of the above statements is/are TRUE?\nA. I only\nB. II only\nC. I and III only\nD. III only",
+   "answer": "C. I and III only",
+   "to_find": "Which statements about the language L = {a^n | n >= 0} union {a^n b^m | n != m} are TRUE.",
+   "understand": {
+    "plain": "We have a language L that consists of all strings of only a's, combined with strings a^n b^m where the number of a's is not equal to the number of b's. We need to classify this language (DCFL, CFL, LL(k)) and check which statements hold.",
+    "keywords": [
+     {
+      "term": "Deterministic Context-Free Language (DCFL)",
+      "explain": "A language accepted by a deterministic pushdown automaton (DPDA), which makes exactly one choice at each step.",
+      "example": "{a^n b^n | n >= 0} is DCFL because a DPDA can push a's and pop for each b."
+     },
+     {
+      "term": "LL(k) grammar",
+      "explain": "A class of context-free grammars parseable top-down with k tokens of lookahead. LL(k) grammars are a strict subset of DCFLs.",
+      "example": "Most simple programming language grammars are LL(1) or LL(k)."
+     },
+     {
+      "term": "Union of languages",
+      "explain": "L1 union L2 contains all strings that are in L1 or L2 (or both).",
+      "example": "{a*} union {a^n b^m | n != m} includes 'aaa', 'ab', 'aabb' but not 'ab'... wait, 'ab' has n=1, m=1 so n=m, excluded from second set but 'a' is in first set."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Language L combines two parts: pure a-strings and a^n b^m strings where counts differ."
+   },
+   "given": {
+    "aim": "Determine the classification of L = {a^n | n >= 0} union {a^n b^m | n != m}.",
+    "terms": [
+     {
+      "term": "L1 = {a^n | n >= 0}",
+      "meaning": "All strings consisting only of a's (including empty string), which is a regular language.",
+      "example": "epsilon, a, aa, aaa, ...",
+      "connects": "Being regular (and hence DCFL), its union with L2 determines L's class."
+     },
+     {
+      "term": "L2 = {a^n b^m | n != m}",
+      "meaning": "Strings of a's followed by b's where counts are unequal.",
+      "example": "ab (1 a, 2 b? no, ab has 1a and 1b so equal, excluded), 'aab' (2a,1b, included), 'abb' (1a,2b, included).",
+      "connects": "L2 = (a^+ b^* union a^* b^+) minus {a^n b^n} which is context-free."
+     },
+     {
+      "term": "complement of {a^n b^n}",
+      "meaning": "The complement of the canonical CFL {a^n b^n | n >= 0} is also a CFL (and in fact a DCFL).",
+      "example": "Strings over {a,b}* that are NOT of the form a^n b^n, i.e., interleaved, or unequal counts.",
+      "connects": "L2 intersected with a^* b^* gives exactly those strings with unequal counts, which is DCFL."
+     }
+    ],
+    "plan": "Recognize that L = complement of {a^n b^n | n >= 1} over {a,b}*. Since {a^n b^n} is a DCFL, its complement is also DCFL. Then check if L is LL(k) for any k by examining whether it needs unbounded lookahead."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Identify the complement relationship",
+      "formula_raw": "complement({a^n b^n | n >= 1}) over {a,b}*",
+      "apply": "The complement of {a^n b^n | n >= 1} over {a,b}* consists of all strings over {a,b}* that are NOT of the form a^n b^n (n >= 1). This includes: epsilon, all pure a-strings, all pure b-strings, all a^n b^m with n != m, and all strings with b before a. Now L = {a^n | n >= 0} union {a^n b^m | n != m}. Observe that L contains all strings in a^* b^* except {a^n b^n | n >= 1}, which is exactly complement({a^n b^n | n >= 1}) restricted to a^* b^* plus epsilon. Actually, L = {a^n | n >= 0} union {a^n b^m | m >= 1, n != m} = a^* union {a^n b^m | n >= 0, m >= 1, n != m}. This equals all strings in a^* b^* except {a^n b^n | n >= 1}. Since {a^n b^n | n >= 1} is a DCFL, its complement within a^* b^* is also DCFL. Statement I is TRUE.",
+      "note": "DCFLs are closed under complement, so complement of a DCFL is DCFL."
+     },
+     {
+      "step": 2,
+      "title": "Check LL(k) property",
+      "formula_raw": "LL(k) grammars form a strict subset of DCFLs",
+      "apply": "For L to be LL(k), any grammar for L must be parseable with k tokens lookahead. Consider a string starting with a^n. A parser cannot determine with finite k lookahead whether it will see 'n b's' (which would be a^n b^n, NOT in L) or '!= n b's' (which IS in L), until it has read all b's. No finite k suffices to distinguish these cases in general. Therefore L is not LL(k) for any fixed k. Statement III is TRUE.",
+      "note": "LL(k) requires bounded lookahead; here the distinction requires reading arbitrary-length b-strings."
+     },
+     {
+      "step": 3,
+      "title": "Check Statement II",
+      "formula_raw": "",
+      "apply": "Statement II says L is CFL but NOT DCFL. But we showed L IS a DCFL (deterministic context-free). So Statement II is FALSE.",
+      "note": "Statements I and III are true, II is false — answer is C."
+     }
+    ],
+    "result": "Statements I and III are TRUE. Answer: C. I and III only."
+   },
+   "formula_ids_used": [],
+   "formula_note": "DCFLs are closed under complement; LL(k) is a strict subset of DCFL requiring bounded lookahead, which this language does not admit.",
+   "qid": "10.9.23",
+   "answer_official": "C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2020",
+    "year": 2020,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Theory of Computation",
+    "topic": "Identify Class Language",
+    "subtopic": "Identify Class Language"
+   },
+   "question": "Consider the following languages:\nL_1 = {uvuv | u, v in (0+1)*}\nL_2 = {xy | x, y in (0+1)*, |x| = |y|, x != y}\nWhich one of the following is TRUE?\nA. L_1 is regular and L_2 is context-free.\nB. L_1 is context-free but not regular and L_2 is context-free.\nC. Neither L_1 nor L_2 is context-free.\nD. L_1 is context-free but L_2 is not context-free.",
+   "answer": "C. Neither L_1 nor L_2 is context-free.",
+   "to_find": "Classify L_1 = {uvuv | u,v in (0+1)*} and L_2 = {xy | x,y in (0+1)*, |x|=|y|, x != y} in the Chomsky hierarchy.",
+   "understand": {
+    "plain": "L_1 contains strings of even length that can be split into two equal halves that are identical (like concatenating a string with itself). L_2 contains strings of even length where the two halves are different. We need to determine if each is regular, context-free, or neither.",
+    "keywords": [
+     {
+      "term": "WW language",
+      "explain": "The language {ww | w in Sigma*} (a string concatenated with itself) is a classic example of a context-sensitive language that is NOT context-free.",
+      "example": "0110|0110 is in {ww}, but no PDA can check w=w for arbitrary w."
+     },
+     {
+      "term": "Complement of WW",
+      "explain": "The language of strings of even length where the two halves differ. Its classification follows from closure properties.",
+      "example": "01|10 (halves differ) is in complement of WW restricted to even-length strings."
+     },
+     {
+      "term": "Pumping lemma for CFLs",
+      "explain": "A property that all CFLs must satisfy: any sufficiently long string can be 'pumped' (repeated portions). If a language fails this, it is not context-free.",
+      "example": "Applying pumping lemma to {ww} shows it is not CFL."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "L_1 is the WW language over binary alphabet; L_2 is the complement within even-length strings."
+   },
+   "given": {
+    "aim": "Classify L_1 (WW language) and L_2 (complement of WW among equal-length pairs) in the Chomsky hierarchy.",
+    "terms": [
+     {
+      "term": "L_1 = {uvuv | u,v in (0+1)*}",
+      "meaning": "This is exactly the WW language over {0,1}: all strings of the form ww where w = uv is any binary string.",
+      "example": "0011|0011 = 00110011 is in L_1 (w=0011). 01|01 = 0101 is in L_1 (w=01).",
+      "connects": "WW is known to be context-sensitive but not context-free."
+     },
+     {
+      "term": "L_2 = {xy | |x|=|y|, x != y}",
+      "meaning": "All binary strings of even length where the first half differs from the second half.",
+      "example": "0110 has x=01, y=10, x != y, so 0110 is in L_2. 0101 has x=01, y=01, x=y so NOT in L_2.",
+      "connects": "L_2 is the complement of L_1 within even-length strings over (0+1)*."
+     },
+     {
+      "term": "Closure properties of CFLs",
+      "meaning": "CFLs are NOT closed under complement or intersection with another CFL.",
+      "example": "If L_1 were CFL, its complement would not necessarily be CFL.",
+      "connects": "Since L_1 is not CFL, we need to separately analyze L_2."
+     }
+    ],
+    "plan": "Use the pumping lemma to show L_1 is not CFL. Then observe that L_2 is the complement of L_1 (within even-length strings), and show L_2 is also not CFL using a similar argument or reduction."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Show L_1 is not context-free",
+      "formula_raw": "Pumping lemma for CFLs",
+      "apply": "L_1 = {ww | w in (0+1)*} is the classic WW language. By the pumping lemma for CFLs: suppose L_1 is CFL with pumping length p. Consider the string s = 0^p 1^p 0^p 1^p (here w = 0^p 1^p). For any split s = uvxyz with |vxy| <= p and |vy| >= 1, the substring vxy lies within one of the four blocks or spans at most two adjacent blocks. Pumping (increasing i in uv^i x y^i z) disrupts the equal-halves structure. The string cannot remain in L_1. Therefore L_1 is NOT context-free.",
+      "note": "WW is context-sensitive (accepted by a linear-bounded automaton) but not context-free."
+     },
+     {
+      "step": 2,
+      "title": "Show L_2 is not context-free",
+      "formula_raw": "CFL intersection with regular = CFL; CFL closed under union",
+      "apply": "Suppose L_2 were CFL. Consider L_2 intersected with 0^* 1^* 0^* 1^* (which is regular). The intersection is {0^a 1^b 0^c 1^d | a+b = c+d, (a != c or b != d)}. Now L_1 intersected with 0^* 1^* 0^* 1^* = {0^n 1^m 0^n 1^m} which is not CFL. Since L_1' = (L_2 intersect 0^*1^*0^*1^*) union {0^n 1^m 0^n 1^m} = all of 0^*1^*0^*1^* with even-length structure... More directly: if L_2 is CFL, then (complement of L_2) union {odd-length strings} = L_1 union {odd-length strings}. Since odd-length strings is regular and union of CFL with regular is CFL, L_1 would be CFL — contradiction. Therefore L_2 is NOT context-free.",
+      "note": "If complement of L_1 (within even-length) were CFL, then by closure properties L_1 would be CFL, which it is not."
+     },
+     {
+      "step": 3,
+      "title": "Select the correct option",
+      "formula_raw": "",
+      "apply": "L_1 is not CFL and L_2 is not CFL. So neither L_1 nor L_2 is context-free. This matches option C.",
+      "note": "Both languages are context-sensitive (Type 1) but not Type 2."
+     }
+    ],
+    "result": "Neither L_1 nor L_2 is context-free. Answer: C."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Pumping lemma for CFLs applied to WW language; closure properties of CFLs (closed under union with regular, intersection with regular) used to show L_2 is also not CFL.",
+   "qid": "10.9.24",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2021",
+    "year": 2021,
+    "marks": 1,
+    "difficulty": "medium",
+    "type": "MSQ",
+    "subject": "Theory of Computation",
+    "topic": "Identify Class Language",
+    "subtopic": "Identify Class Language"
+   },
+   "question": "Let L_R be a regular language and L_2 be a context-free language. Which of the following languages is/are context-free?\nA. L_R / L_2 (right quotient of L_R by L_2)\nB. complement(L_R) union L_2\nC. L_R intersection L_2\nD. L_R - L_2 (set difference)",
+   "answer": "B, C",
+   "to_find": "Identify which of the given language operations on a regular language L_R and a CFL L_2 yield a context-free language.",
+   "understand": {
+    "plain": "We are given a regular language L_R and a context-free language L_2, and asked which combinations (quotient, union with complement, intersection, set difference) are guaranteed to be context-free. We apply closure properties of CFLs.",
+    "keywords": [
+     {
+      "term": "Closure property",
+      "explain": "A language class is 'closed' under an operation if applying that operation to languages in the class always gives a language in the same class.",
+      "example": "CFLs are closed under union: if L1 and L2 are CFLs, L1 union L2 is also CFL."
+     },
+     {
+      "term": "Right quotient",
+      "explain": "L1 / L2 = {x | exists y in L2 such that xy in L1}. It removes suffixes from L1 that belong to L2.",
+      "example": "{ab, abc} / {c} = {ab} because abc/c = ab."
+     },
+     {
+      "term": "CFL closure under intersection with regular",
+      "explain": "The intersection of a CFL with a regular language is always a CFL.",
+      "example": "{a^n b^n | n >= 0} intersection a^* b^* = {a^n b^n | n >= 0}, still CFL."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Diagram showing closure/non-closure of CFLs under various operations: union with regular (closed), intersection with regular (closed), complement (not closed), difference (not closed)."
+   },
+   "given": {
+    "aim": "Determine which operations on L_R (regular) and L_2 (CFL) produce a CFL.",
+    "terms": [
+     {
+      "term": "L_R (regular language)",
+      "meaning": "Accepted by a finite automaton; closed under all boolean operations.",
+      "example": "(0+1)* 00 (0+1)* — strings containing '00'",
+      "connects": "Regular languages are a subset of CFLs; CFLs are closed under intersection with regular."
+     },
+     {
+      "term": "L_2 (context-free language)",
+      "meaning": "Accepted by a pushdown automaton; closed under union, concatenation, Kleene star, intersection with regular, but NOT closed under intersection or complement.",
+      "example": "{a^n b^n | n >= 0} is CFL.",
+      "connects": "Key tool: CFL intersect Regular = CFL; Regular union CFL = CFL."
+     },
+     {
+      "term": "Set difference L1 - L2",
+      "meaning": "L1 - L2 = L1 intersection complement(L2). CFLs are not closed under complement, so difference of two CFLs may not be CFL.",
+      "example": "{a^n b^n c^n | n >= 0} can be expressed as difference of two CFLs — and it is NOT CFL.",
+      "connects": "L_R - L_2 = L_R intersection complement(L_2). complement(L_2) need not be CFL, so the result is uncertain."
+     }
+    ],
+    "plan": "Apply known closure properties: CFLs closed under union with regular, intersection with regular. CFLs NOT closed under complement. Analyze each option."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Option A: L_R / L_2 (right quotient of regular by CFL)",
+      "formula_raw": "L_R / L_2 = {x | exists y in L_2, xy in L_R}",
+      "apply": "The right quotient of a regular language by ANY language is always regular. This is because we can construct a DFA for L_R and for each state q, check if from q there is a path via some string in L_2 to a final state. Since L_R is regular, L_R / L_2 is regular, hence also context-free. Wait — but is this correct for arbitrary L_2? Yes: L_R / L_2 is always regular when L_R is regular (regardless of L_2's class). So A is context-free (in fact regular). However, looking at the image again for the exact options shown...",
+      "note": "Quotient of regular language by any language is regular, hence CFL."
+     },
+     {
+      "step": 2,
+      "title": "Option B: complement(L_R) union L_2",
+      "formula_raw": "complement of regular is regular; CFL union regular = CFL",
+      "apply": "complement(L_R) is regular (regulars closed under complement). Regular union CFL = CFL (CFLs closed under union with regular, since regular is a subset of CFL and CFLs are closed under union). Therefore complement(L_R) union L_2 is CFL. Option B IS context-free.",
+      "note": "This is a standard closure result."
+     },
+     {
+      "step": 3,
+      "title": "Option C: L_R intersection L_2",
+      "formula_raw": "CFL intersection Regular = CFL",
+      "apply": "The intersection of a CFL with a regular language is always CFL (proven by running PDA for L_2 and DFA for L_R in parallel — product construction). Therefore L_R intersection L_2 is CFL. Option C IS context-free.",
+      "note": "This is one of the most important closure results for CFLs."
+     },
+     {
+      "step": 4,
+      "title": "Option D: L_R - L_2 (set difference)",
+      "formula_raw": "L_R - L_2 = L_R intersection complement(L_2)",
+      "apply": "complement(L_2) need not be CFL (CFLs not closed under complement). L_R intersection complement(L_2): even though L_R is regular, this is regular intersect (complement of CFL). The complement of a CFL is not necessarily CFL, and intersection of regular with non-CFL need not be CFL. Counterexample: Let L_R = (a+b+c)* and L_2 = {a^n b^n | n >= 0} union {a^n b^m c^n | n,m >= 0}... Actually, a simpler argument: L_2 may have a non-CFL complement. L_R - L_2 = L_R intersect complement(L_2) is not guaranteed to be CFL. Option D is NOT necessarily context-free.",
+      "note": "Set difference of regular minus CFL is not guaranteed to be CFL."
+     }
+    ],
+    "result": "Options B and C are context-free. Answer: B, C."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Key closure properties: CFL closed under union with regular and intersection with regular; CFL NOT closed under complement or set difference with CFL.",
+   "qid": "10.9.25",
+   "answer_official": "B"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2022",
+    "year": 2022,
+    "marks": 1,
+    "difficulty": "medium",
+    "type": "MSQ",
+    "subject": "Theory of Computation",
+    "topic": "Identify Class Language",
+    "subtopic": "Identify Class Language"
+   },
+   "question": "Which of the following statements is/are TRUE?\nA. Every subset of a recursively enumerable language is recursive.\nB. If a language L and its complement are both recursively enumerable, then L must be recursive.\nC. Complement of a context-free language must be recursive.\nD. If L_1 and L_2 are regular, then L_1 ∩ L_2 must be deterministic context-free.",
+   "answer": "B, C, D",
+   "to_find": "Identify which statements about language classes (recursive, RE, CFL, regular) are TRUE.",
+   "understand": {
+    "plain": "This question tests knowledge of relationships between language classes: recursive (decidable), recursively enumerable (RE/semi-decidable), context-free, and regular. We need to verify each statement using known closure properties and theorems.",
+    "keywords": [
+     {
+      "term": "Recursively enumerable (RE) language",
+      "explain": "A language accepted by a Turing machine (TM may loop on some inputs). Not necessarily decidable.",
+      "example": "The halting problem language is RE but not recursive."
+     },
+     {
+      "term": "Recursive language",
+      "explain": "A language for which there exists a TM that always halts (accepts or rejects). Also called 'decidable'.",
+      "example": "Any CFL is recursive (CFLs are decidable)."
+     },
+     {
+      "term": "Co-RE / complement closure",
+      "explain": "If L is RE and complement(L) is also RE, then L is recursive (decidable). This follows from running both TMs in parallel.",
+      "example": "If we can semi-decide both L and its complement, we can decide L."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 480 300' width='480' height='300'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><ellipse cx='240' cy='150' rx='220' ry='130' fill='#f8f0e0' stroke='#B4B2A9' stroke-width='2'/><ellipse cx='240' cy='160' rx='170' ry='100' fill='#e8f0f8' stroke='#7F77DD' stroke-width='2'/><ellipse cx='240' cy='170' rx='120' ry='70' fill='#e8f8e8' stroke='#1D9E75' stroke-width='2'/><ellipse cx='240' cy='180' rx='70' ry='42' fill='#f0e8f8' stroke='#D85A30' stroke-width='2'/><text x='240' y='185' text-anchor='middle' class='tag ink'>Regular</text><text x='240' y='240' text-anchor='middle' class='tag ink'>CFL</text><text x='240' y='265' text-anchor='middle' class='tag mut'>Recursive</text><text x='240' y='286' text-anchor='middle' class='tag mut'>RE</text><text x='30' y='40' class='sub mut'>RE (Type 0)</text><text x='30' y='58' class='sub mut'>Recursive (decidable)</text><text x='30' y='76' class='sub ink'>Context-Free (Type 2)</text><text x='30' y='94' class='sub ink'>Regular (Type 3)</text></svg>",
+    "visual_alt": "Chomsky hierarchy diagram showing Regular subset of CFL subset of Recursive subset of RE."
+   },
+   "given": {
+    "aim": "Evaluate four statements about recursive, RE, CFL, and regular language classes.",
+    "terms": [
+     {
+      "term": "Subset of RE",
+      "meaning": "A subset of an RE language need not be RE (let alone recursive). RE is not closed under subset.",
+      "example": "The halting problem H is RE. The set of Turing machines that halt in even steps is a subset of H but may have any complexity.",
+      "connects": "Statement A claims every subset of RE is recursive — this is FALSE."
+     },
+     {
+      "term": "L and complement(L) both RE => L recursive",
+      "meaning": "This is a theorem: if both L and its complement are RE, then L is decidable (recursive). Proof: run TM for L and TM for complement(L) in parallel; one must halt.",
+      "example": "Halting problem is RE but its complement is not RE; so halting problem is not recursive.",
+      "connects": "Statement B is TRUE."
+     },
+     {
+      "term": "CFL subset of Recursive",
+      "meaning": "Every CFL is decidable; CFG membership can be decided by CYK algorithm in O(n^3). Therefore complement of CFL is also recursive.",
+      "example": "{a^n b^n | n >= 0} is CFL hence recursive; its complement is also recursive.",
+      "connects": "Statement C is TRUE — complement of CFL is recursive."
+     }
+    ],
+    "plan": "Evaluate each statement using theorems: (A) RE not closed under subset — FALSE; (B) L and co-L both RE implies L recursive — TRUE; (C) CFL is subset of recursive, so complement of CFL is recursive — TRUE; (D) Regular closed under intersection, result is regular which is DCFL — TRUE."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Statement A: Every subset of a recursively enumerable language is recursive",
+      "formula_raw": "",
+      "apply": "FALSE. Consider: the halting problem H is RE. The subset K = {<M> | M is a TM that accepts its own encoding} is also RE but not recursive. Moreover, any RE language is a subset of the universal language Sigma* which is regular (hence recursive). If statement A were true, every language would be recursive — absurd. Statement A is FALSE.",
+      "note": "RE is not closed downward; subsets of RE can be anywhere in the hierarchy."
+     },
+     {
+      "step": 2,
+      "title": "Statement B: L and complement(L) both RE => L is recursive",
+      "formula_raw": "Run TM_L and TM_{complement(L)} in parallel",
+      "apply": "TRUE. This is a standard theorem. If TM1 accepts L and TM2 accepts complement(L), then for any input x: run TM1 and TM2 in parallel (dovetailing). Since every string is either in L or complement(L), one of them will eventually accept. So we get a TM that always halts — L is recursive. Statement B is TRUE.",
+      "note": "This is equivalent to: L is recursive iff both L and complement(L) are RE."
+     },
+     {
+      "step": 3,
+      "title": "Statement C: Complement of a CFL is recursive",
+      "formula_raw": "CFL subset of Recursive; Recursive closed under complement",
+      "apply": "TRUE. Every CFL is recursive (CYK algorithm decides any CFL in polynomial time). The class of recursive languages is closed under complement. Therefore, if L is CFL, L is recursive, and complement(L) is also recursive. Statement C is TRUE.",
+      "note": "Note: complement of CFL need not be CFL (CFLs not closed under complement), but it IS recursive."
+     },
+     {
+      "step": 4,
+      "title": "Statement D: If L_1 and L_2 are regular, then L_1 intersection L_2 is deterministic context-free",
+      "formula_raw": "Regular subset of DCFL; DCFL closed under intersection with regular",
+      "apply": "TRUE. If L_1 and L_2 are regular, then L_1 intersection L_2 is also regular (regular languages closed under intersection). Since every regular language is a DCFL, L_1 intersection L_2 is deterministic context-free. Statement D is TRUE.",
+      "note": "Regular is a strict subset of DCFL, so the intersection of two regular languages is trivially DCFL."
+     }
+    ],
+    "result": "Statements B, C, and D are TRUE. Answer: B, C, D."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Key theorems: L recursive iff L and complement(L) are both RE; CFL is decidable (CYK); regular languages form a strict subset of DCFL; recursive languages are closed under complement.",
+   "qid": "10.9.26",
+   "answer_official": "B;C;D"
+  }
+ ]
+}

@@ -1,0 +1,249 @@
+{
+ "page": 619,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2020",
+    "year": 2020,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Programming in C",
+    "topic": "Recursion",
+    "subtopic": "Recursion"
+   },
+   "question": "Consider the following C functions.\n\nint fun1(int n) {\n    static int i = 0;\n    if (n > 0) {\n        ++i;\n        fun1(n-1);\n    }\n    return (i);\n}\n\nint fun2(int n) {\n    static int i = 0;\n    if (n > 0) {\n        i = i + fun1(n);\n        fun2(n-1);\n    }\n    return (i);\n}\n\nThe return value of fun2(5) is _________.",
+   "answer": "55",
+   "to_find": "The return value of fun2(5)",
+   "understand": {
+    "plain": "Two C functions each have a static integer variable named i, which persists (retains its value) across all recursive calls. fun1(n) increments its own static i exactly n times per top-level call, but since i persists, subsequent calls continue from where i left off. fun2(5) calls fun1 with decreasing arguments while accumulating the return values of fun1 into its own static i.",
+    "keywords": [
+     {
+      "term": "static variable",
+      "explain": "A local variable declared with 'static' retains its value between function calls; it is initialized only once.",
+      "example": "static int i = 0; — on the second call, i still holds the value it had when the first call ended."
+     },
+     {
+      "term": "static variable in recursion",
+      "explain": "Because the static variable is shared across ALL invocations of the same function (including recursive ones), each recursive call sees and modifies the same variable.",
+      "example": "fun1(3): first call increments i to 1, recursive call increments to 2, then 3; all frames share the same i."
+     }
+    ],
+    "visual_svg": "<svg width='520' height='220' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect width='520' height='220' rx='10' fill='var(--cell-bg,#F1EFE8)'/><text x='10' y='28' class='lbl ink'>fun1 static i progression:</text><rect x='10' y='38' width='490' height='36' rx='6' class='bg'/><text x='18' y='60' class='sub ink'>fun1(5):i=0..5 ret 5 | fun1(4):i=5..9 ret 9 | fun1(3):i=9..12 ret 12 | fun1(2):i=12..14 ret 14 | fun1(1):i=14..15 ret 15</text><text x='10' y='102' class='lbl ink'>fun2 static i accumulation (starts at 0):</text><rect x='10' y='110' width='490' height='100' rx='6' class='bg'/><text x='18' y='130' class='sub ink'>Step 1: i2 = 0 + fun1(5) = 0 + 5 = 5</text><text x='18' y='150' class='sub ink'>Step 2: i2 = 5 + fun1(4) = 5 + 9 = 14</text><text x='18' y='170' class='sub ink'>Step 3: i2 = 14 + fun1(3) = 14 + 12 = 26 | Step 4: i2 = 26 + 14 = 40</text><text x='18' y='190' class='sub ink'>Step 5: i2 = 40 + fun1(1) = 40 + 15 = 55  (Answer)</text></svg>",
+    "visual_alt": "Table showing how fun1's static i increments cumulatively across successive calls (5, 9, 12, 14, 15) and how fun2 sums these values: 5+9+12+14+15 = 55."
+   },
+   "given": {
+    "aim": "Find the return value of fun2(5) given that both functions use static local variables.",
+    "terms": [
+     {
+      "term": "fun1(n) — first call",
+      "meaning": "fun1's static i starts at 0; calling fun1(5) does ++i five times, so i becomes 5 and fun1 returns 5.",
+      "example": "fun1(3): i goes 0->1->2->3, returns 3.",
+      "connects": "Each successive call to fun1 continues from the last value of i, so returns keep increasing."
+     },
+     {
+      "term": "fun1(n) — subsequent calls",
+      "meaning": "Because fun1's static i persists, the second call fun1(4) starts at i=5 and adds 4 more increments, returning 9.",
+      "example": "fun1(4) called after fun1(5): i goes 5->6->7->8->9, returns 9.",
+      "connects": "The return value of fun1 on the k-th call equals the cumulative total of all increments so far."
+     },
+     {
+      "term": "fun2 accumulation",
+      "meaning": "fun2 calls fun1(5), fun1(4), ..., fun1(1) in that order (due to i = i + fun1(n) before fun2(n-1)), summing all return values into fun2's own static i.",
+      "example": "fun2(5): i2 += fun1(5)=5; fun2(4): i2 += fun1(4)=9; ...",
+      "connects": "fun2's return is the sum 5 + 9 + 12 + 14 + 15 = 55."
+     }
+    ],
+    "plan": "Trace fun1 calls in order (fun1(5) first, then fun1(4), ..., fun1(1)), tracking the persistent static i of fun1 to find each return value. Then sum these return values to get fun2's static i, which is the final answer."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Determine execution order of fun1 calls",
+      "formula_raw": "fun2(n): i2 += fun1(n); fun2(n-1);",
+      "apply": "fun2(5) calls fun1(5) first, then recurses to fun2(4) which calls fun1(4), then fun2(3) calls fun1(3), then fun2(2) calls fun1(2), then fun2(1) calls fun1(1). So fun1 is called with arguments 5, 4, 3, 2, 1 in that order.",
+      "note": "The i2 += fun1(n) executes BEFORE fun2(n-1), so fun1(5) is the very first call to fun1."
+     },
+     {
+      "step": 2,
+      "title": "Track fun1's static i and return values across all calls",
+      "formula_raw": "fun1 static i persists; each call adds n increments on top of current i",
+      "apply": "fun1(5): i goes 0->5, returns 5. fun1(4): i continues 5->9, returns 9. fun1(3): i continues 9->12, returns 12. fun1(2): i continues 12->14, returns 14. fun1(1): i continues 14->15, returns 15.",
+      "note": "The k-th call to fun1(m) returns (sum of all previous increments) + m. Here: 0+5=5, 5+4=9, 9+3=12, 12+2=14, 14+1=15."
+     },
+     {
+      "step": 3,
+      "title": "Sum fun1 return values to get fun2's return value",
+      "formula_raw": "fun2_i = 5 + 9 + 12 + 14 + 15",
+      "apply": "fun2's static i = 0 + 5 = 5; then 5 + 9 = 14; then 14 + 12 = 26; then 26 + 14 = 40; then 40 + 15 = 55. fun2(5) returns 55.",
+      "note": "5 + 9 + 12 + 14 + 15 = 55."
+     }
+    ],
+    "result": "fun2(5) returns 55."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Key insight: static variables in C persist across all calls (including recursive), so each call to fun1 continues incrementing from the same shared counter, producing cumulative return values.",
+   "qid": "9.13.16",
+   "answer_official": "55"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2025",
+    "year": 2025,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Programming in C",
+    "topic": "Recursion",
+    "subtopic": "Recursion"
+   },
+   "question": "#include <stdio.h>\nint foo(int S[], int size) {\n    if (size == 0) return 0;\n    if (size == 1) return 1;\n    if (S[0] != S[1]) return 1 + foo(S+1, size-1);\n    return foo(S+1, size-1);\n}\nint main() {\n    int A[] = {0, 1, 2, 2, 2, 0, 0, 1, 1};\n    printf(\"%d\", foo(A, 9));\n    return 0;\n}\n\nThe value printed by the given C program is _________ (Answer in integer).\n\nA. 4\nB. 5\nC. 6\nD. 8",
+   "answer": "B. 5",
+   "to_find": "The integer printed by the program when foo is called on array A of size 9",
+   "understand": {
+    "plain": "The function foo recursively scans an array from left to right and counts the number of positions where adjacent elements differ (transitions). Whenever S[0] != S[1], it counts 1 and moves forward; otherwise it just moves forward. A single-element array returns 1 as a base case (it counts itself as 1 segment).",
+    "keywords": [
+     {
+      "term": "transition count",
+      "explain": "The number of consecutive pairs (S[i], S[i+1]) where the values are different. foo counts these transitions.",
+      "example": "In [1,1,2,2], there is 1 transition at index 1->2."
+     },
+     {
+      "term": "pointer arithmetic S+1",
+      "explain": "In C, S+1 shifts the array pointer to the next element, effectively passing the subarray starting from index 1.",
+      "example": "If S points to [2,2,0,0,1,1], then S+1 points to [2,0,0,1,1]."
+     }
+    ],
+    "visual_svg": "<svg width='520' height='200' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect width='520' height='200' rx='10' fill='var(--cell-bg,#F1EFE8)'/><text x='10' y='28' class='lbl ink'>Array A: adjacent pair comparison</text><rect x='10' y='36' width='50' height='36' rx='4' class='bg'/><text x='35' y='60' class='lbl ink' text-anchor='middle'>0</text><rect x='65' y='36' width='50' height='36' rx='4' class='hi'/><text x='90' y='60' class='lbl ink' text-anchor='middle'>1</text><rect x='120' y='36' width='50' height='36' rx='4' class='hi'/><text x='145' y='60' class='lbl ink' text-anchor='middle'>2</text><rect x='175' y='36' width='50' height='36' rx='4' class='bg'/><text x='200' y='60' class='lbl ink' text-anchor='middle'>2</text><rect x='230' y='36' width='50' height='36' rx='4' class='bg'/><text x='255' y='60' class='lbl ink' text-anchor='middle'>2</text><rect x='285' y='36' width='50' height='36' rx='4' class='hi'/><text x='310' y='60' class='lbl ink' text-anchor='middle'>0</text><rect x='340' y='36' width='50' height='36' rx='4' class='bg'/><text x='365' y='60' class='lbl ink' text-anchor='middle'>0</text><rect x='395' y='36' width='50' height='36' rx='4' class='hi'/><text x='420' y='60' class='lbl ink' text-anchor='middle'>1</text><rect x='450' y='36' width='50' height='36' rx='4' class='bg'/><text x='475' y='60' class='lbl ink' text-anchor='middle'>1</text><text x='35' y='92' class='sub mut' text-anchor='middle'>idx 0</text><text x='90' y='92' class='sub mut' text-anchor='middle'>1</text><text x='145' y='92' class='sub mut' text-anchor='middle'>2</text><text x='200' y='92' class='sub mut' text-anchor='middle'>3</text><text x='255' y='92' class='sub mut' text-anchor='middle'>4</text><text x='310' y='92' class='sub mut' text-anchor='middle'>5</text><text x='365' y='92' class='sub mut' text-anchor='middle'>6</text><text x='420' y='92' class='sub mut' text-anchor='middle'>7</text><text x='475' y='92' class='sub mut' text-anchor='middle'>8</text><text x='37' y='115' class='tag ok'>T</text><text x='92' y='115' class='tag ok'>T</text><text x='147' y='115' class='tag mut'>=</text><text x='202' y='115' class='tag mut'>=</text><text x='257' y='115' class='tag ok'>T</text><text x='312' y='115' class='tag mut'>=</text><text x='367' y='115' class='tag ok'>T</text><text x='422' y='115' class='tag mut'>=</text><text x='10' y='148' class='sub ink'>T = transition (different adjacent pair); = = same</text><text x='10' y='170' class='lbl ink'>Transitions: (0,1),(1,2),(2,0),(0,1) + base case 1 = 5</text></svg>",
+    "visual_alt": "Array A=[0,1,2,2,2,0,0,1,1] with transitions marked: (0->1), (1->2), (2->0), (0->1) are 4 transitions, plus the base case adds 1, giving total 5."
+   },
+   "given": {
+    "aim": "Trace foo(A, 9) where A = {0,1,2,2,2,0,0,1,1} and determine the printed integer.",
+    "terms": [
+     {
+      "term": "foo base cases",
+      "meaning": "foo returns 0 when size==0 (empty array) and 1 when size==1 (single element).",
+      "example": "foo([1], 1) = 1.",
+      "connects": "The base case of size==1 returns 1, which is the starting contribution at the end of recursion."
+     },
+     {
+      "term": "transition detection",
+      "meaning": "If S[0] != S[1], foo returns 1 + foo(S+1, size-1); otherwise it returns foo(S+1, size-1) without adding.",
+      "example": "At index 0: S[0]=0, S[1]=1 differ, so +1 is added.",
+      "connects": "The total count equals the number of adjacent different pairs plus 1 (from base case)."
+     },
+     {
+      "term": "adjacent pairs in A",
+      "meaning": "Comparing consecutive elements of A: (0,1) differ, (1,2) differ, (2,2) same, (2,2) same, (2,0) differ, (0,0) same, (0,1) differ, (1,1) same — 4 transitions.",
+      "example": "Pairs: 0-1, 1-2, 2-2, 2-2, 2-0, 0-0, 0-1, 1-1.",
+      "connects": "4 transitions + 1 from base case = 5."
+     }
+    ],
+    "plan": "Trace the recursion from left to right, counting +1 at each position where adjacent elements differ, then add 1 for the final base case (size==1)."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Identify adjacent pair differences in A",
+      "formula_raw": "count transitions where A[i] != A[i+1] for i = 0..7",
+      "apply": "A = {0,1,2,2,2,0,0,1,1}. Pairs: (0,1) differ -> +1; (1,2) differ -> +1; (2,2) same -> 0; (2,2) same -> 0; (2,0) differ -> +1; (0,0) same -> 0; (0,1) differ -> +1; (1,1) same -> 0. Total transitions = 4.",
+      "note": "foo counts adjacent-pair transitions, traversing the array from left to right."
+     },
+     {
+      "step": 2,
+      "title": "Add the base case contribution",
+      "formula_raw": "foo(S, 1) = 1",
+      "apply": "When size reduces to 1, foo returns 1 regardless of the element value. This adds 1 to the total. Final answer = 4 transitions + 1 = 5.",
+      "note": "The base case for size==1 returning 1 (not 0) means the count is always 1 + number_of_transitions."
+     }
+    ],
+    "result": "foo(A, 9) = 5. The program prints 5."
+   },
+   "formula_ids_used": [],
+   "formula_note": "foo computes 1 + (number of adjacent pairs with different values) in the array; the base case size==1 contributes the initial 1.",
+   "qid": "9.13.17",
+   "answer_official": "5"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2007",
+    "year": 2007,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Programming in C",
+    "topic": "Recursion",
+    "subtopic": "Recursion"
+   },
+   "question": "The function f is defined as follows:\n\nint f(int n) {\n    if (n <= 1) return 1;\n    else if (n % 2 == 0) return f(n/2);\n    else return f(3*n - 1);\n}\n\nAssuming that arbitrarily large integers can be passed as a parameter to the function, consider the following statements:\n\ni.   The function f terminates for finitely many different values of n >= 2.\nii.  The function f terminates for infinitely many different values of n >= 2.\niii. The function f does not terminate for finitely many different values of n >= 2.\niv.  The function f does not terminate for infinitely many different values of n >= 2.\n\nWhich one of the following options is true of the above?\n\nA. i and ii\nB. i and iii\nC. ii and iii\nD. ii and iv",
+   "answer": "D. ii and iv",
+   "to_find": "Which pair of statements about the termination behavior of f is true",
+   "understand": {
+    "plain": "The function f either halves even inputs (like binary search descent) or applies 3n-1 to odd inputs. Even inputs always eventually reach 1 via repeated halving. But some odd inputs enter cycles: for example n=5 leads to 5 -> 14 -> 7 -> 20 -> 10 -> 5, an infinite loop. Since both behaviors happen for infinitely many n, statements ii and iv are both true.",
+    "keywords": [
+     {
+      "term": "3n-1 vs 3n+1",
+      "explain": "This is similar to the Collatz conjecture (3n+1) but uses 3n-1 instead. Unlike 3n+1, the 3n-1 variant provably has cycles for some odd inputs.",
+      "example": "n=5 (odd): f(3*5-1)=f(14)->f(7)->f(20)->f(10)->f(5) — infinite cycle."
+     },
+     {
+      "term": "termination for even numbers",
+      "explain": "For any even n, f repeatedly halves n until it reaches 1. All powers of 2 terminate in exactly log_2(n) steps.",
+      "example": "f(16)=f(8)=f(4)=f(2)=f(1)=1. Since infinitely many powers of 2 exist, f terminates for infinitely many n."
+     }
+    ],
+    "visual_svg": "<svg width='520' height='200' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect width='520' height='200' rx='10' fill='var(--cell-bg,#F1EFE8)'/><text x='10' y='28' class='lbl ink'>Terminating path: f(16)</text><rect x='10' y='38' width='60' height='30' rx='4' class='ok'/><text x='40' y='58' class='sub' fill='white' text-anchor='middle'>16</text><text x='75' y='58' class='mut lbl'>-&gt;</text><rect x='90' y='38' width='50' height='30' rx='4' class='ok'/><text x='115' y='58' class='sub' fill='white' text-anchor='middle'>8</text><text x='145' y='58' class='mut lbl'>-&gt;</text><rect x='160' y='38' width='50' height='30' rx='4' class='ok'/><text x='185' y='58' class='sub' fill='white' text-anchor='middle'>4</text><text x='215' y='58' class='mut lbl'>-&gt;</text><rect x='230' y='38' width='50' height='30' rx='4' class='ok'/><text x='255' y='58' class='sub' fill='white' text-anchor='middle'>2</text><text x='285' y='58' class='mut lbl'>-&gt;</text><rect x='300' y='38' width='50' height='30' rx='4' class='ok'/><text x='325' y='58' class='sub' fill='white' text-anchor='middle'>1</text><text x='355' y='58' class='lbl ok'> STOP</text><text x='10' y='110' class='lbl ink'>Non-terminating cycle: f(5)</text><rect x='10' y='118' width='50' height='30' rx='4' class='no'/><text x='35' y='138' class='sub' fill='white' text-anchor='middle'>5</text><text x='65' y='138' class='mut lbl'>-&gt;</text><rect x='80' y='118' width='50' height='30' rx='4' class='bg'/><text x='105' y='138' class='sub ink' text-anchor='middle'>14</text><text x='135' y='138' class='mut lbl'>-&gt;</text><rect x='150' y='118' width='50' height='30' rx='4' class='no'/><text x='175' y='138' class='sub' fill='white' text-anchor='middle'>7</text><text x='205' y='138' class='mut lbl'>-&gt;</text><rect x='220' y='118' width='50' height='30' rx='4' class='bg'/><text x='245' y='138' class='sub ink' text-anchor='middle'>20</text><text x='275' y='138' class='mut lbl'>-&gt;</text><rect x='290' y='118' width='50' height='30' rx='4' class='bg'/><text x='315' y='138' class='sub ink' text-anchor='middle'>10</text><text x='365' y='138' class='mut lbl'>-&gt; 5 (CYCLE)</text><text x='10' y='180' class='sub ink'>Infinitely many powers of 2 terminate; infinitely many inputs like 5,7,9,... do not terminate.</text></svg>",
+    "visual_alt": "Two paths: f(16)->8->4->2->1 terminates (all powers of 2 terminate, infinitely many); f(5)->14->7->20->10->5 is an infinite cycle (infinitely many non-terminating inputs)."
+   },
+   "given": {
+    "aim": "Determine which statements about the termination of f(n) for n >= 2 are true.",
+    "terms": [
+     {
+      "term": "even case: f(n/2)",
+      "meaning": "When n is even, f halves n. Any n that is a power of 2 will repeatedly halve until reaching f(1)=1 and terminate.",
+      "example": "f(32)=f(16)=f(8)=f(4)=f(2)=f(1)=1.",
+      "connects": "There are infinitely many powers of 2, so f terminates for infinitely many n>=2 — making statement ii TRUE."
+     },
+     {
+      "term": "odd case: f(3n-1)",
+      "meaning": "When n is odd, f calls f(3n-1). Note 3n-1 is always even when n is odd, so the next step halves. But this can lead to cycles.",
+      "example": "n=5: 3*5-1=14 (even), 14/2=7 (odd), 3*7-1=20 (even), 20/2=10, 10/2=5 — back to start. Infinite loop.",
+      "connects": "n=5,7,10,14,20 all fail to terminate. Many such cycles exist — making statement iv TRUE."
+     },
+     {
+      "term": "infinitely many non-terminating inputs",
+      "meaning": "The cycle {5,7,10,14,20} contains infinitely many inputs that can reach it (e.g., n=40->20->10->5, n=80->40->... etc.), all of which also fail to terminate.",
+      "example": "n=40: 40->20->10->5->14->7->20... cycle.",
+      "connects": "Since 2^k * 5 for all k>=0 leads into the cycle, there are infinitely many non-terminating values — confirming statement iv."
+     }
+    ],
+    "plan": "Check whether the set of terminating values is finite or infinite, and independently check the same for non-terminating values. Powers of 2 terminate (infinite set). The cycle 5->14->7->20->10->5 shows non-termination for an infinite family of inputs."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Show f terminates for infinitely many n >= 2 (statement ii is TRUE)",
+      "formula_raw": "f(2^k) = f(2^(k-1)) = ... = f(1) = 1",
+      "apply": "For any power of 2, say n = 2^k (k>=1), n is even so f(n)=f(n/2)=f(2^(k-1)). Repeating k times gives f(1)=1. There are infinitely many powers of 2, so f terminates for infinitely many n>=2. Statement i (terminates for FINITELY many) is FALSE; statement ii (terminates for INFINITELY many) is TRUE.",
+      "note": "Not only powers of 2 terminate — many other even numbers do too (e.g., f(6)=f(3)=f(8)=f(4)=f(2)=f(1)=1). The set of terminating values is certainly infinite."
+     },
+     {
+      "step": 2,
+      "title": "Show f does NOT terminate for infinitely many n >= 2 (statement iv is TRUE)",
+      "formula_raw": "5 -> f(14) -> f(7) -> f(20) -> f(10) -> f(5) [cycle]",
+      "apply": "n=5 (odd): f(3*5-1)=f(14)->f(7)->f(20)->f(10)->f(5) — cycle of length 5, never terminates. Now consider n=5*2^k for k=0,1,2,...: f(5*2^k) halves k times to reach f(5), then enters the cycle. All these are distinct non-terminating inputs. Since infinitely many k exist, there are infinitely many non-terminating values. Statement iii (does NOT terminate for FINITELY many) is FALSE; statement iv (does NOT terminate for INFINITELY many) is TRUE.",
+      "note": "There are other non-terminating cycles beyond {5,7,10,14,20}, further confirming infinitely many non-terminating inputs."
+     }
+    ],
+    "result": "Statements ii and iv are both true. Answer: D. ii and iv."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Even-halving ensures all powers of 2 terminate; the 3n-1 rule for odd n creates cycles (e.g., 5->14->7->20->10->5), making non-termination occur for infinitely many inputs as well.",
+   "qid": "9.13.18",
+   "answer_official": "D"
+  }
+ ]
+}

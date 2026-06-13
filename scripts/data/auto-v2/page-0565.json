@@ -1,0 +1,177 @@
+{
+ "page": 565,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2004",
+    "year": 2004,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Data Structures",
+    "topic": "Linked List",
+    "subtopic": "Linked List"
+   },
+   "question": "Let P be a singly linked list. Let Q be the pointer to an intermediate node x in the list. What is the worst-case time complexity of the best-known algorithm to delete the node x from the list?\n\nA. O(n)\nB. O(log^2 n)\nC. O(log n)\nD. O(1)",
+   "answer": "D. O(1)",
+   "to_find": "Worst-case time complexity of the best-known algorithm to delete an intermediate node given a pointer to it.",
+   "understand": {
+    "plain": "We have a singly linked list and a direct pointer Q to some intermediate node x. Normally deletion requires finding the previous node (O(n)), but there is a clever trick: copy the next node's data into x and delete the next node instead. This achieves O(1) time.",
+    "keywords": [
+     {
+      "term": "Singly linked list",
+      "explain": "A list where each node has a value and a pointer to the next node only (no backward pointer).",
+      "example": "1 -> 2 -> 3 -> 4 -> NULL"
+     },
+     {
+      "term": "Intermediate node deletion trick",
+      "explain": "To delete node x given only a pointer to it (no pointer to predecessor), copy the value from x->next into x, then unlink x->next. This effectively deletes the intended node in O(1).",
+      "example": "Delete node 2 in 1->2->3->4: copy 3 into node 2, then set node2->next = node3->next, giving 1->3->4."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 560 160'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='50' width='80' height='40' class='bg' rx='6'/><text x='50' y='75' text-anchor='middle' class='lbl ink'>A</text><rect x='130' y='50' width='80' height='40' class='hi' rx='6'/><text x='170' y='75' text-anchor='middle' class='lbl ink'>x (Q)</text><rect x='250' y='50' width='80' height='40' class='ok' rx='6'/><text x='290' y='75' text-anchor='middle' class='lbl ink' style='fill:#fff'>B</text><rect x='370' y='50' width='80' height='40' class='bg' rx='6'/><text x='410' y='75' text-anchor='middle' class='lbl ink'>C</text><line x1='90' y1='70' x2='130' y2='70' stroke='#7F77DD' stroke-width='2' marker-end='url(#arr)'/><line x1='210' y1='70' x2='250' y2='70' stroke='#7F77DD' stroke-width='2' marker-end='url(#arr)'/><line x1='330' y1='70' x2='370' y2='70' stroke='#7F77DD' stroke-width='2' marker-end='url(#arr)'/><defs><marker id='arr' markerWidth='8' markerHeight='8' refX='6' refY='3' orient='auto'><path d='M0,0 L0,6 L8,3 z' fill='#7F77DD'/></marker></defs><text x='170' y='130' text-anchor='middle' class='sub mut'>Step 1: Copy B value into x</text><text x='170' y='148' text-anchor='middle' class='sub mut'>Step 2: Unlink node B -> O(1)</text></svg>",
+    "visual_alt": "Singly linked list A -> x(Q) -> B -> C. The trick: copy B's value into x, then set x->next = B->next, effectively deleting x in O(1)."
+   },
+   "given": {
+    "aim": "Find the minimum possible time complexity to delete an intermediate node when a direct pointer to it is given.",
+    "terms": [
+     {
+      "term": "P",
+      "meaning": "The singly linked list",
+      "example": "1 -> 2 -> 3 -> 4 -> NULL",
+      "connects": "The structure within which deletion must occur"
+     },
+     {
+      "term": "Q",
+      "meaning": "A pointer to an intermediate node x that must be deleted",
+      "example": "Q points to node containing 2 in 1->2->3->4",
+      "connects": "Direct access to x enables the O(1) copy-and-skip trick"
+     },
+     {
+      "term": "Intermediate node",
+      "meaning": "A node that is neither the head nor the tail of the list (has both predecessor and successor)",
+      "example": "Node 2 in 1->2->3->4 is intermediate",
+      "connects": "Guarantees x->next exists, making the copy trick valid"
+     }
+    ],
+    "plan": "Instead of traversing from the head to find the predecessor of x (which would be O(n)), copy the data from x->next into x and update x->next to skip the original x->next node. This requires only constant time operations."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Identify the naive approach and its cost",
+      "formula_raw": "Traverse from head to find predecessor of x: O(n)",
+      "apply": "In a singly linked list, to delete node x normally one must find the node prev such that prev->next == x, then set prev->next = x->next. Since we only have a forward pointer, a scan from the head is O(n).",
+      "note": "This O(n) approach is what most people first think of, but it is not optimal."
+     },
+     {
+      "step": 2,
+      "title": "Apply the O(1) copy-and-skip trick",
+      "formula_raw": "x->value = x->next->value; x->next = x->next->next;",
+      "apply": "Since x is an intermediate node, x->next exists. Copy the value from x->next into x (x->value = x->next->value), then set x->next = x->next->next. Free the old x->next node. This completes deletion in O(1) — no traversal needed.",
+      "note": "This trick works ONLY for intermediate nodes (not the last node) because we need x->next to exist. The problem guarantees x is intermediate, so this is valid."
+     }
+    ],
+    "result": "The best-known algorithm runs in O(1) worst-case time. Answer: D. O(1)"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Copy-and-skip trick for singly linked list node deletion: copy successor's data into current node and unlink the successor, achieving O(1) deletion without needing the predecessor pointer.",
+   "qid": "8.9.22",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2005",
+    "year": 2005,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Data Structures",
+    "topic": "Linked List",
+    "subtopic": "Linked List"
+   },
+   "question": "The following C function takes a singly-linked list of integers as a parameter and rearranges the elements of the list. The list is represented as pointer to a structure. The function is called with the list containing the integers 1, 2, 3, 4, 5, 6, 7 in the given order. What will be the contents of the list after the function completes execution?\n\nstruct node { int value; struct node *next; };\nvoid rearrange(struct node *list) {\n    struct node *p, *q;\n    int temp;\n    if (!list || !list->next) return;\n    p = list; q = list->next;\n    while (q) {\n        temp = p->value;\n        p->value = q->value;\n        q->value = temp;\n        p = q->next;\n        q = p ? p->next : 0;\n    }\n}\n\nA. 1, 2, 3, 4, 5, 6, 7\nB. 2, 1, 4, 3, 6, 5, 7\nC. 1, 3, 2, 5, 4, 7, 6\nD. 2, 1, 4, 3, 6, 7",
+   "answer": "B. 2, 1, 4, 3, 6, 5, 7",
+   "to_find": "Contents of the singly linked list 1->2->3->4->5->6->7 after rearrange() completes.",
+   "understand": {
+    "plain": "The function walks the list two nodes at a time (p and q are adjacent pairs: p points to an odd-position node, q to the next even-position node). At each step it swaps the values of p and q, then advances both pointers by two nodes. The net effect is swapping each adjacent pair: (1,2), (3,4), (5,6), leaving the last node (7) untouched since 7 has no pair.",
+    "keywords": [
+     {
+      "term": "Adjacent pair swap",
+      "explain": "Swapping the values of two consecutive nodes (p and q = p->next) in a linked list without changing pointer structure.",
+      "example": "Nodes with values 1 and 2: after swap p->value=2, q->value=1."
+     },
+     {
+      "term": "Two-pointer traversal",
+      "explain": "Using two pointers that always point to adjacent nodes and advance by two steps each iteration to process pairs.",
+      "example": "Start: p=node1, q=node2; after one step: p=node3, q=node4."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 620 200'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><text x='10' y='25' class='tag mut'>Before:</text><rect x='10' y='35' width='50' height='35' class='bg' rx='4'/><text x='35' y='58' text-anchor='middle' class='lbl ink'>1</text><rect x='80' y='35' width='50' height='35' class='bg' rx='4'/><text x='105' y='58' text-anchor='middle' class='lbl ink'>2</text><rect x='150' y='35' width='50' height='35' class='bg' rx='4'/><text x='175' y='58' text-anchor='middle' class='lbl ink'>3</text><rect x='220' y='35' width='50' height='35' class='bg' rx='4'/><text x='245' y='58' text-anchor='middle' class='lbl ink'>4</text><rect x='290' y='35' width='50' height='35' class='bg' rx='4'/><text x='315' y='58' text-anchor='middle' class='lbl ink'>5</text><rect x='360' y='35' width='50' height='35' class='bg' rx='4'/><text x='385' y='58' text-anchor='middle' class='lbl ink'>6</text><rect x='430' y='35' width='50' height='35' class='bg' rx='4'/><text x='455' y='58' text-anchor='middle' class='lbl ink'>7</text><text x='10' y='115' class='tag mut'>After:</text><rect x='10' y='125' width='50' height='35' class='hi' rx='4'/><text x='35' y='148' text-anchor='middle' class='lbl ink'>2</text><rect x='80' y='125' width='50' height='35' class='hi' rx='4'/><text x='105' y='148' text-anchor='middle' class='lbl ink'>1</text><rect x='150' y='125' width='50' height='35' class='hi' rx='4'/><text x='175' y='148' text-anchor='middle' class='lbl ink'>4</text><rect x='220' y='125' width='50' height='35' class='hi' rx='4'/><text x='245' y='148' text-anchor='middle' class='lbl ink'>3</text><rect x='290' y='125' width='50' height='35' class='hi' rx='4'/><text x='315' y='148' text-anchor='middle' class='lbl ink'>6</text><rect x='360' y='125' width='50' height='35' class='hi' rx='4'/><text x='385' y='148' text-anchor='middle' class='lbl ink'>5</text><rect x='430' y='125' width='50' height='35' class='bg' rx='4'/><text x='455' y='148' text-anchor='middle' class='lbl ink'>7</text><text x='10' y='190' class='sub mut'>Pairs (1,2),(3,4),(5,6) swapped; node 7 unchanged (no pair)</text></svg>",
+    "visual_alt": "Before: 1->2->3->4->5->6->7. The function swaps adjacent pairs: (1,2)->(2,1), (3,4)->(4,3), (5,6)->(6,5). Node 7 has no pair. After: 2->1->4->3->6->5->7."
+   },
+   "given": {
+    "aim": "Trace the rearrange() function on the list 1->2->3->4->5->6->7 and determine the final ordering.",
+    "terms": [
+     {
+      "term": "p and q (initial)",
+      "meaning": "p = list (node 1), q = list->next (node 2); they are initialized as an adjacent pair at the start of each iteration.",
+      "example": "p->value=1, q->value=2 at start of first iteration.",
+      "connects": "These two pointers define the pair whose values are swapped each iteration."
+     },
+     {
+      "term": "temp swap",
+      "meaning": "Standard three-variable integer swap: temp=p->value; p->value=q->value; q->value=temp.",
+      "example": "p->value=1,q->value=2 becomes p->value=2,q->value=1.",
+      "connects": "Exchanges the values of the current pair in-place."
+     },
+     {
+      "term": "Pointer advancement",
+      "meaning": "After swapping, p moves to q->next and q moves to p->next (the pair two positions ahead).",
+      "example": "After swapping nodes 1&2, p jumps to node 3, q jumps to node 4.",
+      "connects": "Ensures each pair (1-2), (3-4), (5-6) is processed exactly once; if p is NULL, q=0 ends the loop."
+     }
+    ],
+    "plan": "Simulate the loop iteration by iteration: each iteration swaps values at positions (1,2), then (3,4), then (5,6). Node 7 at position 7 is odd-positioned with no partner, so the loop ends without touching it."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Iteration 1: swap nodes at positions 1 and 2",
+      "formula_raw": "swap(p->value, q->value) where p=node1, q=node2",
+      "apply": "p = node1 (value=1), q = node2 (value=2). Swap: node1->value=2, node2->value=1. List: 2->1->3->4->5->6->7. Advance: p = q->next = node3; q = p->next = node4.",
+      "note": "After the swap the first pair becomes (2,1)."
+     },
+     {
+      "step": 2,
+      "title": "Iteration 2: swap nodes at positions 3 and 4",
+      "formula_raw": "swap(p->value, q->value) where p=node3, q=node4",
+      "apply": "p = node3 (value=3), q = node4 (value=4). Swap: node3->value=4, node4->value=3. List: 2->1->4->3->5->6->7. Advance: p = q->next = node5; q = p->next = node6.",
+      "note": "Second pair becomes (4,3)."
+     },
+     {
+      "step": 3,
+      "title": "Iteration 3: swap nodes at positions 5 and 6",
+      "formula_raw": "swap(p->value, q->value) where p=node5, q=node6",
+      "apply": "p = node5 (value=5), q = node6 (value=6). Swap: node5->value=6, node6->value=5. List: 2->1->4->3->6->5->7. Advance: p = q->next = node7; q = p->next = NULL (node7->next is NULL), so q = 0.",
+      "note": "Third pair becomes (6,5)."
+     },
+     {
+      "step": 4,
+      "title": "Loop termination: node 7 has no pair",
+      "formula_raw": "q = p ? p->next : 0",
+      "apply": "p = node7, p->next = NULL, so q = NULL. The while(q) condition fails. Loop exits. Node 7 retains its value. Final list: 2->1->4->3->6->5->7.",
+      "note": "The 7th node (odd-count tail) is never swapped because it has no partner."
+     }
+    ],
+    "result": "The list after execution is 2, 1, 4, 3, 6, 5, 7. Answer: B. 2, 1, 4, 3, 6, 5, 7"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Adjacent-pair swap traversal: process a singly linked list in steps of two using (p, q=p->next) pairs; swap values at each pair; advance p=q->next, q=p?p->next:NULL.",
+   "qid": "8.9.23",
+   "answer_official": "B"
+  }
+ ]
+}

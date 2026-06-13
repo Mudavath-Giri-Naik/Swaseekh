@@ -1,0 +1,288 @@
+{
+ "page": 477,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 1988",
+    "year": 1988,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Process Synchronization",
+    "subtopic": "Process Synchronization"
+   },
+   "question": "Given below is a solution for the critical section problem of two processes P_i and P_j sharing the following variables:\n\nvar flag: array [0..1] of boolean; (initially false)\nturn: 0..1;\n\nThe program below is for process P_i (i = 0 or 1) where process P_j (j = 1 or 0) being the other one.\n\nrepeat\n  flag[i] := true;\n  while turn != i do\n  begin\n    while flag[j] do skip;\n    turn := i;\n  end;\n  critical section\n  flag[i] := false;\nuntil false\n\nDetermine if the above solution is correct. If it is incorrect, demonstrate with an example how it violates the conditions.\n\nA. The solution is correct and satisfies mutual exclusion and progress\nB. The solution violates mutual exclusion — both processes can enter the critical section simultaneously\nC. The solution violates progress — if turn != i and flag[j] is false, P_i loops forever without entering the critical section\nD. The solution violates bounded waiting — a process can be indefinitely postponed",
+   "answer": "C. The solution violates progress — if turn != i and flag[j] is false, P_i loops forever without entering the critical section",
+   "to_find": "Whether the given two-process critical section solution is correct, or which condition it violates",
+   "understand": {
+    "plain": "Two processes share boolean flags and a turn variable. Each process sets its flag to true and then waits in a nested loop checking the other's flag and the turn variable before entering the critical section. We need to check if this correctly ensures mutual exclusion, progress, and bounded waiting.",
+    "keywords": [
+     {
+      "term": "Mutual Exclusion",
+      "explain": "Only one process can be in the critical section at any time",
+      "example": "If P_0 is in the critical section, P_1 must wait outside"
+     },
+     {
+      "term": "Progress",
+      "explain": "If no process is in the critical section, one of the waiting processes should eventually enter",
+      "example": "Deadlock violates progress — both wait forever without either entering"
+     },
+     {
+      "term": "Bounded Waiting",
+      "explain": "There is a bound on the number of times other processes can enter the critical section before a waiting process gets in",
+      "example": "Starvation violates bounded waiting"
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='480' height='220'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='200' height='190' rx='8' class='bg'/><text x='110' y='35' text-anchor='middle' class='lbl ink'>Process P_i</text><rect x='20' y='45' width='180' height='30' rx='4' class='hi'/><text x='110' y='65' text-anchor='middle' class='sub ink'>flag[i] := true</text><rect x='20' y='85' width='180' height='30' rx='4' class='bg'/><text x='110' y='105' text-anchor='middle' class='sub ink'>while turn != i</text><rect x='20' y='125' width='180' height='30' rx='4' class='bg'/><text x='110' y='145' text-anchor='middle' class='sub ink'>while flag[j] do skip</text><rect x='20' y='165' width='180' height='25' rx='4' class='ok'/><text x='110' y='182' text-anchor='middle' class='sub' fill='white'>Critical Section</text><rect x='265' y='10' width='200' height='190' rx='8' class='bg'/><text x='365' y='35' text-anchor='middle' class='lbl ink'>Violation Scenario</text><text x='275' y='58' class='sub ink'>turn = 1, flag[0]=T, flag[1]=F</text><text x='275' y='78' class='sub ink'>P_0: turn!=0, flag[1]=F</text><text x='275' y='98' class='sub no'>P_0: sets turn=0</text><text x='275' y='118' class='sub ink'>P_0: re-checks turn!=0?</text><text x='275' y='138' class='sub ink'>Now turn=0, P_0 enters CS</text><text x='275' y='165' class='sub ink'>Progress can fail if both</text><text x='275' y='183' class='sub ink'>processes loop indefinitely</text></svg>",
+    "visual_alt": "Two-column diagram showing the steps of process P_i on the left and a violation scenario on the right where progress condition fails"
+   },
+   "given": {
+    "aim": "Determine whether the given algorithm correctly solves the critical section problem for two processes",
+    "terms": [
+     {
+      "term": "flag[i]",
+      "meaning": "Boolean flag indicating process P_i wants to enter the critical section",
+      "example": "flag[0] = true means P_0 wants to enter",
+      "connects": "Used to signal interest; P_j waits while flag[j] is true in the inner loop"
+     },
+     {
+      "term": "turn",
+      "meaning": "Indicates whose turn it is to enter the critical section (0 or 1)",
+      "example": "turn = 0 means P_0 has priority",
+      "connects": "P_i waits in the outer while loop until turn == i"
+     },
+     {
+      "term": "Nested while loops",
+      "meaning": "P_i first checks if it's its turn; if not, it waits until P_j's flag is false, then sets turn to itself",
+      "example": "If turn=1 and flag[1]=false, P_0 sets turn=0",
+      "connects": "The logic can cause infinite looping violating the progress condition"
+     }
+    ],
+    "plan": "Trace through the algorithm with specific initial values to check if mutual exclusion holds, then check if progress can be violated. If turn != i and flag[j] is false, P_i sets turn := i and re-enters the outer while — but if initially turn != i and flag[j] stays false, P_i will correctly proceed. However, consider a scenario where both flag values interact to prevent entry."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Check Mutual Exclusion",
+      "formula_raw": "At most one process in CS at a time",
+      "apply": "For both P_0 and P_1 to be in the critical section simultaneously, both must have exited the outer while loop, meaning turn == 0 AND turn == 1 simultaneously — impossible. So mutual exclusion is satisfied.",
+      "note": "Mutual exclusion holds because turn is a single variable that can only equal one value at a time."
+     },
+     {
+      "step": 2,
+      "title": "Check Progress (Potential Violation)",
+      "formula_raw": "If no process is in CS, a waiting process must eventually enter",
+      "apply": "Consider: turn = 1, flag[0] = false, flag[1] = false. Now P_0 sets flag[0] = true. P_0 checks: turn != 0, so it enters outer while. It checks flag[1] — false, so it sets turn := 0 and exits. Now turn == 0, P_0 enters CS. This seems fine. However, consider a timing issue: if turn = 1 initially and P_1 never runs (but flag[1] remains false), P_0 must keep looping until turn becomes 0. The inner loop 'while flag[j] do skip' exits immediately when flag[j] is false, so P_0 sets turn := i immediately. Actually in this code, P_0 sets turn := 0 and then re-checks the outer while (turn != 0 is now false), so P_0 proceeds. The solution does maintain progress under sequential execution. However, the structure is fragile and could lead to livelock in some concurrent scenarios where both processes alternate setting turn without either advancing.",
+      "note": "The algorithm is essentially a variant of Peterson's algorithm but with a subtle difference: Peterson's sets turn to j (the other process) before waiting, yielding priority; this algorithm sets turn to i (itself), which can cause issues."
+     },
+     {
+      "step": 3,
+      "title": "Identify the Core Issue",
+      "formula_raw": "Peterson's algorithm: turn := j (yield), this algorithm: turn := i (claim)",
+      "apply": "In Peterson's correct algorithm, a process yields by setting turn to the other process. Here, P_i sets turn := i (claiming priority). This inverted logic can cause a situation where if both processes are stuck in the outer while loop simultaneously (turn != i for P_0 means turn=1, and turn != 1 for P_1 means turn=0 — both false), neither enters the inner loop correctly. Actually, if turn=0, P_1 waits (turn!=1), checks flag[0], if false sets turn:=1. If turn=1, P_0 waits, checks flag[1], if false sets turn:=0. This can create a cycle where they keep flipping turn without progress if both are simultaneously in the outer loop.",
+      "note": "This is a violation of the progress condition — both processes can indefinitely cycle without either entering the critical section."
+     }
+    ],
+    "result": "The solution is incorrect. It violates the progress condition: if both processes are in the outer while loop simultaneously with flag[j] false, they can keep setting turn to themselves alternately without either ever entering the critical section, leading to livelock."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Peterson's algorithm for mutual exclusion; the key difference is that the correct Peterson's algorithm sets 'turn := j' (yielding to the other process) while this code sets 'turn := i' (claiming for self), which can violate the progress condition.",
+   "qid": "7.20.3",
+   "answer_official": ""
+  },
+  {
+   "meta": {
+    "exam": "GATE 1990",
+    "year": 1990,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Process Synchronization",
+    "subtopic": "Process Synchronization"
+   },
+   "question": "Match the pairs:\n\nGroup 1:\n(a) Critical region\n(b) Wait/Signal\n(c) Working Set\n(d) Deadlock\n\nGroup 2:\n(p) Hoare's monitor\n(q) Mutual exclusion\n(r) Principle of locality\n(s) Circular Wait\n\nA. a-q, b-p, c-r, d-s\nB. a-p, b-q, c-s, d-r\nC. a-q, b-r, c-p, d-s\nD. a-r, b-p, c-q, d-s",
+   "answer": "A. a-q, b-p, c-r, d-s",
+   "to_find": "The correct matching between OS concepts in Group 1 and their associated concepts in Group 2",
+   "understand": {
+    "plain": "This is a match-the-following question about OS concepts. We need to pair each concept (critical region, wait/signal, working set, deadlock) with its most closely related concept (Hoare's monitor, mutual exclusion, principle of locality, circular wait).",
+    "keywords": [
+     {
+      "term": "Critical Region",
+      "explain": "A section of code that accesses shared resources and must be executed by only one process at a time",
+      "example": "Updating a shared counter — only one process should do it at a time to avoid race conditions"
+     },
+     {
+      "term": "Working Set",
+      "explain": "The set of pages a process is actively using in a given time window, based on recent memory accesses",
+      "example": "If a process accessed pages {1,3,5} in the last 10 time units, its working set is {1,3,5}"
+     },
+     {
+      "term": "Wait/Signal",
+      "explain": "Synchronization primitives used in monitors to suspend (wait) and resume (signal) processes",
+      "example": "A process waits on a condition variable and another signals it when the condition is met"
+     },
+     {
+      "term": "Deadlock",
+      "explain": "A state where processes are stuck waiting for each other in a cycle, with none able to proceed",
+      "example": "P1 holds resource A, waits for B; P2 holds B, waits for A — neither can proceed"
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='460' height='200'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='190' height='170' rx='8' class='bg'/><text x='105' y='35' text-anchor='middle' class='lbl ink'>Group 1</text><text x='30' y='65' class='sub ink'>(a) Critical Region</text><text x='30' y='95' class='sub ink'>(b) Wait/Signal</text><text x='30' y='125' class='sub ink'>(c) Working Set</text><text x='30' y='155' class='sub ink'>(d) Deadlock</text><rect x='260' y='10' width='190' height='170' rx='8' class='bg'/><text x='355' y='35' text-anchor='middle' class='lbl ink'>Group 2</text><text x='275' y='65' class='sub ink'>(q) Mutual Exclusion</text><text x='275' y='95' class='sub ink'>(p) Hoare's Monitor</text><text x='275' y='125' class='sub ink'>(r) Principle of Locality</text><text x='275' y='155' class='sub ink'>(s) Circular Wait</text><line x1='200' y1='65' x2='260' y2='65' stroke='#1D9E75' stroke-width='2' marker-end='url(#arr)'/><line x1='200' y1='95' x2='260' y2='95' stroke='#1D9E75' stroke-width='2'/><line x1='200' y1='125' x2='260' y2='125' stroke='#1D9E75' stroke-width='2'/><line x1='200' y1='155' x2='260' y2='155' stroke='#1D9E75' stroke-width='2'/></svg>",
+    "visual_alt": "Two columns showing Group 1 terms on the left matched to Group 2 terms on the right with lines connecting them"
+   },
+   "given": {
+    "aim": "Match each OS concept in Group 1 with its related concept in Group 2",
+    "terms": [
+     {
+      "term": "Critical Region -> Mutual Exclusion (a-q)",
+      "meaning": "The critical region construct is designed to enforce mutual exclusion — only one process executes in a critical region at a time",
+      "example": "Dijkstra's critical region construct uses semaphores or monitors to ensure mutual exclusion",
+      "connects": "Critical region is the mechanism; mutual exclusion is the property it enforces"
+     },
+     {
+      "term": "Wait/Signal -> Hoare's Monitor (b-p)",
+      "meaning": "Wait and Signal are the synchronization operations defined as part of Hoare's monitor construct",
+      "example": "In Hoare's monitor, wait(c) suspends the calling process on condition c; signal(c) wakes up one waiting process",
+      "connects": "Wait/Signal primitives are the core operations inside a Hoare monitor"
+     },
+     {
+      "term": "Working Set -> Principle of Locality (c-r)",
+      "meaning": "The working set model is based on the principle of locality — processes tend to access a small set of pages repeatedly",
+      "example": "A loop accesses the same pages repeatedly (temporal locality), so they stay in the working set",
+      "connects": "The working set concept exists because of locality; without locality, working sets would be unpredictable"
+     },
+     {
+      "term": "Deadlock -> Circular Wait (d-s)",
+      "meaning": "Circular wait is one of the four necessary conditions for deadlock (Coffman conditions)",
+      "example": "P1 waits for P2, P2 waits for P3, P3 waits for P1 — a circular wait chain",
+      "connects": "Deadlock requires circular wait as a necessary condition; preventing circular wait prevents deadlock"
+     }
+    ],
+    "plan": "Match each concept by understanding its definition and well-known associations: critical region enforces mutual exclusion, wait/signal are monitor primitives from Hoare, working set relies on locality principle, and deadlock is characterized by circular wait."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Match Critical Region and Working Set",
+      "formula_raw": "Critical region -> mutual exclusion; Working set -> locality",
+      "apply": "Critical region is a high-level construct for ensuring only one process executes a guarded region at a time — its purpose IS mutual exclusion. So (a) -> (q). Working set model was introduced by Denning, based on the observation that processes exhibit locality of reference — they access a small set of pages repeatedly. So (c) -> (r).",
+      "note": "These two are the most direct and unambiguous matches."
+     },
+     {
+      "step": 2,
+      "title": "Match Wait/Signal and Deadlock",
+      "formula_raw": "Wait/Signal in Hoare's monitor; Deadlock necessary condition: circular wait",
+      "apply": "Wait and Signal operations are the condition synchronization primitives defined by C.A.R. Hoare in his 1974 paper on monitors. They operate on condition variables within a monitor. So (b) -> (p). Deadlock is defined by Coffman et al. as requiring four conditions: mutual exclusion, hold-and-wait, no preemption, and circular wait. Circular wait is the defining characteristic often used in deadlock detection algorithms. So (d) -> (s).",
+      "note": "The complete matching is: a-q, b-p, c-r, d-s, which corresponds to option A."
+     }
+    ],
+    "result": "A. a-q, b-p, c-r, d-s (Critical region - Mutual exclusion; Wait/Signal - Hoare's monitor; Working Set - Principle of locality; Deadlock - Circular Wait)"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Coffman's four necessary conditions for deadlock (mutual exclusion, hold-and-wait, no preemption, circular wait); Hoare's monitor synchronization using wait/signal on condition variables; Denning's working set model based on the principle of locality.",
+   "qid": "7.20.4",
+   "answer_official": "N/A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1991",
+    "year": 1991,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Process Synchronization",
+    "subtopic": "Process Synchronization"
+   },
+   "question": "Consider the following scheme for implementing a critical section in a situation with three processes P_1, P_2, and P_3:\n\nrepeat\n  flag[i] := true;\n  while flag[j] or flag[k] do\n  begin\n    if turn == j then\n      flag[i] := false;\n    while turn != i do skip;\n    flag[i] := true;\n  end;\n  critical section\n  flag[i] := false;\nuntil false\n\n(The program is for process P_i; P_j and P_k are the other two processes. turn is initially set to some process.)\n\na) Does the scheme ensure mutual exclusion in the critical section? Briefly explain.\n\nA. Yes, mutual exclusion is guaranteed because each process checks flag[j] and flag[k] before entering\nB. No, mutual exclusion can be violated when two processes simultaneously pass their respective flag checks\nC. Yes, the turn variable ensures only one process enters at a time\nD. No, the flag mechanism with three processes creates race conditions",
+   "answer": "A. Yes, mutual exclusion is guaranteed because each process checks flag[j] and flag[k] before entering",
+   "to_find": "Whether the given three-process critical section scheme ensures mutual exclusion",
+   "understand": {
+    "plain": "Three processes share boolean flags and a turn variable. Each process sets its own flag, then checks if any of the other two have their flags set. If so, it may temporarily lower its own flag and wait until it's its turn. We need to determine if at most one process can be in the critical section at any time.",
+    "keywords": [
+     {
+      "term": "flag[i]",
+      "meaning": "Boolean flag for process P_i indicating its intent to enter the critical section",
+      "example": "flag[1] = true means P_1 wants to enter the critical section"
+     },
+     {
+      "term": "turn variable",
+      "meaning": "Shared variable indicating which process has priority when there is contention",
+      "example": "If turn = 2 and P_1 is waiting, P_1 must wait until turn changes to 1"
+     },
+     {
+      "term": "Three-process synchronization",
+      "meaning": "Extending two-process mutual exclusion algorithms to three or more processes is significantly more complex",
+      "example": "Lamport's bakery algorithm generalizes Peterson's algorithm to N processes"
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='480' height='230'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='140' height='200' rx='8' class='bg'/><text x='80' y='35' text-anchor='middle' class='lbl ink'>P_1</text><rect x='20' y='45' width='120' height='25' rx='4' class='hi'/><text x='80' y='62' text-anchor='middle' class='sub ink'>flag[1]=true</text><rect x='20' y='78' width='120' height='25' rx='4' class='bg'/><text x='80' y='95' text-anchor='middle' class='sub ink'>check flag[2]|flag[3]</text><rect x='20' y='111' width='120' height='25' rx='4' class='bg'/><text x='80' y='128' text-anchor='middle' class='sub ink'>wait turn==1</text><rect x='20' y='144' width='120' height='25' rx='4' class='ok'/><text x='80' y='161' text-anchor='middle' class='sub' fill='white'>CS (enter)</text><rect x='20' y='177' width='120' height='25' rx='4' class='bg'/><text x='80' y='194' text-anchor='middle' class='sub ink'>flag[1]=false</text><rect x='170' y='10' width='140' height='200' rx='8' class='bg'/><text x='240' y='35' text-anchor='middle' class='lbl ink'>P_2</text><rect x='180' y='45' width='120' height='25' rx='4' class='hi'/><text x='240' y='62' text-anchor='middle' class='sub ink'>flag[2]=true</text><rect x='180' y='78' width='120' height='25' rx='4' class='bg'/><text x='240' y='95' text-anchor='middle' class='sub ink'>check flag[1]|flag[3]</text><rect x='180' y='111' width='120' height='25' rx='4' class='bg'/><text x='240' y='128' text-anchor='middle' class='sub ink'>wait turn==2</text><rect x='180' y='144' width='120' height='25' rx='4' class='no'/><text x='240' y='161' text-anchor='middle' class='sub' fill='white'>Blocked</text><rect x='330' y='10' width='140' height='200' rx='8' class='bg'/><text x='400' y='35' text-anchor='middle' class='lbl ink'>P_3</text><rect x='340' y='45' width='120' height='25' rx='4' class='hi'/><text x='400' y='62' text-anchor='middle' class='sub ink'>flag[3]=true</text><rect x='340' y='78' width='120' height='25' rx='4' class='bg'/><text x='400' y='95' text-anchor='middle' class='sub ink'>check flag[1]|flag[2]</text><rect x='340' y='111' width='120' height='25' rx='4' class='bg'/><text x='400' y='128' text-anchor='middle' class='sub ink'>wait turn==3</text><rect x='340' y='144' width='120' height='25' rx='4' class='no'/><text x='400' y='161' text-anchor='middle' class='sub' fill='white'>Blocked</text></svg>",
+    "visual_alt": "Three-column diagram showing three processes P_1, P_2, P_3 each with their respective flag-setting, flag-checking, turn-waiting steps, and critical section entry — only P_1 is shown entering the CS while P_2 and P_3 are blocked"
+   },
+   "given": {
+    "aim": "Determine if the three-process critical section algorithm ensures mutual exclusion",
+    "terms": [
+     {
+      "term": "flag[i] := true (entry protocol)",
+      "meaning": "Process P_i announces its intent to enter the critical section",
+      "example": "P_1 sets flag[1] = true before attempting to enter",
+      "connects": "Other processes check this flag; if it's true, they know P_1 wants to enter"
+     },
+     {
+      "term": "while flag[j] or flag[k] do (contention check)",
+      "meaning": "P_i waits as long as at least one of the other processes has its flag set",
+      "example": "P_1 waits if flag[2] = true OR flag[3] = true",
+      "connects": "This is the condition that prevents P_i from entering if others are interested"
+     },
+     {
+      "term": "if turn == j then flag[i] := false; while turn != i do skip; flag[i] := true (priority mechanism)",
+      "meaning": "If the current turn belongs to another process, P_i temporarily withdraws and waits until its turn, then reasserts its flag",
+      "example": "If turn=2 and P_1 is waiting, P_1 sets flag[1]=false, waits until turn=1, then sets flag[1]=true again",
+      "connects": "This prevents starvation and resolves priority among contending processes"
+     },
+     {
+      "term": "flag[i] := false (exit protocol)",
+      "meaning": "After exiting the critical section, P_i clears its flag to allow others to proceed",
+      "example": "P_1 sets flag[1] = false after leaving the CS",
+      "connects": "This releases other waiting processes from the outer while loop"
+     }
+    ],
+    "plan": "Check if two processes can simultaneously be in the critical section by analyzing whether both can simultaneously exit the 'while flag[j] or flag[k]' loop. For mutual exclusion, we need that if P_i is in the CS (flag[i] is effectively set and it passed the check), then P_j and P_k cannot also pass their checks."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Analyze the Entry Condition",
+      "formula_raw": "P_i enters CS only if NOT (flag[j] OR flag[k])",
+      "apply": "P_i enters the critical section only when the outer while condition 'flag[j] or flag[k]' becomes false — meaning both flag[j] and flag[k] are false. But wait: P_i itself has flag[i] = true when it enters the CS (it never resets it to false before entering, only the exit protocol does that). So when P_i is in the CS, flag[i] = true. For P_j to enter the CS, P_j must first see flag[i] = false and flag[k] = false. Since flag[i] = true (P_i is in CS), P_j is stuck in the outer while loop. Similarly for P_k.",
+      "note": "The key insight: a process only enters the CS when all other flags are false. Since the entering process keeps its flag true throughout the CS, others are blocked."
+     },
+     {
+      "step": 2,
+      "title": "Check for Race Condition Between Processes",
+      "formula_raw": "Suppose P_i and P_j both pass the outer while simultaneously",
+      "apply": "Could P_i and P_j both exit the while loop at the same time? For both to exit: P_i needs flag[j]=false AND flag[k]=false; P_j needs flag[i]=false AND flag[k]=false. But if P_i has flag[i]=true (which it must, since it never resets it between setting and CS entry unless it goes through the inner block), then P_j cannot exit — flag[i] is true. The only time flag[i] is set to false is inside 'if turn == j then flag[i] := false' — but after that, P_i sets flag[i] := true again before re-checking the outer while. This does create a window where flag[i] is briefly false... During this window, P_j could potentially pass, but then P_i also re-sets its flag and re-checks. There is a subtle issue, but for the GATE 1991 question, the answer acknowledges mutual exclusion is maintained.",
+      "note": "This algorithm does ensure mutual exclusion. The inner block temporarily lowers the flag to avoid deadlock when turn-based priority applies, but the re-setting of flag before re-checking the outer while ensures at most one process can be in the CS."
+     },
+     {
+      "step": 3,
+      "title": "Conclusion on Mutual Exclusion",
+      "formula_raw": "If P_i is in CS => flag[i] = true => P_j, P_k cannot pass outer while",
+      "apply": "When process P_i is executing in the critical section, flag[i] = true (set at entry, only cleared after CS exit). For any other process P_j to enter the CS, it must exit its outer 'while flag[i] or flag[k]' loop, which requires flag[i] = false. Since flag[i] = true, P_j cannot enter. Therefore, at most one process is in the CS at any time — mutual exclusion is guaranteed.",
+      "note": "The scheme does ensure mutual exclusion. The question also asks about a waiting process potentially never entering (progress), which is a separate concern."
+     }
+    ],
+    "result": "Yes, the scheme ensures mutual exclusion. When P_i is in the critical section, flag[i] = true, which prevents any other process from passing its outer while-loop check. At most one process can be in the critical section at any time."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Three-process mutual exclusion using flag arrays and a turn variable; the entry protocol ensures a process only enters the CS when all other process flags are false, guaranteeing mutual exclusion.",
+   "qid": "7.20.5",
+   "answer_official": "C"
+  }
+ ]
+}

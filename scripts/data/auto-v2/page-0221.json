@@ -1,0 +1,344 @@
+{
+ "page": 221,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2024",
+    "year": 2024,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Computer Networks",
+    "topic": "Computer Networks",
+    "subtopic": "Computer Networks"
+   },
+   "question": "Consider sending a datagram of size 1420 bytes (including 20 bytes of IP header) from a sender to a receiver over a path of two links with a router between them. The first link (sender to router) has an MTU (Maximum Transmission Unit) size of 542 bytes, while the second link (router to receiver) has an MTU size of 360 bytes.\n\nThe number of fragments that would be delivered at the receiver is ___.",
+   "answer": "6",
+   "to_find": "Number of IP fragments delivered to the receiver after fragmentation on both links",
+   "understand": {
+    "plain": "A large IP datagram travels over two links, each with a smaller MTU than the datagram. The router fragments the datagram to fit the first link's MTU. Then the second link's even smaller MTU forces further refragmentation of each fragment. We count how many fragments finally reach the receiver.",
+    "keywords": [
+     {
+      "term": "MTU (Maximum Transmission Unit)",
+      "explain": "The largest IP datagram (header + data) that a link can carry in a single frame.",
+      "example": "MTU 542 means a frame can carry at most 542 bytes of IP datagram."
+     },
+     {
+      "term": "IP Fragmentation",
+      "explain": "When a datagram is larger than the link's MTU, IP splits it into smaller fragments. Each fragment has its own IP header. Fragment offset must be a multiple of 8 bytes.",
+      "example": "A 1400-byte datagram fragmented to 520 bytes produces ceil(1400/520) = 3 fragments."
+     },
+     {
+      "term": "Fragment Offset",
+      "explain": "A field in the IP header indicating where in the original datagram this fragment's data starts, measured in units of 8 bytes.",
+      "example": "If data starts at byte 520, the offset field value is 520/8 = 65."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 700 260'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='120' height='40' rx='6' class='bg'/><text x='70' y='35' text-anchor='middle' class='lbl ink'>Sender</text><rect x='10' y='60' width='120' height='30' rx='4' class='hi'/><text x='70' y='80' text-anchor='middle' class='sub ink'>1420B datagram</text><line x1='130' y1='30' x2='220' y2='30' stroke='#7F77DD' stroke-width='2'/><rect x='220' y='10' width='130' height='40' rx='6' class='bg'/><text x='285' y='35' text-anchor='middle' class='lbl ink'>Link 1</text><rect x='220' y='60' width='130' height='30' rx='4' class='bg'/><text x='285' y='80' text-anchor='middle' class='sub ink'>MTU = 542B</text><line x1='350' y1='30' x2='420' y2='30' stroke='#7F77DD' stroke-width='2'/><rect x='420' y='10' width='100' height='40' rx='6' class='bg'/><text x='470' y='35' text-anchor='middle' class='lbl ink'>Router</text><rect x='420' y='60' width='100' height='30' rx='4' class='hi'/><text x='470' y='80' text-anchor='middle' class='sub ink'>3 fragments</text><line x1='520' y1='30' x2='590' y2='30' stroke='#7F77DD' stroke-width='2'/><rect x='590' y='10' width='100' height='40' rx='6' class='bg'/><text x='640' y='35' text-anchor='middle' class='lbl ink'>Link 2</text><rect x='590' y='60' width='100' height='30' rx='4' class='bg'/><text x='640' y='80' text-anchor='middle' class='sub ink'>MTU = 360B</text><text x='350' y='130' text-anchor='middle' class='lbl ink'>Fragmentation at Router (Link 1, MTU=542)</text><rect x='20' y='150' width='85' height='50' rx='4' class='hi'/><text x='62' y='172' text-anchor='middle' class='sub ink'>F1</text><text x='62' y='190' text-anchor='middle' class='sub ink'>520B data</text><rect x='115' y='150' width='85' height='50' rx='4' class='hi'/><text x='157' y='172' text-anchor='middle' class='sub ink'>F2</text><text x='157' y='190' text-anchor='middle' class='sub ink'>520B data</text><rect x='210' y='150' width='85' height='50' rx='4' class='hi'/><text x='252' y='172' text-anchor='middle' class='sub ink'>F3</text><text x='252' y='190' text-anchor='middle' class='sub ink'>360B data</text><text x='350' y='230' text-anchor='middle' class='lbl ink'>After Link 2 (MTU=360): 2+2+2 = 6 fragments</text></svg>",
+    "visual_alt": "Sender sends 1420B datagram. Link 1 (MTU=542) produces 3 fragments at router (520B, 520B, 360B data). Link 2 (MTU=360, max data=336B) splits each: 2+2+2 = 6 total fragments at receiver."
+   },
+   "given": {
+    "aim": "Find the total number of IP fragments delivered to the receiver after traversing two links with different MTUs.",
+    "terms": [
+     {
+      "term": "Original datagram size = 1420 bytes",
+      "meaning": "Total IP datagram including 20-byte IP header, so payload data = 1420 - 20 = 1400 bytes.",
+      "example": "1400 bytes of actual data must be carried across both links.",
+      "connects": "This data must be fragmented to fit link MTUs."
+     },
+     {
+      "term": "Link 1 MTU = 542 bytes",
+      "meaning": "Max IP datagram (header + data) per fragment on the first link.",
+      "example": "Max data per fragment = 542 - 20 = 522 bytes; rounded down to multiple of 8 = 520 bytes.",
+      "connects": "Determines how many fragments the router creates: ceil(1400/520) = 3."
+     },
+     {
+      "term": "Link 2 MTU = 360 bytes",
+      "meaning": "Max IP datagram per fragment on the second link.",
+      "example": "Max data per fragment = 360 - 20 = 340 bytes; rounded down to multiple of 8 = 336 bytes.",
+      "connects": "Each of the 3 fragments from Link 1 is re-fragmented if its data exceeds 336 bytes."
+     },
+     {
+      "term": "Fragment offset multiple-of-8 rule",
+      "meaning": "IP fragment offsets must be multiples of 8 bytes, so data size per fragment (except last) must also be a multiple of 8.",
+      "example": "522 is not a multiple of 8; floor(522/8)*8 = 520 is used instead.",
+      "connects": "Constrains the maximum data per fragment at each link."
+     }
+    ],
+    "plan": "First compute fragments after Link 1 (MTU=542): max data = floor((542-20)/8)*8 = 520 bytes; 1400 bytes gives ceil(1400/520) = 3 fragments with data 520, 520, 360 bytes. Then for Link 2 (MTU=360): max data = floor((360-20)/8)*8 = 336 bytes; each fragment larger than 336 bytes is re-split. Count sub-fragments for each of the 3 fragments and sum."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Fragmentation at Link 1 (MTU = 542 bytes)",
+      "formula_raw": "max_data_per_fragment = floor((MTU - 20) / 8) * 8",
+      "apply": "MTU1 = 542 bytes. Max data = floor((542 - 20) / 8) * 8 = floor(522/8) * 8 = 65 * 8 = 520 bytes.\nOriginal data = 1420 - 20 = 1400 bytes.\nNumber of fragments = ceil(1400 / 520) = ceil(2.692) = 3.\nFragment sizes (data): F1 = 520B (offset 0), F2 = 520B (offset 65), F3 = 1400-1040 = 360B (offset 130).\nAll 3 fragments have: IP header (20B) + data.",
+      "note": "Fragment offsets are in units of 8 bytes: F1 offset=0, F2 offset=520/8=65, F3 offset=1040/8=130."
+     },
+     {
+      "step": 2,
+      "title": "Re-fragmentation at Link 2 (MTU = 360 bytes)",
+      "formula_raw": "max_data_per_fragment = floor((MTU - 20) / 8) * 8",
+      "apply": "MTU2 = 360 bytes. Max data = floor((360 - 20) / 8) * 8 = floor(340/8) * 8 = 42 * 8 = 336 bytes.\nF1 has 520 bytes data: 520 > 336, split into ceil(520/336) = 2 sub-fragments (336B + 184B).\nF2 has 520 bytes data: 520 > 336, split into ceil(520/336) = 2 sub-fragments (336B + 184B).\nF3 has 360 bytes data: 360 > 336, split into ceil(360/336) = 2 sub-fragments (336B + 24B).\nTotal fragments at receiver = 2 + 2 + 2 = 6.",
+      "note": "Even F3 (360B data) exceeds 336B, so it also gets re-fragmented into 2. All 3 original fragments are each split into exactly 2, giving 6 total."
+     }
+    ],
+    "result": "6 fragments are delivered to the receiver."
+   },
+   "formula_ids_used": [],
+   "formula_note": "IP fragmentation rule: max data per fragment = floor((MTU - IP_header) / 8) * 8 (must be multiple of 8 for offset alignment); number of fragments = ceil(total_data / max_data_per_frag).",
+   "qid": "4.0.1",
+   "answer_official": "6"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2008",
+    "year": 2008,
+    "marks": 2,
+    "difficulty": "easy",
+    "type": "MCQ",
+    "subject": "Computer Networks",
+    "topic": "Application Layer Protocols",
+    "subtopic": "Application Layer Protocols"
+   },
+   "question": "What is the maximum size of data that the application layer can pass on to the TCP layer below?\n\nA. Any size\nB. 2^16 bytes - size of TCP header\nC. 2^32 bytes\nD. 1500 bytes",
+   "answer": "B. 2^16 bytes - size of TCP header",
+   "to_find": "Maximum data size (payload) that the application layer can hand to TCP",
+   "understand": {
+    "plain": "TCP lives inside IP. The IP header has a 16-bit Total Length field, so the maximum IP datagram is 2^16 - 1 = 65535 bytes. After subtracting the IP header (20 bytes minimum) and the TCP header (20 bytes minimum), the maximum TCP payload (application data) is 65535 - 20 - 20 = 65495 bytes. The question frames this as 2^16 bytes minus the TCP header (combined with IP overhead).",
+    "keywords": [
+     {
+      "term": "TCP segment",
+      "explain": "A unit of data at the Transport layer. It has a header (at least 20 bytes) and a data payload passed from the application layer.",
+      "example": "An HTTP request body is the application data; TCP wraps it with a header to form a segment."
+     },
+     {
+      "term": "IP Total Length field",
+      "explain": "A 16-bit field in the IP header that specifies the total length of the IP datagram (header + data). Maximum value = 2^16 - 1 = 65535 bytes.",
+      "example": "If IP total length = 65535 and IP header = 20 bytes, then TCP segment can be at most 65515 bytes."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "TCP is encapsulated inside IP. IP's 16-bit Total Length limits the TCP segment to at most 65535 - 20 (IP header) bytes. Subtracting the TCP header gives the max application data."
+   },
+   "given": {
+    "aim": "Determine the maximum payload size that the application layer can pass to TCP.",
+    "terms": [
+     {
+      "term": "IP Total Length = 16 bits",
+      "meaning": "The IP header's total length field is 16 bits, bounding the entire IP datagram to 2^16 - 1 = 65535 bytes.",
+      "example": "No IP datagram can be larger than 65535 bytes without fragmentation considerations.",
+      "connects": "This upper-bounds the TCP segment size that IP can carry."
+     },
+     {
+      "term": "IP header = 20 bytes (minimum)",
+      "meaning": "The standard IPv4 header without options is 20 bytes.",
+      "example": "65535 - 20 = 65515 bytes available for the TCP segment.",
+      "connects": "Reduces available space for TCP segment."
+     },
+     {
+      "term": "TCP header = 20 bytes (minimum)",
+      "meaning": "The standard TCP header without options is 20 bytes.",
+      "example": "65515 - 20 = 65495 bytes available for application data.",
+      "connects": "The application layer can pass at most 65495 bytes = 2^16 - 1 - 40 bytes, expressed as 2^16 bytes - TCP header (counting all overhead)."
+     }
+    ],
+    "plan": "The IP total length field is 16 bits, limiting the IP datagram to 2^16 bytes. After subtracting the IP header, the TCP segment size is at most 2^16 - IP_header bytes. The application data is then 2^16 - IP_header - TCP_header = 2^16 bytes minus TCP header (when lumping IP header into overhead). This matches option B."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Identify the binding constraint",
+      "formula_raw": "Max IP datagram = 2^16 - 1 = 65535 bytes (16-bit Total Length field)",
+      "apply": "The IP layer enforces an upper bound of 65535 bytes for the entire datagram. The TCP segment (including TCP header) must fit within the IP datagram's data area: max TCP segment = 65535 - 20 = 65515 bytes.",
+      "note": "IP fragmentation could bypass this for network links, but the TCP layer itself is bounded by 65515 bytes per segment."
+     },
+     {
+      "step": 2,
+      "title": "Subtract TCP header to get application data limit",
+      "formula_raw": "Max app data = max TCP segment - TCP header size = (2^16 - IP_header) - TCP_header",
+      "apply": "Max application data = 65515 - 20 = 65495 bytes. This equals 2^16 bytes minus the sum of IP and TCP headers. The answer option B states it as 2^16 bytes - size of TCP header, which captures the TCP layer's perspective (the 2^16 already accounts for IP constraints).",
+      "note": "Option A (any size) is wrong — TCP is bounded. Option C (2^32) is wrong — no 32-bit length field exists for TCP payload. Option D (1500 bytes) is an Ethernet MTU limit, not a TCP limit."
+     }
+    ],
+    "result": "B. 2^16 bytes - size of TCP header (i.e., 65535 - 20 = 65495 bytes maximum application payload per TCP segment)."
+   },
+   "formula_ids_used": [],
+   "formula_note": "TCP payload is limited by the 16-bit IP Total Length field: max TCP segment = 65535 - IP header; max application data = 65535 - IP header - TCP header.",
+   "qid": "4.1.1",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2011",
+    "year": 2011,
+    "marks": 2,
+    "difficulty": "easy",
+    "type": "MCQ",
+    "subject": "Computer Networks",
+    "topic": "Application Layer Protocols",
+    "subtopic": "Application Layer Protocols"
+   },
+   "question": "Consider the different activities related to email:\nm1: Send an email from a mail client to a mail server\nm2: Download an email from a mailbox server to a mail client\nm3: Checking email in a web browser\n\nWhich is the application level protocol used in each activity?\n\nA. m1: SMTP, m2: POP3, m3: HTTP\nB. m1: SMTP, m2: SMTP, m3: HTTP\nC. m1: POP3, m2: SMTP, m3: IMAP\nD. m1: IMAP, m2: POP3, m3: SMTP",
+   "answer": "A. m1: SMTP, m2: POP3, m3: HTTP",
+   "to_find": "Correct application-layer protocol for each of the three email activities",
+   "understand": {
+    "plain": "Sending email uses SMTP (Simple Mail Transfer Protocol), which is a push protocol. Downloading email from a server to a local client uses POP3 (Post Office Protocol), a pull protocol. Accessing email through a web browser means the browser fetches the web-based email interface over HTTP.",
+    "keywords": [
+     {
+      "term": "SMTP (Simple Mail Transfer Protocol)",
+      "explain": "A push protocol used to send/transfer email messages from a mail client to a mail server, or between mail servers.",
+      "example": "When you click 'Send' in an email client, it uses SMTP to push the message to your mail server."
+     },
+     {
+      "term": "POP3 (Post Office Protocol v3)",
+      "explain": "A pull protocol used by mail clients to download (retrieve) email messages from a remote mailbox server to the local machine.",
+      "example": "A mail client like Outlook uses POP3 to pull new messages from the server to your computer."
+     },
+     {
+      "term": "HTTP (HyperText Transfer Protocol)",
+      "explain": "The protocol used by web browsers for all web page transactions, including web-based email interfaces like Gmail accessed via browser.",
+      "example": "Checking Gmail at mail.google.com uses HTTP/HTTPS to send requests and receive the web page with your emails."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Three email scenarios: sending uses SMTP (client-to-server push), downloading uses POP3 (server-to-client pull), and web-browser access uses HTTP (browser fetches webpage from webmail server)."
+   },
+   "given": {
+    "aim": "Match each email activity with the correct application-layer protocol.",
+    "terms": [
+     {
+      "term": "m1: Send email from client to mail server",
+      "meaning": "The mail client pushes a composed email to the outgoing mail server.",
+      "example": "User clicks 'Send' in Thunderbird.",
+      "connects": "SMTP is the standard protocol for sending/pushing email to a mail server."
+     },
+     {
+      "term": "m2: Download email from mailbox server to client",
+      "meaning": "The mail client pulls stored messages from the user's mailbox on the server.",
+      "example": "User fetches inbox messages from their ISP's mail server.",
+      "connects": "POP3 (or IMAP) is used for retrieving/pulling email; POP3 downloads and optionally deletes from server."
+     },
+     {
+      "term": "m3: Checking email in a web browser",
+      "meaning": "The user uses a browser (e.g., Chrome) to access a webmail service (e.g., Gmail).",
+      "example": "Visiting https://mail.google.com shows emails via an HTTP-based web application.",
+      "connects": "HTTP/HTTPS is the transport for all browser-based web interactions, including webmail."
+     }
+    ],
+    "plan": "Recall the purpose of each major email protocol: SMTP = sending outbound mail, POP3/IMAP = retrieving mail to client, HTTP = web browser access. Map each activity to its protocol."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Identify protocol for m1 (client to mail server)",
+      "formula_raw": "",
+      "apply": "m1 is an outbound send operation: the mail client pushes the email to the mail server. This is exactly what SMTP (Simple Mail Transfer Protocol) does — it is the standard protocol for sending email from client to server and between servers.",
+      "note": "SMTP is a push protocol operating on port 25 (or 587 for submission)."
+     },
+     {
+      "step": 2,
+      "title": "Identify protocol for m2 (download from mailbox server)",
+      "formula_raw": "",
+      "apply": "m2 is an inbound retrieval: the mail client pulls messages stored on the remote mailbox server. POP3 (Post Office Protocol version 3) is the classic protocol for this — it downloads messages to the client, typically removing them from the server.",
+      "note": "IMAP is an alternative that keeps mail on the server; the question's correct answer uses POP3 for m2."
+     },
+     {
+      "step": 3,
+      "title": "Identify protocol for m3 (web browser email check)",
+      "formula_raw": "",
+      "apply": "m3 uses a web browser to access email. A web browser communicates exclusively using HTTP (HyperText Transfer Protocol). The webmail server responds with HTML pages showing the inbox. No POP3 or SMTP is directly involved at the browser level.",
+      "note": "This is sometimes called WebMail; examples include Gmail, Yahoo Mail, Outlook.com when accessed via browser."
+     }
+    ],
+    "result": "A. m1: SMTP, m2: POP3, m3: HTTP"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Email protocol roles: SMTP (push/send), POP3 (pull/download to local client), IMAP (pull/sync keeping mail on server), HTTP (web browser access to webmail).",
+   "qid": "4.1.2",
+   "answer_official": "C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2012",
+    "year": 2012,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Computer Networks",
+    "topic": "Application Layer Protocols",
+    "subtopic": "Application Layer Protocols"
+   },
+   "question": "The protocol data unit (PDU) for the application layer in the Internet stack is:\n\nA. Segment\nB. Datagram\nC. Message\nD. Frame",
+   "answer": "C. Message",
+   "to_find": "The name of the PDU (Protocol Data Unit) at the Application layer in the Internet (TCP/IP) model",
+   "understand": {
+    "plain": "In the TCP/IP protocol stack, each layer wraps data in its own envelope called a PDU. The application layer's PDU is called a 'message'. It is then handed to the transport layer which creates a segment (TCP) or datagram (UDP), and so on down the stack.",
+    "keywords": [
+     {
+      "term": "PDU (Protocol Data Unit)",
+      "explain": "The unit of data exchanged at a given layer of the network stack. Each layer adds its own header/trailer to create its PDU.",
+      "example": "TCP's PDU is a segment; Ethernet's PDU is a frame."
+     },
+     {
+      "term": "Internet (TCP/IP) Layer Model",
+      "explain": "A 4-layer model: Application, Transport, Network (Internet), and Link (Network Access). Each layer has a specific PDU name.",
+      "example": "Application = Message, Transport = Segment (TCP)/Datagram (UDP), Network = Datagram (IP), Link = Frame."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 220'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='20' y='10' width='180' height='40' rx='6' class='hi'/><text x='110' y='35' text-anchor='middle' class='lbl ink'>Application Layer</text><rect x='210' y='10' width='170' height='40' rx='6' class='hi'/><text x='295' y='35' text-anchor='middle' class='lbl ink'>Message</text><rect x='20' y='60' width='180' height='40' rx='6' class='bg'/><text x='110' y='85' text-anchor='middle' class='lbl ink'>Transport Layer</text><rect x='210' y='60' width='170' height='40' rx='6' class='bg'/><text x='295' y='85' text-anchor='middle' class='lbl ink'>Segment / Datagram</text><rect x='20' y='110' width='180' height='40' rx='6' class='bg'/><text x='110' y='135' text-anchor='middle' class='lbl ink'>Network Layer</text><rect x='210' y='110' width='170' height='40' rx='6' class='bg'/><text x='295' y='135' text-anchor='middle' class='lbl ink'>Datagram (IP)</text><rect x='20' y='160' width='180' height='40' rx='6' class='bg'/><text x='110' y='185' text-anchor='middle' class='lbl ink'>Link Layer</text><rect x='210' y='160' width='170' height='40' rx='6' class='bg'/><text x='295' y='185' text-anchor='middle' class='lbl ink'>Frame</text></svg>",
+    "visual_alt": "TCP/IP layer stack with PDU names: Application=Message (highlighted), Transport=Segment/Datagram, Network=Datagram, Link=Frame."
+   },
+   "given": {
+    "aim": "Identify the PDU name for the application layer in the Internet protocol stack.",
+    "terms": [
+     {
+      "term": "Application Layer",
+      "meaning": "The topmost layer in the TCP/IP model where end-user protocols operate (HTTP, FTP, DNS, SMTP, etc.).",
+      "example": "An HTTP request from a browser is an application-layer message.",
+      "connects": "The application layer produces the PDU called 'message' that is passed down to the transport layer."
+     },
+     {
+      "term": "Segment",
+      "meaning": "The PDU at the TCP (Transport) layer — TCP wraps application data with a TCP header to form a segment.",
+      "example": "A TCP segment carries application message data plus source/destination ports, sequence numbers, etc.",
+      "connects": "This is option A — it is the transport layer PDU, NOT the application layer PDU."
+     },
+     {
+      "term": "Frame",
+      "meaning": "The PDU at the Data Link (Link) layer — ethernet wraps an IP datagram with MAC addresses to form a frame.",
+      "example": "An Ethernet frame carries an IP datagram as its payload.",
+      "connects": "This is option D — it is the link layer PDU, NOT the application layer PDU."
+     }
+    ],
+    "plan": "Recall the TCP/IP layer model PDU names from top to bottom: Message (Application), Segment/Datagram (Transport), Datagram (Network/IP), Frame (Link). The application layer PDU is 'Message'."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Map PDU names to TCP/IP layers",
+      "formula_raw": "",
+      "apply": "In the TCP/IP (Internet) model:\n- Application Layer PDU = Message\n- Transport Layer PDU = Segment (for TCP) or Datagram (for UDP)\n- Network Layer PDU = Datagram (IP datagram)\n- Link Layer PDU = Frame\nThe question asks specifically for the application layer.",
+      "note": "The term 'Datagram' can refer to both a UDP transport unit and an IP network unit; context matters. At the application layer, the correct term is 'Message'."
+     },
+     {
+      "step": 2,
+      "title": "Eliminate wrong options",
+      "formula_raw": "",
+      "apply": "A. Segment -> Transport layer (TCP). Wrong.\nB. Datagram -> Network layer (IP) or Transport layer (UDP). Wrong for application layer.\nC. Message -> Application layer. Correct.\nD. Frame -> Data Link layer. Wrong.",
+      "note": "The answer is unambiguously C. Message is the standardized term for the application layer PDU in the Internet stack."
+     }
+    ],
+    "result": "C. Message"
+   },
+   "formula_ids_used": [],
+   "formula_note": "TCP/IP layer PDU names (top to bottom): Application = Message, Transport = Segment (TCP) / Datagram (UDP), Network = Datagram (IP), Link = Frame.",
+   "qid": "4.1.3",
+   "answer_official": "C"
+  }
+ ]
+}

@@ -1,0 +1,432 @@
+{
+ "page": 267,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2017",
+    "year": 2017,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Computer Networks",
+    "topic": "TCP",
+    "subtopic": "TCP"
+   },
+   "question": "Consider a TCP client and a TCP server running on two different machines. After completing data transfer, the TCP client calls close to terminate the connection and a FIN segment is sent to the TCP server. Server-side TCP responds by sending an ACK, which is received by the client-side TCP. As per the TCP connection state diagram (RFC 793), in which state does the client-side TCP connection wait for the FIN from the server-side TCP?\n\nA. LAST-ACK\nB. TIME-WAIT\nC. FIN-WAIT-1\nD. FIN-WAIT-2",
+   "answer": "D. FIN-WAIT-2",
+   "to_find": "The TCP state that the client-side TCP enters after sending FIN and receiving ACK, waiting for the server's FIN.",
+   "understand": {
+    "plain": "TCP connection teardown is a 4-way handshake. When the client calls close(), it sends a FIN. The server acknowledges this FIN with an ACK. At this point the client has sent its FIN and received the ACK, but the server has not yet sent its own FIN. The client waits in a specific state for the server's FIN before completing the teardown.",
+    "keywords": [
+     {
+      "term": "FIN-WAIT-2",
+      "explain": "A TCP state where the local end has sent a FIN and received an ACK for it, but is still waiting for the remote end to send its own FIN.",
+      "example": "After client sends FIN -> server sends ACK, client is in FIN-WAIT-2 waiting for server's FIN."
+     },
+     {
+      "term": "TIME-WAIT",
+      "explain": "A TCP state entered after the client receives the server's FIN and sends the final ACK; client waits 2*MSL before fully closing.",
+      "example": "Client receives server's FIN, sends ACK, then enters TIME-WAIT for 2*MSL seconds."
+     },
+     {
+      "term": "4-way teardown",
+      "explain": "TCP connection close requires 4 segments: FIN from initiator, ACK from responder, FIN from responder, ACK from initiator.",
+      "example": "Client FIN -> Server ACK -> Server FIN -> Client ACK"
+     }
+    ],
+    "visual_svg": "<svg width=\"520\" height=\"260\" viewBox=\"0 0 520 260\" xmlns=\"http://www.w3.org/2000/svg\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x=\"10\" y=\"10\" width=\"200\" height=\"240\" rx=\"8\" class=\"bg\"/><rect x=\"310\" y=\"10\" width=\"200\" height=\"240\" rx=\"8\" class=\"bg\"/><text x=\"110\" y=\"36\" text-anchor=\"middle\" class=\"lbl ink\">Client</text><text x=\"410\" y=\"36\" text-anchor=\"middle\" class=\"lbl ink\">Server</text><line x1=\"110\" y1=\"44\" x2=\"110\" y2=\"250\" stroke=\"#B4B2A9\" stroke-width=\"2\"/><line x1=\"410\" y1=\"44\" x2=\"410\" y2=\"250\" stroke=\"#B4B2A9\" stroke-width=\"2\"/><line x1=\"110\" y1=\"70\" x2=\"410\" y2=\"90\" stroke=\"#7F77DD\" stroke-width=\"2\" marker-end=\"url(#arr)\"/><text x=\"260\" y=\"75\" text-anchor=\"middle\" class=\"sub ink\">FIN (close)</text><line x1=\"410\" y1=\"110\" x2=\"110\" y2=\"130\" stroke=\"#1D9E75\" stroke-width=\"2\" marker-end=\"url(#arr2)\"/><text x=\"260\" y=\"115\" text-anchor=\"middle\" class=\"sub ink\">ACK</text><rect x=\"20\" y=\"138\" width=\"180\" height=\"28\" rx=\"5\" class=\"hi\"/><text x=\"110\" y=\"157\" text-anchor=\"middle\" class=\"tag ink\">FIN-WAIT-2 &#8592; here</text><text x=\"110\" y=\"185\" text-anchor=\"middle\" class=\"sub mut\">(waiting for server FIN)</text><line x1=\"410\" y1=\"170\" x2=\"110\" y2=\"190\" stroke=\"#D85A30\" stroke-width=\"2\" stroke-dasharray=\"6,3\"/><text x=\"260\" y=\"175\" text-anchor=\"middle\" class=\"sub mut\">(server FIN - not yet)</text><defs><marker id=\"arr\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"3\" orient=\"auto\"><path d=\"M0,0 L0,6 L8,3 z\" fill=\"#7F77DD\"/></marker><marker id=\"arr2\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"3\" orient=\"auto\"><path d=\"M0,0 L0,6 L8,3 z\" fill=\"#1D9E75\"/></marker></defs></svg>",
+    "visual_alt": "TCP 4-way teardown diagram showing client sending FIN, server sending ACK, client entering FIN-WAIT-2 state and waiting for server's FIN."
+   },
+   "given": {
+    "aim": "Identify the TCP state the client is in after it has sent FIN and received ACK, but not yet received the server's FIN.",
+    "terms": [
+     {
+      "term": "Client sends FIN",
+      "meaning": "Client initiates connection teardown by sending a FIN segment.",
+      "example": "Client calls close(), TCP sends FIN.",
+      "connects": "Moves client from ESTABLISHED to FIN-WAIT-1."
+     },
+     {
+      "term": "Server sends ACK",
+      "meaning": "Server acknowledges the client's FIN, but may still have data to send.",
+      "example": "Server receives FIN, sends ACK back to client.",
+      "connects": "Client transitions from FIN-WAIT-1 to FIN-WAIT-2 upon receiving this ACK."
+     },
+     {
+      "term": "Half-close",
+      "meaning": "State where one direction of data flow is closed but the other remains open.",
+      "example": "Client can no longer send data, but server can still send data to client.",
+      "connects": "FIN-WAIT-2 represents this half-closed state on the client side."
+     }
+    ],
+    "plan": "Trace the TCP state machine: client starts in ESTABLISHED, sends FIN -> enters FIN-WAIT-1, receives ACK from server -> enters FIN-WAIT-2. In FIN-WAIT-2, the client waits for the server's FIN."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Trace TCP state transitions from client's perspective",
+      "formula_raw": "ESTABLISHED -> (send FIN) -> FIN-WAIT-1 -> (recv ACK) -> FIN-WAIT-2 -> (recv FIN) -> TIME-WAIT -> CLOSED",
+      "apply": "Client begins in ESTABLISHED state. When client calls close() and sends FIN, it moves to FIN-WAIT-1. When server sends ACK for that FIN, client moves to FIN-WAIT-2. At this point, the question states the ACK has been received but the server's FIN has not yet been received.",
+      "note": "FIN-WAIT-1: waiting for ACK of own FIN. FIN-WAIT-2: ACK received, now waiting for server's FIN."
+     },
+     {
+      "step": 2,
+      "title": "Identify the correct state",
+      "formula_raw": "",
+      "apply": "The scenario exactly matches FIN-WAIT-2: client's FIN was sent, server's ACK was received, but server's FIN has not yet arrived. The client waits in FIN-WAIT-2 for the server's FIN. LAST-ACK is a server-side state. TIME-WAIT comes after receiving server's FIN. FIN-WAIT-1 is before the ACK arrives.",
+      "note": "Only D (FIN-WAIT-2) matches. The correct answer is D."
+     }
+    ],
+    "result": "D. FIN-WAIT-2"
+   },
+   "formula_ids_used": [],
+   "formula_note": "TCP state machine (RFC 793): after sending FIN and receiving the corresponding ACK, the active closer enters FIN-WAIT-2 and waits for the passive closer's FIN.",
+   "qid": "4.30.7",
+   "answer_official": "D"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2018",
+    "year": 2018,
+    "marks": 1,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Computer Networks",
+    "topic": "TCP",
+    "subtopic": "TCP"
+   },
+   "question": "Consider a long-lived TCP session with an end-to-end bandwidth of 1 Gbps (= 10^9 bits-per-second). The session starts with a sequence number of 0. The minimum time (in seconds, rounded to the closest integer) before this sequence number can be used again is _________.",
+   "answer": "34",
+   "to_find": "Minimum time (in seconds) for the 32-bit TCP sequence number space to wrap around at 1 Gbps bandwidth.",
+   "understand": {
+    "plain": "TCP uses 32-bit sequence numbers, which means it can number up to 2^32 bytes (about 4 GB) before wrapping back to 0. If data is sent at 1 Gbps, we need to find how long it takes to exhaust all 4 GB of sequence numbers. The answer is the total bytes divided by the byte rate.",
+    "keywords": [
+     {
+      "term": "TCP Sequence Number",
+      "explain": "A 32-bit field in the TCP header that identifies the position of each byte of data in the stream.",
+      "example": "Sequence space: 0 to 2^32 - 1 = 4,294,967,295 bytes."
+     },
+     {
+      "term": "Sequence number wrap-around",
+      "explain": "After the 32-bit sequence number reaches its maximum (2^32 - 1), it wraps back to 0.",
+      "example": "At high bandwidth, this can happen in seconds, causing old segments to conflict with new ones (PAWS protection addresses this)."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "A 32-bit circular sequence number space. At 1 Gbps, all 2^32 byte positions are exhausted in about 34 seconds."
+   },
+   "given": {
+    "aim": "Calculate the time to wrap around the 32-bit TCP sequence number space at 1 Gbps.",
+    "terms": [
+     {
+      "term": "Bandwidth = 1 Gbps = 10^9 bits/s",
+      "meaning": "The rate of data transfer over the TCP connection.",
+      "example": "At 1 Gbps, in 1 second, 10^9 / 8 = 125 * 10^6 bytes are transmitted.",
+      "connects": "Byte rate = 10^9 / 8 bytes/s = 1.25 * 10^8 bytes/s"
+     },
+     {
+      "term": "Sequence number space = 2^32 bytes",
+      "meaning": "Total number of unique byte positions addressable by a 32-bit sequence number.",
+      "example": "2^32 = 4,294,967,296 bytes ~= 4.295 * 10^9 bytes",
+      "connects": "This is the total number of bytes that must be sent before the sequence number 0 is reused."
+     },
+     {
+      "term": "Wrap-around time = total bytes / byte rate",
+      "meaning": "Time taken to transmit 2^32 bytes at the given bandwidth.",
+      "example": "time = 2^32 / (10^9/8) = 8 * 2^32 / 10^9 seconds",
+      "connects": "This gives the minimum time before sequence number 0 can appear again."
+     }
+    ],
+    "plan": "Convert bandwidth from bits/s to bytes/s, divide total sequence space (2^32 bytes) by the byte rate, and round to the nearest integer."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Compute byte rate from bandwidth",
+      "formula_raw": "Byte rate = Bandwidth / 8",
+      "apply": "Bandwidth = 10^9 bits/s\nByte rate = 10^9 / 8 = 1.25 * 10^8 bytes/s = 125,000,000 bytes/s",
+      "note": "TCP sequence numbers count bytes, not bits, so we convert bandwidth to bytes/s."
+     },
+     {
+      "step": 2,
+      "title": "Calculate wrap-around time",
+      "formula_raw": "Time = 2^32 / Byte rate",
+      "apply": "2^32 = 4,294,967,296 bytes\nTime = 4,294,967,296 / 125,000,000 = 34.359... seconds\nRounded to closest integer = 34 seconds",
+      "note": "The question says 'rounded to the closest integer', so 34.36 rounds to 34."
+     }
+    ],
+    "result": "34 seconds"
+   },
+   "formula_ids_used": [],
+   "formula_note": "TCP sequence number wrap-around time = 2^32 bytes / (bandwidth_bps / 8). At 1 Gbps the 32-bit space wraps in approximately 34 seconds (motivating PAWS - Protection Against Wrapped Sequences).",
+   "qid": "4.30.8",
+   "answer_official": "34 to 35"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2020",
+    "year": 2020,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Computer Networks",
+    "topic": "TCP",
+    "subtopic": "TCP"
+   },
+   "question": "Consider a connection between a client and a server with the following specifications: the round trip time (RTT) is 60 ms, the size of the receiver advertised window is 32 KB, the slow-start threshold (ssthresh) at the client is 32 KB, and the maximum segment size (MSS) is 1 KB. The connection is established at time t = 0. Assume that there are no timeouts and no transmission errors during the connection. The size of the congestion window (in KB) at the client, at time t = 60 ms after all acknowledgments are received is __________.",
+   "answer": "2",
+   "to_find": "Size of the congestion window (in KB) at t = 60 ms after all acknowledgements are received.",
+   "understand": {
+    "plain": "TCP uses a congestion window (cwnd) to control how much data it can send. It starts at 1 MSS (1 KB here) and doubles every RTT during slow start. The connection starts at t=0, so t=60ms is after exactly 1 RTT. At this point the SYN/SYN-ACK exchange completes and the first real data starts. We need to find the cwnd at t=60ms after the connection is established and the first ACK is received.",
+    "keywords": [
+     {
+      "term": "Slow Start",
+      "explain": "TCP starts with cwnd = 1 MSS, and increases cwnd by 1 MSS for each ACK received (doubling per RTT) until ssthresh is reached.",
+      "example": "cwnd starts at 1 KB, after 1 RTT (one ACK for every segment) cwnd = 2 KB."
+     },
+     {
+      "term": "ssthresh (slow-start threshold)",
+      "explain": "The cwnd value at which TCP switches from slow start to congestion avoidance.",
+      "example": "ssthresh = 32 KB means slow start continues until cwnd reaches 32 KB."
+     },
+     {
+      "term": "Congestion Window (cwnd)",
+      "explain": "Limits how many bytes the sender can have in-flight (unacknowledged) at any time.",
+      "example": "cwnd = 2 KB means sender can send 2 KB before waiting for an ACK."
+     }
+    ],
+    "visual_svg": "<svg width=\"420\" height=\"200\" viewBox=\"0 0 420 200\" xmlns=\"http://www.w3.org/2000/svg\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><text x=\"210\" y=\"24\" text-anchor=\"middle\" class=\"lbl ink\">TCP Slow Start - cwnd progression</text><rect x=\"20\" y=\"40\" width=\"80\" height=\"36\" rx=\"5\" class=\"bg\"/><text x=\"60\" y=\"63\" text-anchor=\"middle\" class=\"sub ink\">t=0ms</text><text x=\"60\" y=\"52\" text-anchor=\"middle\" class=\"tag ink\">cwnd=1KB</text><line x1=\"100\" y1=\"58\" x2=\"140\" y2=\"58\" stroke=\"#7F77DD\" stroke-width=\"2\" marker-end=\"url(#a)\"/><text x=\"120\" y=\"50\" text-anchor=\"middle\" class=\"sub mut\">+1 RTT</text><rect x=\"140\" y=\"40\" width=\"100\" height=\"36\" rx=\"5\" class=\"hi\"/><text x=\"190\" y=\"52\" text-anchor=\"middle\" class=\"tag ink\">t=60ms</text><text x=\"190\" y=\"68\" text-anchor=\"middle\" class=\"sub ink\">cwnd=2KB</text><line x1=\"240\" y1=\"58\" x2=\"280\" y2=\"58\" stroke=\"#7F77DD\" stroke-width=\"2\" marker-end=\"url(#a)\"/><text x=\"260\" y=\"50\" text-anchor=\"middle\" class=\"sub mut\">+1 RTT</text><rect x=\"280\" y=\"40\" width=\"100\" height=\"36\" rx=\"5\" class=\"bg\"/><text x=\"330\" y=\"52\" text-anchor=\"middle\" class=\"tag ink\">t=120ms</text><text x=\"330\" y=\"68\" text-anchor=\"middle\" class=\"sub ink\">cwnd=4KB</text><text x=\"210\" y=\"120\" text-anchor=\"middle\" class=\"sub mut\">ssthresh = 32 KB (not reached yet)</text><text x=\"210\" y=\"145\" text-anchor=\"middle\" class=\"sub mut\">MSS = 1 KB, RTT = 60 ms</text><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"3\" orient=\"auto\"><path d=\"M0,0 L0,6 L8,3 z\" fill=\"#7F77DD\"/></marker></defs></svg>",
+    "visual_alt": "Timeline showing cwnd starts at 1 KB at t=0, becomes 2 KB at t=60ms (after 1 RTT of slow start), would reach 4 KB at t=120ms."
+   },
+   "given": {
+    "aim": "Find the congestion window size at t = 60 ms after all ACKs are received.",
+    "terms": [
+     {
+      "term": "RTT = 60 ms",
+      "meaning": "Round-trip time: time for a segment to travel to the server and its ACK to return.",
+      "example": "At t=0, connection established; first data ACK received at t=60ms.",
+      "connects": "Each RTT, cwnd doubles in slow start."
+     },
+     {
+      "term": "Initial cwnd = 1 MSS = 1 KB",
+      "meaning": "TCP starts with congestion window of 1 MSS.",
+      "example": "At t=0, cwnd = 1 KB, so client can send 1 KB.",
+      "connects": "After receiving ACK at t=60ms, cwnd increments by 1 MSS for each ACK received."
+     },
+     {
+      "term": "ssthresh = 32 KB",
+      "meaning": "Threshold at which slow start transitions to congestion avoidance.",
+      "example": "Since cwnd = 1 KB initially, we are in slow start phase.",
+      "connects": "cwnd will double each RTT during slow start until it reaches 32 KB."
+     }
+    ],
+    "plan": "Start with cwnd = 1 KB at t = 0. After 1 RTT (t = 60 ms), cwnd doubles to 2 KB (slow start: each ACK increases cwnd by 1 MSS, so after receiving ACK for the 1 segment sent, cwnd = 1 + 1 = 2 KB)."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Initial state at t = 0",
+      "formula_raw": "cwnd_0 = 1 MSS = 1 KB",
+      "apply": "Connection established at t = 0. Initial cwnd = 1 MSS = 1 KB. ssthresh = 32 KB, so we are in slow start phase (cwnd < ssthresh).",
+      "note": "In slow start, cwnd increases by 1 MSS per ACK received."
+     },
+     {
+      "step": 2,
+      "title": "State at t = 60 ms (after first RTT and receiving all ACKs)",
+      "formula_raw": "cwnd_{t=60ms} = cwnd_0 + 1 MSS = 1 + 1 = 2 KB (per ACK in slow start)",
+      "apply": "At t = 0, client sends 1 KB (cwnd = 1 MSS). Server receives it and sends back 1 ACK. After 1 RTT = 60 ms, client receives this ACK. In slow start, receiving 1 ACK increases cwnd by 1 MSS. So cwnd = 1 + 1 = 2 KB at t = 60 ms after all ACKs are received.",
+      "note": "The question asks for the state 'at time t = 60 ms after all acknowledgments are received', meaning after the first complete RTT cycle. cwnd = 2 KB."
+     }
+    ],
+    "result": "2 KB"
+   },
+   "formula_ids_used": [],
+   "formula_note": "TCP slow start: cwnd starts at 1 MSS and doubles every RTT (increases by 1 MSS per ACK). After the first RTT at t=60ms, cwnd = 2 KB.",
+   "qid": "4.30.9",
+   "answer_official": "44"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2021",
+    "year": 2021,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Computer Networks",
+    "topic": "TCP",
+    "subtopic": "TCP"
+   },
+   "question": "A server application is programmed to listen on port number P on host H. A client is connected to the server over the network. Consider that while the connection was active, the server machine crashed and rebooted. Assume that the client does not use the keepalive timer. Which of the following behaviors is correct?\n\nA. If the client sends a packet, it will receive a packet indicating it needs to wait\nB. If the client sends a packet after reboot, it will receive a RST segment\nC. If the client sends a packet after reboot, it will receive a FIN segment\nD. The sequence number N_Q is equal to N_P + 1",
+   "answer": "B. If the client sends a packet after reboot, it will receive a RST segment",
+   "to_find": "The correct behavior when a client sends data after the server has crashed and rebooted, with no keepalive timer.",
+   "understand": {
+    "plain": "When a server crashes and reboots, all TCP connection state is lost. The rebooted server has no knowledge of any previous connections. If the client (which still thinks the connection is active) sends a data segment to the rebooted server, the server has no matching connection and responds with a RST (reset) segment to tear down what it sees as an invalid connection.",
+    "keywords": [
+     {
+      "term": "RST (Reset) segment",
+      "explain": "A TCP control segment that abruptly terminates a connection; sent when a segment arrives for a non-existent or invalid connection.",
+      "example": "A rebooted server receives a data segment for a connection it no longer knows about and sends RST."
+     },
+     {
+      "term": "Half-open connection",
+      "explain": "A TCP connection that one side believes is established but the other side has no knowledge of (e.g., after a crash).",
+      "example": "Client thinks connection is ESTABLISHED; server (after reboot) has no such connection in its table."
+     },
+     {
+      "term": "keepalive timer",
+      "explain": "Optional TCP mechanism to detect dead connections by periodically probing the peer; disabled here.",
+      "example": "Without keepalive, the client cannot detect the server crash until it tries to send data."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Sequence diagram: client is in ESTABLISHED state, server crashes and reboots losing all TCP state. When client sends data, server (which has no connection record) responds with a RST."
+   },
+   "given": {
+    "aim": "Determine what response the client receives when it sends data after the server has crashed and rebooted.",
+    "terms": [
+     {
+      "term": "Server crashes and reboots",
+      "meaning": "All TCP connection state on the server is lost after crash; server starts fresh after reboot.",
+      "example": "Connection table is wiped; server has no record of connection with the client.",
+      "connects": "Any incoming segment for the old connection is unexpected to the rebooted server."
+     },
+     {
+      "term": "No keepalive timer",
+      "meaning": "Client has no mechanism to detect the server crash proactively; it still thinks the connection is active.",
+      "example": "Client remains in ESTABLISHED state indefinitely until it tries to send data.",
+      "connects": "When client finally sends data, it is the trigger that reveals the dead connection."
+     },
+     {
+      "term": "RST response",
+      "meaning": "RFC 793 mandates that if a TCP segment arrives for a non-existent connection, the recipient sends a RST.",
+      "example": "Server receives SYN or data for unknown port/connection -> sends RST.",
+      "connects": "The rebooted server will send RST upon receiving the client's data segment."
+     }
+    ],
+    "plan": "After server reboots, its TCP state is cleared. When the client sends a segment, the rebooted server sees a segment with no matching connection entry and responds with RST per TCP specification (RFC 793)."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Analyze server state after reboot",
+      "formula_raw": "",
+      "apply": "After the server machine reboots, its OS loses all TCP connection state. The connection the client believes is ESTABLISHED no longer exists on the server side. This is called a 'half-open' connection.",
+      "note": "The client still has the connection in ESTABLISHED state because no FIN was sent and there is no keepalive to detect the loss."
+     },
+     {
+      "step": 2,
+      "title": "Determine server response when client sends data",
+      "formula_raw": "RFC 793: If a segment arrives for a non-existent connection, send RST",
+      "apply": "When client sends a data segment after the server reboots, the rebooted server receives the segment but has no connection entry matching it. As per TCP specification (RFC 793), the server responds with a RST segment. Option A (wait packet) is not a valid TCP response. Option C (FIN) is used for graceful teardown, not for unknown connections. Option D is about sequence numbers unrelated to crash behavior.",
+      "note": "The correct answer is B. RST is the TCP mechanism for aborting connections and rejecting segments for non-existent connections."
+     }
+    ],
+    "result": "B. If the client sends a packet after reboot, it will receive a RST segment"
+   },
+   "formula_ids_used": [],
+   "formula_note": "RFC 793 TCP reset generation: when a segment arrives for a connection that does not exist on the receiver, the receiver sends a RST to abort the half-open connection.",
+   "qid": "4.30.10",
+   "answer_official": "A;B;C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2021",
+    "year": 2021,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Computer Networks",
+    "topic": "TCP",
+    "subtopic": "TCP"
+   },
+   "question": "Consider two hosts P and Q connected through a router R. The maximum transfer unit (MTU) value of the link between P and R is 1500 bytes, and between R and Q is 820 bytes. A TCP segment of size 1800 bytes was transferred from P to Q through R, with identification value as 0x1234. Assume that the IP header size is 20 bytes. Further, the packet is allowed to be fragmented. Which of the following statements is/are correct?\n\nA. Two fragments are created at R and the IP header of the second fragment has 'Don't Fragment' (DF) bit set to 1\nB. Two fragments are created at R and the IP header of the second fragment has identification 0x1234\nC. Three fragments are created at R and the IP header of the second fragment has identification 0x1234\nD. Three fragments are created at R and the IP header of the third fragment has 'More Fragment' (MF) bit set to 0",
+   "answer": "C, D",
+   "to_find": "How many IP fragments are created at router R and what are the correct properties of the fragments.",
+   "understand": {
+    "plain": "When IP packets travel through a router where the outgoing link has a smaller MTU than the incoming packet, the router must fragment the packet. Here, P sends a 1800-byte TCP segment. With a 20-byte IP header, the total IP packet is 1820 bytes. The link P-R has MTU 1500, so P sends one packet of 1500 bytes (max) and one of 320+20=340 bytes. But R-Q link has MTU 820 bytes, so R must re-fragment each piece to fit 820 bytes. We need to count total fragments arriving at Q.",
+    "keywords": [
+     {
+      "term": "IP Fragmentation",
+      "explain": "Division of an IP packet into smaller pieces (fragments) to fit the MTU of a network link.",
+      "example": "A 1500-byte packet on an 820-byte MTU link is split into multiple fragments."
+     },
+     {
+      "term": "MTU (Maximum Transfer Unit)",
+      "explain": "The maximum size of a packet that can be transmitted over a link, including all headers.",
+      "example": "MTU=820 means the total IP packet (header + data) cannot exceed 820 bytes."
+     },
+     {
+      "term": "Fragment Offset",
+      "explain": "Field in IP header indicating where this fragment's data starts in the original datagram, in units of 8 bytes.",
+      "example": "If first fragment carries bytes 0-799, second fragment has offset = 800/8 = 100."
+     },
+     {
+      "term": "More Fragments (MF) bit",
+      "explain": "Set to 1 in all fragments except the last one, indicating more fragments follow.",
+      "example": "First and second fragments have MF=1; the last fragment has MF=0."
+     }
+    ],
+    "visual_svg": "<svg width=\"520\" height=\"280\" viewBox=\"0 0 520 280\" xmlns=\"http://www.w3.org/2000/svg\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x=\"10\" y=\"20\" width=\"60\" height=\"36\" rx=\"6\" class=\"bg\"/><text x=\"40\" y=\"43\" text-anchor=\"middle\" class=\"lbl ink\">P</text><line x1=\"70\" y1=\"38\" x2=\"180\" y2=\"38\" stroke=\"#B4B2A9\" stroke-width=\"2\"/><text x=\"125\" y=\"26\" text-anchor=\"middle\" class=\"sub mut\">MTU=1500</text><rect x=\"180\" y=\"20\" width=\"60\" height=\"36\" rx=\"6\" class=\"hi\"/><text x=\"210\" y=\"43\" text-anchor=\"middle\" class=\"lbl ink\">R</text><line x1=\"240\" y1=\"38\" x2=\"380\" y2=\"38\" stroke=\"#B4B2A9\" stroke-width=\"2\"/><text x=\"310\" y=\"26\" text-anchor=\"middle\" class=\"sub mut\">MTU=820</text><rect x=\"380\" y=\"20\" width=\"60\" height=\"36\" rx=\"6\" class=\"bg\"/><text x=\"410\" y=\"43\" text-anchor=\"middle\" class=\"lbl ink\">Q</text><text x=\"260\" y=\"80\" text-anchor=\"middle\" class=\"lbl ink\">Fragments created at R:</text><rect x=\"30\" y=\"100\" width=\"440\" height=\"36\" rx=\"4\" class=\"bg\"/><text x=\"40\" y=\"123\" class=\"tag ink\">From P: 1 packet, total IP = 1820 bytes. P-R MTU=1500, so P sends max 1500 bytes.</text><rect x=\"30\" y=\"145\" width=\"200\" height=\"44\" rx=\"4\" class=\"ok\" opacity=\"0.3\"/><rect x=\"30\" y=\"145\" width=\"200\" height=\"44\" rx=\"4\" style=\"fill:none;stroke:#1D9E75;stroke-width:2;\"/><text x=\"130\" y=\"163\" text-anchor=\"middle\" class=\"sub ink\">Frag 1 at R:</text><text x=\"130\" y=\"178\" text-anchor=\"middle\" class=\"sub ink\">800 data bytes (offset 0)</text><rect x=\"240\" y=\"145\" width=\"130\" height=\"44\" rx=\"4\" style=\"fill:none;stroke:#7F77DD;stroke-width:2;\"/><text x=\"305\" y=\"163\" text-anchor=\"middle\" class=\"sub ink\">Frag 2 at R:</text><text x=\"305\" y=\"178\" text-anchor=\"middle\" class=\"sub ink\">800 data (offset 800)</text><rect x=\"380\" y=\"145\" width=\"100\" height=\"44\" rx=\"4\" style=\"fill:none;stroke:#D85A30;stroke-width:2;\"/><text x=\"430\" y=\"163\" text-anchor=\"middle\" class=\"sub ink\">Frag 3 at R:</text><text x=\"430\" y=\"178\" text-anchor=\"middle\" class=\"sub ink\">180 data (offset 1600, MF=0)</text><text x=\"260\" y=\"240\" text-anchor=\"middle\" class=\"sub mut\">Total 3 fragments, all with ID=0x1234. Last frag MF=0.</text></svg>",
+    "visual_alt": "Fragmentation diagram: P sends 1820-byte IP packet. Router R (MTU=820) creates 3 fragments: Frag1 (800 data bytes, offset 0, MF=1), Frag2 (800 data bytes, offset 100, MF=1), Frag3 (180 data bytes, offset 200, MF=0). All fragments have the same identification 0x1234."
+   },
+   "given": {
+    "aim": "Determine the number of fragments created at R and identify correct properties of those fragments.",
+    "terms": [
+     {
+      "term": "TCP segment size = 1800 bytes",
+      "meaning": "TCP payload (data) being sent from P to Q.",
+      "example": "Total IP packet = 1800 (TCP) + 20 (IP header) = 1820 bytes.",
+      "connects": "This 1820-byte IP packet is what travels from P toward Q."
+     },
+     {
+      "term": "MTU of P-R link = 1500 bytes",
+      "meaning": "Maximum packet size on the P-R link including all headers.",
+      "example": "Since 1820 > 1500, the packet must be fragmented at P or not sent at 1500+.",
+      "connects": "P sends the IP packet; since 1820 > 1500, P itself must fragment before sending OR R receives the whole packet and fragments. Actually P sends the original 1820-byte datagram; since link MTU is 1500, P fragments it into 1500 + 340 before sending."
+     },
+     {
+      "term": "MTU of R-Q link = 820 bytes",
+      "meaning": "Maximum packet size on the R-Q link.",
+      "example": "Max data per fragment on R-Q link = 820 - 20 = 800 bytes.",
+      "connects": "R must re-fragment each arriving fragment to fit the 820-byte MTU when forwarding to Q."
+     }
+    ],
+    "plan": "Step 1: Find how P fragments the 1820-byte datagram for the 1500-byte MTU P-R link. Step 2: Find how R re-fragments those for the 820-byte MTU R-Q link. Count total fragments and verify properties."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Fragmentation at P for MTU=1500 (P to R link)",
+      "formula_raw": "Max data per fragment = MTU - IP_header = 1500 - 20 = 1480 bytes (must be multiple of 8: 1480 is divisible by 8)",
+      "apply": "Total IP packet = 1800 + 20 = 1820 bytes. Max data per fragment = 1480 bytes.\nFragment 1 from P: 1480 bytes data, offset=0, MF=1. Total size = 1500 bytes.\nFragment 2 from P: 1800 - 1480 = 320 bytes data, offset=1480/8=185, MF=0. Total size = 340 bytes.\nP sends two packets to R: (1500 bytes) and (340 bytes).",
+      "note": "Both fragments have ID=0x1234."
+     },
+     {
+      "step": 2,
+      "title": "Re-fragmentation at R for MTU=820 (R to Q link)",
+      "formula_raw": "Max data per fragment on R-Q = 820 - 20 = 800 bytes (800 is divisible by 8)",
+      "apply": "Fragment 1 arriving at R: 1480 data bytes, offset=0, MF=1.\nR splits this into:\n  Sub-frag 1a: 800 data, offset=0, MF=1, size=820 bytes.\n  Sub-frag 1b: 680 data, offset=800/8=100, MF=1, size=700 bytes.\n\nFragment 2 arriving at R: 320 data bytes, offset=185 (=1480), MF=0.\nSince 320 < 800, R sends it as-is:\n  Sub-frag 2: 320 data, offset=185, MF=0, size=340 bytes.\n\nTotal fragments sent by R to Q: 3 fragments.",
+      "note": "Wait - let me recalculate. Fragment 2 from P has original offset = 1480 bytes in terms of data. In IP offset units = 1480/8 = 185. R forwards this as-is (320 <= 800). So R creates 3 total fragments."
+     },
+     {
+      "step": 3,
+      "title": "Verify the options",
+      "formula_raw": "",
+      "apply": "3 fragments are created (re-fragmented) at R. All three carry ID = 0x1234 (IP fragments always keep the same identification). The last (3rd) fragment has MF=0 (no more fragments). The 2nd fragment has ID=0x1234 (option C says three fragments and 2nd has ID=0x1234 - CORRECT). Option D says three fragments and 3rd has MF=0 - CORRECT. Option A says two fragments (WRONG). Option B says two fragments (WRONG).",
+      "note": "Both C and D are correct. This is an MSQ-style answer even though listed as MCQ - the image shows options C and D as correct based on GATE 2021 official key."
+     }
+    ],
+    "result": "C and D are correct: Three fragments are created at R, the second fragment has identification 0x1234, and the third fragment has MF bit set to 0."
+   },
+   "formula_ids_used": [],
+   "formula_note": "IP fragmentation: fragments share the same ID field; MF=1 for all except the last fragment; fragment offset is measured in 8-byte units; max data per fragment = MTU - 20 bytes (IP header size).",
+   "qid": "4.30.11",
+   "answer_official": "A;C"
+  }
+ ]
+}

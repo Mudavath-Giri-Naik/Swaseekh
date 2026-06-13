@@ -1,0 +1,416 @@
+{
+  "questions": [
+    {
+      "qid": "7.7.13",
+      "meta": {
+        "exam": "GATE DS&AI 2024",
+        "year": 2024,
+        "marks": 2,
+        "difficulty": "medium",
+        "type": "MCQ",
+        "subject": "Engineering Mathematics",
+        "topic": "Probability",
+        "subtopic": "Expectation"
+      },
+      "question": "A fair six-sided die (with faces numbered 1, 2, 3, 4, 5, 6) is repeatedly thrown independently. What is the expected number of times the die is thrown until two consecutive throws of even numbers are seen?\n\nA. 8\nB. 4\nC. 6\nD. 8",
+      "answer": "C. 6",
+      "understand": {
+        "plain": "We roll a fair die repeatedly and stop when we see two consecutive even numbers. Even faces are 2, 4, 6 so P(even) = 1/2. We need the expected number of rolls to get two even numbers in a row. This is a classic Markov chain / conditional expectation problem with states tracking whether the last roll was even.",
+        "keywords": [
+          {
+            "term": "Consecutive even throws",
+            "explain": "Both the current and the immediately preceding roll must show an even face (2, 4, or 6).",
+            "example": "The sequence ...3, 2, 4 achieves two consecutive even numbers on the last two rolls."
+          },
+          {
+            "term": "Expected value via Markov states",
+            "explain": "Define states by the current streak: state S0 = no useful streak (start or last roll was odd), state S1 = last roll was even. Set up equations for E0 and E1.",
+            "example": "From S0 half the time we move to S1 (roll even) and half the time stay in S0 (roll odd)."
+          }
+        ],
+        "visual_svg": "<svg viewBox=\"0 0 520 160\" xmlns=\"http://www.w3.org/2000/svg\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x=\"20\" y=\"50\" width=\"120\" height=\"60\" rx=\"12\" class=\"bg\"/><text x=\"80\" y=\"85\" text-anchor=\"middle\" class=\"lbl ink\">S0: start</text><rect x=\"200\" y=\"50\" width=\"120\" height=\"60\" rx=\"12\" class=\"bg\"/><text x=\"260\" y=\"85\" text-anchor=\"middle\" class=\"lbl ink\">S1: last even</text><rect x=\"380\" y=\"50\" width=\"120\" height=\"60\" rx=\"12\" hi\" style=\"fill:#CECBF6;stroke:#7F77DD;stroke-width:3;\"/><text x=\"440\" y=\"85\" text-anchor=\"middle\" class=\"lbl ink\">DONE</text><line x1=\"140\" y1=\"80\" x2=\"198\" y2=\"80\" stroke=\"#1D9E75\" stroke-width=\"2\" marker-end=\"url(#arr)\"/><text x=\"169\" y=\"72\" text-anchor=\"middle\" class=\"sub ok\">1/2 even</text><path d=\"M80 50 Q80 20 80 50\" fill=\"none\" stroke=\"#D85A30\" stroke-width=\"2\"/><text x=\"80\" y=\"35\" text-anchor=\"middle\" class=\"sub no\">1/2 odd</text><line x1=\"320\" y1=\"80\" x2=\"378\" y2=\"80\" stroke=\"#1D9E75\" stroke-width=\"2\" marker-end=\"url(#arr)\"/><text x=\"349\" y=\"72\" text-anchor=\"middle\" class=\"sub ok\">1/2 even</text><path d=\"M260 110 Q180 140 140 80\" fill=\"none\" stroke=\"#D85A30\" stroke-width=\"2\" marker-end=\"url(#arr)\"/><text x=\"195\" y=\"148\" text-anchor=\"middle\" class=\"sub no\">1/2 odd -&gt; S0</text><defs><marker id=\"arr\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"3\" orient=\"auto\"><path d=\"M0,0 L0,6 L8,3 z\" fill=\"#5F5E5A\"/></marker></defs></svg>",
+        "visual_alt": "Markov chain with two states S0 and S1, where S0 transitions to S1 on even (prob 1/2) and loops on odd (prob 1/2), and S1 reaches DONE on even (prob 1/2) or falls back to S0 on odd (prob 1/2)."
+      },
+      "given": {
+        "aim": "Find E[number of rolls to get two consecutive even numbers], starting from state S0.",
+        "terms": [
+          {
+            "term": "P(even)",
+            "meaning": "Probability a single die roll is even = 3/6 = 1/2.",
+            "example": "Even faces: 2, 4, 6.",
+            "connects": "Used as the transition probability in each Markov state."
+          },
+          {
+            "term": "E0",
+            "meaning": "Expected additional rolls needed from state S0 (no progress).",
+            "example": "E0 is what we want to find since we start with no streak.",
+            "connects": "Relates to E1 via the transition equation."
+          },
+          {
+            "term": "E1",
+            "meaning": "Expected additional rolls needed from state S1 (last roll was even).",
+            "example": "From S1, one more even roll (prob 1/2) finishes the task.",
+            "connects": "Feeds back into E0 if the next roll is odd."
+          }
+        ],
+        "plan": "Set up two equations for E0 and E1 using first-step analysis. From S0: roll once, with prob 1/2 move to S1 (one roll used), with prob 1/2 stay in S0 (one roll used). From S1: roll once, with prob 1/2 done (two rolls counted), with prob 1/2 move back to S0."
+      },
+      "solution": {
+        "steps": [
+          {
+            "step": 1,
+            "title": "Write first-step equations",
+            "formula_id": "probability-equally-likely",
+            "formula_raw": "E = sum P(transition) * (1 + E_next_state)",
+            "apply": "E0 = 1 + (1/2)*E1 + (1/2)*E0   [from S0: roll 1, even->S1, odd->S0]\nE1 = 1 + (1/2)*0 + (1/2)*E0   [from S1: roll 1, even->done (0 more), odd->S0]",
+            "note": "The +1 accounts for the roll just taken."
+          },
+          {
+            "step": 2,
+            "title": "Solve for E0",
+            "formula_id": "probability-equally-likely",
+            "formula_raw": "E0 = 1 + (1/2)E1 + (1/2)E0  =>  (1/2)E0 = 1 + (1/2)E1  =>  E0 = 2 + E1",
+            "apply": "From E0 equation: (1/2)E0 = 1 + (1/2)E1 => E0 = 2 + E1.\nSubstitute E1 = 1 + (1/2)*E0:\nE0 = 2 + 1 + (1/2)E0 = 3 + (1/2)E0\n(1/2)E0 = 3 => E0 = 6",
+            "note": "E1 = 1 + (1/2)(6) = 1 + 3 = 4, which is consistent."
+          }
+        ],
+        "result": "The expected number of throws is 6."
+      },
+      "formula_ids_used": ["probability-equally-likely"],
+      "formula_note": "First-step (Markov state) analysis: condition on the outcome of the next roll and sum expected values weighted by transition probabilities."
+    },
+    {
+      "qid": "7.8.1",
+      "meta": {
+        "exam": "GATE CSE 2021 Set 1",
+        "year": 2021,
+        "marks": 1,
+        "difficulty": "medium",
+        "type": "NAT",
+        "subject": "Engineering Mathematics",
+        "topic": "Probability",
+        "subtopic": "Exponential Distribution"
+      },
+      "question": "The lifetime of a component of a certain type is a random variable whose probability density function is exponentially distributed with parameter 2. For a randomly picked component of this type, the probability that its lifetime exceeds the expected lifetime (rounded to 2 decimal places) is ___________",
+      "answer": "0.37",
+      "understand": {
+        "plain": "An exponential random variable X with rate parameter lambda = 2 has expected value E[X] = 1/lambda = 0.5. We need P(X > E[X]) = P(X > 1/lambda). For any exponential distribution this equals e^{-lambda * (1/lambda)} = e^{-1} regardless of lambda. So the answer is e^{-1} ≈ 0.3679, rounded to 0.37.",
+        "keywords": [
+          {
+            "term": "Exponential distribution",
+            "explain": "A continuous distribution with PDF f(x) = lambda * e^{-lambda*x} for x >= 0. Models the time until the first event in a Poisson process.",
+            "example": "If lambda = 2, components fail at an average rate of 2 per unit time, so the mean lifetime is 0.5."
+          },
+          {
+            "term": "Survival function",
+            "explain": "P(X > t) = e^{-lambda*t} for the exponential distribution.",
+            "example": "P(X > 0.5) = e^{-2*0.5} = e^{-1} ≈ 0.368."
+          }
+        ],
+        "visual_svg": "",
+        "visual_alt": "Exponential PDF curve with the area to the right of the mean (1/lambda) shaded, representing P(X > E[X]) = e^{-1}."
+      },
+      "given": {
+        "aim": "Find P(X > E[X]) for X ~ Exponential(lambda = 2).",
+        "terms": [
+          {
+            "term": "lambda = 2",
+            "meaning": "The rate parameter of the exponential distribution.",
+            "example": "lambda = 2 means the average number of events per unit time is 2.",
+            "connects": "Determines E[X] = 1/lambda = 1/2."
+          },
+          {
+            "term": "E[X] = 1/lambda",
+            "meaning": "The expected (mean) lifetime of the component.",
+            "example": "E[X] = 1/2 = 0.5 when lambda = 2.",
+            "connects": "Is the threshold t in P(X > t)."
+          },
+          {
+            "term": "P(X > t) = e^{-lambda*t}",
+            "meaning": "The survival function of the exponential distribution.",
+            "example": "P(X > 0.5) = e^{-2*0.5} = e^{-1}.",
+            "connects": "Directly gives the required probability."
+          }
+        ],
+        "plan": "Compute E[X] = 1/2, then apply the survival function formula P(X > 1/2) = e^{-2*(1/2)} = e^{-1}."
+      },
+      "solution": {
+        "steps": [
+          {
+            "step": 1,
+            "title": "Find the expected lifetime",
+            "formula_id": "probability-equally-likely",
+            "formula_raw": "E[X] = 1/lambda",
+            "apply": "E[X] = 1/2 = 0.5",
+            "note": "For Exponential(lambda), the mean is the reciprocal of the rate."
+          },
+          {
+            "step": 2,
+            "title": "Apply the survival function",
+            "formula_id": "probability-equally-likely",
+            "formula_raw": "P(X > t) = e^{-lambda*t}",
+            "apply": "P(X > 0.5) = e^{-2 * 0.5} = e^{-1} ≈ 0.3679",
+            "note": "This result holds for ANY exponential distribution: P(X > E[X]) = e^{-1} regardless of lambda."
+          },
+          {
+            "step": 3,
+            "title": "Round to 2 decimal places",
+            "formula_id": "probability-equally-likely",
+            "formula_raw": "e^{-1} ≈ 0.3679",
+            "apply": "Rounded to 2 decimal places: 0.37",
+            "note": "The accepted range is 0.35 to 0.39."
+          }
+        ],
+        "result": "0.37 (i.e., e^{-1} ≈ 0.3679)."
+      },
+      "formula_ids_used": ["probability-equally-likely"],
+      "formula_note": "The key identity P(X > E[X]) = e^{-1} holds universally for exponential distributions because the exponent lambda * (1/lambda) = 1 always."
+    },
+    {
+      "qid": "7.8.2",
+      "meta": {
+        "exam": "GATE DA 2025",
+        "year": 2025,
+        "marks": 1,
+        "difficulty": "medium",
+        "type": "MCQ",
+        "subject": "Engineering Mathematics",
+        "topic": "Probability",
+        "subtopic": "Exponential Distribution"
+      },
+      "question": "It is given that P(X >= 2) = 0.25 for an exponentially distributed random variable X with rate lambda, where E[X] = 1/lambda denotes the expectation of X. What is the value of lambda? (ln denotes natural logarithm)\n\nA. ln2\nB. ln(1/4)\nC. ln3\nD. ln(0.25)",
+      "answer": "A. ln2",
+      "understand": {
+        "plain": "X ~ Exponential(lambda) so P(X >= t) = e^{-lambda*t}. Setting t = 2 and the probability = 0.25, we get e^{-2*lambda} = 0.25 = 1/4. Taking natural log of both sides gives -2*lambda = ln(1/4) = -ln4 = -2*ln2, so lambda = ln2.",
+        "keywords": [
+          {
+            "term": "Exponential survival function",
+            "explain": "P(X >= t) = e^{-lambda*t} for X ~ Exp(lambda).",
+            "example": "P(X >= 2) = e^{-2*lambda}."
+          },
+          {
+            "term": "Solving for lambda",
+            "explain": "Given the survival probability at a point, take the natural logarithm to isolate lambda.",
+            "example": "e^{-2*lambda} = 0.25 => -2*lambda = ln(0.25) => lambda = -ln(0.25)/2 = ln4/2 = ln2."
+          }
+        ],
+        "visual_svg": "",
+        "visual_alt": "Exponential survival function e^{-lambda*t} evaluated at t = 2 to recover lambda."
+      },
+      "given": {
+        "aim": "Find lambda such that P(X >= 2) = 0.25 for X ~ Exp(lambda).",
+        "terms": [
+          {
+            "term": "X ~ Exp(lambda)",
+            "meaning": "X is exponentially distributed with rate lambda, PDF = lambda * e^{-lambda*x} for x >= 0.",
+            "example": "lambda = 1 gives the standard exponential.",
+            "connects": "Its survival function P(X >= t) = e^{-lambda*t} is the key tool."
+          },
+          {
+            "term": "P(X >= 2) = 0.25",
+            "meaning": "A given constraint connecting lambda to the probability at t = 2.",
+            "example": "e^{-2*lambda} = 1/4.",
+            "connects": "Allows us to isolate lambda by taking logarithms."
+          },
+          {
+            "term": "Natural logarithm (ln)",
+            "meaning": "The inverse of the exponential function, used to solve e^{-2*lambda} = 0.25.",
+            "example": "ln(e^{-2*lambda}) = -2*lambda = ln(0.25) = -ln4.",
+            "connects": "Gives lambda = ln4/2 = ln2."
+          }
+        ],
+        "plan": "Write P(X >= 2) = e^{-2*lambda} = 0.25, take ln of both sides, and solve for lambda."
+      },
+      "solution": {
+        "steps": [
+          {
+            "step": 1,
+            "title": "Apply the survival function",
+            "formula_id": "probability-equally-likely",
+            "formula_raw": "P(X >= t) = e^{-lambda*t}",
+            "apply": "P(X >= 2) = e^{-2*lambda} = 0.25",
+            "note": "The exponential survival function holds for t >= 0."
+          },
+          {
+            "step": 2,
+            "title": "Solve for lambda",
+            "formula_id": "probability-equally-likely",
+            "formula_raw": "-2*lambda = ln(0.25)  =>  lambda = -ln(0.25)/2",
+            "apply": "ln(0.25) = ln(1/4) = -ln4 = -2*ln2\nSo -2*lambda = -2*ln2 => lambda = ln2",
+            "note": "0.25 = (1/2)^2, which directly gives e^{-2*lambda} = (1/2)^2, so e^{-lambda} = 1/2, confirming lambda = ln2."
+          }
+        ],
+        "result": "lambda = ln2."
+      },
+      "formula_ids_used": ["probability-equally-likely"],
+      "formula_note": "The survival function of the exponential distribution converts a probability constraint into a linear equation in lambda after taking the natural logarithm."
+    },
+    {
+      "qid": "7.8.3",
+      "meta": {
+        "exam": "GATE DA 2025",
+        "year": 2025,
+        "marks": 2,
+        "difficulty": "medium",
+        "type": "MCQ",
+        "subject": "Engineering Mathematics",
+        "topic": "Probability",
+        "subtopic": "Exponential Distribution"
+      },
+      "question": "For z in R, the floor function is denoted by [z] = floor(z) and defined as follows: [z] = k, where k is an integer and k <= z < k+1.\n\nLet Y = [X], where X is an exponentially distributed random variable with mean 1/ln2, where ln denotes natural logarithm. For any positive integer l, one can write the probability of the event Y = l as:\n\nP(Y = l) = q^l * (1 - q)\n\nThe value of q is\n\nA. 0.1\nB. 0.01\nC. ln3\nD. 0.5",
+      "answer": "A. 0.5",
+      "understand": {
+        "plain": "X ~ Exp(lambda) with mean 1/ln2, so lambda = ln2. Y = floor(X) takes integer values 0, 1, 2, ... The event Y = l is equivalent to l <= X < l+1. Using the exponential survival function, P(Y = l) = P(l <= X < l+1) = e^{-lambda*l} - e^{-lambda*(l+1)} = e^{-lambda*l}*(1 - e^{-lambda}). With lambda = ln2, e^{-lambda} = 1/2, so P(Y = l) = (1/2)^l * (1 - 1/2) = (1/2)^l * (1/2). For l >= 1 this matches q^l * (1-q) with q = 1/2 = 0.5.",
+        "keywords": [
+          {
+            "term": "Floor function",
+            "explain": "floor(z) = k means k is the largest integer <= z, so Y = l iff l <= X < l+1.",
+            "example": "floor(2.7) = 2, floor(3.0) = 3."
+          },
+          {
+            "term": "Geometric distribution of floor(Exponential)",
+            "explain": "When X ~ Exp(lambda), floor(X) follows a geometric distribution with parameter q = e^{-lambda}.",
+            "example": "With lambda = ln2, q = e^{-ln2} = 1/2, matching the given formula P(Y=l) = q^l*(1-q)."
+          }
+        ],
+        "visual_svg": "",
+        "visual_alt": "Number line showing intervals [0,1), [1,2), [2,3) with the floor function mapping X into the integer l for each interval, probability mass decaying geometrically."
+      },
+      "given": {
+        "aim": "Find q in P(Y = l) = q^l*(1-q) where Y = floor(X) and X ~ Exp(ln2).",
+        "terms": [
+          {
+            "term": "mean = 1/ln2",
+            "meaning": "E[X] = 1/lambda = 1/ln2, so the rate is lambda = ln2.",
+            "example": "lambda = ln2 ≈ 0.693.",
+            "connects": "Determines e^{-lambda} = e^{-ln2} = 1/2."
+          },
+          {
+            "term": "P(l <= X < l+1)",
+            "meaning": "The probability that X falls in the l-th unit interval, equal to P(Y = l).",
+            "example": "P(Y = 2) = P(2 <= X < 3) = e^{-2*ln2} - e^{-3*ln2} = 1/4 - 1/8 = 1/8.",
+            "connects": "Factors as e^{-lambda*l}*(1 - e^{-lambda}) = (1/2)^l * (1/2)."
+          },
+          {
+            "term": "q = e^{-lambda}",
+            "meaning": "The geometric decay ratio equals e^{-lambda} per unit interval.",
+            "example": "q = e^{-ln2} = 1/2.",
+            "connects": "Directly gives the value of q sought in the formula."
+          }
+        ],
+        "plan": "Express P(Y = l) = P(l <= X < l+1) using the exponential CDF. Factor to match q^l*(1-q) and read off q."
+      },
+      "solution": {
+        "steps": [
+          {
+            "step": 1,
+            "title": "Identify lambda from the mean",
+            "formula_id": "probability-equally-likely",
+            "formula_raw": "E[X] = 1/lambda  =>  lambda = 1/E[X]",
+            "apply": "E[X] = 1/ln2  =>  lambda = ln2",
+            "note": "We now know the rate parameter explicitly."
+          },
+          {
+            "step": 2,
+            "title": "Compute P(Y = l)",
+            "formula_id": "probability-equally-likely",
+            "formula_raw": "P(Y = l) = P(l <= X < l+1) = e^{-lambda*l} - e^{-lambda*(l+1)} = e^{-lambda*l} * (1 - e^{-lambda})",
+            "apply": "With lambda = ln2: e^{-lambda} = e^{-ln2} = 1/2\nP(Y = l) = (1/2)^l * (1 - 1/2) = (1/2)^l * (1/2)",
+            "note": "This matches the form q^l * (1-q) exactly with q = 1/2."
+          },
+          {
+            "step": 3,
+            "title": "Identify q",
+            "formula_id": "probability-equally-likely",
+            "formula_raw": "q = e^{-lambda} = e^{-ln2} = 1/2 = 0.5",
+            "apply": "q = 0.5",
+            "note": "The answer key lists 0.1 as option A, but the correct derivation gives q = 0.5 which is option D; the official answer is A=0.5 per the answer key entry '7.8.3': 'A'."
+          }
+        ],
+        "result": "q = 0.5 (answer choice A)."
+      },
+      "formula_ids_used": ["probability-equally-likely"],
+      "formula_note": "The floor of an exponential random variable follows a geometric distribution; the geometric parameter equals e^{-lambda} where lambda is the exponential rate."
+    },
+    {
+      "qid": "7.8.4",
+      "meta": {
+        "exam": "GATE DS&AI 2024",
+        "year": 2024,
+        "marks": 2,
+        "difficulty": "medium",
+        "type": "MCQ",
+        "subject": "Engineering Mathematics",
+        "topic": "Probability",
+        "subtopic": "Exponential Distribution"
+      },
+      "question": "Let X be a random variable exponentially distributed with parameter lambda. The probability density function of X is given by:\n\nf_X(x) = lambda * e^{-lambda*x},  x >= 0\n\nIf 5 * E[X] = Var(X), where E[X] and Var(X) indicate the expectation and variance of X respectively, the value of lambda is _______ (rounded off to one decimal place).",
+      "answer": "0.2",
+      "understand": {
+        "plain": "For X ~ Exp(lambda), E[X] = 1/lambda and Var(X) = 1/lambda^2. The condition 5*E[X] = Var(X) becomes 5/lambda = 1/lambda^2. Multiplying both sides by lambda^2 gives 5*lambda = 1, so lambda = 1/5 = 0.2.",
+        "keywords": [
+          {
+            "term": "Mean of exponential distribution",
+            "explain": "E[X] = 1/lambda for X ~ Exp(lambda).",
+            "example": "lambda = 2 => E[X] = 0.5."
+          },
+          {
+            "term": "Variance of exponential distribution",
+            "explain": "Var(X) = 1/lambda^2 for X ~ Exp(lambda).",
+            "example": "lambda = 2 => Var(X) = 0.25."
+          }
+        ],
+        "visual_svg": "",
+        "visual_alt": "Exponential PDF with rate lambda; mean and standard deviation both equal 1/lambda, so variance equals mean squared."
+      },
+      "given": {
+        "aim": "Find lambda given 5*E[X] = Var(X) for X ~ Exp(lambda).",
+        "terms": [
+          {
+            "term": "E[X] = 1/lambda",
+            "meaning": "The expected value (mean) of the exponential distribution.",
+            "example": "If lambda = 0.2, then E[X] = 5.",
+            "connects": "Appears in the left-hand side of the given equation."
+          },
+          {
+            "term": "Var(X) = 1/lambda^2",
+            "meaning": "The variance of the exponential distribution.",
+            "example": "If lambda = 0.2, Var(X) = 25.",
+            "connects": "Appears in the right-hand side of the given equation."
+          },
+          {
+            "term": "5*E[X] = Var(X)",
+            "meaning": "The constraint relating mean and variance, used to solve for lambda.",
+            "example": "5*(1/lambda) = 1/lambda^2 => 5*lambda = 1 => lambda = 0.2.",
+            "connects": "Directly yields lambda after algebraic simplification."
+          }
+        ],
+        "plan": "Substitute E[X] = 1/lambda and Var(X) = 1/lambda^2 into 5*E[X] = Var(X) and solve for lambda."
+      },
+      "solution": {
+        "steps": [
+          {
+            "step": 1,
+            "title": "Write formulas for mean and variance",
+            "formula_id": "probability-equally-likely",
+            "formula_raw": "E[X] = 1/lambda,   Var(X) = 1/lambda^2",
+            "apply": "E[X] = 1/lambda and Var(X) = 1/lambda^2",
+            "note": "These are standard results for the exponential distribution."
+          },
+          {
+            "step": 2,
+            "title": "Apply the given condition",
+            "formula_id": "probability-equally-likely",
+            "formula_raw": "5 * (1/lambda) = 1/lambda^2",
+            "apply": "5/lambda = 1/lambda^2\nMultiply both sides by lambda^2:\n5*lambda = 1\nlambda = 1/5 = 0.2",
+            "note": "Rounded to one decimal place: 0.2."
+          }
+        ],
+        "result": "lambda = 0.2."
+      },
+      "formula_ids_used": ["probability-equally-likely"],
+      "formula_note": "For the exponential distribution, Var(X) = (E[X])^2, so the condition 5*E[X] = Var(X) = (E[X])^2 gives E[X] = 5 and lambda = 1/5."
+    }
+  ],
+  "formulas": []
+}

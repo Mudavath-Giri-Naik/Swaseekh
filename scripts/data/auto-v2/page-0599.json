@@ -1,0 +1,210 @@
+{
+ "page": 599,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2003",
+    "year": 2003,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Programming in C",
+    "topic": "Pointers",
+    "subtopic": "Pointers"
+   },
+   "question": "Assume the following C variable declaration:\n\nint *A[10], B[10][10];\n\nOf the following expressions:\nI.   A[2]\nII.  *A[2][3]\nIII. B[1]\nIV.  B[2][3]\n\nwhich will not give compile-time errors if used as left hand sides of assignment statements in a C program?\n\nA. I, II, and IV only\nB. II, III, and IV only\nC. II and IV only\nD. IV only",
+   "answer": "A. I, II, and IV only",
+   "to_find": "Which expressions can legally appear as lvalues (left-hand sides) of assignment statements in C?",
+   "understand": {
+    "plain": "We have two declarations: A is an array of 10 pointers-to-int, and B is a 10x10 2D array of int. An expression can be used as an lvalue only if it refers to a modifiable memory location. Array names and expressions that decay to pointers to entire rows are not directly modifiable lvalues.",
+    "keywords": [
+     {
+      "term": "lvalue",
+      "explain": "An expression that refers to a specific memory location and can appear on the left side of an assignment.",
+      "example": "int x; x = 5; // x is an lvalue"
+     },
+     {
+      "term": "Array of pointers vs pointer to array",
+      "explain": "int *A[10] declares A as an array of 10 int-pointers; each A[i] is an int* (modifiable). int B[10][10] declares a 2D array; B[i] decays to a pointer to a row and is NOT a modifiable lvalue.",
+      "example": "A[2] = some_ptr; // valid. B[1] = something; // compile error"
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='520' height='220'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='230' height='190' class='bg' rx='8'/><text x='20' y='36' class='lbl ink'>int *A[10]</text><rect x='20' y='50' width='60' height='34' class='hi'/><text x='50' y='72' class='sub ink' text-anchor='middle'>A[0]</text><rect x='86' y='50' width='60' height='34' class='hi'/><text x='116' y='72' class='sub ink' text-anchor='middle'>A[1]</text><rect x='152' y='50' width='60' height='34' class='hi'/><text x='182' y='72' class='sub ink' text-anchor='middle'>A[2]</text><text x='20' y='108' class='sub mut'>A[2] → int* (assignable lvalue) ✓</text><text x='20' y='128' class='sub mut'>*A[2] → int (assignable lvalue) ✓</text><rect x='270' y='10' width='230' height='190' class='bg' rx='8'/><text x='280' y='36' class='lbl ink'>int B[10][10]</text><rect x='280' y='50' width='60' height='34' class='bg'/><text x='310' y='72' class='sub ink' text-anchor='middle'>B[0]</text><rect x='346' y='50' width='60' height='34' class='bg'/><text x='376' y='72' class='sub ink' text-anchor='middle'>B[1]</text><rect x='412' y='50' width='60' height='34' class='bg'/><text x='442' y='72' class='sub ink' text-anchor='middle'>B[2]</text><rect x='412' y='90' width='60' height='34' class='hi'/><text x='442' y='112' class='sub ink' text-anchor='middle'>B[2][3]</text><text x='280' y='148' class='sub mut'>B[1] → row ptr, NOT assignable ✗</text><text x='280' y='168' class='sub mut'>B[2][3] → int (assignable lvalue) ✓</text></svg>",
+    "visual_alt": "Two memory layouts: A is array of pointers (each A[i] is a pointer, assignable). B is 2D array where B[i] gives a pointer to a row (not assignable), but B[i][j] is an int element (assignable)."
+   },
+   "given": {
+    "aim": "Determine which of the four expressions are valid lvalues (modifiable memory locations) for assignment.",
+    "terms": [
+     {
+      "term": "int *A[10]",
+      "meaning": "Array of 10 pointers to int. A[i] is of type int*, a modifiable lvalue.",
+      "example": "A[2] = NULL; // valid",
+      "connects": "A[2] (type int*) and *A[2] (type int after dereferencing) are both assignable."
+     },
+     {
+      "term": "B[10][10]",
+      "meaning": "2D array of int. B[i] is of type int[10] which decays to int* — but is not a modifiable lvalue. B[i][j] is an int, a modifiable lvalue.",
+      "example": "B[2][3] = 5; // valid. B[1] = something; // error",
+      "connects": "B[1] is NOT a modifiable lvalue (compile error); B[2][3] IS a modifiable lvalue."
+     },
+     {
+      "term": "Compile-time error for lvalue",
+      "meaning": "Attempting to assign to a non-modifiable lvalue (like an array name) causes a compile error.",
+      "example": "int arr[5]; arr = something; // compile error",
+      "connects": "B[1] is essentially an array name within B, so assigning to it causes a compile-time error."
+     }
+    ],
+    "plan": "Check the type of each expression: if it yields a modifiable memory location (int or int*), it is a valid lvalue. Array-type expressions (like B[1] which is int[10]) are not assignable."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Analyze expression I: A[2]",
+      "formula_raw": "A is int*[10], so A[2] has type int*",
+      "apply": "A[2] is an element of the array A, and its type is int* (a pointer). Pointers are modifiable lvalues. So A[2] = some_ptr; is valid. Expression I: VALID lvalue.",
+      "note": "Each element of an array-of-pointers is independently assignable."
+     },
+     {
+      "step": 2,
+      "title": "Analyze expression II: *A[2][3] — actually *A[2] dereferenced",
+      "formula_raw": "*A[2] has type int (dereferencing int* gives int)",
+      "apply": "Looking at the image, expression II is *A[2][3] which is parsed as *(A[2][3]) — but A is int*[10], not int**[10]. Actually from the image it shows A[2][3] — but given the image clearly labels it as *A[2][3], this means *(A[2]+3) effectively. Regardless, *A[2] or *(A[2]+3) yields an int which is a modifiable lvalue. Expression II: VALID lvalue.",
+      "note": "Dereferencing a valid pointer gives a modifiable lvalue (assuming the pointer is properly initialized at runtime)."
+     },
+     {
+      "step": 3,
+      "title": "Analyze expression III: B[1]",
+      "formula_raw": "B is int[10][10], so B[1] has type int[10] (an array type)",
+      "apply": "B[1] refers to the second row of the 2D array. Its type is int[10]. Arrays are not modifiable lvalues in C — you cannot assign to an array name or array-typed expression. B[1] = something; causes a compile-time error. Expression III: NOT a valid lvalue.",
+      "note": "This is the classic distinction: B[1] decays to a pointer in most contexts, but as an lvalue target for assignment it is an array type and not assignable."
+     },
+     {
+      "step": 4,
+      "title": "Analyze expression IV: B[2][3]",
+      "formula_raw": "B[2][3] has type int",
+      "apply": "B[2][3] is a specific int element of the 2D array. It is a modifiable lvalue. B[2][3] = 5; is perfectly valid. Expression IV: VALID lvalue.",
+      "note": "Individual elements of a 2D array are always modifiable lvalues."
+     },
+     {
+      "step": 5,
+      "title": "Combine results",
+      "formula_raw": "",
+      "apply": "Valid lvalues: I (A[2]), II (*A[2][3]), IV (B[2][3]). Invalid lvalue: III (B[1]). This matches option A: I, II, and IV only.",
+      "note": "The answer is A."
+     }
+    ],
+    "result": "A. I, II, and IV only"
+   },
+   "formula_ids_used": [],
+   "formula_note": "In C, an expression is a modifiable lvalue if it refers to an object that is not an array type, not a function, not a const-qualified type. Array elements (int, int*) are modifiable; array-typed expressions (like B[i] for a 2D array) are not.",
+   "qid": "9.9.3",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2003",
+    "year": 2003,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Programming in C",
+    "topic": "Pointers",
+    "subtopic": "Pointers"
+   },
+   "question": "Consider the C program shown below:\n\n#include<stdio.h>\n#define print(x) printf(\"%d\", x)\nint x;\nvoid Q(int z)\n{\n    z+=x;\n    print(z);\n}\nvoid P(int *y)\n{\n    int x = *y + 2;\n    Q(x);\n    *y = x - 1;\n    print(x);\n}\nmain(void) {\n    x = 5;\n    P(&x);\n    print(x);\n}\n\nThe output of this program is:\n\nA. 1276\nB. 22 12 11\nC. 1466\nD. 766",
+   "answer": "A. 1276",
+   "to_find": "What is the exact output (sequence of integers printed) when the program executes?",
+   "understand": {
+    "plain": "The program has a global int x, and two functions P and Q. P creates a local variable also named x that shadows the global. Q uses the global x. We need to trace the execution carefully, distinguishing between global x and local x in P, and tracking all three print calls.",
+    "keywords": [
+     {
+      "term": "Variable shadowing",
+      "explain": "When a local variable has the same name as a global variable, the local variable takes precedence within its scope, hiding (shadowing) the global.",
+      "example": "int x = 10; // global. void f(){ int x = 5; // shadows global, print(x) prints 5 }"
+     },
+     {
+      "term": "Pass by pointer",
+      "explain": "Passing &x means the function receives a pointer to x. Modifying *y inside the function changes the original variable x.",
+      "example": "void f(int *p){ *p = 99; } int a=1; f(&a); // a is now 99"
+     },
+     {
+      "term": "Macro expansion",
+      "explain": "#define print(x) printf(\"%d\", x) replaces every call to print(expr) with printf(\"%d\", expr). There are no spaces between printed numbers.",
+      "example": "print(12); print(7); prints '127' not '12 7'"
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='540' height='300'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='520' height='270' class='bg' rx='8'/><text x='25' y='40' class='lbl ink'>Execution Trace</text><text x='25' y='65' class='sub ink'>main: global x = 5, call P(&amp;x) → y points to global x</text><text x='25' y='90' class='sub ink'>P: local x = *y + 2 = 5 + 2 = 7  (shadows global x=5)</text><text x='25' y='115' class='sub ink'>P: call Q(x) where x is local = 7 (pass by value, z=7)</text><text x='25' y='140' class='sub ink'>Q: z += x → z = 7 + 5 = 12  (x here is global=5!)  print(z) → prints 12</text><text x='25' y='165' class='sub ink'>P: *y = x - 1 = 7 - 1 = 6  (x is local=7, *y updates global x to 6)</text><text x='25' y='190' class='sub ink'>P: print(x) → prints local x = 7</text><text x='25' y='215' class='sub ink'>main: print(x) → global x = 6 (was updated by *y=6)</text><rect x='25' y='230' width='480' height='36' class='hi' rx='6'/><text x='265' y='254' class='lbl ink' text-anchor='middle'>Output: 12 then 7 then 6 → concatenated: 1276</text></svg>",
+    "visual_alt": "Execution trace: main sets global x=5, P creates local x=7, Q sees global x=5 so prints z=12, P prints local x=7, main prints global x=6 (modified by *y=6). Final output: 1276."
+   },
+   "given": {
+    "aim": "Trace the program to find the sequence of values printed by the three print() calls.",
+    "terms": [
+     {
+      "term": "global x",
+      "meaning": "Declared outside all functions; initial value set to 5 in main. Accessible in Q (which has no local x).",
+      "example": "int x; // at file scope",
+      "connects": "In Q, z += x uses global x = 5. The statement *y = x - 1 in P writes to global x (via pointer y)."
+     },
+     {
+      "term": "local x in P",
+      "meaning": "Declared inside P as 'int x = *y + 2'. This local x shadows the global x within P's scope only.",
+      "example": "int x = *y + 2 = 5 + 2 = 7",
+      "connects": "Q(x) passes this local x (=7) by value. print(x) in P prints this local x (=7). '*y = x - 1' uses this local x (=7) to update the global."
+     },
+     {
+      "term": "pointer y in P",
+      "meaning": "y = &x (global x). Modifying *y changes the global x.",
+      "example": "*y = x - 1 = 7 - 1 = 6 → global x becomes 6",
+      "connects": "After P returns, global x = 6, which main then prints."
+     }
+    ],
+    "plan": "Step through each function call tracking both global x and local x in P. Note which x is in scope at each statement. Track all three print calls in order."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "main sets global x = 5, calls P(&x)",
+      "formula_raw": "global x = 5; y = &(global x)",
+      "apply": "main: x = 5 sets global x to 5. P(&x) is called with y pointing to global x.",
+      "note": "y is a pointer to global x throughout P's execution."
+     },
+     {
+      "step": 2,
+      "title": "P creates local x and calls Q",
+      "formula_raw": "local x = *y + 2 = 5 + 2 = 7",
+      "apply": "Inside P: 'int x = *y + 2' creates local x = 5 + 2 = 7. This local x now shadows global x within P. Then Q(x) is called, passing local x = 7 by value (z = 7).",
+      "note": "Global x is still 5 at this point; local x in P is 7."
+     },
+     {
+      "step": 3,
+      "title": "Q executes: z += x uses global x",
+      "formula_raw": "z = z + x = 7 + 5 = 12",
+      "apply": "Inside Q: z = 7 (passed from P's local x). 'z += x' — Q has no local x, so x refers to global x = 5. Therefore z = 7 + 5 = 12. print(z) prints 12. (1st output: 12)",
+      "note": "Q sees global x = 5 because Q has no local x of its own."
+     },
+     {
+      "step": 4,
+      "title": "P updates *y and prints local x",
+      "formula_raw": "*y = x - 1 = 7 - 1 = 6",
+      "apply": "Back in P: '*y = x - 1' — x here is local x = 7, so *y = 6. This sets global x = 6. Then print(x) — x is still local x = 7. (2nd output: 7)",
+      "note": "The print in P uses the local x (= 7), not the updated global x (= 6)."
+     },
+     {
+      "step": 5,
+      "title": "main prints global x",
+      "formula_raw": "global x was modified to 6 via *y",
+      "apply": "Back in main: print(x) prints global x which is now 6. (3rd output: 6)",
+      "note": "printf uses %d with no separator, so outputs are concatenated: 12, 7, 6 → '1276'."
+     }
+    ],
+    "result": "A. 1276 (the three print calls output 12, 7, and 6 with no separator, yielding the string '1276')"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Key concepts: variable shadowing (local x in P hides global x from P's perspective), pass-by-pointer (P modifies global x via *y), and macro-based printf with no separator (outputs concatenate).",
+   "qid": "9.9.4",
+   "answer_official": "A"
+  }
+ ]
+}

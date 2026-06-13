@@ -1,0 +1,461 @@
+{
+ "page": 240,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2013",
+    "year": 2013,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Computer Networks",
+    "topic": "IP Addressing",
+    "subtopic": "IP Addressing"
+   },
+   "question": "In an IPv4 datagram, the MF bit is 0, the value of HLEN is 10, the value of total length is 400 and the fragment offset value is 300. The position of the datagram, the sequence numbers of the first and the last bytes of the payload, respectively are:\nA. Last fragment, 2400 and 2759\nB. First fragment, 2400 and 2759\nC. Last fragment, 2400 and 2759\nD. Middle fragment, 300 and 669",
+   "answer": "A. Last fragment, 2400 and 2759",
+   "to_find": "Position of the datagram (first/middle/last) and sequence numbers of first and last bytes of the payload",
+   "understand": {
+    "plain": "An IPv4 datagram has fragmentation-related fields: MF (More Fragments) bit, fragment offset, HLEN, and total length. The fragment offset tells us where this fragment's data starts in the original datagram. MF=0 means no more fragments follow, so this is the last fragment. We need to find the byte range of the payload in this fragment.",
+    "keywords": [
+     {
+      "term": "MF bit (More Fragments)",
+      "explain": "A flag in the IPv4 header. MF=1 means more fragments follow this one. MF=0 means this is the last (or only) fragment.",
+      "example": "If a 3000-byte datagram is fragmented into 3 pieces, the first two have MF=1 and the last has MF=0."
+     },
+     {
+      "term": "Fragment Offset",
+      "explain": "Specifies the offset of the data in this fragment relative to the start of the original unfragmented datagram, measured in units of 8 bytes.",
+      "example": "Offset 300 means the data starts at byte 300 * 8 = 2400 of the original datagram."
+     },
+     {
+      "term": "HLEN",
+      "explain": "Header Length field in IPv4, measured in 32-bit (4-byte) words. Header size in bytes = HLEN * 4.",
+      "example": "HLEN=10 means header is 10 * 4 = 40 bytes."
+     }
+    ],
+    "visual_svg": "<svg width='520' height='180' viewBox='0 0 520 180' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='160' height='50' class='bg'/><text x='90' y='30' text-anchor='middle' class='lbl ink'>IPv4 Header</text><text x='90' y='52' text-anchor='middle' class='sub mut'>HLEN=10 → 40 bytes</text><rect x='175' y='10' width='330' height='50' class='hi'/><text x='340' y='30' text-anchor='middle' class='lbl ink'>Payload / Data</text><text x='340' y='52' text-anchor='middle' class='sub mut'>360 bytes</text><text x='10' y='100' class='sub ink'>Total Length = 400 bytes</text><text x='10' y='120' class='sub ink'>Header = 40 bytes  →  Payload = 400 - 40 = 360 bytes</text><text x='10' y='140' class='sub ink'>Fragment Offset = 300  →  First byte = 300 * 8 = 2400</text><text x='10' y='160' class='sub ink'>Last byte = 2400 + 360 - 1 = 2759   |   MF=0 → Last fragment</text></svg>",
+    "visual_alt": "IPv4 datagram layout showing 40-byte header (HLEN=10) and 360-byte payload. Fragment offset 300 maps to byte position 2400, and last byte is 2759."
+   },
+   "given": {
+    "aim": "Determine if this is the last fragment and find the byte range of its payload in the original datagram",
+    "terms": [
+     {
+      "term": "MF = 0",
+      "meaning": "More Fragments bit is 0, meaning no more fragments follow",
+      "example": "MF=0 with offset > 0 => last fragment of a fragmented datagram",
+      "connects": "Identifies this as the last fragment"
+     },
+     {
+      "term": "HLEN = 10",
+      "meaning": "Header length is 10 * 4 = 40 bytes",
+      "example": "Standard IPv4 header is 20 bytes (HLEN=5); HLEN=10 means options are present",
+      "connects": "Used to compute payload size: Total Length - Header Length"
+     },
+     {
+      "term": "Total Length = 400",
+      "meaning": "Total size of this IP datagram including header and data",
+      "example": "400 bytes total - 40 bytes header = 360 bytes of payload",
+      "connects": "Determines how many bytes of data are in this fragment"
+     },
+     {
+      "term": "Fragment Offset = 300",
+      "meaning": "This fragment's data begins at byte (300 * 8) = 2400 in the original datagram",
+      "example": "Offset is in units of 8 bytes, so 300 * 8 = 2400",
+      "connects": "Determines the starting byte position of this fragment's payload"
+     }
+    ],
+    "plan": "Step 1: Determine position using MF bit (MF=0 with non-zero offset = last fragment). Step 2: Compute header size from HLEN. Step 3: Compute payload size = Total Length - Header size. Step 4: First byte = offset * 8; Last byte = First byte + payload size - 1."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Determine fragment position",
+      "formula_raw": "MF=0 and offset > 0 => Last fragment",
+      "apply": "MF = 0 means no more fragments follow. Fragment offset = 300 (non-zero), so this is not the first fragment. Combined: this is the LAST fragment of a fragmented datagram.",
+      "note": "MF=0 with offset=0 would mean it's the only (non-fragmented) datagram."
+     },
+     {
+      "step": 2,
+      "title": "Calculate header size and payload size",
+      "formula_raw": "Header size = HLEN * 4; Payload size = Total Length - Header size",
+      "apply": "Header size = 10 * 4 = 40 bytes. Payload size = 400 - 40 = 360 bytes.",
+      "note": "HLEN is in units of 4 bytes (32-bit words)."
+     },
+     {
+      "step": 3,
+      "title": "Calculate first and last byte positions",
+      "formula_raw": "First byte = Fragment Offset * 8; Last byte = First byte + Payload size - 1",
+      "apply": "First byte = 300 * 8 = 2400. Last byte = 2400 + 360 - 1 = 2759.",
+      "note": "Fragment offset is always in units of 8 bytes."
+     }
+    ],
+    "result": "Last fragment; first byte = 2400, last byte = 2759. Answer: A."
+   },
+   "formula_ids_used": [],
+   "formula_note": "IPv4 fragmentation: payload_start = fragment_offset * 8; payload_end = payload_start + (total_length - HLEN*4) - 1; MF=0 means last fragment.",
+   "qid": "4.14.5",
+   "answer_official": "C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2014",
+    "year": 2014,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Computer Networks",
+    "topic": "IP Addressing",
+    "subtopic": "IP Addressing"
+   },
+   "question": "Every host in an IPv4 network has a 1-second resolution real-time clock with battery backup. Each host needs to generate up to 2^20 unique identifiers per second. Assume that each host has a globally unique IPv4 address. Design a globally unique ID for this purpose using the IPv4 address, clock reading, and a counter. After what period (in seconds) will the identifiers generated by a host wrap around?",
+   "answer": "2^32",
+   "to_find": "The period in seconds after which the identifiers generated by a host will wrap around",
+   "understand": {
+    "plain": "We want to create globally unique IDs using three parts: a host's IPv4 address (32 bits, globally unique), the current time from the real-time clock (some bits), and a per-second counter (to handle up to 2^20 IDs per second). The wrap-around period is determined by how many bits are used for the clock portion.",
+    "keywords": [
+     {
+      "term": "Globally unique ID",
+      "explain": "An identifier that is unique not just within one system, but across all hosts in the entire network.",
+      "example": "Combining IP address + timestamp + counter ensures no two hosts ever generate the same ID."
+     },
+     {
+      "term": "Wrap around",
+      "explain": "When a counter/clock field overflows back to zero after reaching its maximum value, IDs will start repeating.",
+      "example": "A 4-bit counter wraps around after 2^4 = 16 increments."
+     },
+     {
+      "term": "ID structure",
+      "explain": "The ID is composed of: 32-bit IPv4 address + N-bit clock reading + 20-bit counter (to support 2^20 IDs/second).",
+      "example": "If the counter is 20 bits, it can represent 2^20 values per second, which is the required rate."
+     }
+    ],
+    "visual_svg": "<svg width='500' height='120' viewBox='0 0 500 120' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='20' width='150' height='50' class='ok' style='fill-opacity:0.3;'/><rect x='10' y='20' width='150' height='50' style='fill:none;stroke:#1D9E75;stroke-width:2;'/><text x='85' y='42' text-anchor='middle' class='tag ink'>IPv4 Address</text><text x='85' y='62' text-anchor='middle' class='sub mut'>32 bits</text><rect x='165' y='20' width='185' height='50' class='hi'/><text x='257' y='42' text-anchor='middle' class='tag ink'>Clock Reading</text><text x='257' y='62' text-anchor='middle' class='sub mut'>N bits (wraps in 2^N seconds)</text><rect x='355' y='20' width='135' height='50' class='bg'/><text x='422' y='42' text-anchor='middle' class='tag ink'>Counter</text><text x='422' y='62' text-anchor='middle' class='sub mut'>20 bits (2^20/sec)</text><text x='10' y='105' class='sub ink'>Wrap-around period = 2^N seconds, where N = total_bits - 32 - 20</text></svg>",
+    "visual_alt": "ID structure: 32-bit IPv4 address | N-bit clock reading | 20-bit counter. The wrap-around period equals 2^N seconds."
+   },
+   "given": {
+    "aim": "Find the wrap-around period in seconds for the globally unique identifiers",
+    "terms": [
+     {
+      "term": "IPv4 address: 32 bits",
+      "meaning": "Unique per host, globally unique; uses 32 bits of the ID",
+      "example": "192.168.1.1 is 32 bits",
+      "connects": "Guarantees different hosts produce different IDs; accounts for 32 bits"
+     },
+     {
+      "term": "Counter: 20 bits",
+      "meaning": "Must support 2^20 unique IDs per second, so needs 20 bits",
+      "example": "Counter ranges from 0 to 2^20 - 1 within each second",
+      "connects": "Accounts for 20 bits of the ID structure"
+     },
+     {
+      "term": "Clock reading: 32 bits",
+      "meaning": "The remaining bits in a standard 64-bit or larger ID go to the clock. Since the question implies a practical design, the clock field uses 32 bits.",
+      "example": "A 32-bit clock counts seconds; it wraps around after 2^32 seconds",
+      "connects": "The clock field determines the wrap-around period"
+     }
+    ],
+    "plan": "The ID is globally unique if it combines: 32-bit host IP + clock reading (in seconds, 1-second resolution) + 20-bit counter. The total unique combinations per second = 2^32 hosts * 2^20 IDs/sec. The clock field wraps after 2^32 seconds (using a 32-bit clock for the 1-second resolution clock). Answer = 2^32 seconds."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Determine counter bits needed",
+      "formula_raw": "counter_bits = ceil(log_2(IDs_per_second)) = ceil(log_2(2^20)) = 20",
+      "apply": "Each host needs up to 2^20 unique IDs per second. So the counter portion requires exactly 20 bits.",
+      "note": "This counter resets every second."
+     },
+     {
+      "step": 2,
+      "title": "Determine clock field size",
+      "formula_raw": "A 1-second resolution clock reading stored in 32 bits",
+      "apply": "The IPv4 address is 32 bits (already unique per host). The counter is 20 bits. The remaining component is the clock. A standard design uses a 32-bit Unix timestamp for the clock (seconds since epoch). With a 32-bit clock field, the period before wrap-around is 2^32 seconds.",
+      "note": "The problem says the clock has 1-second resolution, meaning it increments once per second. The clock field needs enough bits to be unique over a long period. 32 bits is the standard and sufficient value here."
+     },
+     {
+      "step": 3,
+      "title": "Compute wrap-around period",
+      "formula_raw": "Wrap-around period = 2^(clock_bits) seconds",
+      "apply": "With a 32-bit clock field counting seconds, the IDs wrap around after 2^32 seconds.",
+      "note": "2^32 seconds is approximately 136 years."
+     }
+    ],
+    "result": "The identifiers will wrap around after 2^32 seconds."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Globally unique ID design: IP(32 bits) + Clock(32 bits) + Counter(20 bits); wrap-around period = 2^(clock_bits) = 2^32 seconds.",
+   "qid": "4.14.6",
+   "answer_official": "256"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2017",
+    "year": 2017,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Computer Networks",
+    "topic": "IP Addressing",
+    "subtopic": "IP Addressing"
+   },
+   "question": "The maximum number of router addresses that can be listed in the record route (RR) option field of an IPv4 header is ______.",
+   "answer": "9",
+   "to_find": "Maximum number of router IP addresses that can be stored in the IPv4 Record Route (RR) option",
+   "understand": {
+    "plain": "IPv4 supports options in the header. The Record Route (RR) option records the IP addresses of routers that forward the packet. The option field has a limited size, and each router address takes 4 bytes. We need to find the maximum number of addresses that fit.",
+    "keywords": [
+     {
+      "term": "IPv4 Options field",
+      "explain": "An optional variable-length field in the IPv4 header that can carry special instructions like Record Route, Strict/Loose Source Routing, etc.",
+      "example": "The Options field occupies the space between the fixed 20-byte header and the maximum 60-byte header (up to 40 bytes for options)."
+     },
+     {
+      "term": "Record Route (RR) Option",
+      "explain": "An IPv4 option (type 0x07) that causes each forwarding router to append its outgoing interface IP address to the option field.",
+      "example": "If 3 routers handle the packet, 3 IP addresses (12 bytes) are recorded in the RR option field."
+     }
+    ],
+    "visual_svg": "<svg width='500' height='160' viewBox='0 0 500 160' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='100' height='40' class='bg'/><text x='60' y='35' text-anchor='middle' class='sub ink'>Fixed Header</text><text x='60' y='50' text-anchor='middle' class='sub mut'>20 bytes</text><rect x='115' y='10' width='375' height='40' class='hi'/><text x='302' y='35' text-anchor='middle' class='sub ink'>Options (max 40 bytes)</text><text x='10' y='80' class='sub ink'>RR Option structure:</text><rect x='10' y='90' width='30' height='30' class='bg'/><text x='25' y='110' text-anchor='middle' class='sub ink'>Type</text><rect x='45' y='90' width='30' height='30' class='bg'/><text x='60' y='110' text-anchor='middle' class='sub ink'>Len</text><rect x='80' y='90' width='30' height='30' class='bg'/><text x='95' y='110' text-anchor='middle' class='sub ink'>Ptr</text><rect x='115' y='90' width='375' height='30' class='ok' style='fill-opacity:0.2;stroke:#1D9E75;stroke-width:1;'/><text x='302' y='110' text-anchor='middle' class='sub ink'>Router IP addresses (4 bytes each, max 9 addresses = 36 bytes)</text><text x='10' y='150' class='sub ink'>3 bytes overhead + 9 * 4 = 39 bytes &lt;= 40 bytes max</text></svg>",
+    "visual_alt": "IPv4 header has max 60 bytes total, 20 fixed, 40 for options. RR option uses 3 bytes of overhead (type, length, pointer) + 4 bytes per router address. 40 - 3 = 37 bytes available, but must be multiple of 4: floor(37/4) = 9 addresses (36 bytes)."
+   },
+   "given": {
+    "aim": "Find the maximum number of router IP addresses that fit in the IPv4 RR option",
+    "terms": [
+     {
+      "term": "Max IPv4 header size: 60 bytes",
+      "meaning": "The HLEN field is 4 bits, max value 15, so max header = 15 * 4 = 60 bytes",
+      "example": "Fixed header = 20 bytes, so options can be at most 40 bytes",
+      "connects": "Limits the total space available for all options"
+     },
+     {
+      "term": "RR option overhead: 3 bytes",
+      "meaning": "The RR option begins with 3 bytes: Type (1 byte), Length (1 byte), Pointer (1 byte)",
+      "example": "Type=7, Length=total option length, Pointer=next free slot",
+      "connects": "Reduces available space for actual router addresses"
+     },
+     {
+      "term": "Each router address: 4 bytes",
+      "meaning": "Each IPv4 address stored in the RR field occupies 4 bytes",
+      "example": "9 addresses = 36 bytes of address data",
+      "connects": "Determines how many addresses fit in remaining space"
+     }
+    ],
+    "plan": "Max option space = 40 bytes. RR option uses 3 bytes for Type+Length+Pointer. Remaining for addresses = 40 - 3 = 37 bytes. Each address = 4 bytes. Number of addresses = floor(37/4) = 9 (using 36 bytes), total RR option = 39 bytes <= 40."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Calculate maximum options space",
+      "formula_raw": "Max header = 60 bytes; Fixed header = 20 bytes; Max options = 40 bytes",
+      "apply": "IPv4 HLEN is a 4-bit field with maximum value 15, so max header size = 15 * 4 = 60 bytes. The fixed part is always 20 bytes. Therefore, maximum options space = 60 - 20 = 40 bytes.",
+      "note": "The options field must be padded to a multiple of 4 bytes."
+     },
+     {
+      "step": 2,
+      "title": "Account for RR option overhead",
+      "formula_raw": "RR overhead = 3 bytes (Type + Length + Pointer); Available for addresses = 40 - 3 = 37 bytes",
+      "apply": "The Record Route option starts with 3 bytes: 1 byte for option type (7), 1 byte for option length, 1 byte for pointer. Available space for IP addresses = 40 - 3 = 37 bytes.",
+      "note": "The pointer field indicates the byte offset of the next free space for recording an address."
+     },
+     {
+      "step": 3,
+      "title": "Calculate maximum number of addresses",
+      "formula_raw": "max_addresses = floor(37 / 4) = 9",
+      "apply": "Each IP address is 4 bytes. Maximum addresses = floor(37 / 4) = floor(9.25) = 9 addresses, occupying 36 bytes. Total RR option = 3 + 36 = 39 bytes <= 40 bytes. (The remaining 1 byte would be used for padding with a NOP option.)",
+      "note": "Some references confirm 9 is the answer. The RR option length field would be 39, and total options padded to 40 bytes with NOP."
+     }
+    ],
+    "result": "The maximum number of router addresses that can be listed in the RR option field is 9."
+   },
+   "formula_ids_used": [],
+   "formula_note": "IPv4 RR option: max options space = 60 - 20 = 40 bytes; RR overhead = 3 bytes; max addresses = floor((40-3)/4) = 9.",
+   "qid": "4.14.7",
+   "answer_official": "9"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2018",
+    "year": 2018,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Computer Networks",
+    "topic": "IP Addressing",
+    "subtopic": "IP Addressing"
+   },
+   "question": "Consider an IP packet with a length of 4,500 bytes that includes a 20-byte IPv4 header and a 40-byte TCP header. The packet is forwarded to an Ethernet router that supports a Maximum Transmission Unit (MTU) of 1,500 bytes. Assume that the length of the IP header in all the outgoing fragments of this packet is 20 bytes. Assume that the fragmentation offset value in the IP header of the original packet is 0. The fragmentation offset value stored in the third fragment is ______.",
+   "answer": "370",
+   "to_find": "The fragmentation offset value in the third fragment of the IP packet",
+   "understand": {
+    "plain": "A large IP packet of 4500 bytes needs to be fragmented to fit through an Ethernet link with MTU 1500 bytes. Each fragment has a 20-byte IP header, leaving 1480 bytes for data. The fragment offset field records where each fragment's data starts in the original payload, measured in 8-byte units.",
+    "keywords": [
+     {
+      "term": "MTU (Maximum Transmission Unit)",
+      "explain": "The maximum size of a packet that can be transmitted over a network link in one frame.",
+      "example": "Ethernet MTU = 1500 bytes means no IP datagram can exceed 1500 bytes on that link."
+     },
+     {
+      "term": "IP Fragmentation",
+      "explain": "When a datagram is too large for the MTU, the IP layer splits it into smaller fragments, each with its own IP header.",
+      "example": "A 4500-byte packet with MTU 1500 is split into 3 fragments of 1500, 1500, and 1500 bytes."
+     },
+     {
+      "term": "Fragment Offset",
+      "explain": "Measured in units of 8 bytes, it indicates where in the original data this fragment begins.",
+      "example": "Fragment 2 starts at byte 1480 in the data, so offset = 1480/8 = 185."
+     }
+    ],
+    "visual_svg": "<svg width='500' height='200' viewBox='0 0 500 200' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><text x='10' y='20' class='tag ink'>Original: 4500 bytes = 20B hdr + 4480B data</text><rect x='10' y='30' width='480' height='25' class='bg'/><text x='250' y='47' text-anchor='middle' class='sub ink'>Data: 4480 bytes</text><text x='10' y='75' class='tag ink'>After fragmentation (MTU=1500, each frag has 20B hdr):</text><rect x='10' y='85' width='154' height='25' class='hi'/><text x='87' y='102' text-anchor='middle' class='sub ink'>Frag 1: data[0..1479], offset=0</text><rect x='168' y='85' width='154' height='25' class='hi'/><text x='245' y='102' text-anchor='middle' class='sub ink'>Frag 2: data[1480..2959], offset=185</text><rect x='326' y='85' width='154' height='25' class='ok' style='fill-opacity:0.3;stroke:#1D9E75;stroke-width:2;'/><text x='403' y='102' text-anchor='middle' class='sub ink'>Frag 3: data[2960..], offset=370</text><text x='10' y='135' class='sub ink'>Frag 3 offset = 2960 / 8 = 370</text><rect x='10' y='145' width='480' height='25' class='bg'/><text x='250' y='162' text-anchor='middle' class='sub ink'>Remaining data = 4480 - 2*1480 = 1520 bytes (fits in MTU=1500? No, needs 4th fragment)</text><text x='10' y='190' class='sub mut'>Frag 3 offset = 2 * 1480 / 8 = 2960 / 8 = 370</text></svg>",
+    "visual_alt": "Original 4500-byte packet split at MTU 1500. Each fragment carries 1480 bytes of data (1500 - 20 byte header). Fragment 3 starts at data byte 2960, giving offset = 2960/8 = 370."
+   },
+   "given": {
+    "aim": "Calculate the fragment offset stored in the third fragment",
+    "terms": [
+     {
+      "term": "Original packet: 4500 bytes",
+      "meaning": "Total IP packet size: 20-byte IP header + 40-byte TCP header + payload",
+      "example": "Data portion = 4500 - 20 = 4480 bytes (all of it, including TCP header, is treated as data when fragmenting at IP layer)",
+      "connects": "Determines total data to be fragmented"
+     },
+     {
+      "term": "MTU: 1500 bytes",
+      "meaning": "Maximum fragment size including the 20-byte IP header",
+      "example": "Each fragment carries at most 1500 - 20 = 1480 bytes of data",
+      "connects": "Determines how much data each fragment can carry"
+     },
+     {
+      "term": "Fragment offset unit: 8 bytes",
+      "meaning": "The fragment offset field counts bytes in multiples of 8",
+      "example": "If data starts at byte 2960, offset = 2960/8 = 370",
+      "connects": "Converts byte position to the value stored in the header"
+     }
+    ],
+    "plan": "Compute data per fragment = MTU - IP header = 1480 bytes. Fragment 1 carries bytes 0..1479, Fragment 2 carries bytes 1480..2959, Fragment 3 starts at byte 2960. Offset for Fragment 3 = 2960/8 = 370."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Calculate data per fragment",
+      "formula_raw": "data_per_fragment = MTU - IP_header_size = 1500 - 20 = 1480 bytes",
+      "apply": "Each fragment has a 20-byte IP header, so each fragment carries at most 1500 - 20 = 1480 bytes of data. Note: 1480 is divisible by 8 (1480/8 = 185), satisfying fragmentation alignment requirement.",
+      "note": "The data field size must be a multiple of 8 bytes for all fragments except the last."
+     },
+     {
+      "step": 2,
+      "title": "Identify where each fragment starts",
+      "formula_raw": "Fragment n starts at byte (n-1) * 1480",
+      "apply": "Fragment 1: bytes 0 to 1479 (offset = 0/8 = 0)\nFragment 2: bytes 1480 to 2959 (offset = 1480/8 = 185)\nFragment 3: bytes 2960 to ... (offset = 2960/8 = 370)",
+      "note": "Total data = 4500 - 20 = 4480 bytes. Fragment 3 carries bytes 2960 to 4479 = 1520 bytes > 1480, so there will actually be a 4th fragment, but the question only asks for the offset of the 3rd."
+     },
+     {
+      "step": 3,
+      "title": "Compute fragment offset for Fragment 3",
+      "formula_raw": "offset_3 = (2 * 1480) / 8 = 2960 / 8 = 370",
+      "apply": "The third fragment starts at byte position 2 * 1480 = 2960 in the data. Fragment offset = 2960 / 8 = 370.",
+      "note": "The fragment offset field stores the value 370, which represents starting byte 370 * 8 = 2960."
+     }
+    ],
+    "result": "The fragmentation offset value stored in the third fragment is 370."
+   },
+   "formula_ids_used": [],
+   "formula_note": "IP fragmentation offset: offset = (start_byte_of_data) / 8; each fragment carries MTU - header_size bytes of data; 1480/8 = 185 per fragment step.",
+   "qid": "4.14.8",
+   "answer_official": "144"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2023",
+    "year": 2023,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Computer Networks",
+    "topic": "IP Addressing",
+    "subtopic": "IP Addressing"
+   },
+   "question": "Suppose in a web browser, you click on the URL www.gate2023.in. The browser cache is empty. The IP address for this URL is not cached in your local host, so a DNS lookup is triggered (by the local DNS server deployed on your local host) over the 3-tier hierarchy in an iterative mode. No resource records are cached anywhere across all servers in the DNS hierarchy. Also, the round trip time between the local host and the web server hosting www.gate2023.in is also equal to RTT. The HTML file associated with www.gate2023.in is small enough to have negligible transmission time. Neglect rendering time by your web browser, which references 10 equally small objects on the same web server.\n\nWhich of the following statements is/are CORRECT about the minimum elapsed time between clicking on the URL and the browser fully rendering it?\nA. 7 RTTs, in case of non-persistent HTTP with 5 parallel TCP connections.\nB. 5 RTTs, in case of persistent HTTP with pipelining.\nC. 5 RTTs, in case of non-persistent HTTP with 5 parallel TCP connections.\nD. 6 RTTs, in case of persistent HTTP with pipelining.",
+   "answer": "D. 6 RTTs, in case of persistent HTTP with pipelining.",
+   "to_find": "Which statements about minimum elapsed time for browser to fully render www.gate2023.in are correct",
+   "understand": {
+    "plain": "When you click a URL, first DNS resolution happens (takes multiple RTTs in iterative mode with 3-tier hierarchy), then the TCP connection and HTTP requests happen. The page has 1 HTML file + 10 objects. We need to count RTTs for each HTTP mode and pick the correct statements.",
+    "keywords": [
+     {
+      "term": "3-tier DNS hierarchy (iterative)",
+      "explain": "In iterative DNS resolution, the local DNS server queries: Root DNS, then TLD (.in) DNS, then Authoritative DNS. Each query-response = 1 RTT.",
+      "example": "3 DNS queries = 3 RTTs for the local DNS server to get the IP address."
+     },
+     {
+      "term": "Persistent HTTP with pipelining",
+      "explain": "A single TCP connection is reused for multiple requests, and multiple requests can be sent without waiting for responses (pipelined).",
+      "example": "All 10 objects can be requested in one batch over the same connection after the HTML is received."
+     },
+     {
+      "term": "Non-persistent HTTP with parallel connections",
+      "explain": "Each HTTP request requires a new TCP connection (2 RTTs per object: 1 for TCP handshake + 1 for HTTP request/response), but multiple connections can be made simultaneously.",
+      "example": "With 5 parallel connections and 10 objects, two rounds of 5 parallel requests are needed."
+     }
+    ],
+    "visual_svg": "<svg width='520' height='280' viewBox='0 0 520 280' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><text x='10' y='20' class='tag ink'>DNS: 3 RTTs (Root + TLD + Authoritative, iterative)</text><rect x='10' y='28' width='150' height='20' class='hi'/><text x='85' y='43' text-anchor='middle' class='sub ink'>DNS: 3 RTTs</text><text x='10' y='70' class='tag ink'>Persistent HTTP + Pipelining:</text><rect x='10' y='78' width='50' height='20' class='bg'/><text x='35' y='93' text-anchor='middle' class='sub ink'>TCP syn</text><rect x='65' y='78' width='50' height='20' class='bg'/><text x='90' y='93' text-anchor='middle' class='sub ink'>HTML req</text><rect x='120' y='78' width='50' height='20' class='ok' style='fill-opacity:0.3;stroke:#1D9E75;stroke-width:1;'/><text x='145' y='93' text-anchor='middle' class='sub ink'>10 obj</text><text x='175' y='93' class='sub mut'>=3+1+1+1=6 RTTs total</text><text x='10' y='130' class='tag ink'>Non-persistent HTTP, 5 parallel:</text><rect x='10' y='138' width='50' height='20' class='bg'/><text x='35' y='153' text-anchor='middle' class='sub ink'>TCP syn</text><rect x='65' y='138' width='50' height='20' class='bg'/><text x='90' y='153' text-anchor='middle' class='sub ink'>HTML req</text><rect x='120' y='138' width='100' height='20' class='hi'/><text x='170' y='153' text-anchor='middle' class='sub ink'>5 obj (TCP+req)</text><rect x='225' y='138' width='100' height='20' class='hi'/><text x='275' y='153' text-anchor='middle' class='sub ink'>5 obj (TCP+req)</text><text x='330' y='153' class='sub mut'>=3+2+2+2=9 RTTs? No, see solution</text><text x='10' y='200' class='sub ink'>DNS: 3 RTTs</text><text x='10' y='220' class='sub ink'>Persistent+pipelining: +1(TCP) +1(HTML) +1(all 10 obj pipelined) = 3 RTTs = Total 6 RTTs</text><text x='10' y='240' class='sub ink'>Non-persistent, 5 parallel: +2(TCP+HTML) +2(5 obj) +2(5 obj) = 6 RTTs = Total 9 RTTs</text><text x='10' y='260' class='sub ink'>Non-persistent, 5 parallel, correct analysis: 3+2+4=9, or 3+2+2+2=9 RTTs</text></svg>",
+    "visual_alt": "Timeline: DNS takes 3 RTTs (iterative, 3-tier). Then TCP setup + HTTP. Persistent with pipelining: 1 RTT TCP + 1 RTT HTML + 1 RTT all 10 objects = 3 more RTTs, total 6. Non-persistent 5 parallel: 2 RTT (TCP+HTML) + 2 RTT (5 obj batch 1) + 2 RTT (5 obj batch 2) = 6 more RTTs, total 9."
+   },
+   "given": {
+    "aim": "Calculate minimum elapsed time (in RTTs) to fully render www.gate2023.in for each HTTP scenario",
+    "terms": [
+     {
+      "term": "DNS resolution: 3 RTTs",
+      "meaning": "Iterative resolution through 3-tier hierarchy: local DNS queries Root (1 RTT), TLD (1 RTT), Authoritative (1 RTT)",
+      "example": "Root returns .in TLD address, TLD returns gate2023.in NS address, authoritative returns www.gate2023.in IP",
+      "connects": "These 3 RTTs are common overhead for all scenarios before any HTTP can happen"
+     },
+     {
+      "term": "TCP handshake: 1 RTT",
+      "meaning": "Before HTTP, a TCP connection must be established (SYN + SYN-ACK = 1 RTT)",
+      "example": "Non-persistent HTTP requires a new TCP connection per object = 2 RTTs per object (1 TCP + 1 HTTP)",
+      "connects": "Adds 1 RTT per TCP connection establishment"
+     },
+     {
+      "term": "Persistent HTTP with pipelining",
+      "meaning": "One TCP connection, HTML requested and received, then all 10 objects requested together in pipeline",
+      "example": "After getting HTML, browser sends 10 requests at once and waits for all responses = 1 RTT for all 10",
+      "connects": "After 3 DNS + 1 TCP + 1 HTML = 5, then 1 RTT for all 10 objects = total 6 RTTs"
+     }
+    ],
+    "plan": "Calculate DNS RTTs (3). Then for each HTTP type, add: TCP setup, HTML fetch, and object fetches. Compare with the options."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Calculate DNS resolution RTTs",
+      "formula_raw": "DNS RTTs = 3 (Root + TLD + Authoritative, iterative mode, no caching)",
+      "apply": "Iterative DNS with 3-tier hierarchy and no cached records: Local DNS -> Root (1 RTT) -> Local DNS -> TLD .in server (1 RTT) -> Local DNS -> Authoritative for gate2023.in (1 RTT). Total DNS = 3 RTTs.",
+      "note": "In iterative mode, the local DNS server does all the work; each query-response pair = 1 RTT."
+     },
+     {
+      "step": 2,
+      "title": "Analyze Persistent HTTP with pipelining (Option B and D)",
+      "formula_raw": "Total = DNS + TCP_setup + HTML_request + all_objects_pipelined",
+      "apply": "After DNS (3 RTTs): TCP connection = 1 RTT. Request HTML file = 1 RTT. Now browser sees 10 objects referenced. With pipelining, all 10 requests are sent together in one round trip = 1 RTT for all 10 objects. Total = 3 + 1 + 1 + 1 = 6 RTTs. Option D says 6 RTTs for persistent HTTP with pipelining. CORRECT. Option B says 5 RTTs - INCORRECT.",
+      "note": "Pipelining sends all requests without waiting for individual responses, so all 10 objects arrive in 1 RTT after sending 10 pipelined requests."
+     },
+     {
+      "step": 3,
+      "title": "Analyze Non-persistent HTTP with 5 parallel connections (Option A and C)",
+      "formula_raw": "Total = DNS + (TCP+HTTP for HTML) + ceil(10/5) * (TCP+HTTP per batch)",
+      "apply": "After DNS (3 RTTs): Fetch HTML: 1 RTT TCP + 1 RTT HTTP = 2 RTTs. Browser sees 10 objects. With 5 parallel connections and non-persistent HTTP: Batch 1 (5 objects): 1 RTT TCP + 1 RTT HTTP = 2 RTTs. Batch 2 (remaining 5 objects): 1 RTT TCP + 1 RTT HTTP = 2 RTTs. Total = 3 + 2 + 2 + 2 = 9 RTTs. Option A says 7 RTTs - INCORRECT. Option C says 5 RTTs - INCORRECT.",
+      "note": "Non-persistent HTTP requires a new TCP connection for every object, even with parallel connections. Each batch of 5 parallel requests still needs TCP setup (1 RTT) + HTTP request (1 RTT) = 2 RTTs per batch."
+     }
+    ],
+    "result": "Only D is correct: 6 RTTs for persistent HTTP with pipelining. Answer: D."
+   },
+   "formula_ids_used": [],
+   "formula_note": "DNS iterative 3-tier = 3 RTTs. Persistent HTTP + pipelining: 1 TCP + 1 HTML + 1 all-objects = 3 more RTTs, total 6. Non-persistent 5-parallel: 2 (HTML) + 2+2 (10 objects in 2 batches) = 6 more RTTs, total 9.",
+   "qid": "4.14.9",
+   "answer_official": "C;D"
+  }
+ ]
+}

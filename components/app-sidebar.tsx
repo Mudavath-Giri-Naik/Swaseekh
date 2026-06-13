@@ -17,6 +17,7 @@ import {
   User as UserIcon,
   Bell,
   ChevronsUpDown,
+  TrendingUp,
 } from "lucide-react"
 
 import { useSidebarData } from "@/components/sidebar-context"
@@ -68,6 +69,21 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
     return () => {
       cancelled = true
     }
+  }, [])
+
+  // Aptitude question count
+  const [aptitudeCount, setAptitudeCount] = React.useState<number | null>(null)
+  React.useEffect(() => {
+    let cancelled = false
+    fetch('/api/aptitude/questions?limit=1')
+      .then((r) => r.json())
+      .then((d) => {
+        if (!cancelled && typeof d?.total === 'number') {
+          setAptitudeCount(d.total)
+        }
+      })
+      .catch(() => {})
+    return () => { cancelled = true }
   }, [])
 
   return (
@@ -152,6 +168,27 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                           {questionCount !== null && (
                             <span className="ml-1 text-xs text-muted-foreground">
                               ({questionCount})
+                            </span>
+                          )}
+                        </span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+
+                  {/* Aptitude */}
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname.startsWith("/aptitude")}
+                      tooltip="Aptitude"
+                    >
+                      <Link href="/aptitude">
+                        <TrendingUp className="h-4 w-4" />
+                        <span>
+                          Aptitude
+                          {aptitudeCount !== null && (
+                            <span className="ml-1 text-xs text-muted-foreground">
+                              ({aptitudeCount})
                             </span>
                           )}
                         </span>

@@ -1,0 +1,462 @@
+{
+  "questions": [
+    {
+      "meta": {
+        "exam": "GATE 1989",
+        "year": 1989,
+        "marks": 2,
+        "difficulty": "medium",
+        "type": "NAT",
+        "subject": "Discrete Mathematics",
+        "topic": "Mathematical Logic",
+        "subtopic": "First Order Logic"
+      },
+      "question": "Symbolize the expression \"Every mother loves her children\" in predicate logic.",
+      "answer": "forall x forall y: ( (mother(x) AND child_of(y, x)) -> loves(x, y) ) ; equivalently, using M(x) = 'x is a mother' and C(y,x) = 'y is a child of x' and L(x,y) = 'x loves y': forall x [ M(x) -> forall y ( C(y,x) -> L(x,y) ) ].",
+      "to_find": "A first order logic formula that captures \"every mother loves her children\".",
+      "understand": {
+        "plain": "The English sentence makes a claim about all mothers, so the outermost word is the universal quantifier forall. Inside, for any mother we again talk about all of her children, so a second forall appears. The trick is that 'her children' is a conditional relationship: only the things that ARE children of that mother are claimed to be loved, so we attach the loving claim with an implication, not a plain AND.",
+        "keywords": [
+          {
+            "term": "Universal quantifier (forall)",
+            "explain": "Says a statement holds for every element of the domain; in FOL the standard way to say 'every ... is ...' is forall x ( P(x) -> Q(x) ).",
+            "example": "'Every dog barks' becomes forall x ( dog(x) -> barks(x) )."
+          },
+          {
+            "term": "Restricted quantification with implication",
+            "explain": "When you quantify over 'all X that are Y', you guard the inner claim with an implication so non-Y elements trivially satisfy it; using AND here would wrongly assert everything is a mother.",
+            "example": "forall x ( student(x) -> studies(x) ) is true even for non-students."
+          },
+          {
+            "term": "Binary predicate",
+            "explain": "A relation taking two arguments, used to link two objects such as a mother and her child.",
+            "example": "child_of(y, x) means 'y is a child of x'; loves(x, y) means 'x loves y'."
+          }
+        ],
+        "visual_svg": "",
+        "visual_alt": "A nested-quantifier structure: an outer 'for all mothers x' box containing an inner 'for all children y of x' box, whose body is the loving relation L(x,y)."
+      },
+      "given": {
+        "aim": "Translate the natural-language sentence into a well-formed first order logic formula.",
+        "terms": [
+          {
+            "term": "M(x)",
+            "meaning": "x is a mother",
+            "example": "M(Anita) is true if Anita is a mother",
+            "connects": "Guards the outer universal quantifier so the claim is only about mothers."
+          },
+          {
+            "term": "C(y, x)",
+            "meaning": "y is a child of x",
+            "example": "C(Ravi, Anita) means Ravi is Anita's child",
+            "connects": "Selects, for each mother x, exactly the objects y that are her children."
+          },
+          {
+            "term": "L(x, y)",
+            "meaning": "x loves y",
+            "example": "L(Anita, Ravi) means Anita loves Ravi",
+            "connects": "The conclusion that holds for every mother-child pair."
+          },
+          {
+            "term": "forall (universal quantifier)",
+            "meaning": "Asserts the body for every element of the domain",
+            "example": "forall x ( M(x) -> ... )",
+            "connects": "Two nested forall's range over mothers and then over their children."
+          }
+        ],
+        "plan": "Use an outer forall over x guarded by M(x) (x is a mother), then an inner forall over y guarded by C(y,x) (y is a child of x), with conclusion L(x,y) (x loves y), joining each guard to its claim by implication."
+      },
+      "solution": {
+        "steps": [
+          {
+            "step": 1,
+            "title": "Quantify over all mothers",
+            "formula_id": "fol-restricted-universal",
+            "formula_raw": "forall x ( M(x) -> Body(x) )",
+            "apply": "The phrase 'every mother' becomes forall x ( M(x) -> ... ), so non-mothers make the implication vacuously true and only mothers are constrained.",
+            "note": "Using forall x ( M(x) AND ... ) would incorrectly claim everyone is a mother, so we must use ->."
+          },
+          {
+            "step": 2,
+            "title": "Quantify over her children and state the loving",
+            "formula_id": "fol-restricted-universal",
+            "formula_raw": "forall y ( C(y, x) -> L(x, y) )",
+            "apply": "Inside the body, 'loves her children' means: for every y that is a child of x, x loves y, i.e. forall y ( C(y,x) -> L(x,y) ).",
+            "note": "Combining gives forall x [ M(x) -> forall y ( C(y,x) -> L(x,y) ) ], which can be flattened to forall x forall y ( (M(x) AND C(y,x)) -> L(x,y) )."
+          }
+        ],
+        "result": "forall x [ M(x) -> forall y ( C(y, x) -> L(x, y) ) ], equivalently forall x forall y ( (M(x) AND C(y, x)) -> L(x, y) )."
+      },
+      "formula_ids_used": ["fol-restricted-universal"],
+      "formula_note": "The key idea is restricted universal quantification: 'every A is/does B' is forall x ( A(x) -> B(x) ), and nesting it captures 'every mother loves all of her children'. The official answer key marks this descriptive (N/A)."
+    },
+    {
+      "meta": {
+        "exam": "GATE 1991",
+        "year": 1991,
+        "marks": 2,
+        "difficulty": "medium",
+        "type": "NAT",
+        "subject": "Discrete Mathematics",
+        "topic": "Mathematical Logic",
+        "subtopic": "First Order Logic"
+      },
+      "question": "Consider the following first order formula (the conjunction of the four clauses): (forall x exists y: R(x,y)) AND (forall x forall y: (R(x,y) -> ~R(y,x))) AND (forall x forall y forall z: (R(x,y) AND R(y,z) -> R(x,z))) AND (forall x: ~R(x,x)). Does it have finite models? Is it satisfiable? If so, give a countable model for it.",
+      "answer": "No finite model exists; the formula IS satisfiable; a countable model is the natural numbers N with R(x,y) interpreted as 'x < y' (the usual strict less-than order).",
+      "to_find": "Whether the formula has a finite model, whether it is satisfiable, and a countable model if it is.",
+      "understand": {
+        "plain": "Read the four clauses as properties of a relation R. The first says every element has some R-successor (serial/total-forward). The second says R is asymmetric, the third says R is transitive, and the fourth says R is irreflexive. Together these describe a strict order in which every element still has something larger, which is impossible in a finite set but easy on the natural numbers.",
+        "keywords": [
+          {
+            "term": "Serial relation",
+            "explain": "forall x exists y R(x,y): every element points to at least one element, so there is never a 'dead end'.",
+            "example": "On natural numbers with '<', every n has a larger number n+1."
+          },
+          {
+            "term": "Strict partial / total order",
+            "explain": "An irreflexive, asymmetric, transitive relation behaves like 'less than'; combined with seriality it forces an infinite ascending chain.",
+            "example": "(N, <) is irreflexive (no n<n), asymmetric, and transitive."
+          },
+          {
+            "term": "Finite vs countable model",
+            "explain": "A finite model has finitely many elements; a countable model may be infinite but listable like N. Some satisfiable formulas have only infinite models.",
+            "example": "This formula has no finite model but the countable model (N, <) works."
+          }
+        ],
+        "visual_svg": "<svg viewBox='0 0 520 150' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><defs><marker id='ar' markerWidth='9' markerHeight='9' refX='7' refY='3' orient='auto'><path d='M0,0 L7,3 L0,6 Z' class='ink'/></marker></defs><circle cx='50' cy='75' r='20' class='bg'/><text x='50' y='81' text-anchor='middle' class='lbl ink'>0</text><circle cx='160' cy='75' r='20' class='bg'/><text x='160' y='81' text-anchor='middle' class='lbl ink'>1</text><circle cx='270' cy='75' r='20' class='bg'/><text x='270' y='81' text-anchor='middle' class='lbl ink'>2</text><circle cx='380' cy='75' r='20' class='bg'/><text x='380' y='81' text-anchor='middle' class='lbl ink'>3</text><line x1='72' y1='75' x2='138' y2='75' class='ink' stroke='#2C2C2A' stroke-width='2.5' marker-end='url(#ar)'/><line x1='182' y1='75' x2='248' y2='75' class='ink' stroke='#2C2C2A' stroke-width='2.5' marker-end='url(#ar)'/><line x1='292' y1='75' x2='358' y2='75' class='ink' stroke='#2C2C2A' stroke-width='2.5' marker-end='url(#ar)'/><text x='430' y='81' class='big ink'>...</text><text x='260' y='130' text-anchor='middle' class='sub mut'>R = '&lt;' on N: serial, irreflexive, asymmetric, transitive (no last element)</text></svg>",
+        "visual_alt": "An infinite ascending chain 0 -> 1 -> 2 -> 3 -> ... showing the relation '<' on natural numbers, where every node has a larger successor so the chain never ends."
+      },
+      "given": {
+        "aim": "Decide finiteness and satisfiability of the conjunction and exhibit a countable model.",
+        "terms": [
+          {
+            "term": "Clause 1: forall x exists y R(x,y)",
+            "meaning": "R is serial: every element has at least one R-successor",
+            "example": "On N with '<', successor of n can be n+1",
+            "connects": "Forces an unending forward chain when combined with the order clauses."
+          },
+          {
+            "term": "Clause 2: forall x,y (R(x,y) -> ~R(y,x))",
+            "meaning": "R is asymmetric: never both x R y and y R x",
+            "example": "If 1 < 2 then not 2 < 1",
+            "connects": "Rules out 2-cycles and (with irreflexivity) all back-edges."
+          },
+          {
+            "term": "Clause 3: forall x,y,z (R(x,y) AND R(y,z) -> R(x,z))",
+            "meaning": "R is transitive",
+            "example": "1 < 2 and 2 < 3 give 1 < 3",
+            "connects": "Turns chains into a strict order; any cycle would collapse to x R x."
+          },
+          {
+            "term": "Clause 4: forall x ~R(x,x)",
+            "meaning": "R is irreflexive: no element relates to itself",
+            "example": "Not (n < n) for any n",
+            "connects": "Together with transitivity it forbids any directed cycle, so a finite serial model is impossible."
+          }
+        ],
+        "plan": "Show that asymmetry + transitivity + irreflexivity make R a strict order with no cycles; in a finite set seriality would force a cycle, a contradiction, so no finite model exists. Then exhibit (N, <) as a satisfying countable model."
+      },
+      "solution": {
+        "steps": [
+          {
+            "step": 1,
+            "title": "Identify the relational properties",
+            "formula_id": "fol-relation-properties",
+            "formula_raw": "serial, asymmetric (=> irreflexive), transitive",
+            "apply": "Clause 1 = serial, clause 2 = asymmetric, clause 3 = transitive, clause 4 = irreflexive. So R is a serial strict partial order.",
+            "note": "Asymmetry already implies irreflexivity; clause 4 is consistent with the rest."
+          },
+          {
+            "step": 2,
+            "title": "No finite model",
+            "formula_id": "",
+            "formula_raw": "finite + serial + transitive + acyclic => contradiction",
+            "apply": "In a finite domain start at x0; seriality gives x0 R x1 R x2 R ... Since the domain is finite, some element repeats, and transitivity yields a R a for that element, contradicting irreflexivity. Hence no finite model.",
+            "note": "Acyclicity (from asymmetry + transitivity) plus seriality requires infinitely many distinct elements."
+          },
+          {
+            "step": 3,
+            "title": "Exhibit a countable model",
+            "formula_id": "",
+            "formula_raw": "Domain = N, R(x,y) := x < y",
+            "apply": "On (N, <): every n has successor n+1 (serial); n<m forbids m<n (asymmetric); < is transitive; never n<n (irreflexive). All four clauses hold.",
+            "note": "N is countably infinite, so this is a valid countable model; the formula is satisfiable but only by infinite models."
+          }
+        ],
+        "result": "No finite model exists; the formula is satisfiable; the natural numbers (N, <) form a countable model."
+      },
+      "formula_ids_used": ["fol-relation-properties"],
+      "formula_note": "The crux is recognizing the conjunction as a serial strict (irreflexive, asymmetric, transitive) order: such a relation cannot exist on a finite set but does on (N, <). The official answer key marks this descriptive (N/A)."
+    },
+    {
+      "meta": {
+        "exam": "GATE 1992",
+        "year": 1992,
+        "marks": 2,
+        "difficulty": "medium",
+        "type": "MCQ",
+        "subject": "Discrete Mathematics",
+        "topic": "Mathematical Logic",
+        "subtopic": "First Order Logic"
+      },
+      "question": "Which of the following predicate calculus statements is/are valid? A. (forall x) P(x) OR (forall x) Q(x) -> (forall x) (P(x) OR Q(x))   B. (exists x) P(x) AND (exists x) Q(x) -> (exists x) (P(x) AND Q(x))   C. (forall x) (P(x) OR Q(x)) -> (forall x) P(x) OR (forall x) Q(x)   D. (exists x) (P(x) OR Q(x)) -> ~(forall x) P(x) OR (exists x) Q(x)",
+      "answer": "A. (forall x) P(x) OR (forall x) Q(x) -> (forall x) (P(x) OR Q(x))",
+      "to_find": "Which quantifier-distribution implication is logically valid (true in every interpretation).",
+      "understand": {
+        "plain": "These options test how quantifiers distribute over OR and AND. The safe, always-true direction is: if all x satisfy P, or all x satisfy Q, then certainly each x satisfies P-or-Q. The other directions fail because a property holding for the disjunction or the separate existentials need not hold uniformly or simultaneously.",
+        "keywords": [
+          {
+            "term": "Valid formula",
+            "explain": "A formula true under every interpretation (every domain and every meaning of the predicates); to disprove validity you only need one counterexample.",
+            "example": "P OR ~P is valid; P -> Q is not."
+          },
+          {
+            "term": "Quantifier distribution over OR",
+            "explain": "forall distributes INTO an OR only one way: (forall P) OR (forall Q) -> forall (P OR Q) is valid, but the converse is not.",
+            "example": "On {1,2} with P={1}, Q={2}: forall(P OR Q) holds yet neither forall P nor forall Q holds."
+          },
+          {
+            "term": "Existential and AND",
+            "explain": "(exists P) AND (exists Q) does NOT give exists(P AND Q), because the witnesses can be different elements.",
+            "example": "P true only at a, Q true only at b (a != b): both exist, but no single x has both."
+          }
+        ],
+        "visual_svg": "",
+        "visual_alt": "A comparison of four implications showing only the direction (forall P) OR (forall Q) implies forall(P OR Q) is universally true, with one-element counterexamples breaking the other three."
+      },
+      "given": {
+        "aim": "Determine which of the four quantified implications is logically valid.",
+        "terms": [
+          {
+            "term": "P(x), Q(x)",
+            "meaning": "Arbitrary unary predicates over a domain",
+            "example": "P(x) = 'x is even', Q(x) = 'x is prime'",
+            "connects": "Their truth sets are what we vary to test validity."
+          },
+          {
+            "term": "forall (universal)",
+            "meaning": "Holds for every element of the domain",
+            "example": "(forall x) P(x) is true only if P covers the whole domain",
+            "connects": "Distributes over AND fully but over OR only in the A-direction."
+          },
+          {
+            "term": "exists (existential)",
+            "meaning": "Holds for at least one element",
+            "example": "(exists x) P(x) needs just one witness",
+            "connects": "Distributes over OR fully but not over AND (witnesses may differ)."
+          },
+          {
+            "term": "Counterexample",
+            "meaning": "A concrete domain and predicate assignment making an implication false",
+            "example": "Domain {a,b}, P at a only, Q at b only",
+            "connects": "Used to reject options B, C, and D."
+          }
+        ],
+        "plan": "Use the standard quantifier-distribution laws: prove option A by chasing the definition, then knock out B, C, D each with a tiny two-element counterexample."
+      },
+      "solution": {
+        "steps": [
+          {
+            "step": 1,
+            "title": "Prove A is valid",
+            "formula_id": "fol-forall-or-distribution",
+            "formula_raw": "((forall x)P(x) OR (forall x)Q(x)) -> (forall x)(P(x) OR Q(x))",
+            "apply": "Assume the antecedent. If every x has P(x), then every x has P(x) OR Q(x); likewise if every x has Q(x). In either case the consequent holds, so A is valid.",
+            "note": "This is the always-true half of forall-over-OR; the reverse implication is NOT valid."
+          },
+          {
+            "step": 2,
+            "title": "Refute C (the converse of A)",
+            "formula_id": "",
+            "formula_raw": "domain {1,2}, P = {1}, Q = {2}",
+            "apply": "Here P(x) OR Q(x) holds for both 1 and 2, so the antecedent (forall)(P OR Q) is true, but (forall x)P(x) is false and (forall x)Q(x) is false, so the consequent is false. C fails.",
+            "note": "Shows forall does not push out of an OR; this is the classic trap distinguishing C from A."
+          },
+          {
+            "step": 3,
+            "title": "Refute B and D",
+            "formula_id": "fol-exists-and-distribution",
+            "formula_raw": "B: (exists P) AND (exists Q) -/-> exists(P AND Q)",
+            "apply": "For B use domain {1,2} with P={1}, Q={2}: both (exists)P and (exists)Q hold, but no x satisfies P(x) AND Q(x), so B is false. For D, take domain {1} with P(1) true, Q(1) false: antecedent (exists)(P OR Q) is true, but ~(forall x)P(x) is false and (exists x)Q(x) is false, so the consequent is false; D fails.",
+            "note": "Different witnesses break B; a single element where P holds everywhere and Q nowhere breaks D."
+          }
+        ],
+        "result": "Only A is valid, so the answer is A."
+      },
+      "formula_ids_used": ["fol-forall-or-distribution", "fol-exists-and-distribution"],
+      "formula_note": "The decisive law is that universal quantification distributes into a disjunction only as ((forall P) OR (forall Q)) -> forall(P OR Q) (option A); the reverse (C) and the existential-over-AND direction (B) fail, as does D, each via a small counterexample."
+    },
+    {
+      "meta": {
+        "exam": "GATE 2003",
+        "year": 2003,
+        "marks": 2,
+        "difficulty": "medium",
+        "type": "MCQ",
+        "subject": "Discrete Mathematics",
+        "topic": "Mathematical Logic",
+        "subtopic": "First Order Logic"
+      },
+      "question": "Which of the following is a valid first order formula? (Here alpha and beta are first order formulae with x as their only free variable.) A. ((forall x)[alpha] -> (forall x)[beta]) -> (forall x)[alpha -> beta]   B. (forall x)[alpha] -> (exists x)[alpha AND beta]   C. ((forall x)[alpha OR beta] -> (exists x)[alpha]) -> (forall x)[alpha]   D. (forall x)[alpha -> beta] -> (((forall x)[alpha]) -> (forall x)[beta])",
+      "answer": "D. (forall x)[alpha -> beta] -> (((forall x)[alpha]) -> (forall x)[beta])",
+      "to_find": "Which of the four quantified implications is a valid first order formula.",
+      "understand": {
+        "plain": "This is the quantifier version of modus ponens. If for every x the implication alpha -> beta holds, and also alpha holds for every x, then beta must hold for every x. That distribution of forall over an implication is always true, while the other options reverse the implication or mismatch quantifiers and can be made false.",
+        "keywords": [
+          {
+            "term": "forall over implication",
+            "explain": "(forall x)[alpha -> beta] -> ((forall x)[alpha] -> (forall x)[beta]) is a valid axiom-like schema (universal instantiation + modus ponens applied pointwise).",
+            "example": "All cats are mammals, and all are cats, so all are mammals."
+          },
+          {
+            "term": "Validity vs converse",
+            "explain": "A schema can be valid in one direction but not the other; option A is exactly the invalid converse of D.",
+            "example": "(forall alpha -> forall beta) does not imply forall(alpha -> beta)."
+          },
+          {
+            "term": "Counterexample search",
+            "explain": "To reject a candidate, pick a domain and predicate meanings for alpha, beta that make antecedent true and consequent false.",
+            "example": "Domain {1,2}, alpha={1}, beta={2} breaks option A."
+          }
+        ],
+        "visual_svg": "",
+        "visual_alt": "A pointwise modus ponens picture: for every x, alpha(x) -> beta(x); given all alpha hold, each implication fires to give all beta, justifying option D."
+      },
+      "given": {
+        "aim": "Pick the universally valid first order formula among A-D.",
+        "terms": [
+          {
+            "term": "alpha, beta",
+            "meaning": "First order formulae whose only free variable is x",
+            "example": "alpha = P(x), beta = Q(x)",
+            "connects": "We test how forall and exists interact with the connective between them."
+          },
+          {
+            "term": "forall x",
+            "meaning": "Universal quantifier binding x",
+            "example": "(forall x)[alpha] means alpha holds for every element",
+            "connects": "Distributes over -> in the valid direction (option D)."
+          },
+          {
+            "term": "Implication ->",
+            "meaning": "alpha -> beta is false only when alpha is true and beta is false",
+            "example": "P(x) -> Q(x)",
+            "connects": "The connective whose quantifier-distribution we are checking."
+          },
+          {
+            "term": "Interpretation / model",
+            "meaning": "A choice of domain and meanings for alpha, beta",
+            "example": "Domain {1,2} with specific truth sets",
+            "connects": "Used to refute the invalid options A, B, C."
+          }
+        ],
+        "plan": "Recognize D as the valid forall-distributes-over-implication schema and verify by pointwise modus ponens; then refute A, B, C with two-element counterexamples."
+      },
+      "solution": {
+        "steps": [
+          {
+            "step": 1,
+            "title": "Prove D is valid",
+            "formula_id": "fol-forall-implication-distribution",
+            "formula_raw": "(forall x)[alpha -> beta] -> ((forall x)[alpha] -> (forall x)[beta])",
+            "apply": "Assume (forall x)(alpha -> beta) and (forall x)alpha. Take any element a: alpha(a) holds and alpha(a) -> beta(a) holds, so beta(a) holds by modus ponens. Since a was arbitrary, (forall x)beta holds. Hence D is valid.",
+            "note": "This is universal instantiation followed by modus ponens applied to every element."
+          },
+          {
+            "step": 2,
+            "title": "Refute A (the converse direction)",
+            "formula_id": "",
+            "formula_raw": "domain {1,2}, alpha = {1}, beta = {2}",
+            "apply": "Then (forall x)alpha is false, so the antecedent (forall x)alpha -> (forall x)beta is true. But alpha -> beta fails at x=1 (alpha(1) true, beta(1) false), so (forall x)[alpha -> beta] is false. Antecedent true, consequent false => A invalid.",
+            "note": "A asserts the wrong direction of distribution and is the standard distractor."
+          },
+          {
+            "step": 3,
+            "title": "Refute B and C",
+            "formula_id": "",
+            "formula_raw": "B: alpha true everywhere, beta nowhere; C: alpha={1} on {1,2}",
+            "apply": "B: domain {1}, alpha true, beta false: (forall x)alpha true but (exists x)(alpha AND beta) false, so B is false. C: domain {1,2}, alpha={1}, beta={2}: then alpha OR beta holds for all x and (exists x)alpha holds, so the antecedent is true, but (forall x)alpha is false; C is false.",
+            "note": "Only D survives every interpretation."
+          }
+        ],
+        "result": "Only D is valid, so the answer is D."
+      },
+      "formula_ids_used": ["fol-forall-implication-distribution"],
+      "formula_note": "The valid schema is the universal-quantifier modus ponens: (forall x)[alpha -> beta] -> ((forall x)[alpha] -> (forall x)[beta]) (option D); its converse (A) and the existential/quantifier mismatches in B and C are refuted by small counterexamples."
+    }
+  ],
+  "formulas": [
+    {
+      "formulaId": "fol-restricted-universal",
+      "name": "Restricted Universal Quantification",
+      "latex": "\\forall x\\,(A(x) \\rightarrow B(x))",
+      "plain": "forall x ( A(x) -> B(x) )",
+      "whenToUse": "Translating 'every A is/does B' or 'all A's are B' into first order logic; guard the claim with an implication so non-A elements are vacuously satisfied.",
+      "terms": [
+        {"symbol": "A(x)", "means": "the restricting property (the 'kind' of thing being quantified, e.g. mother)"},
+        {"symbol": "B(x)", "means": "the property asserted of those things (e.g. loves her children)"},
+        {"symbol": "forall x", "means": "universal quantifier ranging over the whole domain"}
+      ],
+      "trap": "Do not use forall x (A(x) AND B(x)); that wrongly claims every element of the domain is an A. The connective for restricted forall must be -> .",
+      "reference": "Standard FOL translation rule (Rosen, Discrete Mathematics)."
+    },
+    {
+      "formulaId": "fol-relation-properties",
+      "name": "Relation Properties in FOL (serial, reflexive, symmetric, asymmetric, transitive)",
+      "latex": "\\text{serial: }\\forall x\\exists y\\,R(x,y);\\ \\text{irreflexive: }\\forall x\\,\\neg R(x,x);\\ \\text{asymmetric: }\\forall x\\forall y\\,(R(x,y)\\to\\neg R(y,x));\\ \\text{transitive: }\\forall x\\forall y\\forall z\\,(R(x,y)\\wedge R(y,z)\\to R(x,z))",
+      "plain": "serial: forall x exists y R(x,y); irreflexive: forall x ~R(x,x); asymmetric: forall x forall y (R(x,y) -> ~R(y,x)); transitive: forall x forall y forall z (R(x,y) AND R(y,z) -> R(x,z))",
+      "whenToUse": "Classifying a binary relation defined by FOL clauses and reasoning about which models (finite/infinite) can satisfy it.",
+      "terms": [
+        {"symbol": "R(x,y)", "means": "a binary relation between domain elements x and y"},
+        {"symbol": "serial", "means": "every element has at least one successor under R"},
+        {"symbol": "irreflexive", "means": "no element is related to itself"},
+        {"symbol": "asymmetric", "means": "R and its converse never both hold for a pair"},
+        {"symbol": "transitive", "means": "R-paths can be shortcut into a single R-edge"}
+      ],
+      "trap": "A serial + transitive + asymmetric (acyclic) relation forces an infinite ascending chain, so it has NO finite model even though it is satisfiable (e.g. by (N, <)).",
+      "reference": "Order theory / model theory; standard strict-order axioms."
+    },
+    {
+      "formulaId": "fol-forall-or-distribution",
+      "name": "Universal Quantifier over Disjunction (valid direction)",
+      "latex": "((\\forall x)P(x) \\vee (\\forall x)Q(x)) \\rightarrow (\\forall x)(P(x)\\vee Q(x))",
+      "plain": "((forall x)P(x) OR (forall x)Q(x)) -> (forall x)(P(x) OR Q(x))",
+      "whenToUse": "Checking validity of moving a universal quantifier across an OR; only this direction is valid.",
+      "terms": [
+        {"symbol": "P(x), Q(x)", "means": "unary predicates"},
+        {"symbol": "forall x", "means": "universal quantifier"},
+        {"symbol": "OR (∨)", "means": "logical disjunction"}
+      ],
+      "trap": "The converse (forall x)(P OR Q) -> ((forall x)P OR (forall x)Q) is NOT valid: split the domain so P holds on one part and Q on another.",
+      "reference": "Quantifier distribution laws (predicate logic)."
+    },
+    {
+      "formulaId": "fol-exists-and-distribution",
+      "name": "Existential Quantifier over Conjunction (invalid distribution)",
+      "latex": "(\\exists x)(P(x)\\wedge Q(x)) \\rightarrow ((\\exists x)P(x) \\wedge (\\exists x)Q(x))",
+      "plain": "Valid only as (exists x)(P(x) AND Q(x)) -> ((exists x)P(x) AND (exists x)Q(x)); the converse fails",
+      "whenToUse": "Checking whether separate existentials can be combined under one existential; they cannot in general.",
+      "terms": [
+        {"symbol": "P(x), Q(x)", "means": "unary predicates"},
+        {"symbol": "exists x", "means": "existential quantifier"},
+        {"symbol": "AND (∧)", "means": "logical conjunction"}
+      ],
+      "trap": "((exists x)P AND (exists x)Q) -> (exists x)(P AND Q) is NOT valid because the two existential witnesses may be different elements.",
+      "reference": "Quantifier distribution laws (predicate logic)."
+    },
+    {
+      "formulaId": "fol-forall-implication-distribution",
+      "name": "Universal Quantifier over Implication (Quantified Modus Ponens)",
+      "latex": "(\\forall x)[\\alpha\\rightarrow\\beta] \\rightarrow ((\\forall x)[\\alpha] \\rightarrow (\\forall x)[\\beta])",
+      "plain": "(forall x)[alpha -> beta] -> ((forall x)[alpha] -> (forall x)[beta])",
+      "whenToUse": "Distributing a universal quantifier over an implication; this schema is valid and underlies universal instantiation plus modus ponens.",
+      "terms": [
+        {"symbol": "alpha, beta", "means": "first order formulae with x as the only free variable"},
+        {"symbol": "forall x", "means": "universal quantifier"},
+        {"symbol": "-> ", "means": "logical implication"}
+      ],
+      "trap": "The converse ((forall x)alpha -> (forall x)beta) -> (forall x)(alpha -> beta) is NOT valid; do not confuse it with this valid direction.",
+      "reference": "Predicate logic axiom schema (Hilbert-style: quantified modus ponens)."
+    }
+  ]
+}

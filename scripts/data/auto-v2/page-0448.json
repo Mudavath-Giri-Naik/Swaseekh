@@ -1,0 +1,329 @@
+{
+ "page": 448,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2004",
+    "year": 2004,
+    "marks": 2,
+    "difficulty": "easy",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Fork System Call",
+    "subtopic": "Fork System Call"
+   },
+   "question": "A process executes the following segment of code:\n\nfor (i = 1; i <= n; i++)\n    fork();\n\nThe number of new processes created is\nA. n\nB. n(n+1)/2\nC. 2^n - 1\nD. 3^n - 1",
+   "answer": "C. 2^n - 1",
+   "to_find": "Total number of new (child) processes created when fork() is called n times in a loop",
+   "understand": {
+    "plain": "A process runs a loop from i=1 to n, calling fork() each iteration. Each fork() duplicates the currently running process. So at each step, every existing process calls fork() again, doubling the total count. We need to find how many new processes are created in total (not counting the original).",
+    "keywords": [
+     {
+      "term": "fork()",
+      "explain": "A system call that creates an exact copy of the calling process; both parent and child continue executing from the point after fork().",
+      "example": "One process calls fork() -> now 2 processes exist."
+     },
+     {
+      "term": "Process tree",
+      "explain": "The hierarchical structure showing parent-child relationships among all processes spawned by fork calls.",
+      "example": "After 2 forks: original spawns child1, then both original and child1 each spawn another child, giving 4 total processes."
+     }
+    ],
+    "visual_svg": "<svg width='420' height='180' viewBox='0 0 420 180' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='0' y='0' width='420' height='180' rx='10' class='bg'/><rect x='170' y='10' width='80' height='30' rx='6' class='hi'/><text x='210' y='30' text-anchor='middle' class='lbl ink'>P0 (orig)</text><line x1='210' y1='40' x2='110' y2='75' stroke='#7F77DD' stroke-width='2'/><line x1='210' y1='40' x2='310' y2='75' stroke='#7F77DD' stroke-width='2'/><rect x='70' y='75' width='80' height='28' rx='6' class='bg'/><text x='110' y='94' text-anchor='middle' class='sub ink'>P0</text><rect x='270' y='75' width='80' height='28' rx='6' class='ok'/><text x='310' y='94' text-anchor='middle' class='sub ink' style='fill:#fff'>C1 (new)</text><line x1='110' y1='103' x2='60' y2='140' stroke='#7F77DD' stroke-width='2'/><line x1='110' y1='103' x2='160' y2='140' stroke='#7F77DD' stroke-width='2'/><line x1='310' y1='103' x2='260' y2='140' stroke='#7F77DD' stroke-width='2'/><line x1='310' y1='103' x2='360' y2='140' stroke='#7F77DD' stroke-width='2'/><rect x='30' y='140' width='60' height='26' rx='5' class='bg'/><text x='60' y='158' text-anchor='middle' class='sub ink'>P0</text><rect x='130' y='140' width='60' height='26' rx='5' class='ok'/><text x='160' y='158' text-anchor='middle' class='sub ink' style='fill:#fff'>C2</text><rect x='230' y='140' width='60' height='26' rx='5' class='ok'/><text x='260' y='158' text-anchor='middle' class='sub ink' style='fill:#fff'>C3</text><rect x='330' y='140' width='60' height='26' rx='5' class='ok'/><text x='360' y='158' text-anchor='middle' class='sub ink' style='fill:#fff'>C4</text><text x='210' y='172' text-anchor='middle' class='sub mut'>After n=2 forks: 4 total, 3 new</text></svg>",
+    "visual_alt": "Process tree showing doubling at each fork iteration. After n iterations, 2^n total processes exist, so 2^n - 1 new processes are created (excluding the original)."
+   },
+   "given": {
+    "aim": "Find the total number of new processes created by n sequential fork() calls inside a loop",
+    "terms": [
+     {
+      "term": "n",
+      "meaning": "Number of loop iterations, each calling fork() once",
+      "example": "n=3 means 3 fork() calls in the loop",
+      "connects": "Determines how many times the process count doubles"
+     },
+     {
+      "term": "Process count after k-th iteration",
+      "meaning": "After k fork() calls, there are 2^k total processes",
+      "example": "After 1st fork: 2 processes; after 2nd: 4 processes",
+      "connects": "After n iterations, 2^n total processes exist"
+     },
+     {
+      "term": "New processes",
+      "meaning": "Total processes minus the original process",
+      "example": "If 2^n total exist, then 2^n - 1 are new",
+      "connects": "The answer is 2^n - 1"
+     }
+    ],
+    "plan": "Track how many processes exist after each fork(). Before the loop: 1 process. After iteration i: all existing processes call fork(), so the count doubles. After n iterations: 2^n processes total. New processes = 2^n - 1."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Count processes at each iteration",
+      "formula_raw": "processes after iteration k = 2^k",
+      "apply": "Initially 1 process. At i=1: fork() is called by 1 process -> 2 processes. At i=2: both processes call fork() -> 4 processes. At i=3: all 4 call fork() -> 8 processes. In general, after k iterations: 2^k processes.",
+      "note": "Every existing process executes the loop and calls fork() independently, so the count doubles each iteration."
+     },
+     {
+      "step": 2,
+      "title": "Compute number of new processes",
+      "formula_raw": "new processes = total processes - original = 2^n - 1",
+      "apply": "After all n iterations, there are 2^n total processes. The original process was there before the loop. So the number of NEW processes created = 2^n - 1.",
+      "note": "This is option C. The answer n(n+1)/2 (option B) is wrong; it would apply to a different counting scenario."
+     }
+    ],
+    "result": "2^n - 1 new processes are created. Answer: C."
+   },
+   "formula_ids_used": [],
+   "formula_note": "fork() doubles the number of running processes each time it is called; after n calls in sequence by all descendants, 2^n total processes exist, giving 2^n - 1 new ones.",
+   "qid": "7.6.7",
+   "answer_official": "C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1996",
+    "year": 1996,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "IO Handling",
+    "subtopic": "IO Handling"
+   },
+   "question": "Which of the following is an example of spooled device?\nA. A line printer used to print the output of a number of jobs\nB. A terminal used to enter input data to a running program\nC. A secondary storage device in a virtual memory system\nD. A graphic display device",
+   "answer": "A. A line printer used to print the output of a number of jobs",
+   "to_find": "Which device uses spooling",
+   "understand": {
+    "plain": "Spooling (Simultaneous Peripheral Operations On-Line) is a technique where output data from multiple jobs is buffered on disk before being sent to a slow device. A line printer is the classic spooled device: multiple jobs submit output to a spool queue, and the printer processes them one at a time. The other options (terminal, secondary storage for virtual memory, graphics display) are not spooled devices.",
+    "keywords": [
+     {
+      "term": "Spooling",
+      "explain": "A method where I/O requests from multiple processes are queued (spooled) to disk and processed by the device sequentially.",
+      "example": "Multiple programs print to a shared printer; their outputs are first written to a disk spool and printed one by one."
+     },
+     {
+      "term": "Line printer",
+      "explain": "A slow output device shared by many jobs, typically managed via a print spool queue.",
+      "example": "In a batch OS, 10 jobs generate output; all outputs are spooled to disk and printed sequentially."
+     }
+    ],
+    "visual_svg": "<svg width='400' height='140' viewBox='0 0 400 140' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='0' y='0' width='400' height='140' rx='10' class='bg'/><rect x='10' y='20' width='70' height='28' rx='5' class='hi'/><text x='45' y='38' text-anchor='middle' class='sub ink'>Job 1</text><rect x='10' y='56' width='70' height='28' rx='5' class='hi'/><text x='45' y='74' text-anchor='middle' class='sub ink'>Job 2</text><rect x='10' y='92' width='70' height='28' rx='5' class='hi'/><text x='45' y='110' text-anchor='middle' class='sub ink'>Job 3</text><line x1='80' y1='34' x2='140' y2='55' stroke='#7F77DD' stroke-width='2' marker-end='url(#arr)'/><line x1='80' y1='70' x2='140' y2='65' stroke='#7F77DD' stroke-width='2'/><line x1='80' y1='106' x2='140' y2='75' stroke='#7F77DD' stroke-width='2'/><rect x='140' y='45' width='90' height='50' rx='6' class='ok'/><text x='185' y='67' text-anchor='middle' class='sub ink' style='fill:#fff'>Spool</text><text x='185' y='84' text-anchor='middle' class='sub ink' style='fill:#fff'>(Disk Queue)</text><line x1='230' y1='70' x2='290' y2='70' stroke='#1D9E75' stroke-width='3' marker-end='url(#arr2)'/><rect x='290' y='50' width='90' height='42' rx='6' class='bg'/><text x='335' y='76' text-anchor='middle' class='sub ink'>Printer</text><defs><marker id='arr' markerWidth='8' markerHeight='8' refX='6' refY='3' orient='auto'><path d='M0,0 L0,6 L8,3 z' fill='#7F77DD'/></marker><marker id='arr2' markerWidth='8' markerHeight='8' refX='6' refY='3' orient='auto'><path d='M0,0 L0,6 L8,3 z' fill='#1D9E75'/></marker></defs></svg>",
+    "visual_alt": "Multiple jobs send output to a disk spool queue; the printer reads from the spool and prints jobs one at a time."
+   },
+   "given": {
+    "aim": "Identify which device among the options uses spooling",
+    "terms": [
+     {
+      "term": "Spooled device",
+      "meaning": "A device whose requests from multiple processes are buffered in a queue (spool) and served sequentially",
+      "example": "A shared printer collecting print jobs from many users",
+      "connects": "Helps identify the correct option"
+     },
+     {
+      "term": "Line printer",
+      "meaning": "A slow, shared output device that can only serve one job at a time",
+      "example": "Output of batch jobs queued to disk and printed sequentially",
+      "connects": "Classic spooled device in OS textbooks"
+     },
+     {
+      "term": "Virtual memory secondary storage",
+      "meaning": "Used for paging/swapping, not spooling",
+      "example": "Page faults cause pages to be loaded from disk into RAM",
+      "connects": "Not a spooled device; eliminates option C"
+     }
+    ],
+    "plan": "Recall the definition of spooling: buffering I/O for slow shared devices. Match that definition to the options. A line printer shared among many jobs is the textbook example of a spooled device."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Define spooling",
+      "formula_raw": "",
+      "apply": "Spooling = Simultaneous Peripheral Operations On-Line. It buffers the output of multiple jobs to disk and feeds it to a slow device (e.g., printer) one at a time. The key features are: shared slow device, multiple competing jobs, and a disk-based queue.",
+      "note": "Spooling increases CPU and device utilization by decoupling fast CPU output from slow device I/O."
+     },
+     {
+      "step": 2,
+      "title": "Evaluate each option",
+      "formula_raw": "",
+      "apply": "A. Line printer printing output of many jobs: YES — classic spool. Multiple jobs write to spool; printer reads from it.\nB. Terminal for entering input: NO — interactive, direct I/O, not spooled.\nC. Secondary storage for virtual memory: NO — used for paging, not spooling.\nD. Graphic display device: NO — directly driven by one process at a time.",
+      "note": "Only A fits the definition of a spooled device."
+     }
+    ],
+    "result": "A line printer used to print the output of a number of jobs. Answer: A."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Spooling (Simultaneous Peripheral Operations On-Line): buffers output from multiple jobs on disk before sending to a slow shared device like a printer.",
+   "qid": "7.7.1",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1998",
+    "year": 1998,
+    "marks": 2,
+    "difficulty": "easy",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "IO Handling",
+    "subtopic": "IO Handling"
+   },
+   "question": "Which of the following is an example of a spooled device?\nA. The terminal used to enter the input data for the C program being executed\nB. An output device used to print the output of a number of jobs\nC. The secondary memory device in a virtual storage system\nD. The swapping area on a disk used by the swapper",
+   "answer": "B. An output device used to print the output of a number of jobs",
+   "to_find": "Which device is a spooled device",
+   "understand": {
+    "plain": "This is the same concept as the previous question (GATE 1996) but with slightly reworded options. Spooling is used for slow shared output devices (like printers) where multiple jobs queue their output to disk and the device processes them sequentially. A printer used by many jobs is the spooled device. Terminals (interactive), secondary memory for virtual storage (paging), and swap areas (swapping) are all different I/O mechanisms.",
+    "keywords": [
+     {
+      "term": "Spooling",
+      "explain": "Buffering multiple jobs' output to a spool (disk queue) before sending to a slow shared device.",
+      "example": "10 programs want to print; their outputs go into a spool on disk; printer picks them one by one."
+     },
+     {
+      "term": "Swapping area",
+      "meaning": "The area on disk used to temporarily hold entire processes swapped out of RAM.",
+      "explain": "Part of virtual memory management, not related to spooling.",
+      "example": "When memory is full, a process is swapped to disk swap area."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "A printer shared among multiple jobs: each job writes output to a disk spool, and the printer reads from the spool in order."
+   },
+   "given": {
+    "aim": "Identify the spooled device among the given options",
+    "terms": [
+     {
+      "term": "Spooled device",
+      "meaning": "A slow shared device whose I/O is buffered via a spool queue on disk",
+      "example": "Shared printer in batch OS",
+      "connects": "Directly identifies the answer"
+     },
+     {
+      "term": "Terminal",
+      "meaning": "Interactive input/output device, directly connected to a running process",
+      "example": "User types input for a C program via keyboard",
+      "connects": "Not spooled; eliminates option A"
+     },
+     {
+      "term": "Swap area on disk",
+      "meaning": "Disk space reserved for swapping out entire process address spaces",
+      "example": "Swapper moves a low-priority process from RAM to swap disk",
+      "connects": "Not spooled; eliminates option D"
+     }
+    ],
+    "plan": "Apply spooling definition: slow shared output device, multiple producers, disk buffer. Only option B describes a printer serving multiple jobs, which is the canonical spooled device."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Recall spooling definition",
+      "formula_raw": "",
+      "apply": "Spooling buffers data from multiple jobs on disk and feeds it to a slow device like a printer. The OS maintains a spool directory on disk where jobs write their output; a separate daemon reads from the spool and sends data to the physical device.",
+      "note": "Spooling decouples the fast CPU from the slow I/O device and allows multiple jobs to 'print' concurrently."
+     },
+     {
+      "step": 2,
+      "title": "Match to options",
+      "formula_raw": "",
+      "apply": "A. Terminal for C program input: interactive, real-time I/O, not spooled.\nB. Output device printing output of many jobs: YES — spool queue holds outputs of multiple jobs; device serves them one by one.\nC. Secondary memory in virtual storage: used for paging (page-in/page-out), not spooling.\nD. Swapping area: used for process swapping, not spooling.",
+      "note": "Option B is the answer."
+     }
+    ],
+    "result": "An output device used to print the output of a number of jobs. Answer: B."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Spooling: Simultaneous Peripheral Operations On-Line — disk-buffered queue for slow shared output devices (printers); allows multiple jobs to produce output without waiting for the physical device.",
+   "qid": "7.7.2",
+   "answer_official": "B"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2005",
+    "year": 2005,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "IO Handling",
+    "subtopic": "IO Handling"
+   },
+   "question": "Which one of the following is true for a CPU having a single interrupt request line and a single interrupt grant line?\nA. Neither vectored interrupt nor multiple interrupting devices are possible\nB. Vectored interrupts are not possible but multiple interrupting devices are possible\nC. Vectored interrupts are possible but multiple interrupting devices are not possible\nD. Both vectored interrupts and multiple interrupting devices are possible",
+   "answer": "D. Both vectored interrupts and multiple interrupting devices are possible",
+   "to_find": "What is possible with a single interrupt request line and a single interrupt grant line",
+   "understand": {
+    "plain": "A CPU has a single INTR (interrupt request) line and a single INTA (interrupt acknowledge/grant) line. Multiple devices can be connected to the single INTR line using a daisy-chain or wired-OR arrangement. When the CPU grants an interrupt, devices can place a vector (address or interrupt number) on the data bus to identify themselves — this is vectored interrupt. So both vectored interrupts AND multiple devices are possible with just one INTR and one INTA line.",
+    "keywords": [
+     {
+      "term": "Vectored interrupt",
+      "explain": "An interrupt mechanism where the interrupting device supplies an interrupt vector (address/number) so the CPU jumps directly to the correct handler.",
+      "example": "Device places vector 0x30 on data bus; CPU jumps to ISR at address stored at vector 0x30."
+     },
+     {
+      "term": "Daisy-chain interrupt",
+      "explain": "A hardware scheme where multiple devices share one INTR line; the INTA signal is passed through devices in series; the first device that requested the interrupt intercepts INTA and places its vector on the bus.",
+      "example": "Devices D1-D2-D3 are daisy-chained; D2 interrupted -> INTA travels D1->D2; D2 intercepts and puts vector on bus."
+     }
+    ],
+    "visual_svg": "<svg width='440' height='160' viewBox='0 0 440 160' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='0' y='0' width='440' height='160' rx='10' class='bg'/><rect x='10' y='55' width='80' height='50' rx='8' class='hi'/><text x='50' y='82' text-anchor='middle' class='lbl ink'>CPU</text><text x='50' y='97' text-anchor='middle' class='sub mut'>INTR/INTA</text><line x1='90' y1='68' x2='150' y2='68' stroke='#D85A30' stroke-width='2'/><text x='120' y='62' text-anchor='middle' class='sub no'>INTR</text><line x1='90' y1='90' x2='150' y2='90' stroke='#1D9E75' stroke-width='2'/><text x='120' y='104' text-anchor='middle' class='sub ok'>INTA</text><rect x='150' y='45' width='70' height='32' rx='6' class='bg'/><text x='185' y='65' text-anchor='middle' class='sub ink'>Dev 1</text><line x1='220' y1='61' x2='270' y2='61' stroke='#1D9E75' stroke-width='2'/><rect x='270' y='45' width='70' height='32' rx='6' class='bg'/><text x='305' y='65' text-anchor='middle' class='sub ink'>Dev 2</text><line x1='340' y1='61' x2='390' y2='61' stroke='#1D9E75' stroke-width='2'/><rect x='390' y='45' width='40' height='32' rx='6' class='bg'/><text x='410' y='65' text-anchor='middle' class='sub ink'>Dev 3</text><line x1='185' y1='77' x2='185' y2='110' stroke='#D85A30' stroke-width='2'/><line x1='305' y1='77' x2='305' y2='110' stroke='#D85A30' stroke-width='2'/><line x1='185' y1='110' x2='305' y2='110' stroke='#D85A30' stroke-width='2'/><line x1='245' y1='110' x2='245' y2='130' stroke='#D85A30' stroke-width='2'/><line x1='95' y1='68' x2='245' y2='68' stroke='#D85A30' stroke-width='1' stroke-dasharray='4'/><text x='220' y='145' text-anchor='middle' class='sub mut'>Wired-OR INTR; daisy-chain INTA</text></svg>",
+    "visual_alt": "Daisy-chain interrupt scheme: multiple devices share a wired-OR INTR line to CPU; INTA travels device to device; intercepting device puts its vector on data bus, enabling vectored interrupts."
+   },
+   "given": {
+    "aim": "Determine what interrupt features are possible with one INTR line and one INTA line",
+    "terms": [
+     {
+      "term": "Single INTR line",
+      "meaning": "A single hardware wire connecting all devices to the CPU for signaling interrupts",
+      "example": "All devices wire-OR their interrupt signals onto this single line",
+      "connects": "Multiple devices can still share it via wired-OR or daisy-chain"
+     },
+     {
+      "term": "Single INTA (grant) line",
+      "meaning": "CPU's acknowledge signal sent back after accepting an interrupt request",
+      "example": "CPU lowers INTA to acknowledge; devices pass it along the daisy chain",
+      "connects": "Daisy-chain passes INTA through devices; the requesting device intercepts and supplies vector"
+     },
+     {
+      "term": "Vectored interrupt",
+      "meaning": "Mechanism where interrupting device places a unique vector on the data bus to identify its ISR",
+      "example": "Device puts 0x20 on data bus; CPU uses it to look up ISR address",
+      "connects": "Possible even with single INTR/INTA via daisy-chain; device intercepts INTA and puts vector on bus"
+     }
+    ],
+    "plan": "Analyze daisy-chain interrupt handling: multiple devices can share one INTR line (wired-OR); the INTA is passed device-to-device; whichever device requested the interrupt intercepts INTA and places its interrupt vector on the data bus. This supports both multiple devices AND vectored interrupts."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Multiple devices on single INTR line",
+      "formula_raw": "",
+      "apply": "Multiple devices can be connected to a single INTR line using the wired-OR technique: any device asserting its interrupt signal drives the shared INTR line high. So multiple interrupting devices ARE possible with a single INTR line.",
+      "note": "This eliminates options A and C which claim multiple devices are not possible."
+     },
+     {
+      "step": 2,
+      "title": "Vectored interrupts with daisy-chain INTA",
+      "formula_raw": "",
+      "apply": "When the CPU asserts INTA (interrupt acknowledge) on the single INTA line, it travels through devices in a daisy-chain. The first device in the chain that requested an interrupt intercepts the INTA signal and places its interrupt vector on the data bus. The CPU reads this vector and jumps to the appropriate ISR. So vectored interrupts ARE possible with a single INTA line.",
+      "note": "This eliminates option B which claims vectored interrupts are not possible."
+     },
+     {
+      "step": 3,
+      "title": "Conclusion",
+      "formula_raw": "",
+      "apply": "Both vectored interrupts and multiple interrupting devices are possible with a single INTR line (wired-OR for multiple devices) and a single INTA line (daisy-chain for vectored identification). Answer: D.",
+      "note": "This is a standard interrupt-driven I/O architecture used in many real systems."
+     }
+    ],
+    "result": "Both vectored interrupts and multiple interrupting devices are possible. Answer: D."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Daisy-chain interrupt acknowledgement: single INTR (wired-OR for multiple devices) and single INTA (passed serially through devices) enables both multiple devices and vectored interrupts.",
+   "qid": "7.7.3",
+   "answer_official": "C;D"
+  }
+ ]
+}

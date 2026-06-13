@@ -1,0 +1,321 @@
+{
+ "page": 23,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2003",
+    "year": 2003,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Algorithms",
+    "topic": "Graph Algorithms",
+    "subtopic": "Graph Algorithms"
+   },
+   "question": "Let G = (V, E) be a directed graph with n vertices. A path from v_1 to v_j in G is a sequence of vertices (v_1, v_2, ..., v_j) such that (v_i, v_{i+1}) is in E for all i in 1 through j-1. A simple path is a path in which no vertex appears more than once.\n\nLet A be an n x n array initialized as follows:\nA[j,k] = 1 if (j,k) is in E\nA[j,k] = 0 otherwise\n\nConsider the following algorithm:\nfor i = 1 to n\n  for j = 1 to n\n    for k = 1 to n\n      A[j,k] = A[j,k] OR (A[j,i] AND A[i,k])\n\nWhich of these statements is necessarily true for all j and k after termination of the above algorithm?\n\nA. A[j,k] = 1 if and only if j != k\nB. If A[j,j] >= 1 then G has a Hamiltonian cycle\nC. If there is a path from j to k, A[j,k] = 1\nD. A[j,k] = 1 if and only if there is a path from j to k that contains at most A[j,k] edges",
+   "answer": "C. If there is a path from j to k, A[j,k] = 1",
+   "to_find": "Which statement is necessarily true after the Floyd-Warshall style transitive closure computation?",
+   "understand": {
+    "plain": "This algorithm is the Floyd-Warshall transitive closure algorithm. It starts with the adjacency matrix and repeatedly checks: can we reach vertex k from vertex j by going through intermediate vertex i? After all iterations, A[j,k] = 1 means there is some path (not necessarily simple) from j to k. The question asks which of the four statements is definitely true after the algorithm finishes.",
+    "keywords": [
+     {
+      "term": "Transitive Closure",
+      "explain": "A matrix where entry (j,k) = 1 if there is a directed path from vertex j to vertex k in the graph.",
+      "example": "If edges are 1->2 and 2->3, then transitive closure has (1,3) = 1 even though no direct edge exists."
+     },
+     {
+      "term": "Floyd-Warshall (transitive closure variant)",
+      "explain": "A triple nested loop that iterates over all triples (i, j, k); if j can reach i and i can reach k, then j can reach k.",
+      "example": "A[j,k] |= A[j,i] & A[i,k] for each intermediate vertex i."
+     }
+    ],
+    "visual_svg": "<svg width='320' height='120' viewBox='0 0 320 120' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><circle cx='60' cy='60' r='20' class='bg'/><text x='60' y='65' text-anchor='middle' class='lbl ink'>j</text><circle cx='160' cy='60' r='20' class='bg'/><text x='160' y='65' text-anchor='middle' class='lbl ink'>i</text><circle cx='260' cy='60' r='20' class='bg'/><text x='260' y='65' text-anchor='middle' class='lbl ink'>k</text><line x1='80' y1='60' x2='140' y2='60' stroke='#1D9E75' stroke-width='2' marker-end='url(#arr)'/><line x1='180' y1='60' x2='240' y2='60' stroke='#1D9E75' stroke-width='2' marker-end='url(#arr)'/><path d='M 80 50 Q 160 10 240 50' stroke='#7F77DD' stroke-width='2' fill='none' marker-end='url(#arr2)'/><text x='160' y='18' text-anchor='middle' class='sub ink'>A[j,i]=1 and A[i,k]=1 => A[j,k]=1</text><defs><marker id='arr' markerWidth='8' markerHeight='8' refX='6' refY='3' orient='auto'><path d='M0,0 L0,6 L8,3 z' fill='#1D9E75'/></marker><marker id='arr2' markerWidth='8' markerHeight='8' refX='6' refY='3' orient='auto'><path d='M0,0 L0,6 L8,3 z' fill='#7F77DD'/></marker></defs></svg>",
+    "visual_alt": "Three nodes j, i, k in a line. If A[j,i]=1 and A[i,k]=1, then A[j,k] is set to 1, showing transitive reachability."
+   },
+   "given": {
+    "aim": "Determine which statement about the transitive closure array A is necessarily true after the triple-loop algorithm terminates.",
+    "terms": [
+     {
+      "term": "A[j,k] initial value",
+      "meaning": "1 if there is a direct edge (j,k) in E, 0 otherwise — the adjacency matrix.",
+      "example": "If edge (2,3) exists, A[2,3]=1 initially.",
+      "connects": "Starting point; the algorithm extends this to all reachable pairs."
+     },
+     {
+      "term": "Triple loop update: A[j,k] = A[j,k] OR (A[j,i] AND A[i,k])",
+      "meaning": "If j can reach i and i can reach k (directly or via earlier discovered paths), then j can reach k.",
+      "example": "If A[1,2]=1 and A[2,3]=1, after i=2 pass A[1,3] becomes 1.",
+      "connects": "This is exactly the transitive closure computation (Warshall's algorithm)."
+     },
+     {
+      "term": "Transitive closure correctness",
+      "meaning": "After all n iterations of the outer loop, A[j,k]=1 iff there is any directed path from j to k.",
+      "example": "For a cycle 1->2->3->1, after algorithm completes A[1,1]=A[2,2]=A[3,3]=1.",
+      "connects": "This confirms option C is necessarily true."
+     }
+    ],
+    "plan": "Warshall's algorithm computes transitive closure: A[j,k]=1 iff there is a directed path from j to k (allowing any vertices as intermediates). Option C states exactly this. Options A, B, D make stronger claims that are not guaranteed."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Recognize the algorithm as Warshall's transitive closure",
+      "formula_raw": "A[j,k] = A[j,k] OR (A[j,i] AND A[i,k])",
+      "apply": "This triple nested loop, also called Warshall's algorithm, computes the transitive closure of the adjacency matrix. After termination, A[j,k]=1 if and only if there exists a directed path from j to k in G (using any number of edges, going through any intermediate vertices).",
+      "note": "This is NOT the same as the all-pairs shortest path Floyd-Warshall; here we use OR/AND on boolean values instead of min/+ on distances."
+     },
+     {
+      "step": 2,
+      "title": "Evaluate each option",
+      "formula_raw": "",
+      "apply": "A: FALSE — A[j,k]=1 only if a path exists; isolated vertex pairs remain 0. Also self-loops are only set if a cycle exists.\nB: FALSE — A[j,j]=1 means there is a cycle through j, not necessarily a Hamiltonian cycle.\nC: TRUE — By correctness of Warshall's algorithm, if a path from j to k exists, A[j,k] will be set to 1.\nD: FALSE — A[j,k] is boolean (0 or 1), not edge count; this statement is meaningless.",
+      "note": "Option C is the definition of what Warshall's algorithm computes — it is the correct answer."
+     }
+    ],
+    "result": "C. If there is a path from j to k, A[j,k] = 1"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Warshall's algorithm for transitive closure: after the triple loop, A[j,k]=1 iff there is a directed path from j to k in the graph.",
+   "qid": "1.13.2",
+   "answer_official": "D"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2005",
+    "year": 2005,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Algorithms",
+    "topic": "Graph Algorithms",
+    "subtopic": "Graph Algorithms"
+   },
+   "question": "Let s and t be two vertices in a undirected graph G = (V, E) having distinct positive edge weights. Let (X, Y) be a partition of V such that s is in X and t is in Y. Consider the edge e having the minimum weight amongst all those edges that have one vertex in X and one vertex in Y.\n\nThe edge e must definitely belong to:\n\nA. the minimum weighted spanning tree of G\nB. the weighted shortest path from s to t\nC. each path from s to t\nD. the weighted longest path from s to t",
+   "answer": "A. the minimum weighted spanning tree of G",
+   "to_find": "Which structure must the minimum weight cut edge e definitely belong to?",
+   "understand": {
+    "plain": "We have an undirected graph with distinct positive weights. We cut the vertices into two sets X (containing s) and t (containing t). Among all edges crossing this cut, we pick the one with minimum weight, call it e. The cut property of MSTs guarantees that the minimum weight edge crossing any cut must be in the MST.",
+    "keywords": [
+     {
+      "term": "Cut property of MST",
+      "explain": "For any cut (partition of vertices into two sets), the minimum weight edge crossing the cut is guaranteed to be in every MST.",
+      "example": "If vertices {A,B} vs {C,D} form a cut and edge B-C has the smallest crossing weight, then B-C is in the MST."
+     },
+     {
+      "term": "Minimum Spanning Tree (MST)",
+      "explain": "A spanning tree of the graph with the smallest total edge weight, connecting all vertices.",
+      "example": "Kruskal's and Prim's algorithms both build MSTs by exploiting the cut property."
+     }
+    ],
+    "visual_svg": "<svg width='300' height='160' viewBox='0 0 300 160' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='20' width='110' height='120' rx='10' class='bg'/><rect x='180' y='20' width='110' height='120' rx='10' class='bg'/><text x='65' y='45' text-anchor='middle' class='lbl ink'>X</text><text x='235' y='45' text-anchor='middle' class='lbl ink'>Y</text><circle cx='50' cy='90' r='16' class='hi'/><text x='50' y='95' text-anchor='middle' class='tag ink'>s</text><circle cx='80' cy='120' r='14' class='bg'/><text x='80' y='125' text-anchor='middle' class='sub ink'>u</text><circle cx='220' cy='90' r='16' class='hi'/><text x='220' y='95' text-anchor='middle' class='tag ink'>t</text><circle cx='250' cy='120' r='14' class='bg'/><text x='250' y='125' text-anchor='middle' class='sub ink'>v</text><line x1='96' y1='120' x2='206' y2='120' stroke='#D85A30' stroke-width='1.5' stroke-dasharray='4'/><text x='150' y='115' text-anchor='middle' class='sub mut'>other edges</text><line x1='94' y1='90' x2='204' y2='90' stroke='#1D9E75' stroke-width='3'/><text x='150' y='82' text-anchor='middle' class='sub ink'>e (min cut edge)</text></svg>",
+    "visual_alt": "Graph partitioned into set X (containing s) and set Y (containing t). Edge e is the minimum weight edge crossing the cut from X to Y."
+   },
+   "given": {
+    "aim": "Determine which structure the minimum-weight crossing edge e in a cut (X, Y) must belong to.",
+    "terms": [
+     {
+      "term": "Cut (X, Y)",
+      "meaning": "A partition of vertex set V into two disjoint non-empty sets X and Y with X union Y = V.",
+      "example": "X = {s, a, b}, Y = {t, c, d} is a cut separating s from t.",
+      "connects": "Defines the set of crossing edges from which e is chosen."
+     },
+     {
+      "term": "Minimum crossing edge e",
+      "meaning": "The edge with the smallest weight among all edges with one endpoint in X and one in Y.",
+      "example": "If crossing edges have weights 3, 7, 5, then e is the edge with weight 3.",
+      "connects": "By cut property, this edge must be in the MST."
+     },
+     {
+      "term": "Cut property of MST",
+      "meaning": "For any cut of the graph, if an edge is the unique minimum weight edge crossing the cut, it must appear in every MST.",
+      "example": "Since all edge weights are distinct, e is uniquely minimal, so it is definitely in the MST.",
+      "connects": "Directly implies option A is correct."
+     }
+    ],
+    "plan": "Apply the cut property: the minimum weight edge in any cut belongs to the MST. Check whether it must also belong to the shortest path, every path, or the longest path — it need not."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Apply the cut property of MSTs",
+      "formula_raw": "For any cut (X, Y), if e = argmin weight of crossing edges, then e is in every MST.",
+      "apply": "Since all edge weights are distinct and e is the unique minimum weight edge crossing (X, Y), by the cut property of minimum spanning trees, e must be in every MST of G. This makes option A definitely true.",
+      "note": "The cut property holds for any cut, not just s-t cuts. With distinct weights, the MST is unique, so e is in that unique MST."
+     },
+     {
+      "step": 2,
+      "title": "Verify options B, C, D are not guaranteed",
+      "formula_raw": "",
+      "apply": "B (shortest path from s to t): The shortest path uses the lowest total distance, not necessarily crossing at the lightest cut edge. Counter-example: e might have weight 1 but there's a path s->a->b->t with total weight 0.9+0.9+0.9=2.7 vs direct path s->e->t=1, so sometimes e is on shortest path, sometimes not.\nC (each path from s to t): Obviously false; there can be paths from s to t that don't use e.\nD (longest path): No reason e is on every longest path.",
+      "note": "The cut property is specifically about MST, not shortest paths. Shortest path uses its own greedy criterion (Dijkstra)."
+     }
+    ],
+    "result": "A. the minimum weighted spanning tree of G"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Cut property of MSTs: the minimum weight edge crossing any cut of a graph belongs to every minimum spanning tree; with distinct weights the MST is unique.",
+   "qid": "1.13.3",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2005",
+    "year": 2005,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Algorithms",
+    "topic": "Graph Algorithms",
+    "subtopic": "Graph Algorithms"
+   },
+   "question": "Let s and t be two vertices in a undirected graph G = (V, E) having distinct positive edge weights. Let (X, Y) be a partition of V such that s is in X and t is in Y. Consider the edge e having the minimum weight amongst all those edges that have one vertex in X and one vertex in Y.\n\nLet the weight of an edge denote the congestion on that edge. The congestion of a path is defined to be the maximum of the congestions of the edges of the path. We wish to find the path from s to t having minimum congestion. The edge e must definitely belong to:\n\nA. a path from s to t with minimum congestion\nB. the weighted shortest path from s to t\nC. the minimum weighted spanning tree of G\nD. a Hamiltonian path from s to t",
+   "answer": "A. a path from s to t with minimum congestion",
+   "to_find": "Which structure must the minimum weight cut edge e (from the (X,Y) cut) belong to when considering minimum congestion (bottleneck) paths?",
+   "understand": {
+    "plain": "Congestion of a path is the maximum edge weight on that path (the bottleneck). We want the s-t path with minimum bottleneck (minimum maximum edge weight). Any s-t path must cross the cut (X,Y), and e is the lightest crossing edge. The minimum congestion path must use e to cross the cut — otherwise it would use a heavier crossing edge, increasing the congestion.",
+    "keywords": [
+     {
+      "term": "Congestion (bottleneck) of a path",
+      "explain": "The maximum edge weight along the path; the 'weakest link' or 'tightest bottleneck'.",
+      "example": "Path with edge weights 3, 7, 2 has congestion 7."
+     },
+     {
+      "term": "Minimum congestion path",
+      "explain": "The s-t path whose maximum edge weight is as small as possible, also called the minimax path or minimum bottleneck path.",
+      "example": "If path1 has congestion 7 and path2 has congestion 5, path2 is the minimum congestion path."
+     }
+    ],
+    "visual_svg": "<svg width='320' height='160' viewBox='0 0 320 160' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='30' width='100' height='110' rx='10' class='bg'/><rect x='210' y='30' width='100' height='110' rx='10' class='bg'/><text x='60' y='52' text-anchor='middle' class='lbl ink'>X</text><text x='260' y='52' text-anchor='middle' class='lbl ink'>Y</text><circle cx='40' cy='100' r='16' class='hi'/><text x='40' y='105' text-anchor='middle' class='tag ink'>s</text><circle cx='280' cy='100' r='16' class='hi'/><text x='280' y='105' text-anchor='middle' class='tag ink'>t</text><line x1='110' y1='80' x2='210' y2='80' stroke='#1D9E75' stroke-width='3'/><text x='160' y='72' text-anchor='middle' class='sub ink'>e (wt=3, min)</text><line x1='110' y1='110' x2='210' y2='110' stroke='#D85A30' stroke-width='1.5' stroke-dasharray='4'/><text x='160' y='130' text-anchor='middle' class='sub mut'>heavier edge (wt=7)</text><text x='160' y='20' text-anchor='middle' class='sub mut'>Min congestion path must use e</text></svg>",
+    "visual_alt": "Vertices split into X and Y. The minimum weight edge e crossing the cut has weight 3. Any s-t path must cross the cut; using e (wt=3) instead of a heavier crossing edge (wt=7) gives lower congestion."
+   },
+   "given": {
+    "aim": "Determine whether the minimum weight cut edge e must be on the minimum congestion (minimax) s-t path.",
+    "terms": [
+     {
+      "term": "Cut (X, Y) with s in X, t in Y",
+      "meaning": "Every s-t path must cross this cut — it must include at least one edge between X and Y.",
+      "example": "If X={s,a} and Y={b,t}, any s-t path uses at least one edge from {a,b} or {s,b} etc.",
+      "connects": "Forces the minimum congestion path to pick one crossing edge from the cut."
+     },
+     {
+      "term": "e = minimum weight crossing edge",
+      "meaning": "Among all edges crossing (X, Y), e has the smallest weight.",
+      "example": "Crossing edges have weights 3, 7, 5; e has weight 3.",
+      "connects": "Any path not using e must use some crossing edge with weight >= weight(e), so its congestion can only be >= that of a path using e."
+     },
+     {
+      "term": "Minimax path property",
+      "meaning": "The minimum bottleneck path from s to t corresponds to the MST path (maximum spanning tree for bottleneck) — the critical edge is the minimum cut edge.",
+      "example": "The minimum congestion s-t path in the MST is guaranteed to be the global minimax path.",
+      "connects": "e is the min cut edge, so any globally optimal min congestion path that crosses (X,Y) at e achieves minimum possible bottleneck for this cut."
+     }
+    ],
+    "plan": "Every s-t path crosses the cut (X,Y). The crossing edge determines the bottleneck contribution from crossing the cut. To minimize congestion, pick the minimum weight crossing edge e. Hence the minimum congestion path must use e."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Show every s-t path must cross the cut",
+      "formula_raw": "",
+      "apply": "Since (X, Y) partitions V with s in X and t in Y, every s-t path must contain at least one edge that crosses the cut (goes from a vertex in X to a vertex in Y). This is because the path starts in X and must reach t in Y.",
+      "note": "A path may cross the cut multiple times (enter and leave X), but it must cross at least once."
+     },
+     {
+      "step": 2,
+      "title": "Show the minimum congestion path must use e",
+      "formula_raw": "congestion(path) = max{weight(edge) : edge in path}",
+      "apply": "Suppose the minimum congestion path P* from s to t uses crossing edge f != e. Then weight(f) > weight(e) (since e is the unique minimum crossing edge with distinct weights). The congestion of P* is at least weight(f) > weight(e). But we can replace f in P* with e (by rerouting through e's endpoints within X and Y), getting a path whose bottleneck at the cut is at most weight(e) < weight(f). So P* could not be minimum congestion unless it uses e. Therefore, the minimum congestion path must use e.",
+      "note": "Note: this reasoning applies for the (X,Y) cut specifically. The min congestion path from s to t is related to the MST (minimax path property): the path in the MST between any two vertices is the minimum bottleneck path."
+     }
+    ],
+    "result": "A. a path from s to t with minimum congestion"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Minimax path / minimum bottleneck path: the minimum congestion s-t path must use the minimum weight edge crossing any s-t cut; this path corresponds to the s-t path in the MST.",
+   "qid": "1.13.4",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2016",
+    "year": 2016,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Algorithms",
+    "topic": "Graph Algorithms",
+    "subtopic": "Graph Algorithms"
+   },
+   "question": "In an adjacency list representation of an undirected simple graph G = (V, E), each edge (u, v) has two adjacency list entries: [v] in the adjacency list of u, and [u] in the adjacency list of v. These are called twins of each other. A twin pointer is a pointer from an adjacency list entry to its twin. If |E| = m and |V| = n, and the adjacency list is represented as an array of linked lists, what is the time complexity of the most efficient algorithm to set the twin pointer in each adjacency list entry?\n\nA. Theta(n^2)\nB. Theta(n + m)\nC. Theta(m^2)\nD. Theta(n^2 + m)",
+   "answer": "B. Theta(n + m)",
+   "to_find": "Time complexity of the most efficient algorithm to set the twin pointer in each adjacency list entry.",
+   "understand": {
+    "plain": "In an undirected graph's adjacency list, edge (u,v) appears as entry [v] in u's list AND entry [u] in v's list. These two entries are twins. A twin pointer links each entry to its corresponding twin. We need to set all these twin pointers as efficiently as possible. Since the graph has n vertices and m edges, there are 2m total adjacency list entries (each edge contributes 2 entries). We can do this in O(n+m) time.",
+    "keywords": [
+     {
+      "term": "Adjacency list twin entry",
+      "explain": "For undirected edge (u,v): u's list has entry [v] and v's list has entry [u]. These two entries represent the same edge and are called twins.",
+      "example": "Edge (1,2): entry [2] in list of 1 and entry [1] in list of 2 are twins."
+     },
+     {
+      "term": "Twin pointer",
+      "explain": "A pointer stored with each adjacency list entry that directly points to the twin entry in the other vertex's list.",
+      "example": "Entry [2] in list of 1 has a twin pointer pointing to entry [1] in list of 2."
+     }
+    ],
+    "visual_svg": "<svg width='340' height='200' viewBox='0 0 340 200' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='40' width='50' height='30' class='bg'/><text x='35' y='60' text-anchor='middle' class='sub ink'>v[1]</text><rect x='60' y='40' width='60' height='30' class='bg'/><text x='90' y='60' text-anchor='middle' class='sub ink'>[2] -&gt;</text><rect x='10' y='90' width='50' height='30' class='bg'/><text x='35' y='110' text-anchor='middle' class='sub ink'>v[2]</text><rect x='60' y='90' width='60' height='30' class='bg'/><text x='90' y='110' text-anchor='middle' class='sub ink'>[1] -&gt;</text><rect x='60' y='130' width='60' height='30' class='bg'/><text x='90' y='150' text-anchor='middle' class='sub ink'>[3] -&gt;</text><rect x='10' y='150' width='50' height='30' class='bg'/><text x='35' y='170' text-anchor='middle' class='sub ink'>v[3]</text><rect x='60' y='150' width='60' height='30' class='bg'/><text x='90' y='170' text-anchor='middle' class='sub ink'>[2] -&gt;</text><path d='M 120 55 C 180 55 180 105 120 105' stroke='#7F77DD' stroke-width='2' fill='none' marker-end='url(#tp)'/><path d='M 120 105 C 200 105 200 55 120 55' stroke='#1D9E75' stroke-width='1.5' fill='none' stroke-dasharray='4' marker-end='url(#tp2)'/><text x='200' y='85' class='sub mut'>twin</text><text x='200' y='100' class='sub mut'>pointers</text><defs><marker id='tp' markerWidth='8' markerHeight='8' refX='6' refY='3' orient='auto'><path d='M0,0 L0,6 L8,3 z' fill='#7F77DD'/></marker><marker id='tp2' markerWidth='8' markerHeight='8' refX='6' refY='3' orient='auto'><path d='M0,0 L0,6 L8,3 z' fill='#1D9E75'/></marker></defs></svg>",
+    "visual_alt": "Adjacency lists for vertices 1, 2, 3. Vertex 1's list has [2], vertex 2's list has [1] and [3], vertex 3's list has [2]. Twin pointers connect the [2] entry in v[1]'s list to the [1] entry in v[2]'s list, and vice versa."
+   },
+   "given": {
+    "aim": "Find the time complexity of setting twin pointers for all 2m adjacency list entries in the graph.",
+    "terms": [
+     {
+      "term": "|V| = n, |E| = m",
+      "meaning": "The graph has n vertices and m edges.",
+      "example": "A graph with 4 vertices and 5 edges has n=4, m=5.",
+      "connects": "The adjacency list has 2m entries total, and we need to process all of them."
+     },
+     {
+      "term": "Algorithm strategy: hashing or marking",
+      "meaning": "While traversing the adjacency list of vertex u, for each neighbor v, we can use a hash map or pointer to record where entry [u] appears in v's list, then link them.",
+      "example": "When processing u's entry for v, record the pointer to this entry; then when we reach v's entry for u, link them. Total work: O(n+m).",
+      "connects": "This achieves Theta(n+m) time — linear in the size of the adjacency list."
+     },
+     {
+      "term": "Total adjacency list size",
+      "meaning": "Sum of degrees of all vertices = 2m (each edge contributes 2 to the total degree).",
+      "example": "5 edges => 10 total adjacency list entries.",
+      "connects": "Any algorithm must examine all entries at least once, giving Omega(n+m) lower bound; a linear scan achieves this."
+     }
+    ],
+    "plan": "The adjacency list has n lists and 2m total entries. We can traverse all lists once (O(n+m)) and use a hash table keyed on edge (u,v) to find and link twin entries in O(1) expected time per entry. Total: Theta(n+m)."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Determine the lower bound",
+      "formula_raw": "Omega(n + m)",
+      "apply": "Any algorithm must at minimum visit all n vertex list headers and all 2m adjacency entries to set their twin pointers. This gives a lower bound of Omega(n+m). Since n + m >= n and n + m >= m, no algorithm can do better than linear in the input size.",
+      "note": "The adjacency list representation itself has size Theta(n+m), so Theta(n+m) is the best possible."
+     },
+     {
+      "step": 2,
+      "title": "Achieve Theta(n+m) using a hash table",
+      "formula_raw": "",
+      "apply": "Pass 1 (O(n+m)): Traverse every adjacency list. For each entry [v] in u's list, insert a mapping (u,v) -> pointer_to_this_entry into a hash table.\nPass 2 (O(n+m)): Traverse again. For each entry [v] in u's list, look up (v,u) in the hash table to get the twin pointer, and set it.\nTotal time: O(n+m) for both passes. This achieves Theta(n+m).",
+      "note": "Alternatively, a single pass with bookkeeping works: when processing entry [v] in u's list, if (v,u) was already recorded from v's list, link them immediately."
+     }
+    ],
+    "result": "B. Theta(n + m)"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Adjacency list traversal is Theta(n+m); using a hash table for twin matching makes each lookup O(1) amortized, yielding Theta(n+m) overall for setting all twin pointers.",
+   "qid": "1.13.5",
+   "answer_official": "B"
+  }
+ ]
+}

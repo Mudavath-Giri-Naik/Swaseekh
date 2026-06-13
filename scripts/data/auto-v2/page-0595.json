@@ -1,0 +1,284 @@
+{
+ "page": 595,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2001",
+    "year": 2001,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Programming in C",
+    "topic": "Parameter Passing",
+    "subtopic": "Parameter Passing"
+   },
+   "question": "What is printed by the print statements in the program P1 assuming call by reference parameter passing?\n\nProgram:\nP1() {\n  x = 10;\n  y = 3;\n  func1(y, x, x);\n  print x;\n  print y;\n}\nfunc1(x, y, z) {\n  y = y + 4;\n  z = x + y;\n}\n\nA. 10, 3\nB. 31, 3\nC. 27, 7\nD. None of the above",
+   "answer": "D. None of the above",
+   "to_find": "Values printed by 'print x' and 'print y' in P1 after func1 executes with call-by-reference",
+   "understand": {
+    "plain": "In call-by-reference, instead of passing values, the function receives the actual memory addresses (aliases) of the caller's variables. So any change inside func1 directly modifies the original variables in P1. Here func1(y, x, x) passes references to P1's y and x (twice). We must trace how the assignments inside func1 affect P1's x and y.",
+    "keywords": [
+     {
+      "term": "Call by Reference",
+      "explain": "The called function receives aliases (pointers) to the caller's variables, so modifications inside the function affect the original variables directly.",
+      "example": "func1(y, x, x): func1's formal x is an alias for P1's y; func1's formal y and z are both aliases for P1's x."
+     },
+     {
+      "term": "Aliasing",
+      "explain": "When the same actual variable is passed to two different formal parameters, both formals refer to the same memory location. A write through either alias is visible through the other.",
+      "example": "func1(y, x, x): both formal y and formal z are aliases of P1.x, so writing through z also changes what y reads."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='480' height='220'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='200' height='90' class='bg' rx='8'/><text x='110' y='35' text-anchor='middle' class='lbl ink'>P1 frame</text><text x='30' y='60' class='sub ink'>P1.x = 10</text><text x='30' y='80' class='sub ink'>P1.y = 3</text><rect x='250' y='10' width='210' height='130' class='hi' rx='8'/><text x='355' y='35' text-anchor='middle' class='lbl ink'>func1 frame (CBR)</text><text x='270' y='60' class='sub ink'>formal x  →  alias of P1.y</text><text x='270' y='80' class='sub ink'>formal y  →  alias of P1.x</text><text x='270' y='100' class='sub ink'>formal z  →  alias of P1.x</text><text x='270' y='120' class='sub mut'>(y and z alias same loc)</text><line x1='210' y1='55' x2='250' y2='55' stroke='#7F77DD' stroke-width='2' marker-end='url(#arr)'/><line x1='210' y1='75' x2='250' y2='75' stroke='#7F77DD' stroke-width='2' marker-end='url(#arr)'/><rect x='10' y='140' width='430' height='65' class='bg' rx='8'/><text x='25' y='162' class='tag ink'>After y=y+4: P1.x = 10+4 = 14</text><text x='25' y='182' class='tag ink'>After z=x+y: P1.x = P1.y + P1.x = 3 + 14 = 17</text><text x='25' y='200' class='sub mut'>print x → 17, print y → 3  (none of A/B/C match)</text></svg>",
+    "visual_alt": "Call stack showing P1 frame with x=10, y=3 and func1 frame where formal x aliases P1.y, and formal y and z both alias P1.x. Execution trace shows P1.x becomes 14 after y=y+4, then 17 after z=x+y."
+   },
+   "given": {
+    "aim": "Trace the execution of P1 and func1 under call-by-reference semantics to find the printed values of x and y.",
+    "terms": [
+     {
+      "term": "func1(y, x, x) call",
+      "meaning": "Three actual arguments: P1.y, P1.x, P1.x. With CBR, func1's formal parameters become aliases: formal_x → P1.y, formal_y → P1.x, formal_z → P1.x.",
+      "example": "formal_y and formal_z both point to the same memory cell (P1.x).",
+      "connects": "This aliasing means that when formal_y is modified, it changes P1.x, and formal_z reads the new value of P1.x."
+     },
+     {
+      "term": "y = y + 4 (inside func1)",
+      "meaning": "formal_y is an alias for P1.x, so this sets P1.x = P1.x + 4 = 10 + 4 = 14.",
+      "example": "P1.x changes from 10 to 14.",
+      "connects": "This updated value (14) is what formal_z (also aliasing P1.x) will read in the next statement."
+     },
+     {
+      "term": "z = x + y (inside func1)",
+      "meaning": "formal_x is alias for P1.y (=3), formal_y is alias for P1.x (now 14). So z = 3 + 14 = 17. Since formal_z aliases P1.x, P1.x becomes 17.",
+      "example": "P1.x changes from 14 to 17.",
+      "connects": "This is the final value of P1.x that will be printed."
+     }
+    ],
+    "plan": "Map each formal parameter of func1 to the actual variable it aliases in P1. Execute func1's body step by step, updating the aliased variables. Read back P1.x and P1.y at the print statements."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Set up aliases for call-by-reference",
+      "formula_raw": "formal param = alias of actual arg",
+      "apply": "Call: func1(y, x, x)\n  func1's formal x  → alias of P1.y  (value 3)\n  func1's formal y  → alias of P1.x  (value 10)\n  func1's formal z  → alias of P1.x  (value 10)\nNote: formal y and formal z are aliases of the SAME variable P1.x.",
+      "note": "Passing the same variable twice creates aliasing — both formals read/write the same memory location."
+     },
+     {
+      "step": 2,
+      "title": "Execute y = y + 4 in func1",
+      "formula_raw": "P1.x = P1.x + 4",
+      "apply": "formal_y is alias of P1.x.\n  y = y + 4  =>  P1.x = 10 + 4 = 14\nNow P1.x = 14, P1.y = 3 (unchanged).",
+      "note": "formal_z (also aliasing P1.x) now reads 14, not the original 10."
+     },
+     {
+      "step": 3,
+      "title": "Execute z = x + y in func1",
+      "formula_raw": "P1.x = P1.y + P1.x",
+      "apply": "formal_x is alias of P1.y = 3.\n  formal_y is alias of P1.x = 14 (updated in step 2).\n  z = x + y  =>  P1.x = 3 + 14 = 17\nNow P1.x = 17, P1.y = 3.",
+      "note": "Since z aliases P1.x, assigning to z changes P1.x to 17."
+     },
+     {
+      "step": 4,
+      "title": "Read print statements in P1",
+      "formula_raw": "",
+      "apply": "print x  =>  prints P1.x = 17\nprint y  =>  prints P1.y = 3\nResult: 17, 3\n\nChecking options:\n  A. 10, 3  — No\n  B. 31, 3  — No\n  C. 27, 7  — No\n  D. None of the above  — YES (17, 3 matches none of A/B/C)",
+      "note": "The answer is D because none of A, B, or C equals (17, 3)."
+     }
+    ],
+    "result": "D. None of the above (the printed values are 17 and 3)"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Call-by-reference semantics with aliasing: when the same variable is passed to two parameters, both parameters alias the same memory cell, so intermediate updates are visible to subsequent reads through either alias.",
+   "qid": "9.8.3",
+   "answer_official": "B"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2003",
+    "year": 2003,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Programming in C",
+    "topic": "Parameter Passing",
+    "subtopic": "Parameter Passing"
+   },
+   "question": "The following program fragment is written in a programming language that allows global variables and does not allow nested declarations of functions.\n\nglobal int i = 100, j = 5;\nvoid P(x) {\n  int i = 10;\n  print(x + 10);\n  i = 200;\n  j = 20;\n  print(x);\n}\nmain() { P(i + j); }\n\nIf the programming language uses static scoping and call by need (lazy evaluation) parameter passing mechanism, the values printed by the above program are:\n\nA. 115, 220\nB. 25, 220\nC. 25, 15\nD. 115, 105",
+   "answer": "D. 115, 105",
+   "to_find": "Values printed by P under static scoping with call-by-need (lazy evaluation) parameter passing",
+   "understand": {
+    "plain": "Call-by-need means the argument expression (i+j) is NOT evaluated when P is called. Instead, it is evaluated lazily the first time x is used, and then the result is cached (memoized) for all subsequent uses. Static scoping means variable names in the argument expression are resolved in the caller's (main's) environment — but local variables inside P are not visible. We need to figure out what i and j refer to when x is first evaluated.",
+    "keywords": [
+     {
+      "term": "Call by Need (Lazy Evaluation)",
+      "explain": "The argument expression is not evaluated at call time. It is evaluated on first use (using the caller's scope for name resolution), and the result is memoized — subsequent uses of the parameter return the cached value, not a re-evaluation.",
+      "example": "P(i+j): x is not evaluated until 'print(x+10)' is reached. At that point, i and j are looked up in the caller scope."
+     },
+     {
+      "term": "Static Scoping",
+      "explain": "Variable names in an expression are resolved in the lexical (textual) environment where the expression was written, not where it is evaluated. So i+j in the call P(i+j) always refers to the global i and j as visible in main.",
+      "example": "The local 'int i=10' inside P is NOT used to evaluate the argument — i refers to global i=100."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='460' height='200'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='200' height='80' class='bg' rx='8'/><text x='110' y='32' text-anchor='middle' class='lbl ink'>Global Scope</text><text x='25' y='55' class='sub ink'>global i = 100</text><text x='25' y='75' class='sub ink'>global j = 5</text><rect x='240' y='10' width='210' height='100' class='hi' rx='8'/><text x='345' y='32' text-anchor='middle' class='lbl ink'>P's local scope</text><text x='255' y='55' class='sub ink'>local i = 10  (shadows global i)</text><text x='255' y='75' class='sub ink'>x = unevaluated i+j</text><text x='255' y='95' class='sub mut'>(lazy — uses static scope)</text><rect x='10' y='110' width='440' height='75' class='bg' rx='8'/><text x='25' y='132' class='tag ink'>1st use of x: evaluate i+j in caller scope (static) = 100+5 = 105</text><text x='25' y='152' class='tag ink'>print(x+10) = 105+10 = 115</text><text x='25' y='172' class='tag ink'>2nd use of x: memoized value = 105  →  print(x) = 105</text></svg>",
+    "visual_alt": "Diagram showing global scope with i=100, j=5 and P's local scope with local i=10. Arrow shows that when x is first evaluated (lazily), it uses static scoping to read global i=100 and global j=5, giving 105. This value is cached and reused."
+   },
+   "given": {
+    "aim": "Determine what is printed by P when called as P(i+j) under static scoping and call-by-need parameter passing.",
+    "terms": [
+     {
+      "term": "Argument expression: i+j",
+      "meaning": "The unevaluated thunk passed to P. Under static scoping, i and j are resolved in main's lexical scope — so i refers to global i=100 and j refers to global j=5.",
+      "example": "When the thunk is forced (first used), it computes 100+5=105.",
+      "connects": "This value (105) is memoized and used for all subsequent accesses to x inside P."
+     },
+     {
+      "term": "Local i inside P",
+      "meaning": "P declares local int i=10 which shadows global i inside P's body. However, the argument expression x=i+j was written in main's scope, so static scoping means it uses global i, NOT local i.",
+      "example": "Even after 'i=200' executes (setting local i to 200), x was already evaluated and memoized as 105.",
+      "connects": "Changes to i and j inside P do NOT affect x because x is already evaluated and memoized."
+     },
+     {
+      "term": "Memoization (call-by-need caching)",
+      "meaning": "Once the lazy argument is forced (evaluated on first use), the result is stored. Subsequent uses return the stored result without re-evaluating.",
+      "example": "x is first used in print(x+10), so it evaluates to 105 and that value is cached. The second print(x) reuses 105.",
+      "connects": "Ensures the second print(x) gives 105, not a re-evaluated value that might use updated j=20."
+     }
+    ],
+    "plan": "Identify when x is first forced (used), evaluate i+j under static scoping in main's context (global i=100, global j=5), memoize as 105. Then trace all print statements using this memoized value."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Set up the lazy parameter",
+      "formula_raw": "call-by-need: x = thunk(i+j, static scope of main)",
+      "apply": "P is called with argument expression i+j.\nUnder call-by-need: x is NOT evaluated at call time.\nUnder static scoping: when x is eventually forced, i and j are looked up in main's static lexical scope.\nIn main's scope: global i=100, global j=5 (local i=10 inside P is NOT in scope for the argument).",
+      "note": "Static scoping means the thunk's environment is the caller's environment — not the callee's environment."
+     },
+     {
+      "step": 2,
+      "title": "First use of x: print(x+10)",
+      "formula_raw": "x = global_i + global_j = 100 + 5 = 105",
+      "apply": "The first statement in P is print(x+10).\nThis is the first use of x, so the thunk is forced now.\nEvaluating i+j in main's static scope: i=100, j=5 → x = 105.\nThis value (105) is memoized for all future uses.\nprint(x+10) = print(105+10) = print(115)\nOutput: 115",
+      "note": "At this point j is still 5 (j=20 hasn't executed yet), so the first evaluation gives 105."
+     },
+     {
+      "step": 3,
+      "title": "Execute i=200 and j=20",
+      "formula_raw": "",
+      "apply": "i = 200: sets P's LOCAL i to 200 (global i is still 100 but irrelevant now).\nj = 20: sets GLOBAL j to 20 (there is no local j, so this changes the global).\nHowever, x is already memoized as 105 — these changes do NOT affect x.",
+      "note": "Call-by-need memoization protects x from side-effects that happen after the first evaluation."
+     },
+     {
+      "step": 4,
+      "title": "Second use of x: print(x)",
+      "formula_raw": "x (memoized) = 105",
+      "apply": "print(x) returns the memoized value of x = 105.\nOutput: 105\n\nFinal printed values: 115 and 105.\nChecking options:\n  A. 115, 220 — No\n  B. 25, 220  — No\n  C. 25, 15   — No\n  D. 115, 105 — YES",
+      "note": "If this were call-by-name (no memoization), x would be re-evaluated at second use: i+j = global_i + global_j = 100+20 = 120. But call-by-need memoizes, so we get 105."
+     }
+    ],
+    "result": "D. 115, 105"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Call-by-need (lazy evaluation with memoization) combined with static scoping: the argument expression is evaluated on first use in the caller's lexical scope, and the result is cached for all subsequent uses of that parameter.",
+   "qid": "9.8.4",
+   "answer_official": "D"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2008",
+    "year": 2008,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Programming in C",
+    "topic": "Parameter Passing",
+    "subtopic": "Parameter Passing"
+   },
+   "question": "What is printed by the following C program?\n\nint f(int x, int *py, int **ppz) {\n  int y, z;\n  **ppz += 1;\n  z = **ppz;\n  *py += 2;\n  y = *py;\n  x += 3;\n  return x + y + z;\n}\nvoid main() {\n  int c, *b, **a;\n  c = 4;\n  b = &c;\n  a = &b;\n  printf(\"%d\", f(c, b, a));\n}\n\nA. 18\nB. 19\nC. 21\nD. 22",
+   "answer": "B. 19",
+   "to_find": "The value printed by the C program involving pointer and double-pointer arithmetic",
+   "understand": {
+    "plain": "The program sets up a single integer c=4, a pointer b pointing to c, and a double pointer a pointing to b. The function f receives c's value (pass by value), b (pointer to c), and a (double pointer to c). Inside f, the double pointer and single pointer operations both modify the actual variable c in main. We trace each step carefully, noting that multiple pointer paths lead to the same variable c.",
+    "keywords": [
+     {
+      "term": "Double pointer (**ppz)",
+      "explain": "A pointer to a pointer. **ppz dereferences twice: first to get the pointer (b), then to get the value it points to (c). Modifying **ppz changes c directly.",
+      "example": "a = &b, b = &c. So *a = b, **a = *b = c = 4."
+     },
+     {
+      "term": "Aliasing through multiple pointer levels",
+      "explain": "In this program, *py and **ppz both ultimately point to the same variable c in main. Incrementing **ppz changes c, and then *py (which is also b pointing to c) sees the updated value.",
+      "example": "After **ppz += 1: c becomes 5. Then *py += 2: c (same variable) becomes 7."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='480' height='210'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='100' height='50' class='hi' rx='6'/><text x='60' y='30' text-anchor='middle' class='tag ink'>a (**)</text><text x='60' y='50' text-anchor='middle' class='sub ink'>→ &amp;b</text><rect x='160' y='10' width='100' height='50' class='hi' rx='6'/><text x='210' y='30' text-anchor='middle' class='tag ink'>b (*)</text><text x='210' y='50' text-anchor='middle' class='sub ink'>→ &amp;c</text><rect x='320' y='10' width='100' height='50' class='bg' rx='6'/><text x='370' y='30' text-anchor='middle' class='tag ink'>c (int)</text><text x='370' y='50' text-anchor='middle' class='sub ink'>= 4</text><line x1='110' y1='35' x2='158' y2='35' stroke='#7F77DD' stroke-width='2'/><line x1='260' y1='35' x2='318' y2='35' stroke='#7F77DD' stroke-width='2'/><rect x='10' y='90' width='460' height='110' class='bg' rx='8'/><text x='25' y='112' class='tag ink'>**ppz += 1  →  c = 4+1 = 5  |  z = **ppz = 5</text><text x='25' y='134' class='tag ink'>*py  += 2   →  c = 5+2 = 7  |  y = *py  = 7</text><text x='25' y='156' class='tag ink'>x += 3      →  x = 4+3 = 7  (local copy, c unchanged)</text><text x='25' y='178' class='tag ink'>return x+y+z = 7+7+5 = 19 ... wait x=7,y=7,z=5 → 19?</text><text x='25' y='198' class='sub mut'>Check: x=f's local copy of c=4, so x starts 4, +3 → 7. Return 7+7+5=19</text></svg>",
+    "visual_alt": "Memory layout showing double pointer a pointing to pointer b which points to integer c=4. Trace of operations: **ppz+=1 makes c=5, z=5; *py+=2 makes c=7, y=7; x+=3 makes local x=7. Return value = 7+7+5 = 19."
+   },
+   "given": {
+    "aim": "Trace pointer operations in f() and determine the return value printed by main.",
+    "terms": [
+     {
+      "term": "Initial memory setup",
+      "meaning": "c=4 (integer); b=&c (pointer to c); a=&b (pointer to pointer to c). So *b=c=4, **a=*b=c=4.",
+      "example": "f is called as f(c, b, a) = f(4, &c, &(&c)).",
+      "connects": "Inside f: x=4 (value copy), py=b=&c (py points to c), ppz=a=&b (ppz points to b which points to c)."
+     },
+     {
+      "term": "**ppz and *py both refer to c",
+      "meaning": "ppz=a=&b, so *ppz=b=&c, so **ppz=c. Also py=b=&c, so *py=c. Both **ppz and *py access the same variable c in main.",
+      "example": "Modifying **ppz changes c; immediately after, *py reads the same updated c.",
+      "connects": "This aliasing chain means the two pointer operations are not independent — they both operate on c sequentially."
+     },
+     {
+      "term": "x is a value parameter",
+      "meaning": "x receives the value 4 (a copy of c). Incrementing x inside f does NOT change c in main.",
+      "example": "x += 3 sets x=7 locally; c in main remains at whatever value the pointer operations left it.",
+      "connects": "x contributes 7 to the return value independently of the pointer side-effects on c."
+     }
+    ],
+    "plan": "Track what happens to c (via **ppz and *py) and the local x step by step. Compute z, y, x after each modification. Add x+y+z for the return value."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Set up on entry to f",
+      "formula_raw": "",
+      "apply": "x = 4 (value copy of c)\npy = b = &c   →  *py = c\nppz = a = &b  →  *ppz = b, **ppz = c\nCurrent value of c = 4.",
+      "note": "Both py and **ppz indirectly refer to the same c in main."
+     },
+     {
+      "step": 2,
+      "title": "Execute **ppz += 1 and z = **ppz",
+      "formula_raw": "c = c + 1",
+      "apply": "**ppz += 1  =>  c = 4 + 1 = 5\nz = **ppz   =>  z = 5\nNow c = 5.",
+      "note": "z captures the new value of c immediately after the increment."
+     },
+     {
+      "step": 3,
+      "title": "Execute *py += 2 and y = *py",
+      "formula_raw": "c = c + 2",
+      "apply": "*py += 2   =>  c = 5 + 2 = 7  (py points to the same c)\ny = *py    =>  y = 7\nNow c = 7.",
+      "note": "*py sees the already-incremented c=5, not the original 4."
+     },
+     {
+      "step": 4,
+      "title": "Execute x += 3 and compute return value",
+      "formula_raw": "return x + y + z",
+      "apply": "x += 3  =>  x = 4 + 3 = 7  (local value copy of c; c in main unchanged at 7)\nreturn x + y + z = 7 + 7 + 5 = 19\n\nChecking options:\n  A. 18 — No\n  B. 19 — YES\n  C. 21 — No\n  D. 22 — No",
+      "note": "x is passed by value so x+=3 only affects f's local copy. The return value 19 = 7 (x) + 7 (y) + 5 (z)."
+     }
+    ],
+    "result": "B. 19 — printf prints 19 (x+y+z = 7+7+5 = 19)"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Pointer aliasing in C: when multiple pointer expressions (like *py and **ppz) ultimately dereference to the same memory location, assignments through one are immediately visible through the other. Pass-by-value for int x means x is an independent local copy.",
+   "qid": "9.8.5",
+   "answer_official": "B"
+  }
+ ]
+}

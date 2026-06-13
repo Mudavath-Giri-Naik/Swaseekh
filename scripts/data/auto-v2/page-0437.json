@@ -1,0 +1,500 @@
+{
+ "page": 437,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 1998",
+    "year": 1998,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Operating System",
+    "topic": "Disk",
+    "subtopic": "Disk"
+   },
+   "question": "Free disk space can be kept track of using a free list or a bit map. Disk addresses require D bits. For a disk with B blocks, of which F are free, state the condition under which the free list uses less space than the bit map.",
+   "answer": "F < B / D",
+   "to_find": "Condition on F (free blocks) such that free list occupies fewer bits than the bitmap",
+   "understand": {
+    "plain": "A bitmap uses 1 bit per block regardless of how many blocks are free, so it always costs B bits total. A free list stores the disk address (D bits) of each free block, so it costs F*D bits total. We want to find when F*D < B.",
+    "keywords": [
+     {
+      "term": "Bitmap (bit vector)",
+      "explain": "A fixed array of B bits; bit i = 1 means block i is free, 0 means allocated.",
+      "example": "For 8 blocks: 11010010 means blocks 0,1,3,6 are free — always 8 bits."
+     },
+     {
+      "term": "Free list",
+      "explain": "A list that explicitly stores the disk address of every free block; each entry requires D bits.",
+      "example": "If D=16 and 3 blocks are free, the free list uses 3*16 = 48 bits."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Two data structures side by side: bitmap (B bits fixed) vs free list (F entries of D bits each). Free list wins when F*D < B."
+   },
+   "given": {
+    "aim": "Derive the condition under which the free list requires fewer bits than the bitmap.",
+    "terms": [
+     {
+      "term": "B",
+      "meaning": "Total number of blocks on the disk",
+      "example": "B = 1000 blocks",
+      "connects": "Bitmap always costs B bits"
+     },
+     {
+      "term": "F",
+      "meaning": "Number of free blocks on the disk",
+      "example": "F = 100 free blocks",
+      "connects": "Free list has F entries"
+     },
+     {
+      "term": "D",
+      "meaning": "Number of bits required to represent one disk block address",
+      "example": "D = 16 bits for 2^16 blocks",
+      "connects": "Each free list entry costs D bits, so total is F*D bits"
+     }
+    ],
+    "plan": "Compute the space used by each structure: bitmap = B bits, free list = F*D bits. Set free list space < bitmap space and simplify."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Space used by the bitmap",
+      "formula_raw": "Space_bitmap = B bits",
+      "apply": "The bitmap allocates one bit per block regardless of occupancy, so it always uses exactly B bits.",
+      "note": "This is a fixed cost — it does not depend on how many blocks are free."
+     },
+     {
+      "step": 2,
+      "title": "Space used by the free list",
+      "formula_raw": "Space_freelist = F * D bits",
+      "apply": "The free list stores one D-bit address for each of the F free blocks, so total = F * D bits.",
+      "note": "This cost grows linearly with the number of free blocks."
+     },
+     {
+      "step": 3,
+      "title": "Derive the condition",
+      "formula_raw": "F * D < B  =>  F < B / D",
+      "apply": "We need Space_freelist < Space_bitmap, i.e. F*D < B. Dividing both sides by D gives F < B/D.",
+      "note": "When nearly all blocks are free (F close to B), the free list is expensive; when only a few blocks are free, the free list is cheaper."
+     }
+    ],
+    "result": "The free list uses less space than the bitmap when F < B/D, i.e. when the number of free blocks is less than B/D."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Space comparison: bitmap = B bits (fixed); free list = F*D bits (proportional to free blocks). Condition: F*D < B => F < B/D.",
+   "qid": "7.3.7",
+   "answer_official": "N/A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1999",
+    "year": 1999,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Operating System",
+    "topic": "Disk",
+    "subtopic": "Disk"
+   },
+   "question": "Consider a disk with C cylinders, T tracks per cylinder, S sectors per track and a sector length of L bytes. A logical file with fixed record length of R bytes is stored continuously on this disk starting at location (c_1, t_1, s_1), where c_1, t_1 and s_1 are the cylinder, track and sector numbers respectively. Derive the formula to calculate the disk address (i.e. cylinder, track and sector numbers) of the i-th logical record (assuming i starts at 0). Also calculate the disk address of the 3rd logical record (i=3) for a disk with 200 cylinders, 20 tracks/cylinder, 40 sectors/track, L = 512 bytes, starting at (0, 0, 0) and record length R = 1536 bytes.",
+   "answer": "For i=3, R=1536, L=512: starting at (0,0,0), the 3rd record starts at sector offset 9. Cylinder=0, Track=0, Sector=9.",
+   "to_find": "Formula for disk address of the i-th logical record and the address for i=3 with given parameters",
+   "understand": {
+    "plain": "A logical file is laid out sector by sector on the disk. Each record may span multiple sectors. To find where the i-th record starts, we compute the total byte offset from the beginning, convert it to a sector number, and then find the cylinder, track and sector from that sector number.",
+    "keywords": [
+     {
+      "term": "Cylinder-Track-Sector addressing",
+      "explain": "A disk is addressed as (cylinder, track within cylinder, sector within track). The linear sector number maps uniquely to this triple.",
+      "example": "On a disk with T tracks/cylinder and S sectors/track, linear sector n maps to cylinder=n/(T*S), track=(n/S)%T, sector=n%S."
+     },
+     {
+      "term": "Logical record",
+      "explain": "A fixed-size unit of data (R bytes) that the file system stores contiguously starting from a given disk location.",
+      "example": "If R=1536 bytes and each sector holds 512 bytes, one record spans 3 sectors."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Linear disk layout: bytes are laid out sector by sector. Record i starts at byte offset i*R from the file start."
+   },
+   "given": {
+    "aim": "Find the cylinder, track and sector of the start of the i-th logical record.",
+    "terms": [
+     {
+      "term": "Starting location (c_1, t_1, s_1)",
+      "meaning": "The disk address of the first byte of the file",
+      "example": "(0, 0, 0) means the file starts at the very first sector of the disk",
+      "connects": "We add the record offset to this starting linear sector number"
+     },
+     {
+      "term": "Bytes per sector (L) and record size (R)",
+      "meaning": "L is the sector size in bytes; R is the record size in bytes",
+      "example": "L=512, R=1536 => record spans ceil(1536/512)=3 sectors",
+      "connects": "Total byte offset of record i = i*R; sector offset = i*R / L (integer division)"
+     },
+     {
+      "term": "C, T, S (disk geometry)",
+      "meaning": "C cylinders, T tracks per cylinder, S sectors per track",
+      "example": "200 cylinders, 20 tracks, 40 sectors => 160000 total sectors",
+      "connects": "Used to convert a linear sector number to (cylinder, track, sector)"
+     }
+    ],
+    "plan": "1) Compute the linear starting sector of the file: sector_start = c_1*T*S + t_1*S + s_1. 2) The i-th record starts at linear sector: sector_i = sector_start + (i*R)/L. 3) Convert sector_i back to (cylinder, track, sector). Then apply to i=3 with given values."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Compute linear sector number of file start",
+      "formula_raw": "sector_start = c_1 * T * S + t_1 * S + s_1",
+      "apply": "This converts the (cylinder, track, sector) address to an absolute linear sector number on the disk.",
+      "note": "For the example, (c_1,t_1,s_1)=(0,0,0) so sector_start = 0."
+     },
+     {
+      "step": 2,
+      "title": "Compute linear sector of i-th record",
+      "formula_raw": "sector_i = sector_start + floor(i * R / L)",
+      "apply": "Record i starts at byte offset i*R from the file start. Dividing by L gives the sector offset. So sector_i = 0 + floor(3 * 1536 / 512) = floor(4608 / 512) = floor(9) = 9.",
+      "note": "This assumes records are packed contiguously byte by byte, possibly spanning sector boundaries."
+     },
+     {
+      "step": 3,
+      "title": "Convert linear sector to (cylinder, track, sector)",
+      "formula_raw": "cyl = sector_i / (T*S); trk = (sector_i / S) % T; sec = sector_i % S",
+      "apply": "With T=20, S=40, sector_i=9: cyl = 9/800 = 0; trk = (9/40) % 20 = 0 % 20 = 0; sec = 9 % 40 = 9. So address = (0, 0, 9).",
+      "note": "General formula: cylinder = sector_i / (T*S), track = (sector_i % (T*S)) / S, sector = sector_i % S."
+     }
+    ],
+    "result": "General formula: sector_i = (c_1*T*S + t_1*S + s_1) + floor(i*R/L); cylinder = sector_i/(T*S), track = (sector_i%(T*S))/S, sector = sector_i%S. For i=3 starting at (0,0,0): disk address = (0, 0, 9)."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Disk address calculation: convert (C,T,S) to linear sector, add record offset in sectors, convert back to (cylinder, track, sector) using integer division and modulo.",
+   "qid": "7.3.8",
+   "answer_official": "N/A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1999",
+    "year": 1999,
+    "marks": 2,
+    "difficulty": "easy",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Disk",
+    "subtopic": "Disk"
+   },
+   "question": "RAID (Redundant Array of Inexpensive Disks) configurations of the disks are used to provide\nA. Fault-tolerance\nB. High speed\nC. High data density\nD. (A) and (B)",
+   "answer": "D. (A) and (B)",
+   "to_find": "What benefit(s) RAID disk configurations provide",
+   "understand": {
+    "plain": "RAID stands for Redundant Array of Inexpensive Disks. Different RAID levels provide different benefits. Some levels (like RAID 1 with mirroring) provide fault-tolerance by keeping redundant copies. Other levels (like RAID 0 with striping) provide higher throughput by spreading I/O across multiple disks. Most RAID levels provide both fault-tolerance and improved speed.",
+    "keywords": [
+     {
+      "term": "Fault-tolerance",
+      "explain": "The ability of a system to continue operating correctly even when one or more components fail.",
+      "example": "RAID 1 mirrors data across two disks; if one fails, data is still readable from the other."
+     },
+     {
+      "term": "Striping (speed improvement)",
+      "explain": "Splitting data across multiple disks so that multiple disks can be read/written in parallel, increasing throughput.",
+      "example": "RAID 0 stripes data: reading a large file reads from 4 disks simultaneously, giving ~4x the bandwidth."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "RAID levels diagram: RAID 0 = striping (speed), RAID 1 = mirroring (fault-tolerance), RAID 5 = striping with parity (both)."
+   },
+   "given": {
+    "aim": "Identify the primary purposes served by RAID technology.",
+    "terms": [
+     {
+      "term": "RAID",
+      "meaning": "Redundant Array of Inexpensive Disks — uses multiple physical disks as a logical unit",
+      "example": "A server with 4 disks configured as RAID 5",
+      "connects": "The configuration determines which benefits are provided"
+     },
+     {
+      "term": "Fault-tolerance",
+      "meaning": "Data survives disk failure due to redundancy",
+      "example": "RAID 1, RAID 5, RAID 6 all provide fault-tolerance",
+      "connects": "One of the two main RAID benefits"
+     },
+     {
+      "term": "High speed",
+      "meaning": "Parallel I/O across multiple drives increases effective read/write throughput",
+      "example": "RAID 0, RAID 5 provide higher throughput than a single disk",
+      "connects": "Second main RAID benefit"
+     }
+    ],
+    "plan": "Recall that RAID combines striping (for speed) and redundancy (for fault-tolerance). High data density is not a RAID goal — that is a property of the disk platters themselves."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Evaluate each option",
+      "formula_raw": "",
+      "apply": "A. Fault-tolerance: YES — RAID levels 1, 3, 4, 5, 6 all provide fault-tolerance through redundancy (mirroring or parity). B. High speed: YES — RAID levels 0, 3, 4, 5 provide higher throughput through striping. C. High data density: NO — RAID does not increase the density of data storage on the platters; that is a magnetic recording technology concern.",
+      "note": "Data density is determined by the disk hardware, not by RAID configuration."
+     },
+     {
+      "step": 2,
+      "title": "Select the correct option",
+      "formula_raw": "",
+      "apply": "Since both A (fault-tolerance) and B (high speed) are correct, the answer is D: (A) and (B).",
+      "note": "This is the standard textbook answer for GATE 1999."
+     }
+    ],
+    "result": "D. (A) and (B) — RAID provides both fault-tolerance and high speed."
+   },
+   "formula_ids_used": [],
+   "formula_note": "RAID uses striping for parallelism (speed) and redundancy/parity for fault-tolerance. High data density is unrelated to RAID.",
+   "qid": "7.3.9",
+   "answer_official": ""
+  },
+  {
+   "meta": {
+    "exam": "GATE 2001",
+    "year": 2001,
+    "marks": 2,
+    "difficulty": "easy",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Disk",
+    "subtopic": "Disk"
+   },
+   "question": "Which of the following requires a device driver?\nA. Register\nB. Cache\nC. Main memory\nD. Disk",
+   "answer": "D. Disk",
+   "to_find": "Which hardware component requires a device driver for the OS to communicate with it",
+   "understand": {
+    "plain": "A device driver is software that allows the operating system to communicate with a hardware device. Registers, cache, and main memory are directly accessible by the CPU using load/store instructions — they do not need driver software. A disk (hard drive or SSD) is an I/O device that requires a device driver to issue commands, handle interrupts, and manage data transfer.",
+    "keywords": [
+     {
+      "term": "Device driver",
+      "explain": "A software module in the OS kernel that provides a standard interface to a specific hardware device, abstracting the low-level hardware details.",
+      "example": "A hard disk driver translates read/write requests into ATA/SATA commands and handles disk interrupts."
+     },
+     {
+      "term": "Memory-mapped vs. I/O devices",
+      "explain": "CPU registers, cache, and RAM are accessed directly by the CPU hardware. I/O devices like disks require special protocols (DMA, interrupts) managed by drivers.",
+      "example": "Writing to RAM: just a MOV instruction. Writing to disk: issue command via driver, wait for interrupt."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Memory hierarchy: CPU Registers -> Cache -> Main Memory (all directly accessed by CPU) -> Disk (requires driver and I/O subsystem)."
+   },
+   "given": {
+    "aim": "Identify which component among registers, cache, main memory, and disk requires a device driver.",
+    "terms": [
+     {
+      "term": "Register",
+      "meaning": "Fastest storage inside the CPU, accessed directly by CPU instructions",
+      "example": "EAX, EBX in x86 architecture",
+      "connects": "No driver needed — CPU accesses it natively"
+     },
+     {
+      "term": "Cache",
+      "meaning": "High-speed memory between CPU and RAM, managed automatically by hardware",
+      "example": "L1, L2, L3 cache",
+      "connects": "No driver needed — hardware-managed transparently"
+     },
+     {
+      "term": "Disk",
+      "meaning": "Secondary storage device (HDD/SSD) accessed via I/O controller",
+      "example": "SATA hard drive in a PC",
+      "connects": "Requires a device driver to issue read/write commands and handle interrupts"
+     }
+    ],
+    "plan": "Recall the memory hierarchy. Only I/O devices (like disk) require device drivers. The CPU accesses registers, cache, and main memory directly without any driver software."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Eliminate directly-accessible components",
+      "formula_raw": "",
+      "apply": "Registers are part of the CPU itself. Cache is managed by hardware automatically. Main memory is accessed by the CPU directly via the memory bus using load/store instructions. None of these require a driver.",
+      "note": "These are all part of the 'transparent' memory hierarchy — neither the OS nor the programmer needs to issue special commands."
+     },
+     {
+      "step": 2,
+      "title": "Identify the I/O device",
+      "formula_raw": "",
+      "apply": "A disk is a peripheral I/O device. To read from or write to a disk, the OS must use a device driver that understands the disk controller's interface (e.g., ATA commands), manages DMA transfers, and handles disk interrupts.",
+      "note": "Without a driver, the OS has no way to communicate with the disk controller."
+     }
+    ],
+    "result": "D. Disk — it is the only I/O device in the list and requires a device driver."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Device drivers are needed only for I/O devices (disk, network card, etc.). CPU registers, cache, and main memory are accessed directly by hardware without OS-level drivers.",
+   "qid": "7.3.10",
+   "answer_official": "D"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2001",
+    "year": 2001,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Disk",
+    "subtopic": "Disk"
+   },
+   "question": "Consider a disk with tracks numbered from 0 to 99 rotating at 3000 rpm. The number of sectors per track is 10 and the time to move the head between two successive tracks is 1 millisecond.\n\nA set of disk requests is to read data from tracks 32, 42, 45, and 10. Assuming that the disk head is initially at track 0 and the elevator algorithm (SCAN) is used to schedule disk requests, what is the total seek time (in milliseconds) for servicing these requests? Also, what is the worst case time (in ms) for servicing a new request that arrives while the disk is servicing the requests?\n\nA. 45 ms\nB. 50 ms\nC. 90 ms\nD. 100 ms",
+   "answer": "A. 45 ms",
+   "to_find": "Total seek time using the elevator (SCAN) algorithm for the given disk requests",
+   "understand": {
+    "plain": "The elevator (SCAN) algorithm moves the disk head in one direction servicing all requests along the way, then reverses direction. Starting at track 0, the head moves outward (increasing track numbers) serving requests at 10, 32, 42, 45 in order. The total distance traveled is 45 tracks, and since each track-to-track movement takes 1 ms, the total seek time is 45 ms.",
+    "keywords": [
+     {
+      "term": "Elevator (SCAN) algorithm",
+      "explain": "The disk head sweeps in one direction, servicing all requests in its path, then reverses. Like an elevator that goes all the way up before coming back down.",
+      "example": "Head at 0, requests at 10, 32, 42, 45: head moves 0->45, serving all in order."
+     },
+     {
+      "term": "Seek time",
+      "explain": "Time taken to move the disk head from its current position to the target track.",
+      "example": "Moving from track 0 to track 45 = 45 track movements * 1 ms each = 45 ms."
+     }
+    ],
+    "visual_svg": "<svg viewBox=\"0 0 500 120\" xmlns=\"http://www.w3.org/2000/svg\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><line x1=\"30\" y1=\"60\" x2=\"470\" y2=\"60\" stroke=\"#B4B2A9\" stroke-width=\"2\"/><circle cx=\"30\" cy=\"60\" r=\"6\" fill=\"#1D9E75\"/><circle cx=\"85\" cy=\"60\" r=\"5\" fill=\"#CECBF6\" stroke=\"#7F77DD\" stroke-width=\"2\"/><circle cx=\"205\" cy=\"60\" r=\"5\" fill=\"#CECBF6\" stroke=\"#7F77DD\" stroke-width=\"2\"/><circle cx=\"250\" cy=\"60\" r=\"5\" fill=\"#CECBF6\" stroke=\"#7F77DD\" stroke-width=\"2\"/><circle cx=\"265\" cy=\"60\" r=\"5\" fill=\"#CECBF6\" stroke=\"#7F77DD\" stroke-width=\"2\"/><text x=\"27\" y=\"90\" class=\"sub ink\">0</text><text x=\"80\" y=\"90\" class=\"sub ink\">10</text><text x=\"199\" y=\"90\" class=\"sub ink\">32</text><text x=\"244\" y=\"90\" class=\"sub ink\">42</text><text x=\"259\" y=\"90\" class=\"sub ink\">45</text><text x=\"450\" y=\"90\" class=\"sub ink\">99</text><line x1=\"30\" y1=\"50\" x2=\"265\" y2=\"50\" stroke=\"#D85A30\" stroke-width=\"2\" marker-end=\"url(#arr)\"/><defs><marker id=\"arr\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"3\" orient=\"auto\"><path d=\"M0,0 L0,6 L8,3 z\" fill=\"#D85A30\"/></marker></defs><text x=\"100\" y=\"38\" class=\"sub no\">SCAN: 0 -> 10 -> 32 -> 42 -> 45 (45 ms total)</text></svg>",
+    "visual_alt": "Number line from 0 to 99 showing disk tracks. Head starts at 0 (green). Requests at tracks 10, 32, 42, 45 (purple dots). Red arrow shows head moving from 0 to 45 in order."
+   },
+   "given": {
+    "aim": "Calculate total seek time using SCAN algorithm for requests at tracks 32, 42, 45, 10, head initially at track 0.",
+    "terms": [
+     {
+      "term": "Initial head position: track 0",
+      "meaning": "The disk head starts at track 0, moving in the increasing direction",
+      "example": "Head at 0, will sweep toward track 99",
+      "connects": "All requests (10, 32, 42, 45) are in the forward direction from 0"
+     },
+     {
+      "term": "Track-to-track time: 1 ms",
+      "meaning": "Moving the head by 1 track takes 1 millisecond",
+      "example": "Moving from track 0 to track 45 takes 45 ms",
+      "connects": "Total seek time = total tracks traversed * 1 ms"
+     },
+     {
+      "term": "SCAN order",
+      "meaning": "Head sweeps from current position in one direction, serving requests in sorted order",
+      "example": "Requests {32,42,45,10} sorted in increasing order: 10,32,42,45",
+      "connects": "Head visits: 0 -> 10 -> 32 -> 42 -> 45"
+     }
+    ],
+    "plan": "Sort requests in increasing order: 10, 32, 42, 45. Head starts at 0 and moves toward increasing tracks, serving each request in sorted order. Total distance = 45 - 0 = 45 tracks = 45 ms."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Sort requests by track number in SCAN direction",
+      "formula_raw": "",
+      "apply": "Requests: {32, 42, 45, 10}. Head at track 0, moving upward. Sorted order: 10, 32, 42, 45. All requests are above the head, so the head simply sweeps from 0 to 45.",
+      "note": "SCAN services all requests in one sweep if they are all in the same direction from the head."
+     },
+     {
+      "step": 2,
+      "title": "Compute total seek time",
+      "formula_raw": "Seek time = (furthest track in sweep direction) - (initial head position)",
+      "apply": "Head moves from 0 to 10 (10 tracks), 10 to 32 (22 tracks), 32 to 42 (10 tracks), 42 to 45 (3 tracks). Total = 10+22+10+3 = 45 tracks. At 1 ms per track, total seek time = 45 ms.",
+      "note": "Alternatively, since the head sweeps continuously from 0 to 45, total distance = 45 - 0 = 45 tracks = 45 ms."
+     }
+    ],
+    "result": "Total seek time = 45 ms. Answer: A. 45 ms."
+   },
+   "formula_ids_used": [],
+   "formula_note": "SCAN (elevator) algorithm: sort requests in head movement direction, move head continuously serving all requests. Seek time = total tracks traversed * seek time per track.",
+   "qid": "7.3.11",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2001",
+    "year": 2001,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Disk",
+    "subtopic": "Disk"
+   },
+   "question": "Consider a disk with the following specifications: 20 surfaces, 1000 tracks/surface, 16 sectors/track, data density 1 KB/sector, rotation speed 3000 rpm. The operating system initiates the transfer between the disk and the memory sector-wise. Once the head has been placed on the right track, the disk reads the sector in a single rotation. Given that the disk read and write are sector-wise, and each byte byte is transferred from disk to a serial-in-parallel-out buffer from which each byte is transferred to memory, what is the data transfer rate to memory in KB/s?\n\nA. 64 KB/s\nB. 128 KB/s\nC. 800 KB/s\nD. 1600 KB/s",
+   "answer": "C. 800 KB/s",
+   "to_find": "Data transfer rate from disk to memory in KB/s",
+   "understand": {
+    "plain": "The disk rotates at 3000 rpm. Each track has 16 sectors of 1 KB each. One full rotation reads all 16 sectors (16 KB) on a track. The time for one rotation determines how fast data can be transferred. We calculate bytes per second from sectors per rotation and rotations per second.",
+    "keywords": [
+     {
+      "term": "Rotation speed (RPM)",
+      "explain": "Revolutions per minute — how many times the disk completes a full rotation per minute.",
+      "example": "3000 rpm = 50 rotations per second = 1 rotation per 20 ms."
+     },
+     {
+      "term": "Data transfer rate",
+      "explain": "The rate at which data passes under the read/write head during rotation: sectors per track * sector size * rotations per second.",
+      "example": "16 sectors/track * 1 KB/sector * 50 rot/s = 800 KB/s."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Disk rotation diagram: 16 sectors per track, each 1 KB. At 3000 rpm = 50 rotations/sec, data rate = 16 * 1 KB * 50 = 800 KB/s."
+   },
+   "given": {
+    "aim": "Calculate the data transfer rate from disk to memory given disk specifications.",
+    "terms": [
+     {
+      "term": "Rotation speed: 3000 rpm",
+      "meaning": "The disk makes 3000 complete rotations per minute = 50 rotations per second",
+      "example": "Time per rotation = 1/50 s = 20 ms",
+      "connects": "Determines how quickly sectors pass under the read head"
+     },
+     {
+      "term": "16 sectors/track, 1 KB/sector",
+      "meaning": "Each track holds 16 sectors, each sector holds 1024 bytes",
+      "example": "One full rotation reads 16 KB of data from one track",
+      "connects": "Data per rotation = 16 * 1 KB = 16 KB"
+     },
+     {
+      "term": "Transfer rate formula",
+      "meaning": "Transfer rate = (data per rotation) * (rotations per second)",
+      "example": "16 KB/rotation * 50 rotations/s = 800 KB/s",
+      "connects": "This is the sustained transfer rate once the head is on the right track"
+     }
+    ],
+    "plan": "Convert rpm to rotations per second. Compute data per rotation (sectors/track * bytes/sector). Multiply to get data transfer rate."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Convert rotation speed to rotations per second",
+      "formula_raw": "Rotations/second = rpm / 60",
+      "apply": "3000 rpm / 60 = 50 rotations per second. Time per rotation = 1/50 s = 20 ms.",
+      "note": "This is the fundamental timing parameter for the disk."
+     },
+     {
+      "step": 2,
+      "title": "Compute data per rotation",
+      "formula_raw": "Data per rotation = sectors/track * bytes/sector",
+      "apply": "Data per rotation = 16 sectors/track * 1 KB/sector = 16 KB per rotation.",
+      "note": "This is how much data passes under the head in one complete rotation."
+     },
+     {
+      "step": 3,
+      "title": "Calculate data transfer rate",
+      "formula_raw": "Transfer rate = data per rotation * rotations per second",
+      "apply": "Transfer rate = 16 KB/rotation * 50 rotations/s = 800 KB/s.",
+      "note": "This is the raw disk-to-buffer transfer rate. The answer is 800 KB/s."
+     }
+    ],
+    "result": "Data transfer rate = 800 KB/s. Answer: C. 800 KB/s."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Disk transfer rate = (sectors/track) * (bytes/sector) * (rotations/second) = 16 * 1 KB * 50 = 800 KB/s.",
+   "qid": "7.3.12",
+   "answer_official": "800"
+  }
+ ]
+}

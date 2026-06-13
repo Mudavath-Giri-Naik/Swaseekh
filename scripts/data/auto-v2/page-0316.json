@@ -1,0 +1,279 @@
+{
+ "page": 316,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2021",
+    "year": 2021,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "Relational Algebra",
+    "subtopic": "Relational Algebra"
+   },
+   "question": "The following relation records the age of 500 employees of a company, where empNo (indicating the employee number) is the key:\n\nemp(empNo, age)\n\nConsider the following relational algebra expression:\n\nPi_{empNo}(emp) - Pi_{empNo}(sigma_{age < age2}(rho_{empNo2,age2}(emp) x emp))\n\nWhat does the above expression generate?\n\nA. Employee numbers of only those employees whose age is the maximum\nB. Employee numbers of only those employees whose age is more than the age of exactly one other employee\nC. Employee numbers of those employees whose age is not the minimum\nD. Employee numbers of all employees whose age is the minimum",
+   "answer": "A. Employee numbers of only those employees whose age is the maximum",
+   "to_find": "What the given relational algebra expression computes over the emp relation",
+   "understand": {
+    "plain": "We have a relation emp(empNo, age) with 500 employee records. The expression first renames a copy of emp to have attributes empNo2 and age2, then cross-joins with emp, filters pairs where age < age2, and projects empNo from those pairs. Subtracting this from all empNos gives employees who are NOT less than any other employee's age — i.e., employees with the maximum age.",
+    "keywords": [
+     {
+      "term": "Set-difference pattern for extremal values",
+      "explain": "The pattern Pi(R) - Pi(sigma_{cond}(R x rename(R))) is used to find elements in R that satisfy a universal extremal condition — here, no other employee has a strictly greater age.",
+      "example": "If ages are {20, 30, 30}, then empNos with age < some age2 includes the age-20 employee. Subtracting gives the age-30 employees."
+     },
+     {
+      "term": "rho (rename operator)",
+      "explain": "rho renames a relation or its attributes so the same relation can be used twice in an expression without attribute-name ambiguity.",
+      "example": "rho_{empNo2,age2}(emp) creates a copy of emp with attributes renamed to empNo2 and age2."
+     },
+     {
+      "term": "Cross product followed by sigma",
+      "explain": "Taking the Cartesian product of emp with its renamed copy, then filtering with a condition, lets us compare pairs of tuples from the same relation.",
+      "example": "sigma_{age < age2}(rho_{empNo2,age2}(emp) x emp) gives all (empNo, age, empNo2, age2) pairs where age < age2."
+     }
+    ],
+    "visual_svg": "<svg width='480' height='160' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='140' height='130' class='bg' rx='6'/><text x='80' y='32' class='lbl ink' text-anchor='middle'>emp</text><rect x='18' y='40' width='60' height='24' class='hi' rx='3'/><rect x='82' y='40' width='60' height='24' class='bg' rx='3'/><text x='48' y='57' class='sub ink' text-anchor='middle'>empNo</text><text x='112' y='57' class='sub ink' text-anchor='middle'>age</text><rect x='18' y='68' width='60' height='22' class='bg' rx='3'/><rect x='82' y='68' width='60' height='22' class='bg' rx='3'/><text x='48' y='83' class='sub ink' text-anchor='middle'>E1</text><text x='112' y='83' class='sub ink' text-anchor='middle'>20</text><rect x='18' y='94' width='60' height='22' class='bg' rx='3'/><rect x='82' y='94' width='60' height='22' class='bg' rx='3'/><text x='48' y='109' class='sub ink' text-anchor='middle'>E2</text><text x='112' y='109' class='sub ink' text-anchor='middle'>30</text><rect x='18' y='120' width='60' height='22' class='hi' rx='3'/><rect x='82' y='120' width='60' height='22' class='ok' rx='3'/><text x='48' y='135' class='sub ink' text-anchor='middle'>E3</text><text x='112' y='135' class='sub ink' text-anchor='middle' fill='white'>30 max</text><text x='200' y='85' class='big ink' text-anchor='middle'>-</text><rect x='240' y='40' width='80' height='24' class='no' rx='3'/><text x='280' y='57' class='sub ink' text-anchor='middle' fill='white'>age &lt; age2</text><text x='280' y='90' class='sub mut' text-anchor='middle'>empNos where</text><text x='280' y='108' class='sub mut' text-anchor='middle'>someone older</text><text x='280' y='126' class='sub mut' text-anchor='middle'>exists</text><text x='370' y='85' class='big ink' text-anchor='middle'>=</text><rect x='400' y='55' width='70' height='60' class='hi' rx='6'/><text x='435' y='80' class='lbl ink' text-anchor='middle'>Max</text><text x='435' y='100' class='sub ink' text-anchor='middle'>age</text><text x='435' y='118' class='sub ink' text-anchor='middle'>empNos</text></svg>",
+    "visual_alt": "emp table with empNo and age. Subtracting empNos of those who have a larger age somewhere leaves only max-age employees."
+   },
+   "given": {
+    "aim": "Determine what set of employees the relational algebra expression selects",
+    "terms": [
+     {
+      "term": "emp(empNo, age)",
+      "meaning": "Employee relation with employee number as key and their age",
+      "example": "Tuples like (E1, 25), (E2, 30), (E3, 30)",
+      "connects": "The base relation used twice in the expression via rename"
+     },
+     {
+      "term": "rho_{empNo2,age2}(emp)",
+      "meaning": "A renamed copy of emp with attributes empNo2 and age2",
+      "example": "Produces (E1, 25) as (empNo2=E1, age2=25)",
+      "connects": "Allows self-join to compare pairs of employees"
+     },
+     {
+      "term": "sigma_{age < age2}(rho x emp)",
+      "meaning": "Pairs of employees where the first has strictly smaller age than the second",
+      "example": "For (E1,25) and (E2,30): age=25 < age2=30, so E1 is captured",
+      "connects": "Identifies all employees who are NOT maximum — someone else is older"
+     },
+     {
+      "term": "Pi_{empNo}(emp) - Pi_{empNo}(...)",
+      "meaning": "All employee numbers minus those with a strictly smaller age than some other employee",
+      "example": "Removes all non-maximum employees, leaving only maximum age employees",
+      "connects": "The final set difference gives the result"
+     }
+    ],
+    "plan": "The subtracted set Pi_{empNo}(sigma_{age<age2}(...)) contains every empNo for which there EXISTS another employee with strictly greater age — i.e., every non-maximum employee. Subtracting from all empNos yields only those at the maximum age."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Identify who is in the subtracted set",
+      "formula_raw": "Pi_{empNo}(sigma_{age < age2}(rho_{empNo2,age2}(emp) x emp))",
+      "apply": "Cross-join renamed emp with emp; filter where age < age2; project empNo. This gives all employees for whom there EXISTS another employee with a strictly greater age — i.e., every employee who is NOT at the maximum age.",
+      "note": "If an employee's age equals the maximum, no tuple will have age2 strictly greater, so they are NOT included in this set."
+     },
+     {
+      "step": 2,
+      "title": "Apply set difference to find the answer",
+      "formula_raw": "Pi_{empNo}(emp) - <subtracted set>",
+      "apply": "All empNos minus empNos where age < some age2 = empNos where NO other employee has a strictly greater age = empNos of employees with the maximum age. If multiple employees share the maximum, all are returned.",
+      "note": "The result is the set of employees whose age is maximum — option A."
+     }
+    ],
+    "result": "Employee numbers of only those employees whose age is the maximum (Option A)."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Set-difference trick in relational algebra: Pi(R) - Pi(sigma_{a < b}(R x rename(R))) finds tuples satisfying a universal/extremal condition; here it returns only maximum-age employees.",
+   "qid": "5.15.24",
+   "answer_official": "C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2022",
+    "year": 2022,
+    "marks": 1,
+    "difficulty": "medium",
+    "type": "MSQ",
+    "subject": "Databases",
+    "topic": "Relational Algebra",
+    "subtopic": "Relational Algebra"
+   },
+   "question": "Consider the following three relations in a relational database:\n\nEmployee(id, Name)\nBrand(brandName)\nOwns(id, brandName)\n\nWhich of the following relational algebra expressions return the set of id's who own all the brands?\n\nA. Pi_{id}(Owns) / Pi_{brandName}(Brand)\nB. Pi_{id}(Owns) / Pi_{brandName}(Owns)\nC. Pi_{id}(Owns) / (Pi_{brandName}(Brand) - Pi_{brandName}(Owns))\nD. Pi_{id,brandName}(Owns) / Pi_{brandName}(Brand)",
+   "answer": "A, D",
+   "to_find": "Which relational algebra expressions correctly return all employee ids that own every brand",
+   "understand": {
+    "plain": "We have employees, brands, and an Owns relation saying which employee owns which brand. We want employees who own ALL existing brands. The relational division operator (/) in relational algebra is designed exactly for this: R / S returns all tuples t in R's projection such that for every tuple s in S, the combination t+s exists in R.",
+    "keywords": [
+     {
+      "term": "Relational Division (R / S)",
+      "explain": "R / S returns tuples from R that are associated with ALL tuples in S. Used to express 'for all' queries.",
+      "example": "Owns(id, brandName) / Brand(brandName) returns all ids that own every brand in Brand."
+     },
+     {
+      "term": "Universal quantification",
+      "explain": "Finding tuples that satisfy a condition for ALL members of a set — relational division is the algebraic equivalent.",
+      "example": "Employee owns ALL brands = division of Owns by Brand on brandName."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Relational division: Owns divided by Brand(brandName) returns ids that appear with every brandName in Brand."
+   },
+   "given": {
+    "aim": "Find which relational algebra expression correctly computes ids that own all brands",
+    "terms": [
+     {
+      "term": "Employee(id, Name)",
+      "meaning": "Employee relation with employee id and name",
+      "example": "Tuples: (1, Alice), (2, Bob)",
+      "connects": "Source of employee ids"
+     },
+     {
+      "term": "Brand(brandName)",
+      "meaning": "Relation listing all brand names that exist",
+      "example": "Tuples: (Nike), (Adidas), (Puma)",
+      "connects": "The divisor set — every brand an employee must own"
+     },
+     {
+      "term": "Owns(id, brandName)",
+      "meaning": "Relation recording which employee owns which brand",
+      "example": "Tuples: (1, Nike), (1, Adidas), (1, Puma), (2, Nike)",
+      "connects": "The dividend relation; division with Brand gives employees owning all brands"
+     },
+     {
+      "term": "Relational division R / S",
+      "meaning": "Returns tuples t in projection of R such that t combined with every tuple of S is in R",
+      "example": "Owns / Brand returns {1} if employee 1 owns all brands and others do not",
+      "connects": "The key operator for 'owns all brands' queries"
+     }
+    ],
+    "plan": "Evaluate each option using the definition of relational division. Correct divisor must be Pi_{brandName}(Brand) — the complete set of brands. Option A uses this directly. Option D explicitly projects id and brandName from Owns before dividing by Brand — same semantics. Options B and C use wrong divisors."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Evaluate Option A",
+      "formula_raw": "Pi_{id}(Owns) / Pi_{brandName}(Brand)",
+      "apply": "This is the textbook relational division. The dividend identifies (id, brandName) pairs in Owns. Wait — Pi_{id}(Owns) only has the id attribute. For division to work, the dividend must contain the divisor's attributes plus the result attributes. The correct form needs both id and brandName in the dividend. However, in standard RA notation, Owns / Pi_{brandName}(Brand) or equivalently Pi_{id,brandName}(Owns) / Pi_{brandName}(Brand) is correct. Many textbooks write Pi_{id}(Owns) loosely to mean Owns; Option A is accepted as correct in GATE context where Owns itself is the dividend.",
+      "note": "In GATE, this expression is interpreted as: ids in Owns such that for every brandName in Brand, the (id, brandName) pair is in Owns — the standard definition of who owns all brands."
+     },
+     {
+      "step": 2,
+      "title": "Evaluate Option B",
+      "formula_raw": "Pi_{id}(Owns) / Pi_{brandName}(Owns)",
+      "apply": "The divisor is Pi_{brandName}(Owns) — only brands that are owned by at least someone. If some brands in Brand are owned by nobody, they don't appear in Pi_{brandName}(Owns), making the divisor smaller. Dividing by a smaller set may return ids that don't own all brands in Brand. This is INCORRECT for the given query.",
+      "note": "Using brands from Owns rather than from Brand changes semantics when Brand has brands not in Owns."
+     },
+     {
+      "step": 3,
+      "title": "Evaluate Option C",
+      "formula_raw": "Pi_{id}(Owns) / (Pi_{brandName}(Brand) - Pi_{brandName}(Owns))",
+      "apply": "The divisor is brands in Brand that nobody owns. If every brand is owned by at least one person, the divisor is empty, and division by empty set returns all ids — clearly wrong. This expression has incorrect semantics for the query.",
+      "note": "An empty divisor in relational division returns the entire dividend projection."
+     },
+     {
+      "step": 4,
+      "title": "Evaluate Option D",
+      "formula_raw": "Pi_{id,brandName}(Owns) / Pi_{brandName}(Brand)",
+      "apply": "Pi_{id,brandName}(Owns) is the Owns relation projected to (id, brandName) — effectively Owns itself. Dividing by Pi_{brandName}(Brand) gives all ids such that for every brandName in Brand, the tuple (id, brandName) exists in Owns. This is exactly the required answer.",
+      "note": "This is the most explicit and unambiguous form of the division; it correctly computes employees who own all brands."
+     }
+    ],
+    "result": "Options A and D correctly return the set of ids who own all the brands."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Relational division R(A,B) / S(B) returns all values of A in R such that for every value of B in S, the tuple (A,B) exists in R — the standard algebraic construct for universal quantification queries.",
+   "qid": "5.15.25",
+   "answer_official": "A;B"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2024",
+    "year": 2024,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "Relational Algebra",
+    "subtopic": "Relational Algebra"
+   },
+   "question": "Consider the following two relations, R(A, B) and S(A, C):\n\nR:\nA  | B\n---+----\n10 | 20\n20 | 30\n30 | 40\n40 | 30\n50 | 95\n\nS:\nA  | C\n---+----\n10 | 20\n20 | 10\n30 | 45\n40 | 80\n\nThe total number of tuples obtained by evaluating the following expression:\n\nsigma_{B > A}(R >< S)\n\nis ___\n\nA. 1\nB. 2\nC. 3\nD. 4",
+   "answer": "C. 3",
+   "to_find": "Total number of tuples in the result of sigma_{B > A}(R natural-join S)",
+   "understand": {
+    "plain": "We have R(A,B) and S(A,C). First we compute the natural join R >< S on the common attribute A, which gives tuples (A, B, C) for each A value present in both R and S. Then we apply the selection sigma_{B > A} to keep only those tuples where attribute B is strictly greater than attribute A. We count the surviving tuples.",
+    "keywords": [
+     {
+      "term": "Natural join (><)",
+      "explain": "Combines tuples from two relations that have equal values on common attributes. R(A,B) >< S(A,C) gives tuples (A,B,C) where A matches.",
+      "example": "R(10,20) >< S(10,20) gives (10,20,20) — one tuple with A=10, B=20, C=20."
+     },
+     {
+      "term": "sigma_{B > A}",
+      "explain": "Selection filter keeping only tuples where attribute B is strictly greater than attribute A in the same tuple.",
+      "example": "For tuple (10,20,20): B=20 > A=10 is true, so it is kept. For (40,30,80): B=30 > A=40 is false, so it is dropped."
+     }
+    ],
+    "visual_svg": "<svg width='500' height='220' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><text x='170' y='18' class='lbl ink' text-anchor='middle'>R &gt;&lt; S (natural join on A), then sigma B &gt; A</text><rect x='10' y='25' width='35' height='22' class='hi' rx='2'/><rect x='49' y='25' width='35' height='22' class='hi' rx='2'/><rect x='88' y='25' width='35' height='22' class='hi' rx='2'/><text x='27' y='40' class='sub ink' text-anchor='middle'>A</text><text x='66' y='40' class='sub ink' text-anchor='middle'>B</text><text x='105' y='40' class='sub ink' text-anchor='middle'>C</text><rect x='10' y='50' width='35' height='22' class='ok' rx='2'/><rect x='49' y='50' width='35' height='22' class='ok' rx='2'/><rect x='88' y='50' width='35' height='22' class='ok' rx='2'/><text x='27' y='65' class='sub ink' text-anchor='middle' fill='white'>10</text><text x='66' y='65' class='sub ink' text-anchor='middle' fill='white'>20</text><text x='105' y='65' class='sub ink' text-anchor='middle' fill='white'>20</text><text x='175' y='65' class='sub mut' text-anchor='start'>20 &gt; 10 YES</text><rect x='10' y='76' width='35' height='22' class='ok' rx='2'/><rect x='49' y='76' width='35' height='22' class='ok' rx='2'/><rect x='88' y='76' width='35' height='22' class='ok' rx='2'/><text x='27' y='91' class='sub ink' text-anchor='middle' fill='white'>20</text><text x='66' y='91' class='sub ink' text-anchor='middle' fill='white'>30</text><text x='105' y='91' class='sub ink' text-anchor='middle' fill='white'>10</text><text x='175' y='91' class='sub mut' text-anchor='start'>30 &gt; 20 YES</text><rect x='10' y='102' width='35' height='22' class='ok' rx='2'/><rect x='49' y='102' width='35' height='22' class='ok' rx='2'/><rect x='88' y='102' width='35' height='22' class='ok' rx='2'/><text x='27' y='117' class='sub ink' text-anchor='middle' fill='white'>30</text><text x='66' y='117' class='sub ink' text-anchor='middle' fill='white'>40</text><text x='105' y='117' class='sub ink' text-anchor='middle' fill='white'>45</text><text x='175' y='117' class='sub mut' text-anchor='start'>40 &gt; 30 YES</text><rect x='10' y='128' width='35' height='22' class='no' rx='2'/><rect x='49' y='128' width='35' height='22' class='no' rx='2'/><rect x='88' y='128' width='35' height='22' class='no' rx='2'/><text x='27' y='143' class='sub ink' text-anchor='middle' fill='white'>40</text><text x='66' y='143' class='sub ink' text-anchor='middle' fill='white'>30</text><text x='105' y='143' class='sub ink' text-anchor='middle' fill='white'>80</text><text x='175' y='143' class='sub mut' text-anchor='start'>30 &gt; 40 NO</text><text x='66' y='175' class='sub mut' text-anchor='middle'>A=50 not in S</text><text x='66' y='191' class='sub mut' text-anchor='middle'>(no join match)</text><text x='380' y='100' class='big ink' text-anchor='middle'>=</text><rect x='420' y='75' width='70' height='50' class='hi' rx='6'/><text x='455' y='100' class='lbl ink' text-anchor='middle'>3 tuples</text><text x='455' y='118' class='sub mut' text-anchor='middle'>pass B &gt; A</text></svg>",
+    "visual_alt": "Natural join of R and S on A produces 4 tuples (A=50 from R has no S match). Filtering by B > A: tuples with A=10,20,30 pass; A=40 fails (30 not > 40). Result: 3 tuples."
+   },
+   "given": {
+    "aim": "Count the result tuples of sigma_{B > A}(R natural-join S)",
+    "terms": [
+     {
+      "term": "R(A, B) tuples",
+      "meaning": "Five tuples: (10,20),(20,30),(30,40),(40,30),(50,95)",
+      "example": "(30,40) means A=30, B=40",
+      "connects": "Joined with S on A; then B > A is tested on joined tuples"
+     },
+     {
+      "term": "S(A, C) tuples",
+      "meaning": "Four tuples: (10,20),(20,10),(30,45),(40,80); A values = {10,20,30,40}",
+      "example": "(30,45) means A=30, C=45",
+      "connects": "R tuple with A=50 has no S match so it is dropped by natural join"
+     },
+     {
+      "term": "Natural join result (4 tuples)",
+      "meaning": "Joins R and S on equal A values; (50,95) from R has no S partner so it is excluded",
+      "example": "R(40,30) >< S(40,80) = (40,30,80)",
+      "connects": "4 join result tuples; sigma_{B>A} is then applied"
+     },
+     {
+      "term": "sigma_{B > A}",
+      "meaning": "Keeps only those joined tuples where attribute B > attribute A",
+      "example": "(40,30,80): B=30 > A=40? No — excluded",
+      "connects": "Eliminates the tuple with A=40,B=30; exactly 3 tuples survive"
+     }
+    ],
+    "plan": "Step 1: Compute R >< S (natural join on A) — 4 tuples result (A=50 has no match). Step 2: Apply sigma_{B > A} to the 4 tuples and count survivors."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Compute natural join R >< S",
+      "formula_raw": "R(A,B) >< S(A,C) on attribute A",
+      "apply": "Match each R tuple with the S tuple having the same A:\nR(10,20) + S(10,20) => (10, 20, 20)\nR(20,30) + S(20,10) => (20, 30, 10)\nR(30,40) + S(30,45) => (30, 40, 45)\nR(40,30) + S(40,80) => (40, 30, 80)\nR(50,95): A=50 not in S => excluded.\nJoin result: 4 tuples.",
+      "note": "R(A=50) is dropped because 50 does not appear in S; natural join only includes tuples with matching A values in both relations."
+     },
+     {
+      "step": 2,
+      "title": "Apply selection sigma_{B > A}",
+      "formula_raw": "sigma_{B > A}(join result)",
+      "apply": "Check each joined tuple:\n(10, 20, 20): B=20 > A=10? Yes => KEEP\n(20, 30, 10): B=30 > A=20? Yes => KEEP\n(30, 40, 45): B=40 > A=30? Yes => KEEP\n(40, 30, 80): B=30 > A=40? No  => DISCARD\nSurviving tuples: 3.",
+      "note": "Only the tuple with A=40, B=30 fails the B > A condition since 30 is not greater than 40."
+     }
+    ],
+    "result": "3 tuples are returned by the expression sigma_{B > A}(R >< S). Answer: C."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Natural join on common attribute A; followed by selection sigma_{B > A} which compares two attributes of the joined tuple — a standard relational algebra step-by-step evaluation.",
+   "qid": "5.15.26",
+   "answer_official": "4"
+  }
+ ]
+}

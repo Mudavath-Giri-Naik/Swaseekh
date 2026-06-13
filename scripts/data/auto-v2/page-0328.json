@@ -1,0 +1,326 @@
+{
+ "page": 328,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2001",
+    "year": 2001,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Databases",
+    "topic": "SQL",
+    "subtopic": "SQL"
+   },
+   "question": "Consider a relation examinee(regno, name, score), where regno is the primary key and score is a real number. Write an SQL query to list the regno of examinees who have a score greater than the average score.",
+   "answer": "SELECT regno FROM examinee WHERE score > (SELECT avg(score) FROM examinee);",
+   "to_find": "SQL query to retrieve regno of examinees scoring above the average score",
+   "understand": {
+    "plain": "We have a table called examinee with columns regno, name, and score. We need to find all examinees whose score is strictly greater than the average score of all examinees. This requires a subquery to first compute the average, and then the outer query filters rows based on that average.",
+    "keywords": [
+     {
+      "term": "Subquery",
+      "explain": "A query nested inside another query; the inner query is evaluated first and its result is used by the outer query.",
+      "example": "WHERE score > (SELECT avg(score) FROM examinee)"
+     },
+     {
+      "term": "Aggregate function avg()",
+      "explain": "Computes the arithmetic mean of a numeric column across all rows (or a group).",
+      "example": "SELECT avg(score) FROM examinee returns a single number"
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Table examinee with columns regno (PK), name, score. Query filters rows where score exceeds the computed average."
+   },
+   "given": {
+    "aim": "Write an SQL query returning regno of all examinees with score above the overall average.",
+    "terms": [
+     {
+      "term": "examinee(regno, name, score)",
+      "meaning": "Relation with primary key regno and real-valued score",
+      "example": "(101, 'Alice', 78.5)",
+      "connects": "Source table for both the outer SELECT and the inner avg() subquery"
+     },
+     {
+      "term": "avg(score)",
+      "meaning": "Average of all score values in the examinee table",
+      "example": "If scores are 60, 70, 80 then avg = 70",
+      "connects": "Used as the threshold in the WHERE clause"
+     },
+     {
+      "term": "Correlated vs uncorrelated subquery",
+      "meaning": "Here the inner subquery is uncorrelated (independent of the outer row), so it is evaluated once",
+      "example": "SELECT avg(score) FROM examinee runs once, producing a constant",
+      "connects": "Makes the query efficient; the outer WHERE then compares each score to that constant"
+     }
+    ],
+    "plan": "Use a scalar subquery to compute the global average score. In the outer query, select regno from examinee where score is strictly greater than that average."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Compute the average score with a subquery",
+      "formula_raw": "SELECT avg(score) FROM examinee",
+      "apply": "The inner subquery returns a single value: the arithmetic mean of the score column across all rows of examinee.",
+      "note": "This subquery is uncorrelated and is evaluated exactly once."
+     },
+     {
+      "step": 2,
+      "title": "Filter examinees with score above average",
+      "formula_raw": "WHERE score > (SELECT avg(score) FROM examinee)",
+      "apply": "The outer query scans all rows of examinee. For each row, it compares score against the result from Step 1. Only rows satisfying the condition are kept, and their regno values are projected.\n\nFinal SQL:\nSELECT regno\nFROM examinee\nWHERE score > (SELECT avg(score) FROM examinee);",
+      "note": "Using '>' (strict inequality) excludes examinees who score exactly the average."
+     }
+    ],
+    "result": "SELECT regno FROM examinee WHERE score > (SELECT avg(score) FROM examinee);"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Uncorrelated scalar subquery with aggregate function avg() used as a filter threshold in the WHERE clause.",
+   "qid": "5.18.15",
+   "answer_official": "N/A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2001",
+    "year": 2001,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Databases",
+    "topic": "SQL",
+    "subtopic": "SQL"
+   },
+   "question": "Consider a relation examinee(regno, name, score), where regno is the primary key and score is a real number. Suppose the relation also has an attribute centr_code that specifies the center where an examinee appears. Write an SQL query to list the centr_code of centers having an examinee whose score is greater than 80.",
+   "answer": "SELECT distinct centr_code FROM examinee WHERE score > 80;",
+   "to_find": "SQL query to list centr_code of centers that have at least one examinee with score > 80",
+   "understand": {
+    "plain": "The examinee table now also has a centr_code column indicating which exam center each examinee attended. We need to list the distinct center codes that have at least one examinee scoring more than 80. A simple WHERE filter with DISTINCT on centr_code achieves this.",
+    "keywords": [
+     {
+      "term": "DISTINCT",
+      "explain": "Keyword that removes duplicate rows from the query result, ensuring each unique centr_code appears only once.",
+      "example": "SELECT DISTINCT centr_code returns each center at most once even if many examinees scored > 80 there"
+     },
+     {
+      "term": "centr_code",
+      "explain": "An attribute in the examinee relation identifying the examination center where the examinee appeared.",
+      "example": "centr_code = 'DEL01' for Delhi center 1"
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Table examinee extended with centr_code column. Query selects distinct centr_code where score > 80."
+   },
+   "given": {
+    "aim": "Retrieve distinct centr_code values of centers with at least one examinee scoring above 80.",
+    "terms": [
+     {
+      "term": "examinee(regno, name, score, centr_code)",
+      "meaning": "Relation with primary key regno, real score, and centr_code indicating exam center",
+      "example": "(101, 'Alice', 85.0, 'BOM01')",
+      "connects": "Source table; centr_code is projected, score is used in filter"
+     },
+     {
+      "term": "score > 80",
+      "meaning": "Condition that selects only examinees who scored strictly more than 80",
+      "example": "Score 80.1 qualifies; score 80.0 does not",
+      "connects": "WHERE clause filter"
+     },
+     {
+      "term": "DISTINCT centr_code",
+      "meaning": "Ensures each center code appears at most once in the output even if multiple examinees there scored > 80",
+      "example": "If 'BOM01' has 3 examinees with score > 80, it still appears once",
+      "connects": "Produces the required list of centers"
+     }
+    ],
+    "plan": "Filter examinee rows where score > 80, then project centr_code with DISTINCT to eliminate duplicates."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Filter rows with score > 80",
+      "formula_raw": "WHERE score > 80",
+      "apply": "Scan the examinee table and keep only those rows where the score column is strictly greater than 80.",
+      "note": "This gives us all examinees who qualify across all centers."
+     },
+     {
+      "step": 2,
+      "title": "Project distinct centr_code",
+      "formula_raw": "SELECT distinct centr_code",
+      "apply": "From the filtered rows, project the centr_code column. Use DISTINCT to return each qualifying center exactly once.\n\nFinal SQL:\nSELECT distinct centr_code\nFROM examinee\nWHERE score > 80;",
+      "note": "An alternative using GROUP BY: SELECT centr_code FROM examinee WHERE score > 80 GROUP BY centr_code; both are equivalent."
+     }
+    ],
+    "result": "SELECT distinct centr_code FROM examinee WHERE score > 80;"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Simple SELECT-WHERE query with DISTINCT projection; no aggregation or join required.",
+   "qid": "5.18.16",
+   "answer_official": "N/A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2003",
+    "year": 2003,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "SQL",
+    "subtopic": "SQL"
+   },
+   "question": "Consider the set of relations shown below and the SQL query that follows.\n\nStudents: (Roll_number, Name, Date_of_birth)\nCourses: (Course_number, Course_name, Instructor)\nGrades: (Roll_number, Course_number, Grade)\n\nSelect distinct Name\nfrom Students, Courses, Grades\nwhere Students.Roll_number = Grades.Roll_number\nand Courses.Course_number = Grades.Course_number\nand Courses.Instructor = 'Korth'\nand Grades.Grade = 'A'\n\nWhich of the following sets is computed by the above query?\n\nA. Names of students who have got an A grade in all courses taught by Korth\nB. Names of students who have got an A grade in all courses\nC. Names of students who have got an A grade in at least one of the courses taught by Korth\nD. None of the above",
+   "answer": "C. Names of students who have got an A grade in at least one of the courses taught by Korth",
+   "to_find": "Which set of student names is computed by the given SQL query",
+   "understand": {
+    "plain": "The query joins three tables: Students, Courses, and Grades. It filters for rows where the instructor is 'Korth' and the grade is 'A'. Because the join produces one row per (student, course) pair satisfying both conditions, a student appears in the result if there exists at least one Korth course in which they earned an A. The DISTINCT keyword removes duplicate names. This is existential, not universal.",
+    "keywords": [
+     {
+      "term": "Existential vs. Universal query",
+      "explain": "Existential: 'at least one' — satisfied if even one qualifying row exists. Universal: 'for all' — requires every possible row to qualify. SQL WHERE filters give existential semantics.",
+      "example": "WHERE Grade = 'A' AND Instructor = 'Korth' finds any row meeting both — at least one course"
+     },
+     {
+      "term": "DISTINCT",
+      "explain": "Removes duplicate Name values so each qualifying student is listed only once even if they got A in multiple Korth courses.",
+      "example": "If Alice got A in DB and OS (both Korth), she appears once"
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 520 180'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='140' height='60' class='bg'/><text x='80' y='35' text-anchor='middle' class='lbl ink'>Students</text><text x='80' y='58' text-anchor='middle' class='sub mut'>Roll_number, Name</text><rect x='190' y='10' width='140' height='60' class='bg'/><text x='260' y='35' text-anchor='middle' class='lbl ink'>Grades</text><text x='260' y='58' text-anchor='middle' class='sub mut'>Roll_no, Course_no, Grade</text><rect x='370' y='10' width='140' height='60' class='bg'/><text x='440' y='35' text-anchor='middle' class='lbl ink'>Courses</text><text x='440' y='58' text-anchor='middle' class='sub mut'>Course_no, Instructor</text><line x1='150' y1='40' x2='190' y2='40' stroke='#7F77DD' stroke-width='2'/><line x1='330' y1='40' x2='370' y2='40' stroke='#7F77DD' stroke-width='2'/><rect x='130' y='100' width='260' height='60' class='hi'/><text x='260' y='127' text-anchor='middle' class='lbl ink'>WHERE Instructor=Korth</text><text x='260' y='150' text-anchor='middle' class='sub ink'>AND Grade=A  →  at least one match</text></svg>",
+    "visual_alt": "Three tables Students, Grades, Courses joined together. Filters on Instructor='Korth' and Grade='A' produce rows where at least one such Korth-A combination exists for a student."
+   },
+   "given": {
+    "aim": "Determine which student names are retrieved by the join query filtering on Instructor='Korth' and Grade='A'.",
+    "terms": [
+     {
+      "term": "Instructor = 'Korth'",
+      "meaning": "Restricts Courses rows to only those taught by Korth",
+      "example": "If Korth teaches DB and CN, only those course rows qualify",
+      "connects": "Limits the join to Korth's courses"
+     },
+     {
+      "term": "Grade = 'A'",
+      "meaning": "Restricts Grades rows to those where the student received an A",
+      "example": "A student who got B in a Korth course is excluded",
+      "connects": "Together with Instructor filter, a student qualifies if they got A in any Korth course"
+     },
+     {
+      "term": "JOIN semantics",
+      "meaning": "The three-table join with WHERE conditions produces one row per (student, course) pair satisfying all conditions",
+      "example": "Alice—DB, A — produces one row; Alice—CN, A — produces another row",
+      "connects": "DISTINCT Name then collapses these to one entry per student"
+     }
+    ],
+    "plan": "The WHERE clause tests each (student, course) combination individually; a student is included if at least one such combination with Instructor=Korth and Grade=A exists. This is existential quantification, matching option C."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Understand the join and filters",
+      "formula_raw": "Students JOIN Grades ON Roll_number, JOIN Courses ON Course_number WHERE Instructor='Korth' AND Grade='A'",
+      "apply": "The query joins all three tables on their foreign-key relationships. After the join, rows are filtered: only rows where the course instructor is 'Korth' AND the grade is 'A' survive. Each surviving row represents a specific student who earned an A in a specific Korth course.",
+      "note": "There is no 'for all courses' (universal) logic here — just row-by-row filtering."
+     },
+     {
+      "step": 2,
+      "title": "Determine existential vs. universal semantics",
+      "formula_raw": "EXISTS at least one row with Instructor='Korth' AND Grade='A'",
+      "apply": "Option A would require the student to have an A in EVERY Korth course — that needs NOT EXISTS or division, not a simple join-where. Option B would need no Instructor restriction. The query as written is satisfied by any student with at least one (Korth course, A grade) pair. DISTINCT Name ensures each such student name appears once. Therefore option C is correct.",
+      "note": "This is a classic GATE trap: simple WHERE gives existential ('at least one'), not universal ('for all')."
+     }
+    ],
+    "result": "C. Names of students who have got an A grade in at least one of the courses taught by Korth"
+   },
+   "formula_ids_used": [],
+   "formula_note": "SQL WHERE clause implements existential quantification (at least one); universal quantification requires relational division or NOT EXISTS/ALL constructs.",
+   "qid": "5.18.17",
+   "answer_official": "C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2004",
+    "year": 2004,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "SQL",
+    "subtopic": "SQL"
+   },
+   "question": "The employee information in a company is stored in the relation\nEmployee(name, sex, salary, deptName)\n\nConsider the following SQL query:\n\nSelect deptName\nFrom Employee\nWhere sex = 'M'\nGroup by deptName\nHaving avg(salary) > (select avg(salary) from Employee)\n\nIt returns the names of the department in which\n\nA. the average salary is more than the average salary in the company\nB. the average salary of male employees is more than the average salary of all male employees in the company\nC. the average salary of male employees is more than the average salary of all employees in the company\nD. the average salary of male employees is more than the average salary of male employees in the same department",
+   "answer": "C. the average salary of male employees is more than the average salary of all employees in the company",
+   "to_find": "What condition on departments does the given SQL query express",
+   "understand": {
+    "plain": "The query filters rows to only male employees (WHERE sex='M'), groups them by department, and then uses HAVING to keep only those departments where the average salary of those male employees exceeds the company-wide average salary of ALL employees (the subquery has no WHERE clause so it includes everyone). Option C matches exactly this interpretation.",
+    "keywords": [
+     {
+      "term": "WHERE sex = 'M'",
+      "explain": "Restricts rows to male employees BEFORE grouping, so avg(salary) in HAVING computes the average only for males in each department.",
+      "example": "A department with 3 males and 5 females — only the 3 males contribute to avg(salary)"
+     },
+     {
+      "term": "HAVING avg(salary) > (subquery)",
+      "explain": "Post-group filter: keeps a department only if the group's average salary exceeds the subquery result.",
+      "example": "If male avg in dept = 60000 and company avg = 55000, the dept passes"
+     },
+     {
+      "term": "Subquery without WHERE",
+      "explain": "SELECT avg(salary) FROM Employee has no restriction — it computes the average salary of ALL employees (both sexes, all departments).",
+      "example": "Overall company average including female employees"
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 200'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='220' height='80' class='hi'/><text x='120' y='40' text-anchor='middle' class='lbl ink'>Outer query</text><text x='120' y='60' text-anchor='middle' class='sub ink'>WHERE sex=M  →  males only</text><text x='120' y='78' text-anchor='middle' class='sub ink'>GROUP BY deptName  →  per dept avg</text><rect x='270' y='10' width='220' height='80' class='bg'/><text x='380' y='40' text-anchor='middle' class='lbl ink'>Subquery</text><text x='380' y='60' text-anchor='middle' class='sub ink'>avg(salary) from Employee</text><text x='380' y='78' text-anchor='middle' class='sub mut'>(ALL employees, no filter)</text><line x1='230' y1='50' x2='270' y2='50' stroke='#D85A30' stroke-width='2' marker-end='url(#ar)'/><rect x='80' y='120' width='340' height='60' class='bg'/><text x='250' y='148' text-anchor='middle' class='lbl ink'>HAVING: male dept avg &gt; company-wide avg</text><text x='250' y='168' text-anchor='middle' class='sub ok'>Result = Option C</text></svg>",
+    "visual_alt": "Outer query computes average salary of male employees per department. Subquery computes the overall company average (all sexes). HAVING keeps departments where male avg exceeds the company-wide avg."
+   },
+   "given": {
+    "aim": "Identify which departments satisfy: average salary of their male employees > overall company average salary.",
+    "terms": [
+     {
+      "term": "WHERE sex = 'M'",
+      "meaning": "Pre-group filter; only male employee rows are processed",
+      "example": "Dept IT has 10 employees but only 6 males — only those 6 affect the group avg",
+      "connects": "Makes HAVING avg(salary) compute male-only averages per dept"
+     },
+     {
+      "term": "avg(salary) in HAVING",
+      "meaning": "Average salary computed on the filtered (male) rows within each department group",
+      "example": "If male salaries in IT are 50k, 60k, 70k then avg = 60k",
+      "connects": "Left-hand side of the HAVING comparison"
+     },
+     {
+      "term": "(select avg(salary) from Employee)",
+      "meaning": "Company-wide average salary of ALL employees regardless of sex or department",
+      "example": "If company has 100 employees with average 55k, subquery returns 55k",
+      "connects": "Right-hand side of the HAVING comparison; includes female salaries too"
+     }
+    ],
+    "plan": "Trace what the WHERE clause filters (only males), what avg(salary) in HAVING computes (male dept average), and what the subquery returns (overall company average including all sexes). Match to option C."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Analyze the WHERE and GROUP BY",
+      "formula_raw": "WHERE sex = 'M' GROUP BY deptName",
+      "apply": "The WHERE clause runs before grouping, restricting input rows to male employees only. GROUP BY deptName then forms one group per department from these male-only rows. The HAVING clause will apply to each such group.",
+      "note": "Critically, only male employees participate in the grouping and subsequent aggregate."
+     },
+     {
+      "step": 2,
+      "title": "Interpret the HAVING condition",
+      "formula_raw": "HAVING avg(salary) > (select avg(salary) from Employee)",
+      "apply": "avg(salary) in HAVING = average salary of male employees in the department (from the filtered group).\nThe subquery (select avg(salary) from Employee) has NO WHERE clause, so it averages over ALL employees (both sexes, all departments) — the company-wide average.\nA department passes HAVING if: avg_salary_of_males_in_dept > company_wide_avg_salary.\nThis is exactly option C.",
+      "note": "Option A is wrong because the outer query has WHERE sex='M' so it is NOT the overall dept average. Option B is wrong because the subquery has no sex filter, so it is not 'all male employees'. Option D makes no sense (comparing a dept to itself gives a tautology)."
+     }
+    ],
+    "result": "C. the average salary of male employees is more than the average salary of all employees in the company"
+   },
+   "formula_ids_used": [],
+   "formula_note": "GROUP BY with HAVING and a correlated scalar subquery; key distinction between filtered group aggregate (male-only) and an unrestricted subquery aggregate (all employees).",
+   "qid": "5.18.18",
+   "answer_official": "C"
+  }
+ ]
+}

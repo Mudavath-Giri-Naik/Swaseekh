@@ -1,0 +1,252 @@
+{
+ "page": 72,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2002",
+    "year": 2002,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Algorithms",
+    "topic": "Searching",
+    "subtopic": "Searching"
+   },
+   "question": "Consider the following algorithm for searching for a given number x in an unsorted array A[1..n] having n distinct values:\n1. Choose an i at random from 1..n\n2. If A[i] = x, then Stop else Goto 1;\nAssuming that x is present in A, what is the expected number of comparisons made by the algorithm before it terminates?\nA. n\nB. n-1\nC. 2n\nD. n/2",
+   "answer": "A. n",
+   "to_find": "Expected number of comparisons before the random search algorithm finds x",
+   "understand": {
+    "plain": "We pick a random index i from 1 to n each time and check if A[i] equals x. We repeat until we find x. Since picks are random WITH replacement (the same index can be picked again), the number of trials until the first success follows a geometric distribution. The probability of success on each trial is 1/n (only one element equals x), so the expected number of trials is n.",
+    "keywords": [
+     {
+      "term": "Geometric distribution",
+      "explain": "Models the number of trials needed to get the first success, where each trial is independent with probability p of success. Expected value = 1/p.",
+      "example": "Flipping a fair coin until heads: p=1/2, expected flips = 2."
+     },
+     {
+      "term": "Expected value (E[X])",
+      "explain": "The average outcome over many repetitions of a random experiment.",
+      "example": "For a fair die, E[X] = (1+2+3+4+5+6)/6 = 3.5"
+     },
+     {
+      "term": "Random search (with replacement)",
+      "explain": "Picking an index uniformly at random each time, independently, so the same position can be revisited.",
+      "example": "In array [3,7,2,9,5], randomly picking index each trial until we find target."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "An array A of n elements; one element equals x. Each trial picks a random index uniformly from 1..n; the probability of hitting x is 1/n per trial."
+   },
+   "given": {
+    "aim": "Find the expected number of comparisons until a randomly chosen index matches x.",
+    "terms": [
+     {
+      "term": "n",
+      "meaning": "Size of the array A[1..n], all elements distinct.",
+      "example": "n=5 means the array has 5 elements.",
+      "connects": "Determines probability of success per trial: p = 1/n."
+     },
+     {
+      "term": "p = 1/n",
+      "meaning": "Probability that a random index i satisfies A[i] = x on any single trial.",
+      "example": "n=10: probability = 0.1 per pick.",
+      "connects": "Expected number of trials = 1/p = n."
+     },
+     {
+      "term": "x is guaranteed present",
+      "meaning": "x definitely exists in A, so the algorithm will eventually terminate.",
+      "example": "Without this, it could loop forever.",
+      "connects": "Ensures the geometric distribution applies and E[trials] is finite."
+     }
+    ],
+    "plan": "Model each trial as a Bernoulli experiment with success probability p = 1/n. By the geometric distribution, the expected number of trials to get the first success is 1/p = n. Each trial makes exactly one comparison, so expected comparisons = n."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Model the probability of success per trial",
+      "formula_raw": "P(success on one trial) = 1/n",
+      "apply": "There are n elements in A and exactly one equals x. Each index is chosen uniformly at random, so P(A[i] = x) = 1/n on each independent trial.",
+      "note": "The picks are with replacement (the algorithm can revisit the same index), which is why each trial is independent."
+     },
+     {
+      "step": 2,
+      "title": "Apply Geometric Distribution formula",
+      "formula_raw": "E[trials] = 1/p = 1/(1/n) = n",
+      "apply": "The number of trials T until the first success follows Geometric(p=1/n). E[T] = 1/p = n. Each trial makes exactly one comparison, so expected comparisons = n.",
+      "note": "This matches option A. Note that options B (n-1), C (2n), D (n/2) correspond to other search strategies (linear search on average, etc.) but not this random-with-replacement approach."
+     }
+    ],
+    "result": "Expected number of comparisons = n. Answer: A. n"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Geometric distribution: if each trial has success probability p independently, the expected number of trials until first success is 1/p. Here p = 1/n, so E[trials] = n.",
+   "qid": "1.29.3",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2008",
+    "year": 2008,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Algorithms",
+    "topic": "Searching",
+    "subtopic": "Searching"
+   },
+   "question": "Consider the following C program that attempts to locate an element x in an array Y[] using binary search. The program is erroneous.\n\nf(int Y[10], int x) {\n    int i, j, k;\n    i = 0; j = 9;\n    do {\n        k = (i + j) / 2;\n        if (Y[k] < x) i = k; else j = k;\n    } while ((Y[k] != x) && (i < j));\n    if (Y[k] == x) printf(\"x is in the array\");\n    else printf(\"x is not in the array\");\n}\n\nOn which of the following contents of Y and x does the program fail?\nA. Y is [1 2 3 4 5 6 7 8 9 10] and x < 10\nB. Y is [1 3 5 7 9 11 13 15 17 19] and x < 1\nC. Y is [2 2 2 2 2 2 2 2 2 2] and x > 2\nD. Y is [2 4 6 8 10 12 14 16 18 20] and x > 2 and z < 20, and x is even",
+   "answer": "C. Y is [2 2 2 2 2 2 2 2 2 2] and x > 2",
+   "to_find": "Which input causes the erroneous binary search program to fail (infinite loop or wrong answer)",
+   "understand": {
+    "plain": "The given binary search code has a bug: when the target x is not found and i < j, it sets i = k (instead of i = k+1) or j = k (instead of j = k-1). This means i and j can stop converging and get stuck in an infinite loop. We need to find which input triggers this infinite loop or incorrect behavior.",
+    "keywords": [
+     {
+      "term": "Binary search invariant",
+      "explain": "Correct binary search must narrow the range [i,j] strictly each iteration: set i = k+1 when Y[k] < x, and j = k-1 when Y[k] > x.",
+      "example": "Range [0,9]: if mid=4 and Y[4]<x, next range should be [5,9], not [4,9]."
+     },
+     {
+      "term": "Infinite loop / non-termination",
+      "explain": "If i = k and j = k do not strictly shrink the interval, then with i < j we may have i+1 = j, k = i, and the loop repeats without progress.",
+      "example": "i=4, j=5: k=(4+5)/2=4; if Y[4]<x, set i=4 again. Loop repeats forever."
+     },
+     {
+      "term": "All-same array",
+      "explain": "An array where all elements are identical; the else branch (j=k) fires every iteration regardless, quickly making i==j.",
+      "example": "Y=[2,2,2,2,2,2,2,2,2,2]: every comparison either matches x or goes to else."
+     }
+    ],
+    "visual_svg": "<svg width='520' height='180' viewBox='0 0 520 180' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='500' height='50' rx='8' class='bg'/><text x='260' y='42' text-anchor='middle' class='lbl ink'>Y = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],  x = 5 (&gt; 2)</text><rect x='10' y='75' width='500' height='90' rx='8' class='bg'/><text x='260' y='100' text-anchor='middle' class='sub ink'>i=0, j=9 → k=4, Y[4]=2 &lt; 5? No (2&lt;5=true) → i=k=4</text><text x='260' y='122' text-anchor='middle' class='sub ink'>i=4, j=9 → k=6, Y[6]=2 &lt; 5? → i=k=6 ... i=8, j=9 → k=8</text><text x='260' y='144' text-anchor='middle' class='sub ink'>i=8, j=9 → k=8, Y[8]=2 &lt; 5 → i=8 (NO CHANGE!), loop stuck</text><text x='260' y='166' text-anchor='middle' class='tag no'>INFINITE LOOP: i=8, j=9, k=8 repeats forever</text></svg>",
+    "visual_alt": "Array of all 2s with x=5>2: i and j converge to i=8,j=9, then k=8 every iteration, Y[8]=2<5 so i stays 8, infinite loop."
+   },
+   "given": {
+    "aim": "Identify which specific input causes the buggy binary search to fail (loop infinitely or give wrong answer).",
+    "terms": [
+     {
+      "term": "Bug: i = k instead of i = k+1",
+      "meaning": "When Y[k] < x the correct step is i = k+1, but the code sets i = k. This can freeze i in place.",
+      "example": "i=4, j=5, k=4: Y[4]<x → i=4 (unchanged), loop repeats identically.",
+      "connects": "Causes infinite loop when i+1=j and Y[i]<x."
+     },
+     {
+      "term": "Loop condition: (Y[k]!=x) && (i<j)",
+      "meaning": "Loop continues while x not found AND search interval is non-empty. If i never reaches j, loop never ends.",
+      "example": "If i=8, j=9 forever, i<j stays true and Y[k]!=x stays true.",
+      "connects": "The infinite loop occurs when neither condition becomes false."
+     },
+     {
+      "term": "All-equal array with x not present",
+      "meaning": "Y=[2,2,...,2] and x>2: every element is smaller than x, so the 'if' branch always fires (i=k), causing the interval to not shrink at the last step.",
+      "example": "When i=8, j=9: k=8, Y[8]=2<5, so i=8. Next iteration: same state. Infinite loop.",
+      "connects": "This is option C and is the triggering condition."
+     }
+    ],
+    "plan": "Trace through each option to see which one causes i and j to stop converging. The bug is i=k (should be i=k+1), so whenever the search narrows to i+1==j and Y[i]<x, we get an infinite loop. Option C (all 2s, x>2) always fires the 'if' branch, leading to this scenario."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Identify the bug and the triggering condition",
+      "formula_raw": "Correct: i = k+1; Buggy: i = k",
+      "apply": "The bug is in the line 'if(Y[k] < x) i = k'. Correct binary search should use i = k+1 to exclude k. With i=k, if we reach a state where i+1==j (adjacent indices), then k = (i+j)/2 = i (integer division). If Y[i] < x, then i=k=i — no change. The loop condition (i<j) stays true, Y[k]!=x stays true: infinite loop.",
+      "note": "This stuck state requires: (1) i+1==j, (2) Y[i] < x. We need an input that drives the search into this state."
+     },
+     {
+      "step": 2,
+      "title": "Test option C: Y=[2,2,2,2,2,2,2,2,2,2], x=5 (x>2)",
+      "formula_raw": "k = (i+j)/2 (integer division)",
+      "apply": "Start: i=0, j=9, k=4. Y[4]=2 < 5 (true) → i=4.\nNow i=4, j=9, k=6. Y[6]=2 < 5 → i=6.\nNow i=6, j=9, k=7. Y[7]=2 < 5 → i=7.\nNow i=7, j=9, k=8. Y[8]=2 < 5 → i=8.\nNow i=8, j=9, k=8. Y[8]=2 < 5 → i=8. (i unchanged!)\nLoop condition: Y[8]!=5 (true) && 8<9 (true) → loop repeats forever. INFINITE LOOP.",
+      "note": "The other options (A, B, D) either terminate correctly or exit with the correct 'not in array' message."
+     }
+    ],
+    "result": "The program fails (enters an infinite loop) for option C: Y = [2 2 2 2 2 2 2 2 2 2] and x > 2."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Binary search correctness requires strict interval shrinkage: i = k+1 (not i = k) when Y[k] < x; otherwise adjacent-index states cause infinite loops.",
+   "qid": "1.29.4",
+   "answer_official": "C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2008",
+    "year": 2008,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Algorithms",
+    "topic": "Searching",
+    "subtopic": "Searching"
+   },
+   "question": "Consider the following C program that attempts to locate an element x in an array Y[] using binary search. The program is erroneous.\n\nf(int Y[10], int x) {\n    int i, j, k;\n    i = 0; j = 9;\n    do {\n        k = (i + j) / 2;\n        if (Y[k] < x) i = k; else j = k;\n    } while ((Y[k] != x) && (i < j));\n    if (Y[k] == x) printf(\"x is in the array\");\n    else printf(\"x is not in the array\");\n}\n\nThe correction needed in the program to make it work properly is:\nA. Change line 6 to: if (Y[k] < x) i = k + 1; else j = k - 1;\nB. Change line 6 to: if (Y[k] <= x) i = k; else j = k;\nC. Change line 7 to: } while ((Y[k] == x) && (i < j));\nD. Change line 7 to: } while ((Y[k] != x) && (i <= j));",
+   "answer": "A. Change line 6 to: if (Y[k] < x) i = k + 1; else j = k - 1;",
+   "to_find": "The correct fix to the erroneous binary search so it works for all valid inputs",
+   "understand": {
+    "plain": "The bug is that when Y[k] < x the code sets i = k (not i = k+1), and when Y[k] >= x the code sets j = k (not j = k-1). Both updates fail to exclude the already-checked midpoint k, causing the search interval to not shrink properly. The fix is to use i = k+1 and j = k-1 to strictly narrow the search range.",
+    "keywords": [
+     {
+      "term": "Binary search update step",
+      "explain": "After checking midpoint k, the next search should exclude k itself: if Y[k]<x, search right half starting at k+1; if Y[k]>x, search left half ending at k-1.",
+      "example": "Range [0,9], k=4, Y[4]<x: new range is [5,9] (i=k+1=5)."
+     },
+     {
+      "term": "Off-by-one error",
+      "explain": "Using i=k instead of i=k+1 (or j=k instead of j=k-1) keeps the midpoint in the search range, possibly looping forever.",
+      "example": "i=4,j=5: k=4, if i=k=4, nothing changes next iteration."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Correct binary search: after comparing Y[k] with x, exclude k from next range by using i=k+1 (left is too small) or j=k-1 (right is too large). This guarantees the interval strictly shrinks each iteration."
+   },
+   "given": {
+    "aim": "Fix the binary search so it terminates correctly for all sorted arrays and all values of x.",
+    "terms": [
+     {
+      "term": "Bug location: line 6",
+      "meaning": "The line 'if(Y[k] < x) i = k; else j = k;' uses k instead of k+1 and k-1.",
+      "example": "When Y[k] < x: i should become k+1 (exclude k from search), not k.",
+      "connects": "Fixing to k+1 and k-1 ensures strict interval shrinkage and termination."
+     },
+     {
+      "term": "Option A: i = k+1; j = k-1",
+      "meaning": "The standard correct binary search update: if Y[k]<x the target is strictly right of k so i=k+1; if Y[k]>=x the target is at k or left so j=k (but here we use k-1 since midpoint != x was checked implicitly by the loop).",
+      "example": "Range [0,9], k=4, Y[4]<x: i=5. Range [0,9], k=4, Y[4]>x: j=3.",
+      "connects": "This is the classical correct binary search update, option A."
+     },
+     {
+      "term": "Why other options are wrong",
+      "meaning": "Option B still uses i=k (same bug). Option C changes the loop termination condition to wrong logic (loop while equal). Option D uses i<=j which only changes termination, not the interval shrinkage bug.",
+      "example": "Option D with i<=j still loops forever on the all-2s array because i never passes j.",
+      "connects": "Only option A fixes the root cause."
+     }
+    ],
+    "plan": "Analyze each proposed fix. The root cause is that i=k and j=k can leave the midpoint in the next search range, causing infinite loops. Only option A (i=k+1; j=k-1) eliminates k from the next range, guaranteeing the interval shrinks by at least 1 each iteration."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Identify root cause",
+      "formula_raw": "Invariant: interval [i,j] must strictly shrink each iteration",
+      "apply": "Current code: 'if(Y[k] < x) i = k; else j = k;'\nWhen Y[k] < x: i is set to k. Next iteration's range is [k, j], which still includes k. If k is computed as the same midpoint again, no progress.\nWhen Y[k] > x: j is set to k. Next range is [i, k], again including k. Same problem.\nThe fix must exclude k: use i = k+1 when Y[k] < x, and j = k-1 when Y[k] > x.",
+      "note": "Note that when we reach the else branch (Y[k] >= x), since we already know Y[k] != x (from the loop condition check would handle Y[k]==x exiting), we want j=k-1. But option A uses j=k-1 in the else, which covers Y[k]>x; if Y[k]==x the loop exits anyway."
+     },
+     {
+      "step": 2,
+      "title": "Verify option A fixes the infinite loop case",
+      "formula_raw": "if(Y[k] < x) i = k+1; else j = k-1;",
+      "apply": "Re-trace with Y=[2,2,...,2], x=5:\ni=8, j=9, k=8. Y[8]=2 < 5 → i = k+1 = 9.\nNow i=9, j=9, k=9. Y[9]=2 < 5 → i=10.\nLoop check: i < j? 10 < 9? FALSE. Loop exits.\nY[k] = Y[9] = 2 != 5 → prints 'x is not in the array'. Correct!\nAlso, if x is present, Y[k]==x exits the loop correctly.",
+      "note": "Option A is the standard textbook binary search update; it guarantees O(log n) termination."
+     }
+    ],
+    "result": "The correction is option A: Change line 6 to 'if (Y[k] < x) i = k + 1; else j = k - 1;'"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Correct binary search update rule: i = k+1 when Y[k] < x (target is right of k); j = k-1 when Y[k] > x (target is left of k). This ensures the search interval shrinks by at least 1 per iteration, guaranteeing O(log n) termination.",
+   "qid": "1.29.5",
+   "answer_official": "A"
+  }
+ ]
+}

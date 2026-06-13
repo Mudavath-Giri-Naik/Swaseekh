@@ -1,0 +1,359 @@
+{
+ "page": 445,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2002",
+    "year": 2002,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "File System",
+    "subtopic": "File System"
+   },
+   "question": "In the index allocation scheme of blocks to a file, the maximum possible size of the file depends on\nA. the size of the blocks, and the size of the address of the blocks.\nB. the number of blocks used for the index, and the size of the blocks.\nC. the size of the blocks, the number of blocks used for the index, and the size of the address of the blocks.\nD. None of the above.",
+   "answer": "C. the size of the blocks, the number of blocks used for the index, and the size of the address of the blocks.",
+   "to_find": "Which factors determine the maximum possible file size in indexed allocation?",
+   "understand": {
+    "plain": "In indexed allocation, a special index block stores pointers (addresses) to all the data blocks of a file. The maximum file size depends on how many pointers fit in the index block(s) and how large each data block is. Both the address size and the number of index blocks affect how many data blocks can be pointed to.",
+    "keywords": [
+     {
+      "term": "Index allocation",
+      "explain": "A file allocation method where a dedicated index block holds pointers to all data blocks of a file.",
+      "example": "A file of 10 blocks has an index block listing block numbers: [5, 12, 7, ...]"
+     },
+     {
+      "term": "Block address size",
+      "explain": "The number of bytes used to represent the disk block number in a pointer.",
+      "example": "A 4-byte address can address up to 2^32 different blocks."
+     },
+     {
+      "term": "Number of index blocks",
+      "explain": "How many blocks are dedicated to storing pointers; more index blocks allow pointing to more data blocks.",
+      "example": "If one index block holds 256 pointers, two index blocks allow 512 data blocks."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='480' height='220' viewBox='0 0 480 220'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='30' width='120' height='160' class='hi' rx='6'/><text x='70' y='22' class='tag ink' text-anchor='middle'>Index Block</text><text x='70' y='60' class='sub mut' text-anchor='middle'>ptr 1</text><text x='70' y='90' class='sub mut' text-anchor='middle'>ptr 2</text><text x='70' y='120' class='sub mut' text-anchor='middle'>ptr 3</text><text x='70' y='150' class='sub mut' text-anchor='middle'>...</text><text x='70' y='180' class='sub mut' text-anchor='middle'>ptr N</text><line x1='130' y1='58' x2='190' y2='58' stroke='#7F77DD' stroke-width='2' marker-end='url(#arr)'/><line x1='130' y1='88' x2='190' y2='88' stroke='#7F77DD' stroke-width='2' marker-end='url(#arr)'/><line x1='130' y1='118' x2='190' y2='118' stroke='#7F77DD' stroke-width='2' marker-end='url(#arr)'/><line x1='130' y1='178' x2='190' y2='178' stroke='#7F77DD' stroke-width='2' marker-end='url(#arr)'/><rect x='190' y='40' width='90' height='36' class='bg' rx='4'/><text x='235' y='63' class='sub ink' text-anchor='middle'>Data Blk 1</text><rect x='190' y='70' width='90' height='36' class='bg' rx='4'/><text x='235' y='93' class='sub ink' text-anchor='middle'>Data Blk 2</text><rect x='190' y='100' width='90' height='36' class='bg' rx='4'/><text x='235' y='123' class='sub ink' text-anchor='middle'>Data Blk 3</text><rect x='190' y='160' width='90' height='36' class='bg' rx='4'/><text x='235' y='183' class='sub ink' text-anchor='middle'>Data Blk N</text><text x='340' y='60' class='sub ink'>N = (index blocks x block_size) / addr_size</text><text x='340' y='85' class='sub ink'>Max file = N x block_size</text><text x='340' y='110' class='sub mut'>Depends on: block size,</text><text x='340' y='130' class='sub mut'>addr size, # index blocks</text><defs><marker id='arr' markerWidth='8' markerHeight='8' refX='6' refY='3' orient='auto'><path d='M0,0 L0,6 L8,3 z' fill='#7F77DD'/></marker></defs></svg>",
+    "visual_alt": "An index block containing N pointers (ptr 1 to ptr N) each pointing to a separate data block. N depends on block size and address size; the number of index blocks multiplies N."
+   },
+   "given": {
+    "aim": "Determine all factors that limit the maximum file size in indexed allocation.",
+    "terms": [
+     {
+      "term": "Block size (B)",
+      "meaning": "The size of each disk block in bytes.",
+      "example": "B = 512 bytes",
+      "connects": "Each data block stores B bytes of file data; also determines how many pointers fit in an index block."
+     },
+     {
+      "term": "Address size (a)",
+      "meaning": "Bytes needed to store one block address/pointer.",
+      "example": "a = 4 bytes for a 32-bit address",
+      "connects": "Number of pointers per index block = B / a, directly limiting how many data blocks are reachable."
+     },
+     {
+      "term": "Number of index blocks (k)",
+      "meaning": "How many blocks are devoted to storing pointers.",
+      "example": "k = 1 for single-level index, k > 1 for multi-level",
+      "connects": "Total pointers = k * (B / a), so more index blocks means a larger possible file."
+     }
+    ],
+    "plan": "Compute the maximum number of data blocks addressable: it equals (k * B) / a (total pointer slots across all index blocks). Multiply by B to get max file size = k * B^2 / a. All three quantities — k (number of index blocks), B (block size), and a (address size) — appear in this formula."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Compute pointers per index block",
+      "formula_raw": "pointers_per_index_block = B / a",
+      "apply": "Each index block of size B bytes holds B/a pointers, where a is the address size in bytes.",
+      "note": "Both B and a appear here — changing either changes how many data blocks one index block can reference."
+     },
+     {
+      "step": 2,
+      "title": "Compute total data blocks addressable",
+      "formula_raw": "total_data_blocks = k * (B / a)",
+      "apply": "If k index blocks are used, total pointers = k * B / a.",
+      "note": "k is the number of index blocks used — a key factor."
+     },
+     {
+      "step": 3,
+      "title": "Compute maximum file size",
+      "formula_raw": "max_file_size = k * (B / a) * B = k * B^2 / a",
+      "apply": "Maximum file size = total data blocks * block size = k * B^2 / a. This expression contains k (number of index blocks), B (block size), and a (address size of blocks).",
+      "note": "All three of these are required — omitting any one of them leaves the formula incomplete."
+     }
+    ],
+    "result": "C. the size of the blocks, the number of blocks used for the index, and the size of the address of the blocks."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Indexed allocation: max file size = (number of index blocks) * (block size / address size) * block size. All three quantities — block size, number of index blocks, and address size — determine the maximum.",
+   "qid": "7.5.2",
+   "answer_official": "C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2008",
+    "year": 2008,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "File System",
+    "subtopic": "File System"
+   },
+   "question": "The data blocks of a very large file in the Unix file system are allocated using\nA. contiguous allocation\nB. linked allocation\nC. indexed allocation\nD. an extension of indexed allocation",
+   "answer": "D. an extension of indexed allocation",
+   "to_find": "Which allocation scheme is used for data blocks of a very large file in Unix file system?",
+   "understand": {
+    "plain": "The Unix file system uses inodes to store file metadata. Each inode has a fixed number of direct block pointers, plus single-indirect, double-indirect, and triple-indirect pointers. This multi-level indirection is an extension of basic indexed allocation that enables very large files by adding multiple levels of index blocks.",
+    "keywords": [
+     {
+      "term": "Inode",
+      "explain": "A Unix data structure that stores file metadata and pointers to data blocks (direct and indirect).",
+      "example": "An inode might have 12 direct pointers, 1 single-indirect, 1 double-indirect, 1 triple-indirect pointer."
+     },
+     {
+      "term": "Multi-level indexing",
+      "explain": "Extension of indexed allocation where an indirect block points to other index blocks rather than directly to data blocks, enabling very large files.",
+      "example": "A double-indirect block points to single-indirect blocks, each of which points to data blocks."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='500' height='240' viewBox='0 0 500 240'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='90' height='220' class='hi' rx='6'/><text x='55' y='8' class='tag ink' text-anchor='middle'>inode</text><text x='55' y='35' class='sub ink' text-anchor='middle'>direct[0]</text><text x='55' y='55' class='sub ink' text-anchor='middle'>direct[1]</text><text x='55' y='75' class='sub mut' text-anchor='middle'>...</text><text x='55' y='100' class='sub ink' text-anchor='middle'>single</text><text x='55' y='115' class='sub ink' text-anchor='middle'>indirect</text><text x='55' y='145' class='sub ink' text-anchor='middle'>double</text><text x='55' y='160' class='sub ink' text-anchor='middle'>indirect</text><text x='55' y='190' class='sub ink' text-anchor='middle'>triple</text><text x='55' y='205' class='sub ink' text-anchor='middle'>indirect</text><line x1='100' y1='32' x2='150' y2='32' stroke='#1D9E75' stroke-width='2'/><rect x='150' y='20' width='70' height='24' class='bg' rx='3'/><text x='185' y='36' class='sub ink' text-anchor='middle'>Data Blk</text><line x1='100' y1='107' x2='150' y2='107' stroke='#7F77DD' stroke-width='2'/><rect x='150' y='94' width='70' height='26' class='hi' rx='3'/><text x='185' y='111' class='sub ink' text-anchor='middle'>Index Blk</text><line x1='220' y1='107' x2='270' y2='107' stroke='#7F77DD' stroke-width='2'/><rect x='270' y='94' width='70' height='26' class='bg' rx='3'/><text x='305' y='111' class='sub ink' text-anchor='middle'>Data Blk</text><line x1='100' y1='152' x2='150' y2='152' stroke='#D85A30' stroke-width='2'/><rect x='150' y='139' width='70' height='26' class='hi' rx='3'/><text x='185' y='156' class='sub ink' text-anchor='middle'>Index L1</text><line x1='220' y1='152' x2='270' y2='152' stroke='#D85A30' stroke-width='2'/><rect x='270' y='139' width='70' height='26' class='hi' rx='3'/><text x='305' y='156' class='sub ink' text-anchor='middle'>Index L2</text><line x1='340' y1='152' x2='390' y2='152' stroke='#D85A30' stroke-width='2'/><rect x='390' y='139' width='70' height='26' class='bg' rx='3'/><text x='425' y='156' class='sub ink' text-anchor='middle'>Data Blk</text><text x='250' y='230' class='sub mut' text-anchor='middle'>Multi-level indexed = extension of indexed allocation</text></svg>",
+    "visual_alt": "Unix inode with direct pointers going straight to data blocks, single-indirect pointer going through one index block to data blocks, and double/triple-indirect pointers going through two or three levels of index blocks to reach data blocks."
+   },
+   "given": {
+    "aim": "Identify the block allocation scheme used by the Unix file system for very large files.",
+    "terms": [
+     {
+      "term": "Unix inode",
+      "meaning": "Metadata structure for a Unix file containing fixed direct block pointers plus indirect pointers for large files.",
+      "example": "12 direct + 1 single-indirect + 1 double-indirect + 1 triple-indirect pointers.",
+      "connects": "The indirect pointers are index blocks; multi-level indexing is an extension of basic indexed allocation."
+     },
+     {
+      "term": "Contiguous allocation",
+      "meaning": "File blocks occupy consecutive disk blocks.",
+      "example": "A 10-block file occupies blocks 50-59.",
+      "connects": "Not used by Unix; causes external fragmentation."
+     },
+     {
+      "term": "Linked allocation",
+      "meaning": "Each block has a pointer to the next block, forming a chain.",
+      "example": "Block 5 -> Block 12 -> Block 7 -> NULL.",
+      "connects": "Not used by Unix FS for general file data; no direct random access."
+     }
+    ],
+    "plan": "Recall Unix inode structure: it uses direct pointers for small files and single/double/triple indirect pointers for large files. This multi-level indirection is an extension of indexed allocation."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Review Unix inode structure",
+      "formula_raw": "",
+      "apply": "A Unix inode typically has: ~12 direct block pointers (pointing straight to data), 1 single-indirect pointer (pointing to an index block containing data block pointers), 1 double-indirect pointer (index block -> index block -> data), and 1 triple-indirect pointer (3 levels of indexing).",
+      "note": "Direct pointers serve small files; indirect pointers scale the scheme for very large files."
+     },
+     {
+      "step": 2,
+      "title": "Classify the scheme",
+      "formula_raw": "",
+      "apply": "Basic indexed allocation uses a single index block. Unix extends this with multiple levels of indirection. This is not plain contiguous, not linked, and not basic indexed allocation — it is an extension of indexed allocation (multi-level indexing).",
+      "note": "The question specifies 'very large file', pointing to the use of double/triple-indirect blocks, which are multi-level extensions of the indexed scheme."
+     }
+    ],
+    "result": "D. an extension of indexed allocation"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Unix FS uses multi-level indexed allocation (inode with direct, single-indirect, double-indirect, triple-indirect pointers) — an extension of basic indexed allocation to support very large files.",
+   "qid": "7.5.3",
+   "answer_official": "D"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2014",
+    "year": 2014,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Operating System",
+    "topic": "File System",
+    "subtopic": "File System"
+   },
+   "question": "A FAT (file allocation table) based file system is being used and the total overhead of each entry in the FAT is 4 bytes in size. Given a 1 x 10^9 bytes disk on which the file system is stored and data block size is 10^3 bytes, the maximum size of a file that can be stored on this disk in units of 10^6 bytes is ________",
+   "answer": "996",
+   "to_find": "Maximum size (in units of 10^6 bytes) of a file that can be stored on a 10^9-byte disk with 10^3-byte blocks and 4-byte FAT entries.",
+   "understand": {
+    "plain": "A FAT file system stores a table where each entry corresponds to one disk block. With 4 bytes per FAT entry, the FAT itself takes up some disk space. The remaining space is available for file data. We need to find how many blocks are left for file data after accounting for the FAT, then multiply by block size.",
+    "keywords": [
+     {
+      "term": "FAT (File Allocation Table)",
+      "explain": "A table on disk where each entry corresponds to one disk block and contains the number of the next block in the file chain (or EOF/free marker).",
+      "example": "FAT entry for block 5 = 12 means the next block of the file is block 12."
+     },
+     {
+      "term": "FAT entry overhead",
+      "explain": "The size in bytes of each FAT entry. Larger entry size means the FAT itself occupies more disk space.",
+      "example": "4 bytes/entry * 1000 blocks = 4000 bytes for the FAT."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "A disk divided into a FAT region (4 bytes * number_of_blocks) and a data region (remaining blocks). The data region determines maximum file size."
+   },
+   "given": {
+    "aim": "Find the maximum file size after allocating space for the FAT on the disk.",
+    "terms": [
+     {
+      "term": "Disk size",
+      "meaning": "Total disk capacity = 10^9 bytes.",
+      "example": "1 GB disk",
+      "connects": "Total space that must be shared between FAT and data blocks."
+     },
+     {
+      "term": "Block size",
+      "meaning": "Each data block = 10^3 bytes = 1 KB.",
+      "example": "A 10^3-byte block holds 1000 bytes of file data.",
+      "connects": "Determines total number of blocks on disk and size of each FAT entry's corresponding storage."
+     },
+     {
+      "term": "FAT entry size",
+      "meaning": "4 bytes per block entry in the FAT.",
+      "example": "10^6 blocks * 4 bytes/entry = 4 * 10^6 bytes for the FAT.",
+      "connects": "FAT occupies some of the total disk blocks, reducing space available for file data."
+     }
+    ],
+    "plan": "Let N = total blocks. The FAT uses 4N bytes = 4N/10^3 blocks. Available data blocks = N - 4N/10^3. Set N = 10^9/10^3 = 10^6 blocks. FAT occupies 4*10^6/10^3 = 4000 blocks. Data blocks = 10^6 - 4000 = 996000 blocks. Max file size = 996000 * 10^3 = 996 * 10^6 bytes = 996 in units of 10^6."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Calculate total number of disk blocks",
+      "formula_raw": "N = disk_size / block_size",
+      "apply": "N = 10^9 / 10^3 = 10^6 blocks total on the disk.",
+      "note": "Every block needs one FAT entry, so the FAT has 10^6 entries."
+     },
+     {
+      "step": 2,
+      "title": "Calculate FAT size in bytes and blocks",
+      "formula_raw": "FAT_size_bytes = N * 4 = 10^6 * 4 = 4 * 10^6 bytes",
+      "apply": "FAT in blocks = 4 * 10^6 / 10^3 = 4000 blocks.",
+      "note": "The FAT itself occupies 4000 blocks that cannot store file data."
+     },
+     {
+      "step": 3,
+      "title": "Calculate available data blocks and max file size",
+      "formula_raw": "data_blocks = N - FAT_blocks = 10^6 - 4000 = 996000",
+      "apply": "Max file size = 996000 * 10^3 bytes = 996 * 10^6 bytes.",
+      "note": "In units of 10^6 bytes, the answer is 996."
+     }
+    ],
+    "result": "996 (in units of 10^6 bytes)"
+   },
+   "formula_ids_used": [],
+   "formula_note": "FAT-based file system: total blocks N = disk_size / block_size; FAT occupies (N * entry_size / block_size) blocks; available data blocks = N - FAT_blocks; max file size = available_data_blocks * block_size.",
+   "qid": "7.5.4",
+   "answer_official": "B"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2017",
+    "year": 2017,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "File System",
+    "subtopic": "File System"
+   },
+   "question": "In a file allocation system, which of the following allocation scheme(s) can be used if no external fragmentation is allowed?\n1. Contiguous\n2. Linked\n3. Indexed\nA. 1 and 3 only\nB. 1 only\nC. 3 only\nD. 2 and 3 only",
+   "answer": "D. 2 and 3 only",
+   "to_find": "Which file allocation schemes avoid external fragmentation?",
+   "understand": {
+    "plain": "External fragmentation happens when free disk space exists but is scattered in small, non-contiguous chunks too small to satisfy a file allocation request. Contiguous allocation requires a large contiguous free region, so it suffers from external fragmentation. Linked and indexed allocations use individual blocks scattered anywhere on disk, so they never have external fragmentation.",
+    "keywords": [
+     {
+      "term": "External fragmentation",
+      "explain": "Wasted space outside allocated regions — free space exists but is broken into pieces too small to be usable as a whole.",
+      "example": "A disk has 100 free blocks but no 50 consecutive blocks; a 50-block contiguous request fails."
+     },
+     {
+      "term": "Contiguous allocation",
+      "explain": "File blocks occupy a consecutive range of disk blocks; requires finding a large enough free contiguous region.",
+      "example": "A 5-block file must occupy blocks 20-24 or another contiguous run."
+     },
+     {
+      "term": "Linked/Indexed allocation",
+      "explain": "File blocks can be scattered anywhere on disk; each block is reached via a pointer or index, eliminating the need for contiguous space.",
+      "example": "A file's blocks may be at disk positions 5, 42, 17, 91 — scattered, but all reachable via pointers."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='500' height='200' viewBox='0 0 500 200'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><text x='10' y='20' class='tag ink'>Contiguous (external fragmentation possible):</text><rect x='10' y='30' width='40' height='30' class='no' rx='3'/><rect x='52' y='30' width='40' height='30' class='bg' rx='3'/><rect x='94' y='30' width='40' height='30' class='no' rx='3'/><rect x='136' y='30' width='20' height='30' class='bg' rx='3'/><rect x='158' y='30' width='20' height='30' class='bg' rx='3'/><rect x='180' y='30' width='40' height='30' class='no' rx='3'/><text x='52' y='50' class='sub mut' text-anchor='middle'>free</text><text x='150' y='50' class='sub mut' text-anchor='middle'>free</text><text x='250' y='50' class='sub mut'>Small gaps = external fragmentation</text><text x='10' y='100' class='tag ink'>Linked (no external fragmentation):</text><rect x='10' y='110' width='40' height='30' class='ok' rx='3'/><rect x='80' y='110' width='40' height='30' class='ok' rx='3'/><rect x='150' y='110' width='40' height='30' class='ok' rx='3'/><line x1='50' y1='125' x2='80' y2='125' stroke='#1D9E75' stroke-width='2' marker-end='url(#arr)'/><line x1='120' y1='125' x2='150' y2='125' stroke='#1D9E75' stroke-width='2' marker-end='url(#arr)'/><text x='220' y='130' class='sub mut'>Any free block usable</text><text x='10' y='175' class='tag ink'>Indexed: same — any free blocks used via index pointers</text><defs><marker id='arr' markerWidth='8' markerHeight='8' refX='6' refY='3' orient='auto'><path d='M0,0 L0,6 L8,3 z' fill='#1D9E75'/></marker></defs></svg>",
+    "visual_alt": "Top row shows contiguous allocation with small scattered free gaps causing external fragmentation. Bottom rows show linked and indexed allocation where any free block can be used regardless of position."
+   },
+   "given": {
+    "aim": "Identify which allocation schemes (contiguous, linked, indexed) avoid external fragmentation.",
+    "terms": [
+     {
+      "term": "Contiguous allocation",
+      "meaning": "Files stored in consecutive disk blocks; allocation requires a contiguous free region of sufficient size.",
+      "example": "A 4-block file needs blocks 10, 11, 12, 13 to be all free.",
+      "connects": "After files are created and deleted, free space becomes fragmented into non-contiguous pieces — external fragmentation."
+     },
+     {
+      "term": "Linked allocation",
+      "meaning": "Each block of a file contains a pointer to the next block; blocks need not be contiguous.",
+      "example": "File blocks at positions 3, 17, 45 linked by pointers.",
+      "connects": "Any single free block can be used for the next part of a file — no external fragmentation."
+     },
+     {
+      "term": "Indexed allocation",
+      "meaning": "An index block holds pointers to all data blocks of a file; data blocks can be anywhere on disk.",
+      "example": "Index block lists [8, 23, 5, 61] as the data block numbers.",
+      "connects": "Like linked allocation, any free block can be referenced by the index — no external fragmentation."
+     }
+    ],
+    "plan": "Analyze each scheme: Contiguous allocation creates external fragmentation because it requires free blocks to be adjacent. Linked allocation assigns any free block — no requirement for adjacency, so no external fragmentation. Indexed allocation similarly places data blocks anywhere using pointers in the index block — no external fragmentation. Answer: schemes 2 (Linked) and 3 (Indexed) avoid external fragmentation."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Analyze contiguous allocation",
+      "formula_raw": "",
+      "apply": "Contiguous allocation requires finding a run of N consecutive free blocks for an N-block file. After repeated allocations and deletions, free space fragments into small non-contiguous gaps. A large file may not fit even if total free space is sufficient. This is the classic cause of external fragmentation.",
+      "note": "Contiguous allocation CAUSES external fragmentation — it is eliminated from candidates."
+     },
+     {
+      "step": 2,
+      "title": "Analyze linked allocation",
+      "formula_raw": "",
+      "apply": "In linked allocation, each block has a pointer to the next. A new block can be any free block on disk regardless of location. No requirement for contiguous blocks exists, so no external fragmentation arises.",
+      "note": "Linked allocation: no external fragmentation."
+     },
+     {
+      "step": 3,
+      "title": "Analyze indexed allocation",
+      "formula_raw": "",
+      "apply": "In indexed allocation, an index block stores pointers to data blocks. Data blocks can be anywhere on disk. Allocating an additional block simply means adding its address to the index block. No contiguity requirement — no external fragmentation.",
+      "note": "Indexed allocation: no external fragmentation."
+     },
+     {
+      "step": 4,
+      "title": "Select the answer",
+      "formula_raw": "",
+      "apply": "Only schemes 2 (Linked) and 3 (Indexed) avoid external fragmentation. This matches option D.",
+      "note": "Note: both linked and indexed allocations can suffer from internal fragmentation (last block partially filled), but not external fragmentation."
+     }
+    ],
+    "result": "D. 2 and 3 only"
+   },
+   "formula_ids_used": [],
+   "formula_note": "External fragmentation occurs in contiguous allocation (requires adjacent free blocks). Linked and indexed allocations use scattered free blocks via pointers, completely avoiding external fragmentation.",
+   "qid": "7.5.5",
+   "answer_official": "D"
+  }
+ ]
+}

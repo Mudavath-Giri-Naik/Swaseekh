@@ -1,0 +1,189 @@
+{
+ "page": 597,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2018",
+    "year": 2018,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Programming in C",
+    "topic": "Parameter Passing",
+    "subtopic": "Parameter Passing"
+   },
+   "question": "Consider the following C program:\n\n#include<stdio.h>\nvoid fun1(char* s1, char* s2){\n    char* temp;\n    temp = s1;\n    s1 = s2;\n    s2 = temp;\n}\nvoid fun2(char** s1, char** s2){\n    char* temp;\n    temp = *s1;\n    *s1 = *s2;\n    *s2 = temp;\n}\nint main(){\n    char *str1=\"Hi\", *str2 = \"Bye\";\n    fun1(str1, str2); printf(\"%s %s\", str1, str2);\n    fun2(&str1, &str2); printf(\"%s %s\", str1, str2);\n    return 0;\n}\n\nThe output of the program above is:\n\nA. Hi Bye Bye Hi\nB. Hi Bye Hi Bye\nC. Bye Hi Hi Bye\nD. Bye Hi Bye Hi",
+   "answer": "A. Hi Bye Bye Hi",
+   "to_find": "The output printed by the program after calling fun1 (pass-by-value pointer) and fun2 (pass-by-pointer-to-pointer)",
+   "understand": {
+    "plain": "The program has two swap-like functions. fun1 takes char pointers by value: it only swaps its local copies, so str1 and str2 in main are unchanged. fun2 takes char double-pointers: by dereferencing with *, it modifies what str1 and str2 in main actually point to, achieving a real swap. The first printf prints the unchanged values 'Hi Bye'; the second prints the swapped values 'Bye Hi'.",
+    "keywords": [
+     {
+      "term": "pass by value (pointer)",
+      "explain": "When a pointer is passed by value, the function receives a copy of the address. Swapping these copies inside the function does not affect the original pointers in the caller.",
+      "example": "fun1(str1, str2): s1 and s2 are local copies. Swapping s1 and s2 leaves str1 and str2 unchanged in main."
+     },
+     {
+      "term": "pass by pointer-to-pointer (char**)",
+      "explain": "Passing the address of a pointer (char**) allows the function to modify the actual pointer variable in the caller by dereferencing with *.",
+      "example": "fun2(&str1, &str2): *s1 = *s2 writes to the memory location holding str1, redirecting it to what str2 points to."
+     }
+    ],
+    "visual_svg": "<svg width='540' height='220' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect width='540' height='220' rx='8' fill='var(--cell-bg,#F1EFE8)'/><text x='16' y='34' class='lbl ink'>Initial: str1 -&gt; &quot;Hi&quot;    str2 -&gt; &quot;Bye&quot;</text><rect x='8' y='44' width='524' height='60' rx='4' class='bg'/><text x='16' y='66' class='sub mut'>After fun1(str1,str2): swaps local s1,s2 only — no effect on main</text><text x='16' y='92' class='lbl ink'>str1 -&gt; &quot;Hi&quot;    str2 -&gt; &quot;Bye&quot;   (UNCHANGED)</text><text x='16' y='122' class='lbl ok'>printf 1 output:  Hi Bye</text><rect x='8' y='134' width='524' height='60' rx='4' class='hi'/><text x='16' y='156' class='sub mut'>After fun2(&amp;str1,&amp;str2): *s1=*s2 redirects str1 in main</text><text x='16' y='182' class='lbl ink'>str1 -&gt; &quot;Bye&quot;    str2 -&gt; &quot;Hi&quot;   (SWAPPED)</text><text x='16' y='212' class='lbl ok'>printf 2 output:  Bye Hi   =&gt;  Full output:  Hi Bye Bye Hi</text></svg>",
+    "visual_alt": "Diagram showing str1 pointing to 'Hi' and str2 pointing to 'Bye'. After fun1 (pass by value), pointers in main are unchanged and first printf prints 'Hi Bye'. After fun2 (pass by pointer-to-pointer), str1 redirects to 'Bye' and str2 to 'Hi', so second printf prints 'Bye Hi'. Total output: Hi Bye Bye Hi."
+   },
+   "given": {
+    "aim": "Determine the combined output of two printf calls after fun1 (pass-by-value pointer) and fun2 (pass-by-pointer-to-pointer) respectively",
+    "terms": [
+     {
+      "term": "str1 = \"Hi\", str2 = \"Bye\"",
+      "meaning": "char pointers in main, initialized to point at string literals",
+      "example": "str1 holds the memory address of 'H' in 'Hi'",
+      "connects": "These are the variables we track — their values change only if a function writes through a double-pointer"
+     },
+     {
+      "term": "fun1(char* s1, char* s2)",
+      "meaning": "s1 and s2 are local copies of the passed-in pointer values; modifying them has no effect on str1 and str2 in main",
+      "example": "Like photocopying a delivery address and writing a new address on the copy — the original sheet is untouched",
+      "connects": "After fun1 returns, str1 and str2 in main are unchanged: first printf outputs 'Hi Bye'"
+     },
+     {
+      "term": "fun2(char** s1, char** s2)",
+      "meaning": "s1 = &str1 and s2 = &str2; dereferencing (*s1, *s2) directly accesses and modifies str1 and str2 in main",
+      "example": "temp=*s1 saves str1's value; *s1=*s2 sets str1 = old str2; *s2=temp restores str2 = old str1",
+      "connects": "After fun2, str1 points to 'Bye' and str2 points to 'Hi' — true swap; second printf outputs 'Bye Hi'"
+     }
+    ],
+    "plan": "Trace fun1: only local pointer copies are swapped, so first printf outputs 'Hi Bye'. Trace fun2: uses double-pointer dereference to modify str1 and str2 in main, so second printf outputs 'Bye Hi'. Concatenate both printf outputs: 'Hi Bye Bye Hi'."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "After fun1 — pass by value, no change to main's pointers",
+      "formula_raw": "s1 and s2 are local copies; swapping copies does not affect originals",
+      "apply": "fun1(str1, str2): s1 gets a copy of str1 (address of 'Hi'), s2 gets a copy of str2 (address of 'Bye'). Inside fun1: temp=s1, s1=s2, s2=temp swaps the local variables s1 and s2. str1 and str2 in main are never modified. printf(\"%s %s\", str1, str2) prints: Hi Bye",
+      "note": "Pass-by-value: the parameter variable is a copy; assigning to it does not change the caller's variable."
+     },
+     {
+      "step": 2,
+      "title": "After fun2 — pass by pointer-to-pointer, true swap in caller",
+      "formula_raw": "temp=*s1; *s1=*s2; *s2=temp",
+      "apply": "fun2(&str1, &str2): s1 = &str1 (address of the str1 variable in main), s2 = &str2. temp = *s1 = str1 (saves address of 'Hi'). *s1 = *s2: stores str2's value into str1 -> str1 now points to 'Bye'. *s2 = temp: stores old str1 into str2 -> str2 now points to 'Hi'. After return: str1 -> 'Bye', str2 -> 'Hi'. printf(\"%s %s\", str1, str2) prints: Bye Hi",
+      "note": "Double-pointer lets the function write to the caller's pointer variable itself, achieving a real swap of what str1 and str2 point to."
+     },
+     {
+      "step": 3,
+      "title": "Combine both printf outputs",
+      "formula_raw": "",
+      "apply": "First printf outputs 'Hi Bye' and second printf outputs 'Bye Hi'. There is no newline between the two printf calls in main (each printf format string has a space between %s and %s, but no \\n between the two calls). Full output: Hi Bye Bye Hi",
+      "note": "Each printf has format \"%s %s\" (one space between the two strings), and the two printf calls are written back-to-back with no separator."
+     }
+    ],
+    "result": "The output is: Hi Bye Bye Hi — Option A."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Pass-by-value vs. pass-by-pointer in C: a pointer passed by value cannot redirect the caller's pointer; a pointer-to-pointer (char**) allows the function to redirect the caller's pointer variable via double-dereference assignment.",
+   "qid": "9.8.10",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2006",
+    "year": 2006,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Programming in C",
+    "topic": "Parameter Passing",
+    "subtopic": "Parameter Passing"
+   },
+   "question": "Which one of the choices given below would be printed when the following program is executed?\n\n#include <stdio.h>\nvoid swap (int *x, int *y)\n{\n    static int *temp;\n    temp = x;\n    x = y;\n    y = temp;\n}\nvoid printab ()\n{\n    static int i, a = -3, b = -6;\n    i = 0;\n    while (i <= 4)\n    {\n        if ((i++)%2 == 1) continue;\n        a = a + i;\n        b = b + i;\n    }\n    swap (&a, &b);\n    printf(\"a = %d, b = %d\\n\", a, b);\n}\nmain()\n{\n    printab();\n    printab();\n}\n\nA. a = 0, b = 3\n   a = 0, b = 3\nB. a = 3, b = 0\n   a = 3, b = 0\nC. a = 6, b = 3\n   a = 6, b = 3\nD. a = 6, b = 3\n   a = 15, b = 12",
+   "answer": "D. a = 6, b = 3\n   a = 15, b = 12",
+   "to_find": "The output printed by two successive calls to printab() with static variables and an ineffective swap",
+   "understand": {
+    "plain": "The swap function only swaps local pointer variables x and y — it never writes to *x or *y, so a and b are unchanged after calling swap. The while loop uses post-increment (i++): for old i = 0, 2, 4 (even, no skip), the already-incremented i (1, 3, 5) is added to a and b, totaling +9 per call. Since a and b are static, they accumulate across calls. First call: a = -3+9 = 6, b = -6+9 = 3. Second call: a = 6+9 = 15, b = 3+9 = 12.",
+    "keywords": [
+     {
+      "term": "static local variable",
+      "explain": "A static local variable is initialized only once (at program start) and retains its value between successive calls to that function.",
+      "example": "static int a=-3: a is -3 when the program starts; after first call changes it to 6, the second call begins with a=6, not -3."
+     },
+     {
+      "term": "ineffective swap (pointer-variable swap)",
+      "explain": "swap(int *x, int *y) swaps the local pointer variables x and y but never dereferences them to change the integers they point to. The values of a and b in the caller are untouched.",
+      "example": "Correct value swap requires: int t=*x; *x=*y; *y=t. This swap does not do that."
+     },
+     {
+      "term": "post-increment (i++) in condition",
+      "explain": "In (i++)%2: i's old value is used for the % check, then i is incremented. The subsequent a=a+i uses the already-incremented i.",
+      "example": "When i=0: check uses 0 (even, no continue), i becomes 1, then a=a+1. When i=2: check uses 2 (even), i becomes 3, then a=a+3."
+     }
+    ],
+    "visual_svg": "<svg width='560' height='310' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect width='560' height='310' rx='8' fill='var(--cell-bg,#F1EFE8)'/><text x='10' y='28' class='lbl ink'>Loop trace (i reset to 0 each call):</text><text x='10' y='52' class='sub mut'>i=0: (0++)%2=0, no skip; i becomes 1; a+=1, b+=1</text><text x='10' y='72' class='sub mut'>i=1: (1++)%2=1, skip; i becomes 2</text><text x='10' y='92' class='sub mut'>i=2: (2++)%2=0, no skip; i becomes 3; a+=3, b+=3</text><text x='10' y='112' class='sub mut'>i=3: (3++)%2=1, skip; i becomes 4</text><text x='10' y='132' class='sub mut'>i=4: (4++)%2=0, no skip; i becomes 5; a+=5, b+=5</text><text x='10' y='152' class='sub mut'>i=5: while(5&lt;=4) false, exit.  Total added = 1+3+5 = 9</text><rect x='8' y='162' width='544' height='64' rx='4' class='bg'/><text x='16' y='186' class='lbl ink'>Call 1: a starts -3, b starts -6</text><text x='16' y='214' class='lbl ok'>a=-3+9=6, b=-6+9=3; swap no-op; printf: a=6, b=3</text><rect x='8' y='236' width='544' height='64' rx='4' class='hi'/><text x='16' y='260' class='lbl ink'>Call 2: a starts 6 (static), b starts 3 (static)</text><text x='16' y='288' class='lbl ok'>a=6+9=15, b=3+9=12; swap no-op; printf: a=15, b=12</text></svg>",
+    "visual_alt": "Table showing loop iterations: i=0 (no skip, adds 1), i=1 (skip), i=2 (no skip, adds 3), i=3 (skip), i=4 (no skip, adds 5). Total per call = 9. First call: a=-3+9=6, b=-6+9=3. Second call: a=6+9=15, b=3+9=12. Swap is a no-op both times."
+   },
+   "given": {
+    "aim": "Trace two calls to printab() to determine the printed output, given static variables, post-increment loop, and an ineffective pointer-swap",
+    "terms": [
+     {
+      "term": "static int i, a=-3, b=-6",
+      "meaning": "All three are static locals. a and b are initialized to -3 and -6 only once; i is reset each call by the explicit i=0 assignment",
+      "example": "After first call: a=6, b=3, i=5. Second call: i=0 (reset), a=6 (retained), b=3 (retained)",
+      "connects": "Static a and b cause accumulation; the second call adds another 9 on top of first call's result"
+     },
+     {
+      "term": "i = 0 (explicit runtime reset)",
+      "meaning": "Even though i is static, the assignment i=0 inside printab() is executed every time the function is called, resetting i to 0",
+      "example": "i=0 is not the static initializer — it is a statement that runs every call",
+      "connects": "Both calls execute the same loop iterations, each adding +9 to a and b"
+     },
+     {
+      "term": "swap(&a, &b) — ineffective",
+      "meaning": "swap exchanges local pointer variables x and y, not the values *x and *y. a and b in printab are unaffected",
+      "example": "Inside swap: temp=x=&a; x=y=&b; y=temp=&a. Addresses of a and b are shuffled locally. The ints at those addresses are never written.",
+      "connects": "After swap, a and b retain their loop-computed values; the printf prints the loop result directly"
+     }
+    ],
+    "plan": "Trace the loop: post-increment in condition means even old-i (0,2,4) leads to no skip, adding incremented i (1,3,5) to a and b — total +9 per call. Swap is a no-op. First call: a=-3+9=6, b=-6+9=3. Second call starts with a=6, b=3 (static) and adds 9 more: a=15, b=12."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Analyze the while loop with post-increment",
+      "formula_raw": "if ((i++)%2 == 1) continue; a = a + i; b = b + i;",
+      "apply": "Post-increment: (i++) returns old i for the % computation, then increments i. By the time we reach a=a+i, i is already incremented.\n- Old i=0: (0++)%2=0, no skip; i becomes 1; a+=1, b+=1.\n- Old i=1: (1++)%2=1, skip (continue); i becomes 2.\n- Old i=2: (2++)%2=0, no skip; i becomes 3; a+=3, b+=3.\n- Old i=3: (3++)%2=1, skip; i becomes 4.\n- Old i=4: (4++)%2=0, no skip; i becomes 5; a+=5, b+=5.\n- i=5 > 4, exit.\nNet addition to a and b per call: 1+3+5 = 9.",
+      "note": "The effective additions (1, 3, 5) are the post-incremented values of i, not the old values (0, 2, 4)."
+     },
+     {
+      "step": 2,
+      "title": "Confirm swap(&a, &b) is a no-op",
+      "formula_raw": "temp=x; x=y; y=temp (all pointer variables, no dereferencing)",
+      "apply": "swap(&a, &b): x=&a, y=&b. Inside swap: static int *temp; temp=x=&a; x=y=&b; y=temp=&a. This reorders local pointer copies x, y, temp — the actual integer variables a and b at their memory addresses are never written. Result: a and b in printab are unchanged by swap.",
+      "note": "Compare with correct value swap: int t=*x; *x=*y; *y=t. This swap omits the dereference entirely."
+     },
+     {
+      "step": 3,
+      "title": "First call to printab()",
+      "formula_raw": "a = -3 + 9 = 6, b = -6 + 9 = 3",
+      "apply": "i reset to 0. Loop adds 1 then 3 then 5 to a and b:\n  a: -3 -> -2 -> 1 -> 6\n  b: -6 -> -5 -> -2 -> 3\nswap no-op. printf(\"a = %d, b = %d\\n\", a, b) outputs: a = 6, b = 3",
+      "note": "Static a and b are now 6 and 3 and will be used as starting values for the next call."
+     },
+     {
+      "step": 4,
+      "title": "Second call to printab()",
+      "formula_raw": "a = 6 + 9 = 15, b = 3 + 9 = 12",
+      "apply": "i reset to 0 again by the i=0 statement. a=6, b=3 (retained from first call). Same loop runs: adds 1, 3, 5 to each:\n  a: 6 -> 7 -> 10 -> 15\n  b: 3 -> 4 -> 7 -> 12\nswap no-op. printf outputs: a = 15, b = 12",
+      "note": "Because i is explicitly reset but a and b are not, the second call accumulates on top of the first call's result."
+     }
+    ],
+    "result": "First call prints: a = 6, b = 3. Second call prints: a = 15, b = 12."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Static local variables in C retain their values across calls (initialized only once). Post-increment (i++) uses the old value in the expression then increments. Swapping pointer variables (not dereferenced values) is a no-op for the pointed-to integers.",
+   "qid": "9.8.11",
+   "answer_official": "D"
+  }
+ ]
+}

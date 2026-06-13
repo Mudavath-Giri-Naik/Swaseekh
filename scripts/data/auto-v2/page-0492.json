@@ -1,0 +1,204 @@
+{
+ "page": 492,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2016",
+    "year": 2016,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Process Synchronization",
+    "subtopic": "Process Synchronization"
+   },
+   "question": "Consider the following proposed solution for the critical section problem. There are n processes P_0, P_1, ..., P_(n-1). In the code, function pmax returns an integer not smaller than any of its arguments. For all i, t[i] is initialized to zero.\n\nCode for P_i:\ndo {\n  c[i] = 1;\n  t[i] = pmax(t[0], ..., t[n-1]) + 1;\n  c[i] = 0;\n  for every j != i in {0, ..., n-1} {\n    while (c[j]);\n    while (t[j] != 0 && t[j] <= t[i]);\n  }\n  /* Critical Section */\n  t[i] = 0;\n  /* Remainder Section */\n} while (true);\n\nWhich of the following is TRUE about the above solution?\n\nA. At most one process can be in the critical section at any time\nB. The bounded wait condition is satisfied\nC. The progress condition is satisfied\nD. It cannot cause a deadlock",
+   "answer": "A. At most one process can be in the critical section at any time",
+   "to_find": "Which property of the critical section solution holds for this Bakery-like algorithm",
+   "understand": {
+    "plain": "This is a variant of Lamport's Bakery algorithm for mutual exclusion among n processes. Each process picks a ticket number (t[i]) and waits for all processes with smaller ticket numbers to finish. The question asks which of the four classical properties (mutual exclusion, bounded waiting, progress, no deadlock) is guaranteed.",
+    "keywords": [
+     {
+      "term": "Mutual Exclusion",
+      "explain": "At most one process can be in the critical section at any time",
+      "example": "If P0 and P1 both want to enter, only one can proceed at a time"
+     },
+     {
+      "term": "Bounded Waiting",
+      "explain": "A process requesting entry must be guaranteed to enter after a bounded number of other processes have entered",
+      "example": "If P0 is waiting, at most n-1 other processes can enter before P0"
+     },
+     {
+      "term": "Progress",
+      "explain": "If no process is in the critical section and some wish to enter, only those not in remainder section participate in deciding who enters next",
+      "example": "An idle process in remainder section cannot block others from entering"
+     },
+     {
+      "term": "pmax",
+      "explain": "Function returning the maximum of its arguments; used to pick a ticket number one higher than all current tickets",
+      "example": "If t = [3, 5, 2], pmax(t[0],t[1],t[2]) = 5, so the new ticket = 6"
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 520 260' width='520' height='260'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect width='520' height='260' rx='10' fill='#F8F7F3'/><rect x='10' y='10' width='240' height='240' rx='8' class='bg'/><rect x='270' y='10' width='240' height='240' rx='8' class='bg'/><text x='130' y='38' class='lbl ink' text-anchor='middle'>P_i (picks ticket)</text><text x='390' y='38' class='lbl ink' text-anchor='middle'>P_j (waiting/in CS)</text><rect x='30' y='50' width='200' height='36' rx='4' class='hi'/><text x='130' y='74' class='sub ink' text-anchor='middle'>c[i]=1; t[i]=pmax(...)+1; c[i]=0</text><rect x='30' y='96' width='200' height='36' rx='4' class='bg'/><text x='130' y='120' class='sub ink' text-anchor='middle'>while(c[j]); // wait choosing</text><rect x='30' y='142' width='200' height='36' rx='4' class='bg'/><text x='130' y='166' class='sub ink' text-anchor='middle'>while(t[j]!=0 &amp;&amp; t[j]&lt;=t[i]);</text><rect x='30' y='188' width='200' height='50' rx='4' fill='#D4EDDA' stroke='#1D9E75' stroke-width='2'/><text x='130' y='219' class='sub ink' text-anchor='middle'>Critical Section</text><text x='390' y='120' class='sub mut' text-anchor='middle'>t[j] = smaller ticket</text><text x='390' y='150' class='sub mut' text-anchor='middle'>or already in CS</text><text x='390' y='180' class='sub ink' text-anchor='middle'>=> P_i must wait</text><text x='390' y='210' class='sub ink' text-anchor='middle'>=> only one in CS</text></svg>",
+    "visual_alt": "Two processes P_i and P_j. P_i picks a ticket number using pmax, then waits while c[j] is set (j is still choosing) and while t[j] is smaller or equal. This ensures only one process with the minimum ticket enters the critical section."
+   },
+   "given": {
+    "aim": "Determine which property (mutual exclusion, bounded waiting, progress, no deadlock) is correctly guaranteed by this algorithm",
+    "terms": [
+     {
+      "term": "c[i]",
+      "meaning": "Choosing flag: set to 1 while process i is computing its ticket number",
+      "example": "c[i]=1 means P_i is in the middle of picking t[i]",
+      "connects": "Other processes wait for c[j]=0 before comparing tickets, preventing races during ticket selection"
+     },
+     {
+      "term": "t[i]",
+      "meaning": "Ticket number of process i; initialized to 0, set to pmax+1 when entering, reset to 0 on exit",
+      "example": "If t = [0,3,5], process 2 has the highest ticket and waits for process 1",
+      "connects": "Ordering by ticket determines who enters the critical section first"
+     },
+     {
+      "term": "while (t[j] != 0 && t[j] <= t[i])",
+      "meaning": "P_i waits if P_j has a ticket AND its ticket is <= P_i's ticket",
+      "example": "t[j]=3, t[i]=5 => P_i waits for P_j",
+      "connects": "This creates the priority ordering; the process with the smallest non-zero ticket proceeds"
+     },
+     {
+      "term": "pmax",
+      "meaning": "Returns the maximum of all current ticket values (not necessarily the true max due to races)",
+      "example": "Two processes may read the same max and get the same ticket number",
+      "connects": "Ties in ticket numbers are possible, which breaks bounded waiting and could affect other properties"
+     }
+    ],
+    "plan": "Check each option: (A) mutual exclusion — analyze if two processes can have t[i]=t[j] and both enter. (B) bounded waiting — check if ticket uniqueness is guaranteed. (C) progress — check if a process in remainder can block others. (D) deadlock — check if circular waiting is possible."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Check Mutual Exclusion (Option A)",
+      "formula_raw": "If t[i] < t[j], then P_i enters first; P_j waits at while(t[j]!=0 && t[j]<=t[i])",
+      "apply": "Suppose two processes P_i and P_j are both trying to enter. For both to be in the CS simultaneously, neither should be blocked. P_i checks 'while(t[j]!=0 && t[j]<=t[i])' and P_j checks 'while(t[i]!=0 && t[i]<=t[j])'. For both to pass: t[i] > t[j] (P_i passes) AND t[j] > t[i] (P_j passes) — which is a contradiction. Even if t[i]==t[j] (tie), at most one can have a strictly smaller index in a tiebreak... BUT this algorithm does NOT have an index-based tiebreak — the condition is t[j] <= t[i] (not strict <). So if t[i]=t[j], both processes could pass each other's while loop. However, pmax is not atomic, so two processes can read the same maximum and compute the same ticket. In that case, both processes see t[j]==t[i] > 0, so 'while(t[j]!=0 && t[j]<=t[i])' is TRUE and they both wait for each other — causing a deadlock, not simultaneous entry. Re-examining: if t[i]=t[j]=k>0, then for P_i: while(t[j]!=0 && t[j]<=t[i]) => while(k!=0 && k<=k) => while(true) — P_i waits forever for P_j, and P_j waits for P_i. Actually this means mutual exclusion IS maintained (they cannot both be in CS), but there could be a deadlock. Among A,B,C,D, option A (mutual exclusion) is satisfied because the wait condition prevents simultaneous entry.",
+      "note": "The algorithm guarantees at most one process in CS at a time — even in tie cases, a deadlock occurs rather than both entering. So A is TRUE."
+     },
+     {
+      "step": 2,
+      "title": "Check Bounded Waiting (Option B)",
+      "formula_raw": "Bounded waiting requires a fixed bound on how many times others can enter before a waiting process",
+      "apply": "Since pmax is non-atomic, two processes can pick the same ticket number. If t[i]=t[j], the while loop becomes an infinite wait for both (deadlock). A process may never enter the CS. So bounded waiting is NOT guaranteed.",
+      "note": "Ties in ticket numbers (due to non-atomic pmax) can cause permanent blocking, violating bounded waiting."
+     },
+     {
+      "step": 3,
+      "title": "Check Progress and No-Deadlock (Options C and D)",
+      "formula_raw": "Progress: processes not in remainder section decide entry; No deadlock: no circular wait forever",
+      "apply": "Progress: In the worst case with equal tickets, a deadlock can occur — processes that want to enter keep waiting for each other, so no process enters the CS. This violates progress. No deadlock (Option D): As shown above, ties cause deadlock. So D is also FALSE. Only A (mutual exclusion) is guaranteed.",
+      "note": "The key flaw is that pmax is not atomic — concurrent reads can yield identical ticket numbers, leading to deadlock."
+     }
+    ],
+    "result": "At most one process can be in the critical section at any time (Option A is TRUE). Mutual exclusion is preserved because the wait condition prevents two processes from simultaneously entering, even if ties in ticket numbers cause deadlock instead."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Lamport's Bakery Algorithm variant: ticket-based mutual exclusion using pmax for ticket selection. The non-atomic nature of pmax means ties are possible, breaking bounded-waiting and progress, but mutual exclusion (Option A) is still guaranteed.",
+   "qid": "7.20.40",
+   "answer_official": "D"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2016",
+    "year": 2016,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Process Synchronization",
+    "subtopic": "Process Synchronization"
+   },
+   "question": "Consider the following two-process synchronization solution.\n\nPROCESS 0\nEntry: loop while (turn == 1);\n       (critical section)\nExit:  turn = 1;\n\nProcess 1\nEntry: loop while (turn == 0);\n       (critical section)\nExit:  turn = 0;\n\nThe shared variable turn is initialized to zero. Which one of the following is TRUE?\n\nA. This is a correct two-process synchronization solution.\nB. The bounded wait condition is violated.\nC. The progress requirement is violated.\nD. The mutual exclusion requirement is violated.",
+   "answer": "C. The progress requirement is violated.",
+   "to_find": "Which correctness condition is violated by this two-process synchronization solution",
+   "understand": {
+    "plain": "Two processes share a variable 'turn' initialized to 0. Process 0 can enter the critical section only when turn != 1 (i.e., turn == 0), and Process 1 can enter only when turn != 0 (i.e., turn == 1). After exiting, each process sets turn to the OTHER process's value, forcing the other to go next. The question asks which property is violated.",
+    "keywords": [
+     {
+      "term": "Progress",
+      "explain": "If no process is in the critical section and some processes want to enter, then the selection of the next process cannot be postponed indefinitely and must not involve processes in their remainder sections",
+      "example": "If P0 is in its remainder section forever, P1 must still be able to enter the CS"
+     },
+     {
+      "term": "Mutual Exclusion",
+      "explain": "Only one process can be in the critical section at any given time",
+      "example": "P0 and P1 cannot both be executing their critical section simultaneously"
+     },
+     {
+      "term": "Bounded Waiting",
+      "explain": "After a process requests entry, there is a bound on how many times other processes can enter before it",
+      "example": "P0 waits at most once for P1 to enter and exit before P0 can enter"
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 540 220' width='540' height='220'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect width='540' height='220' rx='10' fill='#F8F7F3'/><rect x='10' y='10' width='240' height='200' rx='8' class='bg'/><rect x='290' y='10' width='240' height='200' rx='bg'/><rect x='290' y='10' width='240' height='200' rx='8' class='bg'/><text x='130' y='36' class='lbl ink' text-anchor='middle'>PROCESS 0</text><text x='410' y='36' class='lbl ink' text-anchor='middle'>PROCESS 1</text><rect x='25' y='48' width='210' height='32' rx='4' class='hi'/><text x='130' y='70' class='sub ink' text-anchor='middle'>Entry: while(turn==1);</text><rect x='25' y='86' width='210' height='32' rx='4' fill='#D4EDDA' stroke='#1D9E75' stroke-width='2'/><text x='130' y='108' class='sub ink' text-anchor='middle'>Critical Section</text><rect x='25' y='124' width='210' height='32' rx='4' class='bg'/><text x='130' y='146' class='sub ink' text-anchor='middle'>Exit: turn = 1;</text><rect x='305' y='48' width='210' height='32' rx='4' class='hi'/><text x='410' y='70' class='sub ink' text-anchor='middle'>Entry: while(turn==0);</text><rect x='305' y='86' width='210' height='32' rx='4' fill='#D4EDDA' stroke='#1D9E75' stroke-width='2'/><text x='410' y='108' class='sub ink' text-anchor='middle'>Critical Section</text><rect x='305' y='124' width='210' height='32' rx='4' class='bg'/><text x='410' y='146' class='sub ink' text-anchor='middle'>Exit: turn = 0;</text><text x='270' y='190' class='sub mut' text-anchor='middle'>turn=0: Only P0 can enter | turn=1: Only P1 can enter</text></svg>",
+    "visual_alt": "Process 0 loops while turn==1 (can enter only when turn==0). Process 1 loops while turn==0 (can enter only when turn==1). After CS, each sets turn to the other process's value, enforcing strict alternation."
+   },
+   "given": {
+    "aim": "Identify which critical section requirement (mutual exclusion, progress, bounded waiting) is violated by this strict alternation solution",
+    "terms": [
+     {
+      "term": "turn (initialized to 0)",
+      "meaning": "Shared variable that determines whose turn it is to enter the critical section",
+      "example": "turn=0 means Process 0 can enter; turn=1 means Process 1 can enter",
+      "connects": "Controls access but forces strict alternation between processes"
+     },
+     {
+      "term": "Entry for Process 0: while(turn==1)",
+      "meaning": "Process 0 busy-waits as long as turn is 1, entering only when turn becomes 0",
+      "example": "If turn=0 initially, P0 enters immediately; if turn=1, P0 spins",
+      "connects": "Process 0 CANNOT enter if turn=1, even if Process 1 is in its remainder section"
+     },
+     {
+      "term": "Exit sets turn to other process",
+      "meaning": "After CS, Process 0 sets turn=1 (giving control to P1), and Process 1 sets turn=0",
+      "example": "P0 finishes CS, sets turn=1; now P1 can enter, P0 cannot re-enter until P1 completes",
+      "connects": "Forces strict alternation: P0, P1, P0, P1, ... regardless of which process wants to run"
+     },
+     {
+      "term": "Strict Alternation Flaw",
+      "meaning": "If one process never wants to enter its CS (stays in remainder forever), the other is blocked",
+      "example": "turn=1 but P1 never wants to enter CS; P0 loops forever at while(turn==1)",
+      "connects": "This is the classic violation of the progress requirement"
+     }
+    ],
+    "plan": "Check mutual exclusion: can both enter simultaneously? Check progress: can a process in remainder prevent another from entering? Check bounded waiting: is there a finite bound on waiting turns?"
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Verify Mutual Exclusion",
+      "formula_raw": "P0 enters iff turn==0; P1 enters iff turn==1; turn cannot be both 0 and 1",
+      "apply": "turn is a single variable and can only be 0 or 1. P0 requires turn==0 to enter, P1 requires turn==1. Since turn cannot equal both 0 and 1 simultaneously, both processes cannot be in the critical section at the same time. Mutual exclusion IS satisfied.",
+      "note": "This solution correctly ensures that only one process is in the CS at a time."
+     },
+     {
+      "step": 2,
+      "title": "Check Progress Requirement",
+      "formula_raw": "Progress: if no process is in CS and P_i wants to enter, P_i must eventually enter",
+      "apply": "Scenario: turn=1 initially, and Process 1 never wants to enter its critical section (it stays in the remainder section permanently). Process 0 wants to enter: it executes 'while(turn==1)' and loops forever. Process 1 never sets turn=0 because it never enters or exits the CS. Result: Process 0 is stuck waiting even though the CS is free and Process 1 is not trying to enter. This directly violates the progress requirement — a process in the remainder section (P1) is blocking another process (P0) that wants to enter.",
+      "note": "The strict alternation enforced by this solution means a process cannot enter twice in a row, even if the other has no interest in entering."
+     },
+     {
+      "step": 3,
+      "title": "Check Bounded Waiting",
+      "formula_raw": "Bounded waiting: a process waits at most k times before entering",
+      "apply": "Since progress is already violated (P0 may wait infinitely), bounded waiting is effectively also violated in the worst case. However, the primary and most direct violation identified is the progress condition. Between the two options C (progress) and the actual behavior, Option C is the correct answer as stated in the GATE 2016 answer key.",
+      "note": "The root cause is strict alternation: turn can only change when the 'other' process completes its CS, so if that process never enters, the waiting process is blocked forever."
+     }
+    ],
+    "result": "The progress requirement is violated (Option C). If turn=1 and Process 1 never executes its critical section, Process 0 is permanently blocked even though the critical section is free."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Strict Alternation synchronization: uses a single 'turn' variable to enforce alternating CS access, which satisfies mutual exclusion but violates progress (a process in remainder can block another from entering).",
+   "qid": "7.20.41",
+   "answer_official": "C"
+  }
+ ]
+}

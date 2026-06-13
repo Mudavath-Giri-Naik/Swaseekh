@@ -1,0 +1,304 @@
+{
+ "page": 482,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 1999",
+    "year": 1999,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Process Synchronization",
+    "subtopic": "Process Synchronization"
+   },
+   "question": "Consider the following solution to the producer-consumer problem using a buffer of size 1. Assume that the initial value of count is 0. Also assume that the testing of count and assignment to count are atomic operations.\n\nProducer:\nRepeat\n  Produce an item;\n  if count = 1 then sleep;\n  place item in buffer;\n  count = 1;\n  Wakeup(Consumer);\nForever\n\nConsumer:\nRepeat\n  if count = 0 then sleep;\n  Remove item from buffer;\n  count = 0;\n  Wakeup(Producer);\n  Consume item;\nForever\n\nShow that in this solution it is possible that both the processes are sleeping at the same time.\n\nA. Yes, both processes can sleep simultaneously due to a race condition\nB. No, the atomic test-and-assign prevents both from sleeping\nC. Only the producer can sleep\nD. Only the consumer can sleep",
+   "answer": "A. Yes, both processes can sleep simultaneously due to a race condition",
+   "to_find": "Whether both producer and consumer can be sleeping at the same time",
+   "understand": {
+    "plain": "We have a producer-consumer system sharing a buffer of size 1. The variable count tracks whether the buffer is full (1) or empty (0). The question asks if a race condition can cause both processes to be asleep simultaneously, leading to a deadlock-like situation.",
+    "keywords": [
+     {
+      "term": "Race condition",
+      "explain": "A situation where the outcome depends on the interleaving of operations from multiple concurrent processes",
+      "example": "Process A checks a flag and before acting, Process B changes it, causing A to act on stale data"
+     },
+     {
+      "term": "Wakeup signal",
+      "explain": "A signal sent to wake a sleeping process; if the target is not yet asleep when the signal arrives, the signal is lost",
+      "example": "Producer calls Wakeup(Consumer) but consumer has not yet called sleep, so the wakeup is lost"
+     },
+     {
+      "term": "count",
+      "explain": "A shared variable indicating buffer state: 0 = empty, 1 = full",
+      "example": "If count = 0, the consumer sleeps waiting for the producer to fill the buffer"
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='520' height='220'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='220' height='190' class='bg' rx='8'/><text x='120' y='35' text-anchor='middle' class='lbl ink'>Producer</text><text x='120' y='58' text-anchor='middle' class='sub ink'>count = 1? sleep</text><text x='120' y='80' text-anchor='middle' class='sub ink'>place item in buffer</text><text x='120' y='102' text-anchor='middle' class='sub ink'>count = 1</text><text x='120' y='124' text-anchor='middle' class='sub ink'>Wakeup(Consumer)</text><rect x='290' y='10' width='220' height='190' class='bg' rx='8'/><text x='400' y='35' text-anchor='middle' class='lbl ink'>Consumer</text><text x='400' y='58' text-anchor='middle' class='sub ink'>count = 0? sleep</text><text x='400' y='80' text-anchor='middle' class='sub ink'>remove from buffer</text><text x='400' y='102' text-anchor='middle' class='sub ink'>count = 0</text><text x='400' y='124' text-anchor='middle' class='sub ink'>Wakeup(Producer)</text><rect x='160' y='150' width='200' height='40' class='hi' rx='6'/><text x='260' y='175' text-anchor='middle' class='tag ink'>Buffer (size 1)</text></svg>",
+    "visual_alt": "Producer and Consumer sharing a buffer of size 1, coordinated via count variable and Wakeup signals"
+   },
+   "given": {
+    "aim": "Determine if both producer and consumer can simultaneously be in the sleep state",
+    "terms": [
+     {
+      "term": "count = 0",
+      "meaning": "Buffer is empty; consumer will sleep if it sees this",
+      "example": "Initially count = 0, so consumer sleeps immediately",
+      "connects": "Consumer checks count before sleeping"
+     },
+     {
+      "term": "count = 1",
+      "meaning": "Buffer is full; producer will sleep if it sees this",
+      "example": "After producer places item, count = 1",
+      "connects": "Producer checks count before sleeping"
+     },
+     {
+      "term": "Lost wakeup",
+      "meaning": "A Wakeup call sent to a process that is not yet sleeping is ignored/lost",
+      "example": "If consumer calls Wakeup(Producer) before producer checks count=1, the wakeup is lost",
+      "connects": "This is the root cause of both processes sleeping"
+     },
+     {
+      "term": "Atomic test-and-assign",
+      "meaning": "The read and write of count are individually atomic but not together with sleep",
+      "example": "Between checking count=0 and executing sleep, a context switch can occur",
+      "connects": "The gap between check and sleep enables the race condition"
+     }
+    ],
+    "plan": "Construct an execution trace (interleaving) where the consumer reads count=0, gets preempted before sleeping, the producer produces and sends Wakeup (which is lost since consumer isn't sleeping yet), producer then sets count=1, and then checks count=1 so it sleeps; now consumer resumes and sleeps too. Both are now sleeping."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Initial state: count = 0, buffer empty, both running",
+      "formula_raw": "count = 0",
+      "apply": "Initially count = 0. The consumer enters its loop, checks 'if count = 0' — this is TRUE, so it is about to execute sleep.",
+      "note": "The consumer has not yet called sleep; it is between the test and the sleep call."
+     },
+     {
+      "step": 2,
+      "title": "Context switch: Producer runs",
+      "formula_raw": "",
+      "apply": "Before the consumer calls sleep, a context switch occurs. The producer produces an item, checks 'if count = 1' — count is 0, so it does NOT sleep. It places the item in the buffer, sets count = 1, and calls Wakeup(Consumer). Since the consumer is NOT sleeping yet, this Wakeup signal is LOST.",
+      "note": "This is the critical race: the wakeup is sent before the consumer is actually asleep."
+     },
+     {
+      "step": 3,
+      "title": "Producer checks its own loop condition",
+      "formula_raw": "count = 1",
+      "apply": "The producer loops again. It tries to produce another item but first checks 'if count = 1'. count IS 1 (buffer full), so the producer calls sleep. The producer is now sleeping.",
+      "note": "Producer is sleeping because buffer is full and no one is consuming."
+     },
+     {
+      "step": 4,
+      "title": "Consumer resumes and also sleeps",
+      "formula_raw": "count = 0 was checked but is now stale",
+      "apply": "The consumer resumes from where it was interrupted — right before calling sleep. It had already checked count = 0 (now stale, but checks are not re-evaluated). The consumer calls sleep. Now BOTH producer and consumer are sleeping.",
+      "note": "Both are asleep: producer waiting for buffer to be consumed, consumer waiting for item to be placed — deadlock."
+     }
+    ],
+    "result": "Yes, both processes can sleep simultaneously. The lost wakeup problem causes this: when consumer checks count=0 and is about to sleep, producer sends Wakeup (which is lost), then producer sleeps because count=1. Consumer then completes its sleep call. Both are stuck sleeping — this is Option A."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Lost Wakeup problem in producer-consumer synchronization: a wakeup signal sent to a non-sleeping process is lost, leading to both processes sleeping indefinitely.",
+   "qid": "7.20.17",
+   "answer_official": "N/A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2000",
+    "year": 2000,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Process Synchronization",
+    "subtopic": "Process Synchronization"
+   },
+   "question": "Let m[0], ..., m[3] be mutexes (binary semaphores) and P[0], ..., P[3] be processes. Suppose each process P[i] executes the following:\n\nwait(m[i]); wait(m[(i+1) mod 4]);\n...........\nrelease(m[i]); release(m[(i+1) mod 4]);\n\nThis could cause:\nA. Thrashing\nB. Deadlock\nC. Starvation, but not deadlock\nD. None of the above",
+   "answer": "B. Deadlock",
+   "to_find": "What problem the given mutex acquisition pattern can cause",
+   "understand": {
+    "plain": "Four processes each try to acquire two mutexes in a circular order: P[0] acquires m[0] then m[1], P[1] acquires m[1] then m[2], P[2] acquires m[2] then m[3], and P[3] acquires m[3] then m[0]. This forms a circular wait, which is one of the four conditions for deadlock.",
+    "keywords": [
+     {
+      "term": "Deadlock",
+      "explain": "A state where a set of processes are each waiting for a resource held by another process in the set, creating a circular dependency",
+      "example": "Process A holds lock L1 and waits for L2; Process B holds L2 and waits for L1 — neither can proceed"
+     },
+     {
+      "term": "Circular wait",
+      "explain": "One of the four Coffman conditions for deadlock; a cycle exists in the resource-allocation graph",
+      "example": "P0 -> m1 (needs) -> P1 -> m2 (needs) -> P2 -> m3 (needs) -> P3 -> m0 (needs) -> P0"
+     },
+     {
+      "term": "Binary semaphore (mutex)",
+      "explain": "A semaphore with only two values (0 and 1) used to enforce mutual exclusion",
+      "example": "Only one process can hold mutex m[i] at a time"
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='420' height='320'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><circle cx='210' cy='60' r='28' class='hi'/><text x='210' y='65' text-anchor='middle' class='lbl ink'>P0</text><circle cx='360' cy='160' r='28' class='hi'/><text x='360' y='165' text-anchor='middle' class='lbl ink'>P1</text><circle cx='210' cy='260' r='28' class='hi'/><text x='210' y='265' text-anchor='middle' class='lbl ink'>P2</text><circle cx='60' cy='160' r='28' class='hi'/><text x='60' y='165' text-anchor='middle' class='lbl ink'>P3</text><rect x='270' y='45' width='50' height='30' class='bg' rx='4'/><text x='295' y='65' text-anchor='middle' class='sub ink'>m[1]</text><rect x='325' y='195' width='50' height='30' class='bg' rx='4'/><text x='350' y='215' text-anchor='middle' class='sub ink'>m[2]</text><rect x='100' y='245' width='50' height='30' class='bg' rx='4'/><text x='125' y='265' text-anchor='middle' class='sub ink'>m[3]</text><rect x='45' y='100' width='50' height='30' class='bg' rx='4'/><text x='70' y='120' text-anchor='middle' class='sub ink'>m[0]</text><line x1='238' y1='73' x2='270' y2='55' stroke='#D85A30' stroke-width='2' marker-end='url(#arr)'/><line x1='332' y1='175' x2='325' y2='200' stroke='#D85A30' stroke-width='2' marker-end='url(#arr)'/><line x1='182' y1='247' x2='150' y2='255' stroke='#D85A30' stroke-width='2' marker-end='url(#arr)'/><line x1='88' y1='148' x2='85' y2='130' stroke='#D85A30' stroke-width='2' marker-end='url(#arr)'/><defs><marker id='arr' markerWidth='8' markerHeight='8' refX='4' refY='4' orient='auto'><path d='M0,0 L8,4 L0,8 Z' fill='#D85A30'/></marker></defs><text x='210' y='155' text-anchor='middle' class='tag ink'>Circular</text><text x='210' y='175' text-anchor='middle' class='tag ink'>Wait</text></svg>",
+    "visual_alt": "Four processes P0-P3 in a circular wait: each holds one mutex and waits for the next one in the ring, forming a deadlock cycle"
+   },
+   "given": {
+    "aim": "Identify whether the circular mutex acquisition pattern leads to deadlock, starvation, thrashing, or none",
+    "terms": [
+     {
+      "term": "P[i] acquires m[i] then m[(i+1) mod 4]",
+      "meaning": "Each process needs two adjacent mutexes in a circular arrangement",
+      "example": "P[0]: acquires m[0], then needs m[1]; P[3]: acquires m[3], then needs m[0]",
+      "connects": "Circular resource dependency among all four processes"
+     },
+     {
+      "term": "Coffman conditions for deadlock",
+      "meaning": "Mutual exclusion, Hold and Wait, No preemption, Circular wait — all four must hold",
+      "example": "Here: mutexes are exclusive; each P holds one and waits for another; no preemption; circular wait exists",
+      "connects": "All four conditions are satisfied, confirming deadlock possibility"
+     },
+     {
+      "term": "Circular wait scenario",
+      "meaning": "If each P[i] acquires m[i] before being preempted, the situation becomes: P0 holds m[0] needs m[1]; P1 holds m[1] needs m[2]; P2 holds m[2] needs m[3]; P3 holds m[3] needs m[0]",
+      "example": "P0 -> m[1] (blocked by P1); P1 -> m[2] (blocked by P2); P2 -> m[3] (blocked by P3); P3 -> m[0] (blocked by P0)",
+      "connects": "This is a classic circular wait leading to deadlock"
+     }
+    ],
+    "plan": "Check all four Coffman conditions: mutual exclusion (yes, binary semaphores), hold-and-wait (each process holds one mutex while waiting for the second), no preemption (mutexes are not preempted), circular wait (the mod-4 pattern creates a ring). All conditions are met, so deadlock is possible."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Identify the resource acquisition pattern",
+      "formula_raw": "P[i]: wait(m[i]); wait(m[(i+1) mod 4])",
+      "apply": "P[0] acquires m[0], then m[1]. P[1] acquires m[1], then m[2]. P[2] acquires m[2], then m[3]. P[3] acquires m[3], then m[0]. This is a circular chain of mutex dependencies.",
+      "note": "The mod 4 ensures the last process (P3) wraps around to need m[0], closing the cycle."
+     },
+     {
+      "step": 2,
+      "title": "Construct a deadlock scenario",
+      "formula_raw": "",
+      "apply": "Suppose each P[i] successfully acquires m[i] (first wait succeeds for all). Now: P[0] holds m[0], waiting for m[1]. P[1] holds m[1], waiting for m[2]. P[2] holds m[2], waiting for m[3]. P[3] holds m[3], waiting for m[0]. Each process is waiting for the mutex held by the next process — a circular wait.",
+      "note": "This is a valid interleaving that the OS scheduler could produce."
+     },
+     {
+      "step": 3,
+      "title": "Verify all four Coffman conditions",
+      "formula_raw": "Deadlock iff: Mutual Exclusion AND Hold & Wait AND No Preemption AND Circular Wait",
+      "apply": "1) Mutual Exclusion: binary semaphores ensure only one process holds a mutex at a time. 2) Hold & Wait: each process holds one mutex while waiting for the second. 3) No Preemption: mutexes cannot be forcibly taken away. 4) Circular Wait: P0->m1->P1->m2->P2->m3->P3->m0->P0. All four conditions hold.",
+      "note": "This is NOT just starvation — it is a hard deadlock with no progress possible without external intervention."
+     }
+    ],
+    "result": "Deadlock (Option B). The circular mutex acquisition pattern satisfies all four Coffman conditions, making deadlock possible."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Coffman's four necessary conditions for deadlock: Mutual Exclusion, Hold-and-Wait, No Preemption, and Circular Wait. The mod-4 circular pattern directly creates circular wait.",
+   "qid": "7.20.18",
+   "answer_official": "N/A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2000",
+    "year": 2000,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Process Synchronization",
+    "subtopic": "Process Synchronization"
+   },
+   "question": "Fill in the boxes below to get a solution for the reader-writer problem, using a single binary semaphore, mutex (initialized to 1) and busy waiting. The solution uses variables: int readcount = 0; semaphore mutex = 1;\n\nReader:\nL1: wait(mutex);\n    readcount = readcount + 1;\n    if (readcount == 1) then wait(mutex);  [Box 1]\n    signal(mutex);\n    do the read;\n    wait(mutex);\n    readcount = readcount - 1;\n    if (readcount == 0) then signal(mutex); [Box 2]\n    signal(mutex);\n\nWriter:\nL2: wait(mutex);  [Box 3]\n    do the write;\n    signal(mutex);\n\nb. Can the above solution lead to starvation of writers?\n\nA. Box 1: wait(mutex); Box 2: signal(mutex); Box 3: wait(mutex); starvation of writers is possible\nB. Box 1: signal(mutex); Box 2: signal(mutex); Box 3: wait(mutex); starvation is not possible\nC. Box 1: wait(mutex); Box 2: wait(mutex); Box 3: signal(mutex); starvation is not possible\nD. Box 1: signal(mutex); Box 2: wait(mutex); Box 3: signal(mutex); starvation of writers is possible",
+   "answer": "A. Box 1: wait(mutex); Box 2: signal(mutex); Box 3: wait(mutex); starvation of writers is possible",
+   "to_find": "The correct values for Box 1, Box 2, Box 3 in the reader-writer solution, and whether writers can starve",
+   "understand": {
+    "plain": "The reader-writer problem uses one binary semaphore (mutex) and a readcount variable. Readers acquire mutex only when they are the first reader (to block writers) and release it when the last reader leaves. Writers need mutex for the entire duration. The question asks for the missing operations in boxes 1, 2, and 3, and whether this design can starve writers.",
+    "keywords": [
+     {
+      "term": "Reader-Writer Problem",
+      "explain": "A classic synchronization problem where multiple readers can access data simultaneously but writers need exclusive access",
+      "example": "Multiple processes can read a database concurrently, but only one process can write at a time"
+     },
+     {
+      "term": "Starvation of writers",
+      "explain": "Writers may wait indefinitely if a continuous stream of readers keeps arriving, preventing the writer from ever getting exclusive access",
+      "example": "If readers always have readcount >= 1, the mutex is never released, and writers wait forever"
+     },
+     {
+      "term": "Binary semaphore (mutex)",
+      "explain": "Used here both for protecting readcount and for blocking writers when readers are present",
+      "example": "First reader does wait(mutex) to grab the write-lock; last reader does signal(mutex) to release it"
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='480' height='260'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='200' height='230' class='bg' rx='8'/><text x='110' y='35' text-anchor='middle' class='lbl ink'>Reader</text><text x='110' y='58' text-anchor='middle' class='sub ink'>wait(mutex)</text><text x='110' y='78' text-anchor='middle' class='sub ink'>readcount++</text><rect x='30' y='85' width='160' height='28' class='hi' rx='4'/><text x='110' y='103' text-anchor='middle' class='tag ink'>if rc==1: wait(mutex) [1]</text><text x='110' y='128' text-anchor='middle' class='sub ink'>signal(mutex)</text><text x='110' y='148' text-anchor='middle' class='sub ink'>READ</text><text x='110' y='168' text-anchor='middle' class='sub ink'>wait(mutex)</text><text x='110' y='188' text-anchor='middle' class='sub ink'>readcount--</text><rect x='30' y='195' width='160' height='28' class='hi' rx='4'/><text x='110' y='213' text-anchor='middle' class='tag ink'>if rc==0: signal(mutex) [2]</text><rect x='270' y='70' width='190' height='130' class='bg' rx='8'/><text x='365' y='95' text-anchor='middle' class='lbl ink'>Writer</text><rect x='290' y='100' width='150' height='28' class='hi' rx='4'/><text x='365' y='118' text-anchor='middle' class='tag ink'>wait(mutex) [3]</text><text x='365' y='148' text-anchor='middle' class='sub ink'>WRITE</text><text x='365' y='168' text-anchor='middle' class='sub ink'>signal(mutex)</text></svg>",
+    "visual_alt": "Reader-Writer solution: readers use readcount to track concurrent readers; first reader acquires write-lock (Box 1), last reader releases it (Box 2); writer acquires write-lock directly (Box 3)"
+   },
+   "given": {
+    "aim": "Fill in the three missing synchronization operations (Boxes 1, 2, 3) and determine if writer starvation is possible",
+    "terms": [
+     {
+      "term": "Box 1 (first reader entry)",
+      "meaning": "When the first reader arrives (readcount becomes 1), it must acquire the write-lock to prevent writers from entering",
+      "example": "if (readcount == 1) then wait(mutex) — this blocks any writer that might try to acquire mutex",
+      "connects": "Ensures writers cannot enter while any reader is active"
+     },
+     {
+      "term": "Box 2 (last reader exit)",
+      "meaning": "When the last reader leaves (readcount becomes 0), it must release the write-lock to allow writers to proceed",
+      "example": "if (readcount == 0) then signal(mutex) — this unblocks a waiting writer",
+      "connects": "Releases the write-lock so writers get a chance to proceed"
+     },
+     {
+      "term": "Box 3 (writer entry)",
+      "meaning": "A writer must acquire the write-lock mutex before writing to ensure exclusive access",
+      "example": "wait(mutex) — writer waits until no readers or other writers are present",
+      "connects": "Mutual exclusion for writes"
+     },
+     {
+      "term": "Writer starvation",
+      "meaning": "If readers continuously arrive (even one at a time), readcount never reaches 0, so mutex is never released, and writers wait indefinitely",
+      "example": "Reader 1 enters, Reader 2 enters before Reader 1 exits, readcount always >= 1, writer starves",
+      "connects": "This solution is 'readers-preference' and does not prevent writer starvation"
+     }
+    ],
+    "plan": "For Box 1: first reader must acquire mutex to block writers (wait(mutex)). For Box 2: last reader must release mutex for writers (signal(mutex)). For Box 3: writer acquires mutex to get exclusive access (wait(mutex)). Then analyze whether a continuous stream of readers can prevent writers indefinitely."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Determine Box 1 — first reader action",
+      "formula_raw": "if (readcount == 1) then [Box 1]",
+      "apply": "When readcount becomes 1, this is the first reader. It must acquire the write-lock (mutex) to block any writers. Without this, a writer could enter while readers are active. Therefore Box 1 = wait(mutex).",
+      "note": "This is the 'readers-preference' design: once any reader is inside, writers are blocked."
+     },
+     {
+      "step": 2,
+      "title": "Determine Box 2 — last reader action",
+      "formula_raw": "if (readcount == 0) then [Box 2]",
+      "apply": "When readcount reaches 0, this is the last reader leaving. It must release the write-lock so waiting writers can proceed. Therefore Box 2 = signal(mutex).",
+      "note": "Only the last reader releases the write-lock; intermediate readers neither acquire nor release it."
+     },
+     {
+      "step": 3,
+      "title": "Determine Box 3 — writer entry",
+      "formula_raw": "L2: [Box 3]; do the write; signal(mutex)",
+      "apply": "A writer needs exclusive access to the shared data. It must acquire the mutex (write-lock) before writing and release it after. Therefore Box 3 = wait(mutex).",
+      "note": "The writer competes directly with the first reader for the mutex."
+     },
+     {
+      "step": 4,
+      "title": "Analyze writer starvation",
+      "formula_raw": "",
+      "apply": "This is a readers-preference solution. If readers arrive continuously: Reader R1 enters (readcount=1, acquires mutex). Writer W wants to write, calls wait(mutex) — blocked. Reader R2 arrives, readcount=2. R1 finishes, readcount=1 (not 0, so mutex NOT released). More readers keep arriving. As long as readcount > 0, the mutex is never signaled, and W waits indefinitely. Writer starvation IS possible.",
+      "note": "To prevent writer starvation, a more complex solution using two semaphores or writer-preference is needed."
+     }
+    ],
+    "result": "Box 1 = wait(mutex), Box 2 = signal(mutex), Box 3 = wait(mutex). Writer starvation is possible because continuous reader arrivals keep readcount above 0, preventing the write-lock from being released. This matches Option A."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Readers-preference solution to the Reader-Writer problem: first reader acquires write-lock (wait), last reader releases it (signal). Writer starvation is possible since a continuous stream of readers permanently blocks writers.",
+   "qid": "7.20.19",
+   "answer_official": "N/A"
+  }
+ ]
+}

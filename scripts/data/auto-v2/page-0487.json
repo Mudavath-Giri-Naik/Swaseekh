@@ -1,0 +1,213 @@
+{
+ "page": 487,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2006",
+    "year": 2006,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Process Synchronization",
+    "subtopic": "Process Synchronization"
+   },
+   "question": "Barrier is a synchronization construct where a set of processes synchronizes globally i.e., each process in the set arrives at the barrier and waits for all others to arrive and then all processes leave the barrier. Let the number of processes in the set be three and S be a binary semaphore with the usual P and V functions. Consider the following C implementation of a barrier with line numbers shown on left.\n\nvoid barrier(void) {\n1.  P(S);\n2.  process_arrived++;\n3.  V(S);\n4.  while(process_arrived != 3);\n5.  P(S);\n6.  process_left++;\n7.  V(S);\n8.  while(process_left != 3);\n}\n\nThe variables process_arrived and process_left are shared among all processes and are initialized to zero. In a concurrent program all the three processes call the barrier function when they need to synchronize globally.\n\nThe above implementation of barrier is incorrect. Which one of the following is true?\n\nA. The barrier implementation is wrong due to the use of binary semaphore S\nB. The barrier may lead to a deadlock if two barrier invocations are used in immediate succession\nC. Lines 6 to 10 need not be inside a critical section\nD. The barrier implementation is correct if there are only two processes instead of three",
+   "answer": "B. The barrier may lead to a deadlock if two barrier invocations are used in immediate succession",
+   "to_find": "Which statement correctly identifies the bug in the barrier implementation",
+   "understand": {
+    "plain": "A barrier makes all processes wait until every process in the group has arrived, then lets them all proceed together. The given code uses a binary semaphore S to protect shared counters process_arrived and process_left. We need to find which statement correctly describes the flaw in this implementation when the same barrier is called back-to-back.",
+    "keywords": [
+     {
+      "term": "Barrier synchronization",
+      "explain": "A global synchronization point where all processes must arrive before any can proceed past it.",
+      "example": "Three threads each do some work, then wait at a barrier; once all three arrive, they all continue to the next phase."
+     },
+     {
+      "term": "Binary semaphore",
+      "explain": "A semaphore with values 0 or 1; P(S) decrements (waits if 0) and V(S) increments (signals). Used as a mutex.",
+      "example": "P(S) before a critical section and V(S) after ensures only one process is inside at a time."
+     },
+     {
+      "term": "Spin-wait (busy-wait)",
+      "explain": "A loop that repeatedly checks a condition until it becomes true, consuming CPU cycles while waiting.",
+      "example": "while(process_arrived != 3); keeps looping until all 3 processes have incremented the counter."
+     }
+    ],
+    "visual_svg": "<svg width='520' height='280' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='0' y='0' width='520' height='280' rx='10' class='bg'/><text x='260' y='30' text-anchor='middle' class='lbl ink'>Barrier: Two Successive Invocations (Deadlock Scenario)</text><rect x='10' y='50' width='150' height='200' rx='6' class='bg'/><text x='85' y='72' text-anchor='middle' class='tag ink'>Process P1</text><rect x='20' y='80' width='130' height='30' rx='4' class='ok'/><text x='85' y='100' text-anchor='middle' class='sub' style='fill:#fff;'>arrived++ (=1)</text><rect x='20' y='120' width='130' height='30' rx='4' class='ok'/><text x='85' y='140' text-anchor='middle' class='sub' style='fill:#fff;'>arrives at barrier 2</text><rect x='20' y='160' width='130' height='30' rx='4' class='hi'/><text x='85' y='180' text-anchor='middle' class='sub ink'>left++ (=1)</text><rect x='20' y='200' width='130' height='30' rx='4' class='no'/><text x='85' y='220' text-anchor='middle' class='sub' style='fill:#fff;'>sees left=1 (fast!)</text><rect x='180' y='50' width='150' height='200' rx='6' class='bg'/><text x='255' y='72' text-anchor='middle' class='tag ink'>Process P2</text><rect x='190' y='80' width='130' height='30' rx='4' class='ok'/><text x='255' y='100' text-anchor='middle' class='sub' style='fill:#fff;'>arrived++ (=2)</text><rect x='190' y='120' width='130' height='30' rx='4' class='ok'/><text x='255' y='140' text-anchor='middle' class='sub' style='fill:#fff;'>arrives at barrier 2</text><rect x='190' y='160' width='130' height='30' rx='4' class='hi'/><text x='255' y='180' text-anchor='middle' class='sub ink'>left++ (=2)</text><rect x='190' y='200' width='130' height='30' rx='4' class='hi'/><text x='255' y='220' text-anchor='middle' class='sub ink'>waiting left=3</text><rect x='355' y='50' width='150' height='200' rx='6' class='bg'/><text x='430' y='72' text-anchor='middle' class='tag ink'>Process P3</text><rect x='365' y='80' width='130' height='30' rx='4' class='ok'/><text x='430' y='100' text-anchor='middle' class='sub' style='fill:#fff;'>arrived++ (=3)</text><rect x='365' y='120' width='130' height='30' rx='4' class='no'/><text x='430' y='140' text-anchor='middle' class='sub' style='fill:#fff;'>slow - still in B1</text><rect x='365' y='160' width='130' height='30' rx='4' class='no'/><text x='430' y='180' text-anchor='middle' class='sub' style='fill:#fff;'>left=0, wait != 3</text><rect x='365' y='200' width='130' height='30' rx='4' class='no'/><text x='430' y='220' text-anchor='middle' class='sub' style='fill:#fff;'>DEADLOCK</text><text x='260' y='268' text-anchor='middle' class='sub mut'>P1 resets arrived before P3 finishes barrier 1 -&gt; deadlock</text></svg>",
+    "visual_alt": "Three processes at barrier 1 and barrier 2 showing how P1 can enter barrier 2 and increment left before P3 finishes barrier 1, causing P3 to see left=1 and misinterpret it as belonging to barrier 1."
+   },
+   "given": {
+    "aim": "Identify the bug in the barrier implementation with 3 processes and a binary semaphore.",
+    "terms": [
+     {
+      "term": "process_arrived",
+      "meaning": "Shared counter incremented by each process when it reaches the barrier.",
+      "example": "After all 3 processes call barrier(), process_arrived becomes 3.",
+      "connects": "Once it reaches 3, the while-loop on line 4 exits for all processes."
+     },
+     {
+      "term": "process_left",
+      "meaning": "Shared counter incremented by each process when it is leaving the barrier.",
+      "example": "After all 3 processes pass line 6, process_left becomes 3.",
+      "connects": "The while-loop on line 8 ensures all processes see all others have also left."
+     },
+     {
+      "term": "Successive barrier invocations",
+      "meaning": "The same barrier() function being called again immediately after the first call returns.",
+      "example": "A loop calling barrier() twice: barrier(); barrier();",
+      "connects": "If a fast process enters the second barrier call before a slow process exits the first, the counters get reused incorrectly."
+     },
+     {
+      "term": "Binary semaphore S",
+      "meaning": "Used as a mutex to protect the critical sections incrementing process_arrived and process_left.",
+      "example": "P(S)...process_arrived++...V(S) ensures atomic increment.",
+      "connects": "The semaphore is used correctly; it is not the source of the bug."
+     }
+    ],
+    "plan": "Trace through two successive barrier calls with 3 processes to see if a race condition or deadlock can occur. Specifically, check if a fast process completing barrier invocation 1 and entering barrier invocation 2 can corrupt the shared counters for a slow process still in invocation 1."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Verify Option A: Is binary semaphore the problem?",
+      "formula_raw": "",
+      "apply": "The semaphore S is used correctly as a mutex around process_arrived++ and process_left++. A binary semaphore is sufficient for mutual exclusion of a simple increment. Option A is false.",
+      "note": "The semaphore usage is correct; it ensures atomic increments of the shared counters."
+     },
+     {
+      "step": 2,
+      "title": "Verify Option C: Do lines 5-7 need to be in critical section?",
+      "formula_raw": "",
+      "apply": "Lines 5-7 (P(S); process_left++; V(S);) do use a critical section for the increment. If we removed this protection, two processes could read process_left simultaneously and both write the same incremented value (lost update). So lines 5-7 DO need to be inside a critical section. Option C says they need NOT be inside — that is false.",
+      "note": "Without protection, concurrent increments lead to a lost-update race condition."
+     },
+     {
+      "step": 3,
+      "title": "Verify Option B: Deadlock on successive invocations",
+      "formula_raw": "",
+      "apply": "Consider two successive calls: barrier() call 1 (B1) and barrier() call 2 (B2). Scenario: P1 and P2 arrive at B1 first. All 3 arrive at B1 (process_arrived=3). P1 and P2 quickly go through lines 5-8, incrementing process_left to 1 and 2. P1 exits B1 and immediately enters B2; in B2, P1 increments process_arrived to 1 (it was reset? No — process_arrived is NEVER reset!). Wait — the counters are NEVER reset between calls. After B1, process_arrived=3. When P1 enters B2 and increments process_arrived to 4. The while(process_arrived != 3) check will NEVER be true again (arrived is already 4). So P2 and P3 spin forever waiting for process_arrived == 3 in B2. This is a deadlock (livelock actually, but functionally equivalent). Option B is correct.",
+      "note": "The root cause: process_arrived and process_left are never reset to 0 between barrier invocations. A fast process entering the second barrier call increments the counter beyond 3, causing others to spin forever on while(process_arrived != 3)."
+     },
+     {
+      "step": 4,
+      "title": "Verify Option D: Correct for 2 processes?",
+      "formula_raw": "",
+      "apply": "The non-reset problem is independent of the number of processes — with 2 processes, after B1, process_arrived=2. P1 enters B2 and increments it to 3; while(process_arrived != 2) exits immediately (3 != 2 is true but P1 would leave the loop), while P2 never sees arrived==2 again. The same deadlock occurs. Option D is false.",
+      "note": "The bug is structural (no reset), not dependent on the number of processes."
+     }
+    ],
+    "result": "B. The barrier may lead to a deadlock if two barrier invocations are used in immediate succession — because the shared counters process_arrived and process_left are never reset between calls, so a fast process entering the next barrier iteration pushes the count past the expected value, causing other processes to spin forever."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Barrier synchronization correctness requires resetting shared counters between successive barrier invocations; this implementation omits the reset, causing deadlock on reuse.",
+   "qid": "7.20.29",
+   "answer_official": "B"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2007",
+    "year": 2007,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Process Synchronization",
+    "subtopic": "Process Synchronization"
+   },
+   "question": "Two processes, P1 and P2, need to access a critical section of code. Consider the following synchronization construct used by the processes:\n\n/* P1 */\nwhile (true) {\n    wants1 = true;\n    while (wants2 == true);\n    /* Critical Section */\n    wants1 = false;\n    /* Remainder section */\n}\n\n/* P2 */\nwhile (true) {\n    wants2 = true;\n    while (wants1 == true);\n    /* Critical Section */\n    wants2 = false;\n    /* Remainder section */\n}\n\nHere, wants1 and wants2 are shared variables, which are initialized to false. Which one of the following statements is TRUE about the construct?\n\nA. It does not ensure mutual exclusion\nB. It does not ensure bounded waiting\nC. It requires that processes enter the critical section in strict alternation\nD. It does not prevent deadlocks",
+   "answer": "D. It does not prevent deadlocks",
+   "to_find": "Which property does the synchronization construct fail to satisfy",
+   "understand": {
+    "plain": "Two processes each set a 'wants' flag to signal their desire to enter the critical section, then wait while the other's flag is set. If both set their flags at the same time, each will wait for the other forever — a deadlock. We need to identify which of the four listed properties is violated.",
+    "keywords": [
+     {
+      "term": "Mutual exclusion",
+      "explain": "At most one process can be in the critical section at any time.",
+      "example": "If P1 is in its CS, P2 cannot enter until P1 sets wants1=false."
+     },
+     {
+      "term": "Deadlock",
+      "explain": "A situation where two or more processes are each waiting for the other to release a resource, so none can proceed.",
+      "example": "P1 sets wants1=true and P2 sets wants2=true simultaneously; P1 waits for wants2==false and P2 waits for wants1==false — neither can proceed."
+     },
+     {
+      "term": "Bounded waiting",
+      "explain": "There is a bound on the number of times other processes can enter the CS after a process has made a request to enter.",
+      "example": "A process waiting to enter the CS should not wait forever while others repeatedly enter."
+     }
+    ],
+    "visual_svg": "<svg width='480' height='240' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='0' y='0' width='480' height='240' rx='10' class='bg'/><text x='240' y='28' text-anchor='middle' class='lbl ink'>Deadlock Scenario</text><rect x='20' y='45' width='190' height='160' rx='6' class='bg'/><text x='115' y='68' text-anchor='middle' class='tag ink'>Process P1</text><rect x='30' y='78' width='170' height='28' rx='4' class='ok'/><text x='115' y='96' text-anchor='middle' class='sub' style='fill:#fff;'>wants1 = true</text><rect x='30' y='114' width='170' height='28' rx='4' class='no'/><text x='115' y='132' text-anchor='middle' class='sub' style='fill:#fff;'>while(wants2==true)  STUCK</text><rect x='30' y='150' width='170' height='28' rx='4' class='hi'/><text x='115' y='168' text-anchor='middle' class='sub ink'>waiting for wants2=false</text><rect x='270' y='45' width='190' height='160' rx='6' class='bg'/><text x='365' y='68' text-anchor='middle' class='tag ink'>Process P2</text><rect x='280' y='78' width='170' height='28' rx='4' class='ok'/><text x='365' y='96' text-anchor='middle' class='sub' style='fill:#fff;'>wants2 = true</text><rect x='280' y='114' width='170' height='28' rx='4' class='no'/><text x='365' y='132' text-anchor='middle' class='sub' style='fill:#fff;'>while(wants1==true)  STUCK</text><rect x='280' y='150' width='170' height='28' rx='4' class='hi'/><text x='365' y='168' text-anchor='middle' class='sub ink'>waiting for wants1=false</text><line x1='215' y1='92' x2='270' y2='92' stroke='#D85A30' stroke-width='2' marker-end='url(#arr)'/><line x1='270' y1='128' x2='215' y2='128' stroke='#D85A30' stroke-width='2'/><text x='240' y='215' text-anchor='middle' class='sub mut'>Both flags set simultaneously -&gt; circular wait -&gt; deadlock</text></svg>",
+    "visual_alt": "P1 sets wants1=true and waits on wants2; P2 sets wants2=true and waits on wants1. Both are stuck waiting for each other — a circular deadlock."
+   },
+   "given": {
+    "aim": "Determine which of mutual exclusion, bounded waiting, strict alternation, or deadlock freedom is violated by the given construct.",
+    "terms": [
+     {
+      "term": "wants1, wants2",
+      "meaning": "Boolean flags initialized to false; set to true by a process before entering its CS and reset to false on exit.",
+      "example": "P1 sets wants1=true to announce its intention to enter the critical section.",
+      "connects": "Each process checks the OTHER process's flag before entering; this is where the deadlock arises."
+     },
+     {
+      "term": "while(wants2 == true) — P1's wait loop",
+      "meaning": "P1 busy-waits as long as P2 wants to enter the CS.",
+      "example": "If P2 has set wants2=true, P1 spins here until P2 resets wants2.",
+      "connects": "If both flags are true simultaneously, P1 waits on wants2 and P2 waits on wants1 — circular wait."
+     },
+     {
+      "term": "Circular wait",
+      "meaning": "A deadlock condition where each process holds a resource and waits for a resource held by the next process in the cycle.",
+      "example": "P1 waits for wants2=false (held by P2) while P2 waits for wants1=false (held by P1).",
+      "connects": "This circular dependency is the deadlock condition that this construct fails to prevent."
+     },
+     {
+      "term": "Mutual exclusion check",
+      "meaning": "Verify if both processes can be in the CS simultaneously.",
+      "example": "For both to be in CS, wants1=true AND wants2=true must hold when each passed the while check — but if wants2=true, P1 cannot pass its loop. So ME is ensured.",
+      "connects": "Confirms Option A is false."
+     }
+    ],
+    "plan": "Check each option: (A) test mutual exclusion by seeing if both can enter CS simultaneously; (B) test bounded waiting; (C) test strict alternation; (D) construct a scenario where both processes set their flags simultaneously and trace what happens."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Check Mutual Exclusion (Option A)",
+      "formula_raw": "",
+      "apply": "For P1 to enter CS, it must pass 'while(wants2==true)', meaning wants2 must be false at that moment. But if wants2 is false, P2 has not set its flag yet (or has already exited CS). So P2 cannot be in its CS (it requires setting wants2=true before entering). Therefore both P1 and P2 cannot be in the CS simultaneously. Mutual exclusion IS guaranteed. Option A is false.",
+      "note": "The construct does correctly enforce mutual exclusion through the asymmetric flag checking."
+     },
+     {
+      "step": 2,
+      "title": "Check for Deadlock (Option D)",
+      "formula_raw": "",
+      "apply": "Scenario: P1 executes 'wants1=true' and P2 executes 'wants2=true' before either checks the other's flag. Now wants1=true AND wants2=true. P1 checks 'while(wants2==true)' — true, so P1 spins. P2 checks 'while(wants1==true)' — true, so P2 spins. Neither process will ever set its flag to false (that only happens AFTER the CS). Neither can exit the while-loop. This is a deadlock — both spin forever waiting for the other to clear its flag. Option D is TRUE.",
+      "note": "This is a classic deadlock: both processes set their flags simultaneously, creating a circular wait where neither can proceed."
+     },
+     {
+      "step": 3,
+      "title": "Check Bounded Waiting (Option B)",
+      "formula_raw": "",
+      "apply": "If the system does NOT deadlock (e.g., P1 sets wants1=true when wants2 is still false), P1 enters the CS immediately. After P1 exits and sets wants1=false, P2 can proceed. If they alternate nicely, there is no starvation. However, if there IS a deadlock, bounded waiting is also violated (trivially). Since the primary and direct failure is deadlock (Option D), and bounded waiting violation is a consequence, the direct answer is Option D.",
+      "note": "Bounded waiting is violated in a deadlock scenario, but the root cause identified by the question is the deadlock itself."
+     },
+     {
+      "step": 4,
+      "title": "Check Strict Alternation (Option C)",
+      "formula_raw": "",
+      "apply": "Strict alternation means the processes must enter in turns P1, P2, P1, P2, ... This construct does NOT require alternation — if wants2 is false, P1 can enter the CS multiple times in a row without P2 ever entering. So Option C (it requires strict alternation) is false.",
+      "note": "Unlike Dekker/Peterson algorithms with a turn variable, this construct has no alternation mechanism."
+     }
+    ],
+    "result": "D. It does not prevent deadlocks — if both P1 and P2 set their respective wants flags to true simultaneously, each process will spin forever waiting for the other to clear its flag, resulting in a deadlock."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Peterson's algorithm avoids this deadlock by adding a 'turn' variable that breaks symmetry; this construct lacks such a tie-breaker, making simultaneous flag-setting a deadlock scenario.",
+   "qid": "7.20.30",
+   "answer_official": "C"
+  }
+ ]
+}

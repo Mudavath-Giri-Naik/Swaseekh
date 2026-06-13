@@ -1,0 +1,270 @@
+{
+ "page": 470,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2014",
+    "year": 2014,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Operating System",
+    "topic": "Process Scheduling",
+    "subtopic": "Process Scheduling"
+   },
+   "question": "Consider the following set of processes that need to be scheduled on a single CPU. All the times are given in milliseconds.\n\nProcess Name | Arrival Time | Execution Time\nA            | 0            | 6\nB            | 2            | 2\nC            | 4            | 4\nD            | 5            | 3\nE            | 8            | 3\n\nUsing the Shortest Remaining Time First (SRTF) scheduling algorithm, the average process turnaround time (in msec) is ____.",
+   "answer": "7.2",
+   "to_find": "Average turnaround time of all processes under SRTF scheduling",
+   "understand": {
+    "plain": "We have 5 processes arriving at different times, each needing a certain amount of CPU time. SRTF is a preemptive version of Shortest Job First where the currently running process is preempted if a newly arrived process has a shorter remaining burst time. We need to simulate the CPU schedule and compute the average of (completion time - arrival time) for all processes.",
+    "keywords": [
+     {
+      "term": "SRTF (Shortest Remaining Time First)",
+      "explain": "A preemptive scheduling algorithm where at every instant the process with the least remaining CPU burst time runs. A running process can be preempted by a newly arrived process with a shorter burst.",
+      "example": "Process A has 4ms remaining; Process B arrives with burst 2ms. B preempts A."
+     },
+     {
+      "term": "Turnaround Time (TAT)",
+      "explain": "Total time a process spends in the system from arrival until completion. TAT = Completion Time - Arrival Time.",
+      "example": "Process arrives at t=2, completes at t=6. TAT = 6-2 = 4ms."
+     },
+     {
+      "term": "Preemption",
+      "explain": "Forcibly removing a process from the CPU before it finishes its burst because a higher-priority (shorter remaining) process arrives.",
+      "example": "A is running; B arrives with shorter remaining time; B takes over the CPU."
+     }
+    ],
+    "visual_svg": "<svg width='520' height='110' viewBox='0 0 520 110' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='0' y='30' width='40' height='40' fill='#CECBF6' stroke='#7F77DD' stroke-width='2'/><text x='20' y='55' text-anchor='middle' class='sub ink'>A</text><rect x='40' y='30' width='80' height='40' fill='#B4EED4' stroke='#1D9E75' stroke-width='2'/><text x='80' y='55' text-anchor='middle' class='sub ink'>B</text><rect x='120' y='30' width='160' height='40' fill='#CECBF6' stroke='#7F77DD' stroke-width='2'/><text x='200' y='55' text-anchor='middle' class='sub ink'>A(cont)</text><rect x='280' y='30' width='120' height='40' fill='#F6D6C8' stroke='#D85A30' stroke-width='2'/><text x='340' y='55' text-anchor='middle' class='sub ink'>D</text><rect x='400' y='30' width='120' height='40' fill='#FFF0B2' stroke='#C8A000' stroke-width='2'/><text x='460' y='55' text-anchor='middle' class='sub ink'>E</text><text x='0' y='90' class='sub mut'>0</text><text x='38' y='90' class='sub mut'>2</text><text x='118' y='90' class='sub mut'>4</text><text x='278' y='90' class='sub mut'>8</text><text x='398' y='90' class='sub mut'>11</text><text x='515' y='90' class='sub mut'>14</text><text x='200' y='20' text-anchor='middle' class='sub ink'>Gantt Chart (SRTF)</text></svg>",
+    "visual_alt": "Gantt chart showing SRTF execution: A runs 0-2, B runs 2-4, A resumes 4-8, D runs 8-11, E runs 11-14, then C runs 14-18"
+   },
+   "given": {
+    "aim": "Find the average turnaround time using SRTF scheduling for 5 processes",
+    "terms": [
+     {
+      "term": "Arrival Times",
+      "meaning": "The times at which each process enters the ready queue",
+      "example": "Process A arrives at t=0, B at t=2, etc.",
+      "connects": "Determines when preemptions can occur"
+     },
+     {
+      "term": "Execution (Burst) Times",
+      "meaning": "CPU time each process needs to complete",
+      "example": "A needs 6ms, B needs 2ms",
+      "connects": "Shorter remaining burst causes preemption in SRTF"
+     },
+     {
+      "term": "Completion Time",
+      "meaning": "The time when a process fully finishes execution",
+      "example": "B completes at t=4, so TAT_B = 4-2 = 2ms",
+      "connects": "Used to calculate turnaround time: TAT = CT - Arrival"
+     },
+     {
+      "term": "Average Turnaround Time",
+      "meaning": "The mean of all individual turnaround times",
+      "example": "Avg TAT = (TAT_A + TAT_B + TAT_C + TAT_D + TAT_E) / 5",
+      "connects": "Final answer required"
+     }
+    ],
+    "plan": "Simulate SRTF step by step: at each arrival event, compare new burst with remaining bursts in the system. Preempt if new arrival is shorter. Record completion times. Compute TAT = CT - Arrival for each process, then average."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Simulate SRTF execution",
+      "formula_raw": "At each arrival, preempt running process if new_burst < remaining_burst",
+      "apply": "t=0-2: Only A in queue. A runs. A_rem = 6 - 2 = 4.\nt=2: B arrives (burst=2). A_rem=4 > 2. B preempts A.\nt=2-4: B runs. B_rem = 0. B completes at t=4. CT_B=4.\nt=4: B done. C arrives (burst=4). A_rem=4. Tie: continue A (A has earlier arrival time).\nt=4-5: A runs. A_rem = 3.\nt=5: D arrives (burst=3). A_rem=3 = D=3. Tie: A arrived earlier. A continues.\nt=5-8: A runs. A_rem = 0. A completes at t=8. CT_A=8.\nt=8: E arrives (burst=3). Queue: C(4), D(3), E(3). D arrived first among 3ms jobs. D runs.\nt=8-11: D runs. CT_D=11.\nt=11: E runs (3 < 4).\nt=11-14: E runs. CT_E=14.\nt=14-18: C runs. CT_C=18.",
+      "note": "On ties in remaining time, the process with the earlier arrival time is preferred."
+     },
+     {
+      "step": 2,
+      "title": "Compute turnaround times",
+      "formula_raw": "TAT = Completion Time - Arrival Time",
+      "apply": "TAT_A = 8 - 0 = 8 ms\nTAT_B = 4 - 2 = 2 ms\nTAT_C = 18 - 4 = 14 ms\nTAT_D = 11 - 5 = 6 ms\nTAT_E = 14 - 8 = 6 ms\nSum = 8 + 2 + 14 + 6 + 6 = 36 ms\nAverage = 36 / 5 = 7.2 ms",
+      "note": "C has the longest turnaround because it keeps getting preempted by shorter jobs."
+     }
+    ],
+    "result": "Average turnaround time = 7.2 ms"
+   },
+   "formula_ids_used": [],
+   "formula_note": "SRTF (Shortest Remaining Time First) preemptive scheduling: at each arrival event compare new burst with remaining CPU time; turnaround time = completion time - arrival time.",
+   "qid": "7.19.24",
+   "answer_official": "7.2"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2014",
+    "year": 2014,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Operating System",
+    "topic": "Process Scheduling",
+    "subtopic": "Process Scheduling"
+   },
+   "question": "Three processes P1, P2, and P3 each execute a loop of 100 iterations. In each iteration of the loop, a process performs a single computation that requires t_s CPU milliseconds and then initiates a single I/O operation that lasts for t_IO milliseconds. It is assumed that the computer where the processes execute has sufficient number of I/O devices and the OS of the computer assigns different I/O devices to each process. Also, the scheduling overhead of the OS is negligible. The processes have the following characteristics:\n\nProcess | t_s   | t_IO\nP1 (A)  | 100   | 500\nP2 (B)  | 350   | 500\nP3 (C)  | 200   | 500\n\nThe processes P1, P2, and P3 are started at times 0, 5, and 10 milliseconds, in a pure time sharing system (round robin scheduling) that uses a time slice of 50 milliseconds. The time in milliseconds at which process P3 (C) would complete its first I/O operation is ____.",
+   "answer": "1000",
+   "to_find": "Time at which process P3 (C) completes its first I/O operation",
+   "understand": {
+    "plain": "Three processes run with round robin scheduling using a 50ms time quantum. Each process needs a certain CPU time followed by an I/O operation. We must track when process C (needing 200ms CPU) finishes all its CPU work for the first iteration, starts its I/O, and then finishes that I/O. The I/O duration is 500ms for all processes.",
+    "keywords": [
+     {
+      "term": "Round Robin Scheduling",
+      "explain": "Each process gets a fixed time quantum (slice) in cyclic order. After using its quantum, the process is moved to the back of the ready queue.",
+      "example": "With quantum=50ms, A runs 50ms, then B runs 50ms, then C runs 50ms, then A again."
+     },
+     {
+      "term": "Time Quantum",
+      "explain": "The maximum CPU time a process can use before being preempted and placed at the end of the ready queue.",
+      "example": "Quantum = 50ms means no process runs for more than 50ms continuously."
+     },
+     {
+      "term": "CPU Burst then I/O",
+      "explain": "In each loop iteration, a process first does CPU work (t_s ms total) then does I/O (t_IO ms). The CPU work may require multiple time quanta.",
+      "example": "C needs 200ms CPU = 4 quanta of 50ms each before it can start I/O."
+     }
+    ],
+    "visual_svg": "<svg width='520' height='130' viewBox='0 0 520 130' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='0' y='10' width='50' height='30' fill='#B4EED4' stroke='#1D9E75' stroke-width='1'/><text x='25' y='30' text-anchor='middle' class='sub ink'>A(50)</text><rect x='50' y='10' width='50' height='30' fill='#CECBF6' stroke='#7F77DD' stroke-width='1'/><text x='75' y='30' text-anchor='middle' class='sub ink'>B(50)</text><rect x='100' y='10' width='50' height='30' fill='#F6D6C8' stroke='#D85A30' stroke-width='1'/><text x='125' y='30' text-anchor='middle' class='sub ink'>C(50)</text><rect x='150' y='10' width='50' height='30' fill='#B4EED4' stroke='#1D9E75' stroke-width='1'/><text x='175' y='30' text-anchor='middle' class='sub ink'>A(50)</text><rect x='200' y='10' width='50' height='30' fill='#CECBF6' stroke='#7F77DD' stroke-width='1'/><text x='225' y='30' text-anchor='middle' class='sub ink'>B(50)</text><rect x='250' y='10' width='50' height='30' fill='#F6D6C8' stroke='#D85A30' stroke-width='1'/><text x='275' y='30' text-anchor='middle' class='sub ink'>C(50)</text><rect x='300' y='10' width='50' height='30' fill='#CECBF6' stroke='#7F77DD' stroke-width='1'/><text x='325' y='30' text-anchor='middle' class='sub ink'>B(50)</text><rect x='350' y='10' width='50' height='30' fill='#F6D6C8' stroke='#D85A30' stroke-width='1'/><text x='375' y='30' text-anchor='middle' class='sub ink'>C(50)</text><rect x='400' y='10' width='50' height='30' fill='#CECBF6' stroke='#7F77DD' stroke-width='1'/><text x='425' y='30' text-anchor='middle' class='sub ink'>B(50)</text><rect x='450' y='10' width='50' height='30' fill='#F6D6C8' stroke='#D85A30' stroke-width='2'/><text x='475' y='30' text-anchor='middle' class='sub ink'>C(50)</text><text x='0' y='60' class='sub mut'>0</text><text x='95' y='60' class='sub mut'>100</text><text x='195' y='60' class='sub mut'>200</text><text x='295' y='60' class='sub mut'>300</text><text x='395' y='60' class='sub mut'>400</text><text x='495' y='60' class='sub mut'>500</text><text x='475' y='80' text-anchor='middle' class='sub no'>C starts I/O at t=500</text><text x='200' y='110' text-anchor='middle' class='sub ink'>I/O duration = 500ms -&gt; C I/O complete at t=1000ms</text></svg>",
+    "visual_alt": "Round robin Gantt chart showing: A(0-50), B(50-100), C(100-150), A(150-200 finishes CPU), B(200-250), C(250-300), B(300-350), C(350-400), B(400-450), C(450-500 finishes CPU, starts I/O). C's I/O completes at t=500+500=1000ms."
+   },
+   "given": {
+    "aim": "Find the time at which process C (P3) completes its first I/O operation",
+    "terms": [
+     {
+      "term": "t_s (CPU time per iteration)",
+      "meaning": "Total CPU time each process needs for one loop iteration before starting I/O",
+      "example": "C needs t_s = 200ms of CPU time before its first I/O",
+      "connects": "Determines how many 50ms quanta C needs: 200/50 = 4 quanta"
+     },
+     {
+      "term": "t_IO (I/O time per iteration)",
+      "meaning": "Duration of the I/O operation in each loop iteration",
+      "example": "All processes have t_IO = 500ms",
+      "connects": "C's I/O completes at (time C starts I/O) + 500"
+     },
+     {
+      "term": "Start times",
+      "meaning": "A starts at t=0, B starts at t=5, C starts at t=10 ms",
+      "example": "C enters the ready queue at t=10, not t=0",
+      "connects": "Affects the order in which processes first get CPU time"
+     },
+     {
+      "term": "Time quantum = 50ms",
+      "meaning": "Each process gets at most 50ms of CPU per turn in round robin",
+      "example": "C uses quanta at t=100-150, 250-300, 350-400, 450-500",
+      "connects": "C needs 4 full quanta (4 x 50 = 200ms) to complete its CPU work"
+     }
+    ],
+    "plan": "Simulate round robin scheduling with quantum=50ms. Track when each process uses the CPU. When C accumulates 200ms of CPU time, it starts I/O. Add 500ms to get C's I/O completion time."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Simulate round robin scheduling",
+      "formula_raw": "Process gets CPU for min(quantum, remaining_burst) ms per turn",
+      "apply": "A enters at t=0, B at t=5, C at t=10. Quantum = 50ms.\n\nt=0-50: A runs. A_CPU_done=50. (B and C arrive during this slot)\nt=50-100: B runs. B_CPU_done=50.\nt=100-150: C runs. C_CPU_done=50.\nt=150-200: A runs. A_CPU_done=100. A needs 100ms total -> A finishes CPU! A goes to I/O at t=200.\nt=200-250: B runs. B_CPU_done=100.\nt=250-300: C runs. C_CPU_done=100.\nt=300-350: B runs. B_CPU_done=150.\nt=350-400: C runs. C_CPU_done=150.\nt=400-450: B runs. B_CPU_done=200. B needs 350ms, not done yet. (Actually B continues)\nt=450-500: C runs. C_CPU_done=200. C needs 200ms -> C finishes CPU! C goes to I/O at t=500.",
+      "note": "A re-enters the ready queue from I/O at t=200+500=700ms, but this does not affect C's CPU completion since C finishes at t=500 before A returns."
+     },
+     {
+      "step": 2,
+      "title": "Compute C's first I/O completion time",
+      "formula_raw": "I/O_complete = CPU_complete_time + t_IO",
+      "apply": "C starts I/O at t=500.\nC's I/O duration = 500ms.\nC's first I/O completes at t = 500 + 500 = 1000ms.",
+      "note": "Each process uses a separate I/O device so there is no I/O contention."
+     }
+    ],
+    "result": "Process C completes its first I/O operation at t = 1000 ms"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Round Robin scheduling with time quantum: each process receives CPU for at most one quantum per turn; total CPU time needed divided by quantum gives number of turns required before I/O.",
+   "qid": "7.19.25",
+   "answer_official": "1000"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2014",
+    "year": 2014,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Operating System",
+    "topic": "Process Scheduling",
+    "subtopic": "Process Scheduling"
+   },
+   "question": "An operating system uses Shortest Remaining Time First (SRTF) scheduling algorithm for pre-emptive scheduling of processes. Consider the following set of processes with their arrival times and CPU burst times (in milliseconds):\n\nProcess | Arrival Time | Burst Time\nP1      | 0            | 12\nP2      | 2            | 4\nP3      | 3            | 6\nP4      | 8            | 5\n\nThe average waiting time (in milliseconds) of the processes is ____.",
+   "answer": "5.5",
+   "to_find": "Average waiting time of all processes under SRTF scheduling",
+   "understand": {
+    "plain": "Four processes arrive at different times and need varying amounts of CPU time. SRTF is preemptive — when a new process arrives with a shorter burst than the remaining time of the running process, the running process is preempted. We simulate the schedule, find when each process completes, then compute waiting time = turnaround time - burst time for each, and average them.",
+    "keywords": [
+     {
+      "term": "Waiting Time",
+      "explain": "Total time a process spends waiting in the ready queue (not running, not in I/O). Waiting Time = Turnaround Time - Burst Time = (Completion Time - Arrival Time) - Burst Time.",
+      "example": "Process arrives at t=2, bursts for 4ms, completes at t=6. WT = (6-2)-4 = 0ms."
+     },
+     {
+      "term": "SRTF Preemption",
+      "explain": "When a new process arrives, its burst time is compared to the remaining CPU time of the running process. If new burst < remaining, the running process is preempted.",
+      "example": "P1 has 10ms remaining; P2 arrives with burst 4ms. 4 < 10, so P2 preempts P1."
+     }
+    ],
+    "visual_svg": "<svg width='540' height='110' viewBox='0 0 540 110' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='0' y='30' width='40' height='40' fill='#CECBF6' stroke='#7F77DD' stroke-width='2'/><text x='20' y='55' text-anchor='middle' class='sub ink'>P1</text><rect x='40' y='30' width='80' height='40' fill='#B4EED4' stroke='#1D9E75' stroke-width='2'/><text x='80' y='55' text-anchor='middle' class='sub ink'>P2</text><rect x='120' y='30' width='120' height='40' fill='#CECBF6' stroke='#7F77DD' stroke-width='2'/><text x='180' y='55' text-anchor='middle' class='sub ink'>P1</text><rect x='240' y='30' width='120' height='40' fill='#FFF0B2' stroke='#C8A000' stroke-width='2'/><text x='300' y='55' text-anchor='middle' class='sub ink'>P3</text><rect x='360' y='30' width='100' height='40' fill='#F6D6C8' stroke='#D85A30' stroke-width='2'/><text x='410' y='55' text-anchor='middle' class='sub ink'>P4</text><rect x='460' y='30' width='80' height='40' fill='#CECBF6' stroke='#7F77DD' stroke-width='2'/><text x='500' y='55' text-anchor='middle' class='sub ink'>P1</text><text x='0' y='90' class='sub mut'>0</text><text x='38' y='90' class='sub mut'>2</text><text x='118' y='90' class='sub mut'>6</text><text x='238' y='90' class='sub mut'>12</text><text x='358' y='90' class='sub mut'>17</text><text x='458' y='90' class='sub mut'>22? No</text><text x='200' y='15' text-anchor='middle' class='sub ink'>SRTF Gantt Chart</text></svg>",
+    "visual_alt": "Gantt chart: P1 runs 0-2, P2 preempts and runs 2-6 (completes), P1 resumes 6-12 (P3 added at 3 but P1 still shorter), P3 runs 12-17 (after P4 arrives at 8 but P3 rem < P4), P4 runs 17-22, P1 resumes 22-27"
+   },
+   "given": {
+    "aim": "Find the average waiting time for 4 processes under SRTF preemptive scheduling",
+    "terms": [
+     {
+      "term": "P1: Arrival=0, Burst=12",
+      "meaning": "P1 arrives first and needs the most CPU time",
+      "example": "P1 will likely be preempted multiple times by shorter jobs",
+      "connects": "P1 accumulates the most waiting time"
+     },
+     {
+      "term": "P2: Arrival=2, Burst=4",
+      "meaning": "P2 arrives at t=2 with only 4ms burst",
+      "example": "At t=2, P1 has 10ms remaining; 4 < 10 so P2 preempts P1",
+      "connects": "P2 runs to completion immediately after arrival — zero waiting time"
+     },
+     {
+      "term": "P3: Arrival=3, Burst=6",
+      "meaning": "P3 arrives during P2's execution",
+      "example": "P2 has 3ms remaining when P3 arrives; P2 is shorter, so P2 keeps running",
+      "connects": "P3 waits until P2 completes (t=6), then competes with P1"
+     },
+     {
+      "term": "P4: Arrival=8, Burst=5",
+      "meaning": "P4 arrives after P2 completes",
+      "example": "At t=8, P1 has rem=6, P3 has rem=4; P4=5 > P3_rem=4, so P3 continues",
+      "connects": "P4 waits until P3 completes at t=12, then runs"
+     }
+    ],
+    "plan": "Simulate SRTF: track remaining burst for each process. At each arrival, if new burst < current remaining, preempt. Record completion times. Compute WT = CT - Arrival - Burst for each, then average."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Simulate SRTF execution",
+      "formula_raw": "Preempt if new_burst < remaining_burst of current process",
+      "apply": "t=0: Only P1. P1 runs. P1_rem=12.\nt=2: P2 arrives (burst=4). P1_rem=10. 4 < 10 -> P2 preempts P1. P2 runs.\nt=3: P3 arrives (burst=6). P2_rem=3. 3 < 6 -> P2 keeps running.\nt=6: P2 done. CT_P2=6. Queue: P1(rem=10), P3(6). P3 < P1. P3 runs.\nt=8: P4 arrives (burst=5). P3_rem=4. 5 > 4 -> P3 keeps running.\nt=12: P3 done. CT_P3=12. Queue: P1(rem=10), P4(5). P4 < P1. P4 runs.\nt=17: P4 done. CT_P4=17. Only P1 left (rem=10). P1 runs.\nt=27: P1 done. CT_P1=27.",
+      "note": "P2 has zero waiting time — it preempts immediately and runs to completion without interruption."
+     },
+     {
+      "step": 2,
+      "title": "Compute waiting times",
+      "formula_raw": "WT = (CT - Arrival) - Burst = TAT - Burst",
+      "apply": "WT_P1 = (27 - 0) - 12 = 15 ms\nWT_P2 = (6 - 2) - 4 = 0 ms\nWT_P3 = (12 - 3) - 6 = 3 ms\nWT_P4 = (17 - 8) - 5 = 4 ms\nSum = 15 + 0 + 3 + 4 = 22 ms\nAverage = 22 / 4 = 5.5 ms",
+      "note": "P1 has the highest waiting time (15ms) because it is preempted by three different processes before finally completing."
+     }
+    ],
+    "result": "Average waiting time = 5.5 ms"
+   },
+   "formula_ids_used": [],
+   "formula_note": "SRTF waiting time formula: WT = (Completion Time - Arrival Time) - Burst Time; preemption occurs whenever a newly arrived process has a shorter burst than the remaining time of the running process.",
+   "qid": "7.19.26",
+   "answer_official": "A"
+  }
+ ]
+}

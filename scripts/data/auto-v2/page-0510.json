@@ -1,0 +1,438 @@
+{
+ "page": 510,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2021",
+    "year": 2021,
+    "marks": 1,
+    "difficulty": "medium",
+    "type": "MSQ",
+    "subject": "Operating System",
+    "topic": "System Calls",
+    "subtopic": "System Calls"
+   },
+   "question": "Which of the following standard library functions will ALWAYS invoke a system call when executed from a single-threaded process in a UNIX/Linux operating system?\nA. exit\nB. malloc\nC. sleep\nD. strlen",
+   "answer": "A, C",
+   "to_find": "Which standard library functions always invoke a system call in a single-threaded UNIX/Linux process.",
+   "understand": {
+    "plain": "A system call is a request by a user-space program to the OS kernel to perform a privileged operation. Some library functions always go to the kernel (e.g., to terminate a process or to block for a timer), while others like malloc and strlen may or may not go to the kernel depending on their internal state. We need to identify which ones ALWAYS involve a system call.",
+    "keywords": [
+     {
+      "term": "System Call",
+      "explain": "A controlled entry into the OS kernel to perform operations that require elevated privileges, such as I/O, process control, or resource management.",
+      "example": "write(), exit(), sleep() all trigger system calls."
+     },
+     {
+      "term": "User-space library function",
+      "explain": "A function provided by the C standard library that may or may not invoke a system call; some manage their own state in user space.",
+      "example": "strlen() just scans memory in user space — no kernel involvement needed."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Four library functions evaluated: exit (always syscall via _exit), malloc (may use brk/mmap but can reuse heap — not always), sleep (always syscall to block process), strlen (pure user-space string scan)."
+   },
+   "given": {
+    "aim": "Identify which of exit, malloc, sleep, strlen ALWAYS make a system call.",
+    "terms": [
+     {
+      "term": "exit()",
+      "meaning": "Terminates the process; internally calls _exit() which is a kernel system call to destroy the process.",
+      "example": "exit(0) flushes stdio buffers then calls the _exit syscall.",
+      "connects": "ALWAYS invokes a system call (_exit) since process termination is a privileged kernel operation."
+     },
+     {
+      "term": "malloc()",
+      "meaning": "Allocates heap memory; may call brk() or mmap() system calls, but if free memory is already available in the heap pool it returns without a syscall.",
+      "example": "First call to malloc may invoke brk(); subsequent calls may reuse already-allocated heap memory.",
+      "connects": "Does NOT always invoke a system call."
+     },
+     {
+      "term": "sleep()",
+      "meaning": "Suspends the calling thread/process for a given duration; always requires the kernel to schedule a timer and block the process.",
+      "example": "sleep(1) always invokes the nanosleep() or similar syscall.",
+      "connects": "ALWAYS invokes a system call."
+     },
+     {
+      "term": "strlen()",
+      "meaning": "Computes the length of a string by scanning memory; entirely a user-space operation with no need to contact the kernel.",
+      "example": "strlen(\"hello\") just walks memory — no syscall at all.",
+      "connects": "NEVER invokes a system call."
+     }
+    ],
+    "plan": "For each function, reason whether any execution path can avoid a system call. exit() must terminate the process (kernel op — always syscall). sleep() must ask the kernel to block the process (always syscall). malloc() manages a heap pool in user space and may avoid syscalls on subsequent calls. strlen() is pure user-space arithmetic."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Analyze exit()",
+      "formula_raw": "exit() -> _exit() syscall",
+      "apply": "exit() calls stdio cleanup functions and then invokes the _exit() system call. Process termination can only be performed by the kernel, so a system call is ALWAYS made. -> exit always invokes a syscall.",
+      "note": "Even if exit() is called immediately after process start, it must invoke _exit() to terminate."
+     },
+     {
+      "step": 2,
+      "title": "Analyze malloc()",
+      "formula_raw": "malloc() may call brk() or mmap(), or may reuse free-list memory",
+      "apply": "malloc() maintains a free list in user space. If sufficient memory is already allocated (from a previous brk/mmap call), it can satisfy the request without any syscall. Therefore, malloc does NOT always invoke a system call.",
+      "note": "First call usually needs brk/mmap; subsequent calls often reuse already-mapped memory."
+     },
+     {
+      "step": 3,
+      "title": "Analyze sleep()",
+      "formula_raw": "sleep() -> nanosleep() or select() syscall",
+      "apply": "sleep() must ask the kernel to block the process for the requested duration. There is no way to implement sleep() without a system call — it ALWAYS invokes a syscall.",
+      "note": "Blocking a process is a privileged operation that only the kernel can perform."
+     },
+     {
+      "step": 4,
+      "title": "Analyze strlen()",
+      "formula_raw": "strlen scans memory byte-by-byte in user space",
+      "apply": "strlen() only reads the characters of a string in user-space memory. It requires no OS involvement, so it NEVER invokes a system call.",
+      "note": "Pure memory access in user space — no privilege required."
+     }
+    ],
+    "result": "A (exit) and C (sleep) always invoke a system call."
+   },
+   "formula_ids_used": [],
+   "formula_note": "exit() calls _exit() syscall; sleep() calls nanosleep() syscall; malloc() may avoid syscalls by reusing heap; strlen() is purely user-space.",
+   "qid": "7.25.1",
+   "answer_official": "A;C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2004",
+    "year": 2004,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Threads",
+    "subtopic": "Threads"
+   },
+   "question": "Consider the following statements with respect to user-level threads and kernel-supported threads:\nI. Context switch is faster with kernel-supported threads.\nII. For user-level threads, a system call can block the entire process.\nIII. Kernel supported threads can be scheduled independently.\nIV. User level threads are transparent to the kernel.\nWhich of the above statements are true?\nA. (I), (II) and (IV) only\nB. (II) and (III) only\nC. (I) and (III) only\nD. (II), (III) and (IV) only",
+   "answer": "D. (II), (III) and (IV) only",
+   "to_find": "Which statements about user-level vs kernel-supported threads are true.",
+   "understand": {
+    "plain": "User-level threads are managed entirely in user space by a thread library; the kernel sees only the process. Kernel-level threads are known to and managed by the OS kernel directly. We need to evaluate four statements to decide which are correct.",
+    "keywords": [
+     {
+      "term": "User-level thread (ULT)",
+      "explain": "A thread managed by a user-space thread library; the kernel is unaware of individual threads and sees only the whole process.",
+      "example": "POSIX green threads — all scheduling done in user space."
+     },
+     {
+      "term": "Kernel-level thread (KLT)",
+      "explain": "A thread directly managed by the OS kernel; each thread can be scheduled independently by the kernel scheduler.",
+      "example": "POSIX pthreads on Linux — each thread is a kernel entity (task_struct)."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Comparison table: ULTs have faster context switch (no kernel trap), KLTs allow independent scheduling. ULT system call blocks whole process; ULTs are invisible to kernel."
+   },
+   "given": {
+    "aim": "Determine the truth value of four statements about ULTs vs KLTs.",
+    "terms": [
+     {
+      "term": "Statement I: Context switch is faster with kernel-supported threads",
+      "meaning": "KLT context switches require kernel involvement (trap/mode switch), whereas ULT context switches happen entirely in user space — so ULT switches are actually faster.",
+      "example": "ULT switch: save/restore registers in user space; KLT switch: full kernel trap.",
+      "connects": "Statement I is FALSE — context switch is faster for USER-level threads."
+     },
+     {
+      "term": "Statement II: System call can block entire process for ULTs",
+      "meaning": "When a ULT makes a blocking system call, the kernel blocks the entire process (since it doesn't know about individual threads), blocking all other ULTs too.",
+      "example": "ULT calls read() -> kernel blocks process -> all other ULTs in that process are also blocked.",
+      "connects": "Statement II is TRUE."
+     },
+     {
+      "term": "Statement III: KLTs can be scheduled independently",
+      "meaning": "Since the kernel knows about each KLT, its scheduler can assign different threads to different CPUs or time-slices independently.",
+      "example": "Two KLTs of the same process can run on two CPU cores simultaneously.",
+      "connects": "Statement III is TRUE."
+     },
+     {
+      "term": "Statement IV: ULTs are transparent to the kernel",
+      "meaning": "The kernel has no knowledge of user-level threads — it only schedules the process as a whole. The thread library handles all thread management in user space.",
+      "example": "A process with 10 ULTs appears to the kernel as a single schedulable entity.",
+      "connects": "Statement IV is TRUE."
+     }
+    ],
+    "plan": "Evaluate each statement: I is false (ULTs have faster context switch), II is true (blocking syscall blocks whole process), III is true (KLTs scheduled independently by kernel), IV is true (kernel unaware of ULTs). Statements II, III, IV are true."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Evaluate Statement I",
+      "formula_raw": "",
+      "apply": "Context switch for ULTs is entirely in user space (no mode switch), so it is FASTER for ULTs, not KLTs. Statement I is FALSE.",
+      "note": "KLT context switch requires a kernel trap and saving/restoring more state."
+     },
+     {
+      "step": 2,
+      "title": "Evaluate Statements II, III, IV",
+      "formula_raw": "",
+      "apply": "II: TRUE — blocking syscall by any ULT blocks the entire process. III: TRUE — kernel scheduler can schedule each KLT independently, even on different cores. IV: TRUE — ULTs are invisible to the kernel; the thread library manages them transparently in user space.",
+      "note": "These three are fundamental properties distinguishing ULTs from KLTs."
+     }
+    ],
+    "result": "Statements II, III, and IV are true — Answer D."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Core ULT vs KLT distinctions: context switch speed, blocking behavior, scheduling granularity, and kernel visibility.",
+   "qid": "7.26.1",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2007",
+    "year": 2007,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Threads",
+    "subtopic": "Threads"
+   },
+   "question": "Consider the following statements about user level threads and kernel level threads. Which one of the following statements is FALSE?\nA. Context switch time is longer for kernel level threads than for user level threads.\nB. User level threads do not need any hardware support.\nC. Related kernel level threads can be scheduled on different processors in a multi-processor system.\nD. Kernel level threads cannot share the code segment.",
+   "answer": "D. Kernel level threads cannot share the code segment.",
+   "to_find": "The FALSE statement about user-level threads and kernel-level threads.",
+   "understand": {
+    "plain": "Threads within the same process share the process's address space, which includes the code (text) segment. We need to identify which statement about user-level and kernel-level threads is FALSE.",
+    "keywords": [
+     {
+      "term": "Code segment sharing",
+      "explain": "All threads of a process (whether user-level or kernel-level) share the same code (text) segment because they belong to the same process and execute the same program.",
+      "example": "Two kernel-level threads of the same process both read instructions from the same .text section."
+     },
+     {
+      "term": "Context switch overhead",
+      "explain": "For kernel-level threads, a context switch requires a trap into kernel mode and additional state saving, making it slower than user-level thread context switches which happen entirely in user space.",
+      "example": "ULT switch: ~microseconds; KLT switch: ~tens of microseconds due to kernel involvement."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Process memory layout showing code, data, heap, and stack segments; multiple threads share code/data/heap but each has its own stack."
+   },
+   "given": {
+    "aim": "Find the one FALSE statement among four statements about ULTs and KLTs.",
+    "terms": [
+     {
+      "term": "Statement A",
+      "meaning": "Context switch is longer for KLTs than ULTs — TRUE because KLT switch requires kernel trap and more state.",
+      "example": "KLT switch involves saving kernel registers and TCB; ULT switch is just setjmp/longjmp in user space.",
+      "connects": "TRUE — not the answer."
+     },
+     {
+      "term": "Statement B",
+      "meaning": "ULTs do not need hardware support — TRUE because they are managed entirely by a user-space library without any special CPU privilege mode.",
+      "example": "Thread libraries like setjmp/longjmp or coroutines need no CPU hardware support.",
+      "connects": "TRUE — not the answer."
+     },
+     {
+      "term": "Statement C",
+      "meaning": "Related KLTs can be scheduled on different processors — TRUE because each KLT is independently schedulable by the kernel.",
+      "example": "In a dual-core system, two KLTs of one process can run simultaneously on both cores.",
+      "connects": "TRUE — not the answer."
+     },
+     {
+      "term": "Statement D",
+      "meaning": "KLTs CANNOT share the code segment — FALSE! All threads (KLT or ULT) of the same process share the code segment by definition.",
+      "example": "Threads are 'lightweight processes' precisely because they share code/data with other threads of the same process.",
+      "connects": "FALSE — this is the answer."
+     }
+    ],
+    "plan": "Check each statement against the definition of threads. Threads of the same process always share the code segment regardless of whether they are user-level or kernel-level. Statement D is the false one."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Verify statements A, B, C",
+      "formula_raw": "",
+      "apply": "A: KLT context switch is indeed slower than ULT (requires kernel mode trap). TRUE. B: ULTs need no hardware support — managed in user space. TRUE. C: KLTs can run on multiple processors simultaneously. TRUE.",
+      "note": "All three are well-known, correct properties."
+     },
+     {
+      "step": 2,
+      "title": "Evaluate Statement D",
+      "formula_raw": "",
+      "apply": "By definition, threads within the same process SHARE the code (text) segment, data segment, heap, and open file descriptors. Only stacks are private to each thread. Therefore, 'Kernel level threads cannot share the code segment' is FALSE.",
+      "note": "Code sharing across threads is the very reason threads are called lightweight — they avoid duplicating the code segment."
+     }
+    ],
+    "result": "Statement D is FALSE — kernel level threads CAN (and do) share the code segment."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Thread definition: threads of the same process share code, data, and heap segments; only the stack is private per thread.",
+   "qid": "7.26.2",
+   "answer_official": "D"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2011",
+    "year": 2011,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Threads",
+    "subtopic": "Threads"
+   },
+   "question": "A thread is usually defined as a \"light weight process\" because an Operating System (OS) maintains smaller data structure for a thread than for a process. In relation to this, which of the following statement is TRUE?\nA. On per-thread basis, the OS maintains only CPU register state.\nB. The OS does not maintain a separate stack for each thread.\nC. On per-thread basis, the OS does not maintain virtual memory state.\nD. On per-thread basis, the OS does not maintain scheduling state.",
+   "answer": "C. On per-thread basis, the OS does not maintain virtual memory state.",
+   "to_find": "Which statement correctly explains why a thread's data structure is smaller than a process's data structure.",
+   "understand": {
+    "plain": "A process has a full address space (virtual memory), open files, signal handlers, and per-thread components (registers, stack, scheduling state). When a new thread is created within a process, the OS does NOT create a new virtual memory space — all threads share the same address space. This is why thread data structures are smaller: they omit the virtual memory mapping information.",
+    "keywords": [
+     {
+      "term": "Lightweight process (thread)",
+      "explain": "A thread shares the address space and resources (code, data, heap, open files) of its parent process, so the OS only needs to maintain per-thread state (registers, stack, scheduling info) — not a full address space.",
+      "example": "Creating a thread is much cheaper than fork() because no new page tables are needed."
+     },
+     {
+      "term": "Virtual memory state",
+      "explain": "The page tables and address space mapping maintained by the OS for a process. Threads share the same page tables, so the OS does not duplicate this per thread.",
+      "example": "Process: has its own page table. Thread: uses the parent process's page table — no new virtual memory state."
+     }
+    ],
+    "visual_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 520 300\" width=\"520\" height=\"300\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x=\"10\" y=\"10\" width=\"240\" height=\"280\" rx=\"8\" class=\"bg\"/><text x=\"130\" y=\"38\" text-anchor=\"middle\" class=\"lbl ink\">Process PCB</text><rect x=\"25\" y=\"50\" width=\"210\" height=\"32\" rx=\"4\" class=\"hi\"/><text x=\"130\" y=\"71\" text-anchor=\"middle\" class=\"sub ink\">Virtual Memory State (page tables)</text><rect x=\"25\" y=\"90\" width=\"210\" height=\"32\" rx=\"4\" class=\"bg\"/><text x=\"130\" y=\"111\" text-anchor=\"middle\" class=\"sub ink\">Open Files</text><rect x=\"25\" y=\"130\" width=\"210\" height=\"32\" rx=\"4\" class=\"bg\"/><text x=\"130\" y=\"151\" text-anchor=\"middle\" class=\"sub ink\">Signal Handlers</text><rect x=\"25\" y=\"170\" width=\"210\" height=\"32\" rx=\"4\" class=\"bg\"/><text x=\"130\" y=\"191\" text-anchor=\"middle\" class=\"sub ink\">CPU Registers (per thread)</text><rect x=\"25\" y=\"210\" width=\"210\" height=\"32\" rx=\"4\" class=\"bg\"/><text x=\"130\" y=\"231\" text-anchor=\"middle\" class=\"sub ink\">Stack (per thread)</text><rect x=\"25\" y=\"250\" width=\"210\" height=\"32\" rx=\"4\" class=\"bg\"/><text x=\"130\" y=\"271\" text-anchor=\"middle\" class=\"sub ink\">Scheduling State (per thread)</text><rect x=\"270\" y=\"10\" width=\"240\" height=\"280\" rx=\"8\" class=\"bg\"/><text x=\"390\" y=\"38\" text-anchor=\"middle\" class=\"lbl ink\">Thread TCB</text><rect x=\"285\" y=\"50\" width=\"210\" height=\"32\" rx=\"4\" class=\"no\" style=\"opacity:0.3\"/><text x=\"390\" y=\"71\" text-anchor=\"middle\" class=\"sub mut\">NO Virtual Memory State</text><rect x=\"285\" y=\"170\" width=\"210\" height=\"32\" rx=\"4\" class=\"bg\"/><text x=\"390\" y=\"191\" text-anchor=\"middle\" class=\"sub ink\">CPU Registers</text><rect x=\"285\" y=\"210\" width=\"210\" height=\"32\" rx=\"4\" class=\"bg\"/><text x=\"390\" y=\"231\" text-anchor=\"middle\" class=\"sub ink\">Stack</text><rect x=\"285\" y=\"250\" width=\"210\" height=\"32\" rx=\"4\" class=\"bg\"/><text x=\"390\" y=\"271\" text-anchor=\"middle\" class=\"sub ink\">Scheduling State</text></svg>",
+    "visual_alt": "Side-by-side comparison of Process PCB (includes virtual memory state, open files, signal handlers, plus per-thread state) vs Thread TCB (only per-thread state: registers, stack, scheduling — no virtual memory state)."
+   },
+   "given": {
+    "aim": "Identify the correct explanation for why the OS maintains a smaller data structure (TCB) for a thread than for a process (PCB).",
+    "terms": [
+     {
+      "term": "PCB (Process Control Block)",
+      "meaning": "Data structure maintained by the OS for each process, including virtual memory (page tables), open file table, signal handlers, and per-thread components.",
+      "example": "fork() creates a new PCB with a new page table — expensive operation.",
+      "connects": "PCB is larger because it includes virtual memory state; TCB omits this."
+     },
+     {
+      "term": "TCB (Thread Control Block)",
+      "meaning": "Data structure for each thread; contains only CPU registers, program counter, stack pointer, and scheduling state — no separate virtual memory mapping.",
+      "example": "pthread_create() creates a TCB with just registers and a stack — cheap.",
+      "connects": "TCB is smaller because threads SHARE the process's virtual memory."
+     },
+     {
+      "term": "Stack per thread",
+      "meaning": "Each thread has its own function call stack so independent execution is possible, but this IS maintained per thread.",
+      "example": "Thread 1 and Thread 2 each have their own stack segment within the shared address space.",
+      "connects": "Stacks are private to threads — statement B ('OS does not maintain a separate stack') is FALSE."
+     }
+    ],
+    "plan": "The key difference between PCB and TCB is that TCB does not include virtual memory state (page tables/address space info) — threads share the parent process's address space. Check each option: A is wrong (TCB also has stack, scheduling), B is wrong (separate stacks per thread), C is correct (no virtual memory state per thread), D is wrong (scheduling state IS per thread)."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Identify what is per-thread vs per-process",
+      "formula_raw": "",
+      "apply": "Per-process (shared by all threads): virtual address space (page tables), open file descriptors, signal handlers, global variables. Per-thread (private): CPU registers, program counter, stack, scheduling state (priority, state machine).",
+      "note": "The key reason threads are 'lightweight' is the absence of separate virtual memory state."
+     },
+     {
+      "step": 2,
+      "title": "Evaluate each option",
+      "formula_raw": "",
+      "apply": "A: OS maintains CPU registers, stack, AND scheduling state per thread — not ONLY registers. FALSE. B: The OS DOES maintain a separate stack for each thread (each thread needs its own call stack). FALSE. C: OS does NOT maintain virtual memory state per thread — threads share the process's page tables. TRUE. D: Scheduling state (thread state: ready/running/blocked, priority) IS maintained per thread. FALSE.",
+      "note": "C correctly identifies the missing component in the TCB compared to PCB."
+     }
+    ],
+    "result": "Statement C is TRUE: On a per-thread basis, the OS does not maintain virtual memory state."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Thread vs Process: threads omit per-process virtual memory state (page tables) from their data structure, making TCB smaller than PCB.",
+   "qid": "7.26.3",
+   "answer_official": "C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2014",
+    "year": 2014,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Threads",
+    "subtopic": "Threads"
+   },
+   "question": "Which one of the following is FALSE?\nA. User level threads are not scheduled by the kernel.\nB. When a user level thread is blocked, all other threads of its process are blocked.\nC. Context switching between user level threads is faster than context switching between kernel level threads.\nD. Kernel level threads do not share the code segment of the processes to which they belong.",
+   "answer": "D. Kernel level threads do not share the code segment of the processes to which they belong.",
+   "to_find": "The FALSE statement about user-level threads and kernel-level threads.",
+   "understand": {
+    "plain": "Threads (both user-level and kernel-level) belonging to the same process always share the process's code (text) segment. This is the fundamental definition of a thread. Statement D claims kernel-level threads do NOT share the code segment, which is the opposite of the truth.",
+    "keywords": [
+     {
+      "term": "Code segment sharing",
+      "explain": "All threads of a process, regardless of type, share the same code (text) segment — this is the defining property that makes threads lightweight.",
+      "example": "KLT1 and KLT2 of the same process both execute instructions from the same binary .text section."
+     },
+     {
+      "term": "User-level thread scheduling",
+      "explain": "ULTs are scheduled by a user-space thread library, not directly by the OS kernel scheduler. The kernel only schedules the process as a whole.",
+      "example": "A round-robin scheduler in a thread library switches between ULTs without any kernel involvement."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Diagram showing a process box containing code segment, data segment, and heap (shared), with separate stacks for each kernel-level thread — illustrating that KLTs DO share the code segment."
+   },
+   "given": {
+    "aim": "Find the one FALSE statement among four about user-level and kernel-level threads.",
+    "terms": [
+     {
+      "term": "Statement A: ULTs not scheduled by kernel",
+      "meaning": "TRUE — user-level threads are managed by a user-space library; the kernel schedules only the process, unaware of individual ULTs.",
+      "example": "GNU Pth library schedules green threads without any kernel syscalls for the thread switch.",
+      "connects": "TRUE — not the answer."
+     },
+     {
+      "term": "Statement B: Blocking one ULT blocks all",
+      "meaning": "TRUE — since the kernel sees only the process, a blocking system call by any ULT blocks the entire process and thus all other ULTs.",
+      "example": "ULT calls blocking read() -> kernel blocks the process -> all other ULTs in the process stall.",
+      "connects": "TRUE — not the answer."
+     },
+     {
+      "term": "Statement C: ULT context switch is faster",
+      "meaning": "TRUE — switching between ULTs happens in user space (no kernel trap), so it is faster than KLT context switches which require a kernel mode transition.",
+      "example": "ULT switch: simple register save/restore in user space; KLT: full kernel mode switch.",
+      "connects": "TRUE — not the answer."
+     },
+     {
+      "term": "Statement D: KLTs do not share code segment",
+      "meaning": "FALSE — kernel-level threads of the same process absolutely share the code segment. Threads are defined as sharing the address space (including code) of their process.",
+      "example": "Two KLTs executing different functions of the same program both live in the same .text section.",
+      "connects": "FALSE — this is the answer."
+     }
+    ],
+    "plan": "Verify each statement. A, B, C are standard well-known truths about ULT/KLT. D contradicts the definition of threads — threads always share the code segment of their process, making D the false statement."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Verify statements A, B, C are TRUE",
+      "formula_raw": "",
+      "apply": "A: ULTs are scheduled by the thread library in user space, not by the kernel. TRUE. B: A blocking syscall by a ULT blocks the whole process (kernel unaware of ULTs). TRUE. C: ULT context switch is purely in user space — no kernel trap — so it is faster. TRUE.",
+      "note": "These are fundamental, textbook-correct properties of user-level threads."
+     },
+     {
+      "step": 2,
+      "title": "Evaluate Statement D",
+      "formula_raw": "",
+      "apply": "By definition, threads are 'lightweight processes' precisely because they SHARE the parent process's address space, including the code (text) segment, data segment, and heap. KLTs of the same process share all of these; only the stack is private. Statement D says KLTs do NOT share the code segment — this is FALSE.",
+      "note": "If threads did not share the code segment, they would be as heavy as separate processes."
+     }
+    ],
+    "result": "Statement D is FALSE — kernel level threads DO share the code segment of the process they belong to."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Thread definition: all threads (ULT or KLT) of a process share the code, data, and heap segments; each thread has only a private stack and register context.",
+   "qid": "7.26.4",
+   "answer_official": "D"
+  }
+ ]
+}

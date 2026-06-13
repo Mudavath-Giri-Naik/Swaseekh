@@ -1,0 +1,484 @@
+{
+ "page": 185,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2015",
+    "year": 2015,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "LR Parser",
+    "subtopic": "LR Parser"
+   },
+   "question": "Which one of the following is TRUE at any valid state in shift-reduce parsing?\nA. Viable prefixes appear only at the bottom of the stack and not inside\nB. Viable prefixes appear only at the top of the stack and not inside\nC. The stack contains only a set of viable prefixes\nD. The stack never contains viable prefixes",
+   "answer": "C. The stack contains only a set of viable prefixes",
+   "to_find": "Which statement about viable prefixes in shift-reduce parsing is true",
+   "understand": {
+    "plain": "In shift-reduce parsing, the parser maintains a stack. A viable prefix is any prefix of a right-sentential form that can appear on the stack during a valid parse. The fundamental invariant is that the entire stack content at any valid parse state is always a viable prefix — this property drives the construction of LR automata.",
+    "keywords": [
+     {
+      "term": "Viable prefix",
+      "explain": "A string that is a prefix of some right-sentential form and can legally appear on the parser stack during a valid LR parse, without extending past the handle.",
+      "example": "For grammar S -> aAb, the strings empty, 'a', 'aA' are viable prefixes; 'aAb' is not (it would trigger a reduce)."
+     },
+     {
+      "term": "Shift-reduce parser",
+      "explain": "A bottom-up parser that reads input left to right and builds the parse tree by shifting tokens onto a stack and reducing handle sequences to non-terminals.",
+      "example": "Stack: aA, Input: b$ — next shift b, then reduce aAb to S."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Parser stack always holds a viable prefix at every valid parse state. The LR DFA is built to recognize exactly the set of viable prefixes."
+   },
+   "given": {
+    "aim": "Identify the correct property of viable prefixes in the shift-reduce parser stack.",
+    "terms": [
+     {
+      "term": "Stack content",
+      "meaning": "The sequence of grammar symbols pushed during shift actions and not yet reduced.",
+      "example": "After shifting 'a' and 'A': stack = bottom $ a A top",
+      "connects": "The entire stack (not just part of it) is always a viable prefix."
+     },
+     {
+      "term": "Right-sentential form",
+      "meaning": "A string derivable from the start symbol using rightmost derivations.",
+      "example": "S =>_rm aAb is a right-sentential form; 'a' and 'aA' are prefixes of it.",
+      "connects": "Viable prefixes are prefixes of right-sentential forms that do not go past the handle."
+     },
+     {
+      "term": "Valid state",
+      "meaning": "Any parser configuration reachable by a sequence of valid shift/reduce actions on a valid input prefix.",
+      "example": "After correctly parsing prefix 'aA', the parser is in a valid state.",
+      "connects": "At every valid state, the complete stack content equals a viable prefix."
+     }
+    ],
+    "plan": "Recall the fundamental LR parsing theorem: the stack of a shift-reduce parser always contains a viable prefix. Options A and B incorrectly restrict to bottom or top only; D contradicts the theorem. Only C is correct."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "State the fundamental LR parsing theorem",
+      "formula_raw": "stack = viable prefix at every valid parse state",
+      "apply": "By the fundamental theorem of LR parsing, the content of the entire stack (from bottom symbol to top symbol) at any valid parse state is always a viable prefix of some right-sentential form. This is not just the top or bottom — it is the complete stack.",
+      "note": "This invariant is the theoretical basis for constructing LR automata — each state corresponds to a set of LR items recognizing viable prefixes."
+     },
+     {
+      "step": 2,
+      "title": "Eliminate wrong options",
+      "formula_raw": "",
+      "apply": "A says 'only at bottom' — wrong, the whole stack is the viable prefix. B says 'only at top' — wrong. D says 'never' — completely wrong. C says 'the stack contains only a set of viable prefixes', meaning the stack content is always a viable prefix — this is exactly the theorem.",
+      "note": "Option C is correct. The phrase 'a set of viable prefixes' refers to the fact that all possible valid stack contents form the set of viable prefixes for that grammar."
+     }
+    ],
+    "result": "C. The stack contains only a set of viable prefixes"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Fundamental LR parsing theorem: at every valid parse state, the shift-reduce parser stack content is a viable prefix of some right-sentential form.",
+   "qid": "3.10.10",
+   "answer_official": "C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2015",
+    "year": 2015,
+    "marks": 2,
+    "difficulty": "easy",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "LR Parser",
+    "subtopic": "LR Parser"
+   },
+   "question": "Among simple LR (SLR), canonical LR, and look-ahead LR (LALR), which of the following pairs identify the method that is easy to implement and the method that is most powerful, in that order?\nA. SLR, LALR\nB. Canonical LR, LALR\nC. SLR, canonical LR\nD. LALR, canonical LR",
+   "answer": "C. SLR, canonical LR",
+   "to_find": "The (easiest to implement, most powerful) pair among SLR, Canonical LR, and LALR",
+   "understand": {
+    "plain": "The three LR parsing methods differ in parsing power and implementation complexity. SLR is the simplest to build but least powerful. LALR is intermediate. Canonical LR (CLR) is most powerful but most complex. The question asks for the easiest to implement first, and the most powerful second.",
+    "keywords": [
+     {
+      "term": "SLR (Simple LR)",
+      "explain": "Uses FOLLOW sets on top of LR(0) items to resolve reduce decisions. Simplest to construct but may report conflicts that LALR or CLR would resolve.",
+      "example": "SLR uses FOLLOW(A) for all reduce-by-A actions, which can be too broad and cause false conflicts."
+     },
+     {
+      "term": "Canonical LR (CLR)",
+      "explain": "Uses full LR(1) items with precise per-item lookaheads. Most powerful and handles the largest class of grammars, but generates very large parse tables.",
+      "example": "CLR creates distinct states for LR(1) items with different lookaheads, resolving more conflicts than SLR or LALR."
+     },
+     {
+      "term": "LALR",
+      "explain": "Merges CLR states that have the same LR(0) core. Smaller tables than CLR but slightly less powerful; may introduce reduce-reduce conflicts not in CLR.",
+      "example": "LALR merges states to keep table size manageable, a practical compromise between SLR and CLR."
+     }
+    ],
+    "visual_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"520\" height=\"120\" viewBox=\"0 0 520 120\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x=\"10\" y=\"20\" width=\"140\" height=\"80\" rx=\"8\" class=\"hi\"/><text x=\"80\" y=\"52\" text-anchor=\"middle\" class=\"lbl ink\">SLR</text><text x=\"80\" y=\"76\" text-anchor=\"middle\" class=\"sub mut\">Easiest</text><rect x=\"190\" y=\"20\" width=\"140\" height=\"80\" rx=\"8\" class=\"bg\"/><text x=\"260\" y=\"52\" text-anchor=\"middle\" class=\"lbl ink\">LALR</text><text x=\"260\" y=\"76\" text-anchor=\"middle\" class=\"sub mut\">Middle</text><rect x=\"370\" y=\"20\" width=\"140\" height=\"80\" rx=\"8\" class=\"hi\"/><text x=\"440\" y=\"52\" text-anchor=\"middle\" class=\"lbl ink\">CLR</text><text x=\"440\" y=\"76\" text-anchor=\"middle\" class=\"sub mut\">Most Powerful</text></svg>",
+    "visual_alt": "Power and complexity hierarchy: SLR (simplest, weakest) to LALR (middle) to Canonical LR (most powerful, most complex)."
+   },
+   "given": {
+    "aim": "Identify which LR parser is easiest to implement and which is most powerful.",
+    "terms": [
+     {
+      "term": "Parsing power",
+      "meaning": "The set of grammars a parser can handle without conflicts. Larger set = more powerful.",
+      "example": "Every SLR(1) grammar is also LALR(1), and every LALR(1) grammar is also CLR(1); each containment is strict.",
+      "connects": "CLR handles the largest class, making it most powerful."
+     },
+     {
+      "term": "Implementation complexity",
+      "meaning": "How difficult it is to construct the parser tables (items, states, transitions).",
+      "example": "SLR only needs LR(0) items + FOLLOW sets; CLR needs LR(1) items with explicit lookaheads per item.",
+      "connects": "SLR is easiest to implement."
+     },
+     {
+      "term": "Table size",
+      "meaning": "Number of states in the parsing automaton.",
+      "example": "CLR may have many more states than SLR for the same grammar, making it harder to implement.",
+      "connects": "Larger tables accompany greater power but also greater implementation effort."
+     }
+    ],
+    "plan": "Power order: SLR < LALR < CLR. Ease of implementation order (reverse): SLR is easiest. So (easiest, most powerful) = (SLR, Canonical LR) = option C."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Rank parsers by power",
+      "formula_raw": "SLR(1) subset LALR(1) subset CLR(1)",
+      "apply": "Every grammar parseable by SLR is parseable by LALR, and every LALR grammar is parseable by CLR. The inclusions are strict. Therefore CLR is the most powerful and SLR is the least powerful.",
+      "note": "There exist grammars that are LALR but not SLR, and grammars that are CLR but not LALR."
+     },
+     {
+      "step": 2,
+      "title": "Rank parsers by ease of implementation",
+      "formula_raw": "",
+      "apply": "SLR uses LR(0) automaton + FOLLOW sets — simplest construction. LALR merges CLR states. CLR builds a full LR(1) automaton with potentially far more states. Hence SLR is easiest. The answer pair (easy to implement, most powerful) = (SLR, Canonical LR) = option C.",
+      "note": "LALR is used in practice (e.g., yacc/bison) because it balances power and table size."
+     }
+    ],
+    "result": "C. SLR, canonical LR"
+   },
+   "formula_ids_used": [],
+   "formula_note": "LR parser power hierarchy: SLR(1) strict subset LALR(1) strict subset Canonical LR(1); SLR is simplest, CLR is most powerful.",
+   "qid": "3.10.11",
+   "answer_official": "C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2017",
+    "year": 2017,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "LR Parser",
+    "subtopic": "LR Parser"
+   },
+   "question": "Which of the following statements about parser is/are CORRECT?\nI. Canonical LR is more powerful than SLR\nII. SLR is more powerful than LALR\nIII. LALR is more powerful than Canonical LR\nA. I only\nB. II only\nC. III only\nD. II and III only",
+   "answer": "A. I only",
+   "to_find": "Which statements about relative power of SLR, LALR, and Canonical LR parsers are correct",
+   "understand": {
+    "plain": "The three LR parsers form a strict power hierarchy: Canonical LR is strongest, LALR is next, and SLR is weakest. So only statement I ('Canonical LR is more powerful than SLR') is correct. Statements II and III reverse the correct ordering.",
+    "keywords": [
+     {
+      "term": "Parser power",
+      "explain": "Parser P1 is more powerful than P2 if every grammar parseable by P2 is also parseable by P1, but not conversely.",
+      "example": "CLR parses grammars LALR cannot, so CLR is more powerful than LALR."
+     },
+     {
+      "term": "LR(1) items vs LR(0) items",
+      "explain": "LR(1) items carry precise lookahead per item; LR(0) items do not. More precise lookahead = more conflicts resolved = more powerful.",
+      "example": "[S -> a . b, c] is an LR(1) item; [S -> a . b] is an LR(0) item."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Power ranking from weakest to strongest: SLR < LALR < Canonical LR. Only statement I is correct."
+   },
+   "given": {
+    "aim": "Determine which comparison statements about LR parser power are correct.",
+    "terms": [
+     {
+      "term": "Statement I: CLR > SLR",
+      "meaning": "Canonical LR can handle grammars that SLR cannot — TRUE.",
+      "example": "Some grammars with FOLLOW-set conflicts in SLR are handled correctly by CLR's precise lookaheads.",
+      "connects": "This follows directly from the strict inclusion SLR subset CLR."
+     },
+     {
+      "term": "Statement II: SLR > LALR",
+      "meaning": "Claims SLR can handle grammars that LALR cannot — FALSE.",
+      "example": "LALR is strictly more powerful than SLR; there are no grammars parseable by SLR but not by LALR.",
+      "connects": "Reversed from truth: LALR > SLR."
+     },
+     {
+      "term": "Statement III: LALR > CLR",
+      "meaning": "Claims LALR can handle grammars that CLR cannot — FALSE.",
+      "example": "CLR handles everything LALR does plus more; LALR merges CLR states which can cause new conflicts.",
+      "connects": "Reversed from truth: CLR > LALR."
+     }
+    ],
+    "plan": "Apply the known hierarchy SLR < LALR < CLR. Evaluate: I is true, II and III are false. Answer is A (I only)."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Establish the correct power hierarchy",
+      "formula_raw": "L(SLR) strict-subset L(LALR) strict-subset L(CLR)",
+      "apply": "The set of grammars parseable by SLR is a strict subset of those parseable by LALR, which is a strict subset of those parseable by CLR. Correct ranking (weakest to strongest): SLR < LALR < CLR.",
+      "note": "Counterexamples exist at each boundary — grammars that are LALR but not SLR, and grammars that are CLR but not LALR."
+     },
+     {
+      "step": 2,
+      "title": "Evaluate each statement against the hierarchy",
+      "formula_raw": "",
+      "apply": "I: 'CLR more powerful than SLR' — TRUE (CLR > SLR by strict inclusion). II: 'SLR more powerful than LALR' — FALSE (truth is LALR > SLR). III: 'LALR more powerful than CLR' — FALSE (truth is CLR > LALR). Only statement I is correct.",
+      "note": "A common mistake is confusing SLR and LALR order. Remember: SLR is the weakest of the three."
+     }
+    ],
+    "result": "A. I only"
+   },
+   "formula_ids_used": [],
+   "formula_note": "LR parser power hierarchy: SLR(1) strict-subset LALR(1) strict-subset Canonical LR(1).",
+   "qid": "3.10.12",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2019",
+    "year": 2019,
+    "marks": 1,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "LR Parser",
+    "subtopic": "LR Parser"
+   },
+   "question": "Which one of the following kinds of derivation is used by LR parsers?\nA. Leftmost\nB. Leftmost in reverse\nC. Rightmost\nD. Rightmost in reverse",
+   "answer": "D. Rightmost in reverse",
+   "to_find": "The type of derivation LR parsers trace out",
+   "understand": {
+    "plain": "LR parsers are bottom-up parsers. They scan input from left to right and perform reductions that, when read backward, form a rightmost derivation from the start symbol. So LR parsers trace a rightmost derivation in reverse.",
+    "keywords": [
+     {
+      "term": "Rightmost derivation",
+      "explain": "A derivation where at each step the rightmost non-terminal in the current sentential form is expanded.",
+      "example": "S => aAb => aab replaces rightmost non-terminal A; this is a rightmost derivation step."
+     },
+     {
+      "term": "Bottom-up parsing",
+      "explain": "Parsing starting from the input tokens (leaves) and building toward the start symbol (root) by reducing handles.",
+      "example": "Input 'acb' for S->aAb, A->c: reduce c to A, then reduce aAb to S — reading bottom-up."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "LR parser reads left to right; its reductions are the rightmost derivation steps in reverse order."
+   },
+   "given": {
+    "aim": "Identify which derivation type LR parsers implicitly construct.",
+    "terms": [
+     {
+      "term": "L in LR",
+      "meaning": "Left-to-right: the input is scanned from left to right.",
+      "example": "An LR parser reads tokens a, b, c, d from position 1 to n in order.",
+      "connects": "Input scanning direction is left-to-right."
+     },
+     {
+      "term": "R in LR",
+      "meaning": "Rightmost derivation: the derivation constructed is a rightmost derivation, but in reverse (bottom-up).",
+      "example": "Each reduction step in the LR parser undoes one rightmost derivation step.",
+      "connects": "The sequence of reductions, reversed, is a rightmost derivation of the input."
+     },
+     {
+      "term": "Handle",
+      "meaning": "The substring on the stack that matches the RHS of a production and is reduced next, corresponding to one rightmost derivation step in reverse.",
+      "example": "If the rightmost step is S =>_rm aAb => aab, then 'a' on the stack is the handle for A->a.",
+      "connects": "Reducing handles in order = rightmost derivation in reverse."
+     }
+    ],
+    "plan": "Decode the LR acronym: L = left-to-right scan, R = rightmost derivation (in reverse). The answer is D."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Decode the LR acronym",
+      "formula_raw": "LR = Left-to-right scan + Rightmost derivation in Reverse",
+      "apply": "The 'L' means input is scanned left to right. The 'R' means the parser constructs a rightmost derivation, but since it works bottom-up, each reduction undoes one rightmost derivation step. Reading the reductions in reverse gives a rightmost derivation.",
+      "note": "LL parsers produce leftmost derivations (top-down); LR parsers produce rightmost derivations in reverse (bottom-up)."
+     },
+     {
+      "step": 2,
+      "title": "Confirm with a small example",
+      "formula_raw": "",
+      "apply": "Grammar: S->aAb, A->c. Input: 'acb'. Rightmost derivation: S =>_rm aAb =>_rm acb. LR parse: shift a, shift c, reduce c->A (stack: aA), shift b, reduce aAb->S. Reductions in order: (A->c), (S->aAb). Reversed: S->aAb, A->c — exactly the rightmost derivation steps.",
+      "note": "This confirms option D: LR parsers use rightmost derivation in reverse."
+     }
+    ],
+    "result": "D. Rightmost in reverse"
+   },
+   "formula_ids_used": [],
+   "formula_note": "LR: L = left-to-right scan, R = rightmost derivation in reverse; bottom-up parsing undoes rightmost derivation steps.",
+   "qid": "3.10.13",
+   "answer_official": "D"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2020",
+    "year": 2020,
+    "marks": 1,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Compiler Design",
+    "topic": "LR Parser",
+    "subtopic": "LR Parser"
+   },
+   "question": "Consider the following grammar:\nS -> aSB | a\nB -> b\nThe number of reduction steps taken by a bottom-up parser while accepting the string aab is ___________.",
+   "answer": "3",
+   "to_find": "Number of reduction steps taken by a bottom-up parser to accept the string aab",
+   "understand": {
+    "plain": "A bottom-up shift-reduce parser accepts a string by shifting tokens onto a stack and reducing handles to non-terminals. Each reduce action is one reduction step. For string 'aab' with grammar S->aSB|a, B->b, we trace the parse and count the reductions.",
+    "keywords": [
+     {
+      "term": "Reduction step",
+      "explain": "An action where the parser pops a handle (matching some production RHS) from the stack and pushes the corresponding LHS non-terminal.",
+      "example": "If rule B->b exists and stack top is 'b', one reduction step pops 'b' and pushes 'B'."
+     },
+     {
+      "term": "Handle",
+      "explain": "The rightmost substring on the stack matching a production RHS, whose reduction is the correct next step in the rightmost derivation.",
+      "example": "Stack = $aS with input b$: shift b, then handle 'b' reduces to B giving $aSB, then handle 'aSB' reduces to S."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Shift-reduce trace for 'aab': shift a, shift a, reduce a to S, shift b, reduce b to B, reduce aSB to S. Total 3 reductions."
+   },
+   "given": {
+    "aim": "Count the number of reduce actions in the bottom-up parse of 'aab'.",
+    "terms": [
+     {
+      "term": "Grammar: S->aSB|a, B->b",
+      "meaning": "S can expand with one more 'a' on left and one 'B' (i.e., 'b') on right, or terminate with just 'a'.",
+      "example": "Derivation of 'aab': S =>_rm aSB =>_rm a(a)B =>_rm aaB =>_rm aab. Four rightmost steps? No — S=>aSB (1), inner S=>a (2), B=>b (3) = 3 steps.",
+      "connects": "3 derivation steps means 3 reduction steps in bottom-up parse."
+     },
+     {
+      "term": "String 'aab'",
+      "meaning": "Two 'a's followed by one 'b'; this matches n=2 in grammar S->aSB|a, B->b which generates a^n b^(n-1).",
+      "example": "n=2: S->aSB->a(a)B->aaB->aab (3 rule applications).",
+      "connects": "3 production applications = 3 reduction steps."
+     },
+     {
+      "term": "Rightmost derivation in reverse",
+      "meaning": "Number of reductions equals number of production steps in the rightmost derivation.",
+      "example": "If derivation is 3 steps, bottom-up parse performs exactly 3 reductions.",
+      "connects": "Direct correspondence between derivation length and reduction count."
+     }
+    ],
+    "plan": "Find the rightmost derivation of 'aab' from S and count the steps. Each step = one reduction."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Find the rightmost derivation of 'aab'",
+      "formula_raw": "S =>_rm aSB =>_rm aaB =>_rm aab",
+      "apply": "Step 1: S => aSB  (apply S->aSB)\nStep 2: aSB => aaB  (apply S->a to inner S; rightmost non-terminal was S)\nStep 3: aaB => aab  (apply B->b; rightmost non-terminal was B)\nTotal: 3 derivation steps, so 3 reductions.",
+      "note": "Each arrow corresponds to one production rule application, which in bottom-up parsing corresponds to one reduction."
+     },
+     {
+      "step": 2,
+      "title": "Trace the shift-reduce parse",
+      "formula_raw": "",
+      "apply": "Stack  | Input | Action\n$      | aab$  | shift a\n$a     | ab$   | shift a\n$aa    | b$    | reduce by S->a  [reduction 1: $aS]\n$aS    | b$    | shift b\n$aSb   | $     | reduce by B->b  [reduction 2: $aSB]\n$aSB   | $     | reduce by S->aSB  [reduction 3: $S]\n$S     | $     | accept\nTotal reductions = 3.",
+      "note": "Three reduce actions correspond exactly to the three production steps in the rightmost derivation."
+     }
+    ],
+    "result": "3"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Number of reductions in bottom-up parse = number of production rules applied in the rightmost derivation of the string.",
+   "qid": "3.10.14",
+   "answer_official": "7"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2021",
+    "year": 2021,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "LR Parser",
+    "subtopic": "LR Parser"
+   },
+   "question": "Consider the following statements.\nS_1: Every SLR(1) grammar is unambiguous, but there are certain unambiguous grammars that are not SLR(1).\nS_2: For any context-free grammar, there is a parser that takes at most O(n^3) time to parse a string of length n.\nWhich one of the following options is correct?\nA. S_1 is true and S_2 is false\nB. S_1 is false and S_2 is true\nC. S_1 is false and S_2 is false\nD. S_1 is true and S_2 is true",
+   "answer": "D. S_1 is true and S_2 is true",
+   "to_find": "Whether S_1 (SLR grammar implies unambiguous) and S_2 (any CFG parseable in O(n^3)) are true or false",
+   "understand": {
+    "plain": "S_1 states that every SLR(1) grammar must be unambiguous (since LR parsers are deterministic), but there are unambiguous grammars that are not SLR(1). S_2 states that any CFG can be parsed in O(n^3) — this is possible using the CYK or Earley algorithm. Both statements are true.",
+    "keywords": [
+     {
+      "term": "SLR(1) grammar unambiguity",
+      "explain": "An ambiguous grammar always causes shift-reduce or reduce-reduce conflicts in any LR parser, so no ambiguous grammar can be SLR(1). Hence every SLR(1) grammar is unambiguous.",
+      "example": "The grammar S->SS|a is ambiguous and cannot be SLR(1) due to reduce-reduce conflicts."
+     },
+     {
+      "term": "CYK algorithm",
+      "explain": "Cocke-Younger-Kasami dynamic programming algorithm that parses any CFG (in Chomsky Normal Form) in O(n^3) time.",
+      "example": "CYK fills an n x n triangular table; cell (i,j) lists non-terminals that derive substring from position i to j."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "S_1: SLR grammars are always unambiguous but some unambiguous grammars are not SLR. S_2: CYK/Earley algorithms parse any CFG in O(n^3)."
+   },
+   "given": {
+    "aim": "Determine truth values of S_1 and S_2.",
+    "terms": [
+     {
+      "term": "LR determinism => unambiguity",
+      "meaning": "LR(k) parsers are deterministic — they make unique parse decisions, so they cannot correctly parse ambiguous grammars.",
+      "example": "If grammar is ambiguous, same input has two parse trees; LR parser would need to choose, causing a conflict.",
+      "connects": "S_1 first part (SLR => unambiguous) is TRUE."
+     },
+     {
+      "term": "Unambiguous does not imply SLR",
+      "meaning": "An unambiguous grammar may still have SLR conflicts because FOLLOW sets are too coarse.",
+      "example": "A grammar with unambiguous derivations but where FOLLOW(A) overlaps with shift actions for some state has SLR conflicts.",
+      "connects": "S_1 second part (some unambiguous not SLR) is TRUE. So S_1 is TRUE overall."
+     },
+     {
+      "term": "O(n^3) parsing for any CFG",
+      "meaning": "Both CYK and Earley algorithms achieve O(n^3) for any context-free grammar.",
+      "example": "CYK on CNF grammar of size |G|: O(n^3 * |G|) time which is O(n^3) for fixed grammar.",
+      "connects": "S_2 is TRUE."
+     }
+    ],
+    "plan": "Verify S_1: LR determinism implies unambiguity (TRUE), and examples show some unambiguous grammars are not SLR (TRUE). Verify S_2: CYK gives O(n^3) for any CFG (TRUE). Both TRUE => option D."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Verify S_1: Every SLR(1) grammar is unambiguous",
+      "formula_raw": "ambiguous grammar => conflicts in LR table => not LR(k) for any k",
+      "apply": "If a grammar is ambiguous, some string has two parse trees, meaning two different rightmost derivations. An LR parser requires a unique sequence of actions; ambiguity would create shift-reduce or reduce-reduce conflicts. Therefore no ambiguous grammar is LR(k) for any k, and in particular no SLR(1) grammar is ambiguous. Additionally, there are unambiguous grammars with SLR conflicts (FOLLOW sets too broad), so some unambiguous grammars are not SLR(1). S_1 is TRUE.",
+      "note": "The converse — unambiguous implies SLR — is FALSE. Ambiguous implies not LR is TRUE."
+     },
+     {
+      "step": 2,
+      "title": "Verify S_2: O(n^3) parser exists for any CFG",
+      "formula_raw": "CYK: O(n^3 * |G|) = O(n^3) for fixed grammar",
+      "apply": "The CYK algorithm converts any CFG to Chomsky Normal Form (possible for any CFG) and then uses dynamic programming to fill an n x n parse table in O(n^3) time. Earley's algorithm also runs in O(n^3) for any CFG. Therefore for any CFG there exists a parser running in O(n^3). S_2 is TRUE.",
+      "note": "For ambiguous grammars Earley's is O(n^3); for unambiguous O(n^2); for LR grammars O(n). The worst-case bound O(n^3) holds for all CFGs."
+     }
+    ],
+    "result": "D. S_1 is true and S_2 is true"
+   },
+   "formula_ids_used": [],
+   "formula_note": "CYK algorithm: O(n^3) for any CFG; LR/SLR grammars are always unambiguous due to determinism requirement.",
+   "qid": "3.10.15",
+   "answer_official": "C"
+  }
+ ]
+}

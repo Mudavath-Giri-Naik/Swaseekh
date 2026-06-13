@@ -1,0 +1,337 @@
+{
+ "page": 464,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2023",
+    "year": 2023,
+    "marks": 1,
+    "difficulty": "medium",
+    "type": "MSQ",
+    "subject": "Operating System",
+    "topic": "Process",
+    "subtopic": "Process"
+   },
+   "question": "Which one or more of the following need to be saved on a context switch from one thread (T1) of a process to another thread (T2) of the same process?\nA. Page table base register\nB. Stack pointer\nC. Program counter\nD. General purpose registers",
+   "answer": "B, C, D",
+   "to_find": "Which registers/values must be saved during a thread context switch within the same process",
+   "understand": {
+    "plain": "When the OS switches from one thread to another thread inside the same process, it must save the CPU state belonging to the running thread. Since both threads share the same process address space, the page table is the same and does not need to be switched. However, each thread has its own stack, its own instruction pointer, and its own register values that must be preserved.",
+    "keywords": [
+     {
+      "term": "Thread context switch",
+      "explain": "Saving the CPU state of one thread and loading the state of another thread so execution can resume later exactly where it left off.",
+      "example": "Saving PC=0x4028, SP=0x7FFF, R1=5 for T1 before loading T2's saved state."
+     },
+     {
+      "term": "Page table base register (PTBR)",
+      "explain": "A CPU register (e.g., CR3 on x86) that points to the page table of the currently running process. All threads of the same process share one address space, so their page table is the same.",
+      "example": "T1 and T2 both map virtual address 0x1000 through the same page table entry."
+     },
+     {
+      "term": "Thread-private state",
+      "explain": "CPU registers, program counter, and stack pointer are per-thread because each thread executes independently with its own call stack and instruction sequence.",
+      "example": "T1's stack pointer might be 0x7FF0 while T2's stack pointer is 0x6FF0 at the same moment."
+     }
+    ],
+    "visual_svg": "<svg viewBox='0 0 520 240' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='500' height='220' rx='10' class='bg'/><text x='260' y='38' text-anchor='middle' class='lbl ink'>Same Process — Shared vs. Per-Thread State</text><rect x='30' y='55' width='210' height='150' rx='8' class='hi'/><text x='135' y='78' text-anchor='middle' class='tag ink'>Thread T1 (per-thread)</text><text x='135' y='102' text-anchor='middle' class='sub ink'>Stack Pointer (SP) - SAVED</text><text x='135' y='122' text-anchor='middle' class='sub ink'>Program Counter (PC) - SAVED</text><text x='135' y='142' text-anchor='middle' class='sub ink'>General Registers - SAVED</text><rect x='280' y='55' width='210' height='150' rx='8' class='bg'/><text x='385' y='78' text-anchor='middle' class='tag ink'>Shared (Process-wide)</text><text x='385' y='110' text-anchor='middle' class='sub ink'>Page Table (PTBR)</text><text x='385' y='132' text-anchor='middle' class='sub mut'>NOT saved on thread switch</text><text x='385' y='152' text-anchor='middle' class='sub ink'>Code / Data segments</text><text x='385' y='172' text-anchor='middle' class='sub mut'>shared by T1 and T2</text></svg>",
+    "visual_alt": "Two boxes: T1 per-thread state (SP, PC, general registers - all saved on switch) vs. process-wide shared state (page table, code/data segments - not saved on thread switch)."
+   },
+   "given": {
+    "aim": "Identify which CPU state items must be saved when switching from thread T1 to thread T2 of the same process.",
+    "terms": [
+     {
+      "term": "Same process",
+      "meaning": "T1 and T2 share the same virtual address space, heap, global variables, and page table.",
+      "example": "Both T1 and T2 can access global int x without any mapping change.",
+      "connects": "Because address space is shared, PTBR does not change on a thread switch within the same process."
+     },
+     {
+      "term": "Stack pointer (SP)",
+      "meaning": "Points to the top of the current thread's stack; each thread has its own stack.",
+      "example": "T1's SP = 0x7FF0, T2's SP = 0x6FF0.",
+      "connects": "Must be saved so T1 can resume its function call chain later."
+     },
+     {
+      "term": "Program counter (PC)",
+      "meaning": "Holds the address of the next instruction the thread will execute.",
+      "example": "T1 paused at instruction 0x4028; this must be saved to resume T1 there.",
+      "connects": "Each thread executes a different instruction sequence, so PC is thread-private and must be saved."
+     },
+     {
+      "term": "General purpose registers",
+      "meaning": "Registers like R0-R15 / EAX-EDX that hold intermediate computation values for the running thread.",
+      "example": "T1 had R1=5 in the middle of a loop; this must be saved so T1 resumes correctly.",
+      "connects": "These are entirely per-thread and must be saved/restored on every context switch."
+     }
+    ],
+    "plan": "Check each option: if it is shared by all threads of the process, it does not need to be saved. If it is private to the running thread (execution state), it must be saved. The page table base register belongs to the process as a whole; stack pointer, PC, and general registers are per-thread."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Identify shared vs. per-thread state",
+      "formula_raw": "",
+      "apply": "Threads within the same process share: virtual address space, page table (PTBR), code segment, data segment, heap, open file descriptors. Each thread has its own: stack, stack pointer, program counter, register values (general purpose, flag register, etc.).",
+      "note": "The key insight: PTBR does not change when switching between threads of the same process because they live in the same address space."
+     },
+     {
+      "step": 2,
+      "title": "Evaluate each option",
+      "formula_raw": "",
+      "apply": "A. Page table base register — shared by all threads of the process; NOT changed or saved on intra-process thread switch.\nB. Stack pointer — per-thread (each thread has its own stack); MUST be saved.\nC. Program counter — per-thread (each thread is at a different point of execution); MUST be saved.\nD. General purpose registers — per-thread (hold intermediate values of the thread's computation); MUST be saved.",
+      "note": "Options B, C, D are all per-thread state and must be saved. Option A is process-wide and does not need saving."
+     }
+    ],
+    "result": "B (Stack pointer), C (Program counter), and D (General purpose registers) need to be saved. Page table base register (A) does not."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Thread context switch saves per-thread CPU state (PC, SP, general registers); process-wide state (page table) is unchanged for intra-process thread switches.",
+   "qid": "7.18.4",
+   "answer_official": "B;C;D"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2006",
+    "year": 2006,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Process",
+    "subtopic": "Process"
+   },
+   "question": "The process state transition diagram of an operating system is as given below. (The diagram shows states: Created -> Ready -> Running -> Blocked -> Ready, Running -> Exit, and notably there is NO direct transition from Running back to Ready, i.e., no preemption arrow from Running to Ready.)\nWhich of the following must be FALSE about the above operating system?\nA. It is a multiprogrammed operating system\nB. It uses preemptive scheduling\nC. It uses non-preemptive scheduling\nD. It is a multi-user operating system",
+   "answer": "B. It uses preemptive scheduling",
+   "to_find": "Which statement about the OS must be FALSE given its process state transition diagram",
+   "understand": {
+    "plain": "A process state transition diagram shows all the possible states a process can be in and the transitions between them. The key thing to look for is whether there is a transition from the Running state back to the Ready state without the process voluntarily blocking or terminating. If no such transition exists (no preemption arrow), then the scheduler cannot forcibly remove a running process — meaning it uses non-preemptive scheduling.",
+    "keywords": [
+     {
+      "term": "Preemptive scheduling",
+      "explain": "The OS can forcibly remove a running process from the CPU and put it back in the Ready queue (Running -> Ready transition exists).",
+      "example": "Round Robin: after each time quantum expires, the running process is moved back to Ready."
+     },
+     {
+      "term": "Non-preemptive scheduling",
+      "explain": "A process keeps the CPU until it voluntarily relinquishes it (blocks on I/O, terminates, or yields). No Running -> Ready transition.",
+      "example": "FCFS: the process runs to completion (or until it blocks) without being interrupted."
+     },
+     {
+      "term": "Process state transition diagram",
+      "explain": "A directed graph showing states (Created, Ready, Running, Blocked, Exit) and arrows for each possible transition.",
+      "example": "Blocked -> Ready happens when an I/O operation completes."
+     }
+    ],
+    "visual_svg": "<svg viewBox='0 0 560 200' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><ellipse cx='70' cy='100' rx='55' ry='28' class='bg'/><text x='70' y='105' text-anchor='middle' class='tag ink'>Created</text><ellipse cx='210' cy='100' rx='50' ry='28' class='bg'/><text x='210' y='105' text-anchor='middle' class='tag ink'>Ready</text><ellipse cx='350' cy='100' rx='55' ry='28' class='hi'/><text x='350' y='105' text-anchor='middle' class='tag ink'>Running</text><ellipse cx='490' cy='55' rx='42' ry='25' class='bg'/><text x='490' y='60' text-anchor='middle' class='tag ink'>Exit</text><ellipse cx='490' cy='155' rx='50' ry='28' class='bg'/><text x='490' y='160' text-anchor='middle' class='tag ink'>Blocked</text><line x1='125' y1='100' x2='155' y2='100' stroke='#2C2C2A' stroke-width='2' marker-end='url(#arr)'/><line x1='265' y1='100' x2='290' y2='100' stroke='#2C2C2A' stroke-width='2' marker-end='url(#arr)'/><line x1='405' y1='85' x2='450' y2='65' stroke='#2C2C2A' stroke-width='2' marker-end='url(#arr)'/><line x1='405' y1='115' x2='440' y2='140' stroke='#2C2C2A' stroke-width='2' marker-end='url(#arr)'/><line x1='440' y1='158' x2='260' y2='112' stroke='#D85A30' stroke-width='2' marker-end='url(#arr)' stroke-dasharray='5,3'/><text x='340' y='185' text-anchor='middle' class='sub no'>NO Running-&gt;Ready arrow (no preemption)</text><defs><marker id='arr' markerWidth='8' markerHeight='8' refX='6' refY='3' orient='auto'><path d='M0,0 L0,6 L8,3 z' fill='#2C2C2A'/></marker></defs></svg>",
+    "visual_alt": "State diagram: Created -> Ready -> Running -> Exit and Running -> Blocked -> Ready. There is no direct Running -> Ready arrow, indicating no preemption is possible."
+   },
+   "given": {
+    "aim": "Determine which claim about the OS must be FALSE given that its state diagram has no Running -> Ready transition.",
+    "terms": [
+     {
+      "term": "No Running -> Ready transition",
+      "meaning": "The OS never moves a process from Running state back to the Ready queue forcibly.",
+      "example": "Once a process gets the CPU, it keeps it until it blocks or exits.",
+      "connects": "This directly implies the OS does NOT use preemptive scheduling."
+     },
+     {
+      "term": "Multiprogrammed OS",
+      "meaning": "Multiple processes are kept in memory and the CPU is switched among them when one blocks.",
+      "example": "Process P1 blocks on I/O; scheduler picks P2 from Ready queue.",
+      "connects": "Multiprogramming can exist even with non-preemptive scheduling; does not require Running -> Ready."
+     },
+     {
+      "term": "Multi-user OS",
+      "meaning": "Supports multiple users running processes concurrently.",
+      "example": "Two users logged in, each with active processes.",
+      "connects": "Multi-user is possible without preemption (though unusual); cannot be ruled out from the diagram alone."
+     }
+    ],
+    "plan": "The absence of a Running -> Ready transition in the state diagram means preemption is impossible. Preemptive scheduling requires this transition. Therefore 'It uses preemptive scheduling' must be FALSE. The other options (multiprogrammed, non-preemptive, multi-user) are not contradicted."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Interpret the state diagram",
+      "formula_raw": "",
+      "apply": "In the given diagram the transitions are: Created -> Ready, Ready -> Running (dispatch), Running -> Blocked (I/O wait), Blocked -> Ready (I/O complete), Running -> Exit (terminate). There is NO transition from Running directly back to Ready.",
+      "note": "The absence of the Running -> Ready transition is the critical observation."
+     },
+     {
+      "step": 2,
+      "title": "Map transitions to scheduling type",
+      "formula_raw": "",
+      "apply": "Preemptive scheduling requires a Running -> Ready transition (the scheduler forcibly moves a running process back to Ready queue when its time slice expires or a higher-priority process arrives). Since this transition is absent, the OS cannot use preemptive scheduling. Non-preemptive scheduling is consistent with this diagram. Multiprogramming is also consistent (switch on block). Multi-user is not contradicted.",
+      "note": "Option B states 'It uses preemptive scheduling' — this must be FALSE."
+     }
+    ],
+    "result": "B. It uses preemptive scheduling — this must be FALSE because the state diagram has no Running -> Ready transition, which is the hallmark of preemptive scheduling."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Preemptive scheduling requires a Running -> Ready state transition; its absence in the diagram proves the OS cannot be preemptive.",
+   "qid": "7.18.5",
+   "answer_official": "B"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1988",
+    "year": 1988,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Operating System",
+    "topic": "Process Scheduling",
+    "subtopic": "Process Scheduling"
+   },
+   "question": "State any undesirable characteristic of the following criteria for measuring performance of an operating system:\nTurnaround time",
+   "answer": "Turnaround time does not differentiate between CPU burst time and waiting time; a process with long I/O waits can have a large turnaround time even if the CPU scheduling was excellent. It penalises long jobs disproportionately and does not reflect the actual responsiveness felt by interactive users.",
+   "to_find": "An undesirable characteristic of using turnaround time as an OS performance metric",
+   "understand": {
+    "plain": "Turnaround time is the total elapsed time from when a process enters the system until it finishes. While it is a useful high-level metric, it has weaknesses: it counts time the process spent waiting for I/O (not just CPU scheduling), so a process that does a lot of I/O can have a large turnaround time even if the CPU scheduler was perfectly efficient. It is also biased against long jobs.",
+    "keywords": [
+     {
+      "term": "Turnaround time",
+      "explain": "Time from process submission to process completion: turnaround = completion time - arrival time. Includes CPU time, I/O wait, ready queue wait.",
+      "example": "Process arrives at t=0, finishes at t=20 => turnaround = 20 units."
+     },
+     {
+      "term": "I/O bound vs CPU bound",
+      "explain": "An I/O bound process spends most of its time waiting for I/O, not the CPU. Its large turnaround time may be unavoidable and not the scheduler's fault.",
+      "example": "A database query waiting for disk reads can have turnaround=100 even if CPU wait=1."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Timeline of a process: arrival -> ready queue wait -> CPU burst -> I/O wait -> CPU burst -> exit. Turnaround = total span including I/O, so it does not isolate scheduler quality."
+   },
+   "given": {
+    "aim": "Identify a weakness of turnaround time as an OS performance measure.",
+    "terms": [
+     {
+      "term": "Turnaround time = completion - arrival",
+      "meaning": "Total time a job takes from entry to exit, summing all wait and execution phases.",
+      "example": "Includes ready-queue waiting, CPU execution, and I/O waiting.",
+      "connects": "Because it includes I/O wait, it is not a pure measure of CPU scheduler quality."
+     },
+     {
+      "term": "Bias against long jobs",
+      "meaning": "Minimising average turnaround time (as SJF does) tends to favour short jobs and starve or deprioritise long-running processes.",
+      "example": "SJF achieves minimum average turnaround but can starve long jobs indefinitely.",
+      "connects": "Optimising purely for turnaround time is unfair to large jobs."
+     },
+     {
+      "term": "Interactive responsiveness",
+      "meaning": "Turnaround time is not a good metric for interactive systems where users care about response time, not total completion time.",
+      "example": "A text editor user cares about how quickly a keystroke is echoed, not the total process lifetime.",
+      "connects": "Response time is a better metric for interactive OSes; turnaround time is more suited to batch systems."
+     }
+    ],
+    "plan": "State the key flaw: turnaround time conflates I/O waiting with CPU scheduling quality, is biased against long jobs, and is unsuitable as a sole metric for interactive systems."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Definition and what it measures",
+      "formula_raw": "Turnaround time = Completion time - Arrival time",
+      "apply": "Turnaround time is the wall-clock time from job submission to job completion. It includes time in the ready queue, CPU execution time, and time blocked waiting for I/O.",
+      "note": "Because it includes all phases, it is a blunt instrument — it cannot distinguish between poor CPU scheduling and necessary I/O delays."
+     },
+     {
+      "step": 2,
+      "title": "State the undesirable characteristic",
+      "formula_raw": "",
+      "apply": "Undesirable characteristic: Turnaround time includes I/O wait time, which is outside the CPU scheduler's control. A process with frequent or lengthy I/O operations will always have a large turnaround time regardless of how well the scheduler is performing. Additionally, optimising for minimum average turnaround time (e.g., SJF policy) discriminates against long jobs and can cause indefinite postponement (starvation) of large processes. For interactive systems it is a poor metric because users perceive response time, not total completion time.",
+      "note": "The 1988 GATE question is descriptive/short-answer; any one of the above valid points is an acceptable answer."
+     }
+    ],
+    "result": "Turnaround time is undesirable as a sole performance metric because: (1) it includes I/O wait time and thus does not purely reflect CPU scheduling quality; (2) optimising it tends to starve long jobs (bias toward short jobs); (3) it is inappropriate for interactive systems where response time matters more."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Turnaround time = completion - arrival; its undesirable property is that it includes uncontrollable I/O wait time and is biased against long/I/O-intensive jobs.",
+   "qid": "7.19.1",
+   "answer_official": "B"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1988",
+    "year": 1988,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Operating System",
+    "topic": "Process Scheduling",
+    "subtopic": "Process Scheduling"
+   },
+   "question": "State any undesirable characteristic of the following criteria for measuring performance of an operating system:\nWaiting time",
+   "answer": "Waiting time measures only the time a process spends in the ready queue waiting for CPU, but ignores I/O waiting time and does not reflect the total delay experienced by the user. It is also biased toward short CPU-burst jobs when used as an optimisation criterion (e.g., SJF minimises average waiting time but can starve long jobs).",
+   "to_find": "An undesirable characteristic of using waiting time as an OS performance metric",
+   "understand": {
+    "plain": "Waiting time is the total time a process spends in the ready queue waiting for CPU allocation, not counting time it spends doing I/O or being executed. While it is a purer CPU-scheduler metric than turnaround time, it still has weaknesses: it ignores I/O delays entirely, so for I/O-intensive processes it gives an overly optimistic picture. Also, minimising average waiting time (as SJF does) is achieved at the cost of fairness — long jobs can starve.",
+    "keywords": [
+     {
+      "term": "Waiting time",
+      "explain": "Total time a process sits in the Ready queue waiting for the CPU (excluding I/O wait and CPU execution time).",
+      "example": "If P1 waits in the ready queue at intervals [0-3] and [8-10], its waiting time = 3 + 2 = 5 units."
+     },
+     {
+      "term": "Starvation",
+      "explain": "A low-priority or long-running job may wait indefinitely if the scheduler always picks shorter or higher-priority jobs, causing its waiting time to grow without bound.",
+      "example": "Under SJF, a long job can be perpetually bypassed by shorter arriving jobs."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Gantt chart showing a long job always preempted by shorter jobs, its waiting time growing unbounded — illustrating starvation, the undesirable characteristic of minimising waiting time."
+   },
+   "given": {
+    "aim": "Identify a weakness of waiting time as an OS performance measure.",
+    "terms": [
+     {
+      "term": "Waiting time = sum of time in ready queue",
+      "meaning": "Counts only the periods when the process is in the ready state but not running.",
+      "example": "Does NOT include time spent doing I/O (blocked state).",
+      "connects": "Ignoring I/O wait means it misses a major source of delay for I/O-bound processes."
+     },
+     {
+      "term": "Fairness vs. optimality",
+      "meaning": "Minimising average waiting time (via SJF) gives the mathematically optimal average but is unfair — long jobs can starve.",
+      "example": "SJF with continuously arriving short jobs can prevent a long job from ever running.",
+      "connects": "Waiting time as a criterion incentivises schedulers that achieve starvation."
+     },
+     {
+      "term": "Does not capture user-perceived delay",
+      "meaning": "A user interacting with an I/O-intensive application cares about total response time, not just CPU queue wait.",
+      "example": "A web server process blocked on network I/O has zero CPU waiting time but the user still waits.",
+      "connects": "Waiting time is incomplete as a user-experience metric."
+     }
+    ],
+    "plan": "State the key flaw: waiting time ignores I/O blocking time (incomplete measure of total delay), and optimising it can cause starvation of long jobs."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Definition and scope",
+      "formula_raw": "Waiting time = Turnaround time - CPU burst time (approximately)",
+      "apply": "Waiting time counts only the time a process spends in the ready queue. It deliberately excludes I/O wait and execution time. This makes it a better measure of CPU-scheduler quality than turnaround time, but it is still incomplete.",
+      "note": "For a process with multiple CPU-I/O cycles, waiting time is the sum of all ready-queue intervals."
+     },
+     {
+      "step": 2,
+      "title": "State the undesirable characteristic",
+      "formula_raw": "",
+      "apply": "Undesirable characteristic: (1) Waiting time ignores the time a process is blocked on I/O. An I/O-bound process may show very low waiting time but the user still experiences long delays due to I/O. (2) Minimising average waiting time (the goal of SJF and its variants) leads to starvation of long-burst jobs: as short jobs keep arriving, a long job may never get scheduled, causing its actual waiting time to grow unboundedly. This violates fairness and progress guarantees. (3) Waiting time does not account for the number of times a process is scheduled, so it is a poor measure for real-time or interactive workloads.",
+      "note": "Any one of these points is a valid answer for the GATE 1988 descriptive question."
+     }
+    ],
+    "result": "Waiting time is undesirable as a sole performance metric because: (1) it ignores I/O blocking time, giving an incomplete picture; (2) optimising average waiting time (SJF) can cause indefinite starvation of long CPU-burst jobs."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Waiting time = time in ready queue only; its undesirable property is that it ignores I/O wait and that minimising it (SJF) can cause starvation of long jobs.",
+   "qid": "7.19.2",
+   "answer_official": "N/A"
+  }
+ ]
+}

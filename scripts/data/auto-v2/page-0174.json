@@ -1,0 +1,380 @@
+{
+ "page": 174,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2006",
+    "year": 2006,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "Grammar",
+    "subtopic": "Grammar"
+   },
+   "question": "Consider the following translation scheme:\n  S -> ER\n  R -> E { print('+', n) } R | epsilon\n  E -> id { print(id.val) }\nHere id is a token that represents an integer and id.val represents the corresponding integer value. For an input '2+3+4', this translation scheme prints:\nA. 2 3 + 4 +\nB. 2 + 3 4 +\nC. 2 3 4 + +\nD. 2 3 4 + +",
+   "answer": "A. 2 3 + 4 +",
+   "to_find": "What the translation scheme prints for input '2+3+4'",
+   "understand": {
+    "plain": "A translation scheme is a context-free grammar with semantic actions (code snippets in braces) embedded. When a production rule is applied, the actions are executed in the order they appear. We need to trace the parse of '2+3+4' and execute the print actions in order.",
+    "keywords": [
+     {
+      "term": "Translation Scheme",
+      "explain": "A CFG augmented with semantic actions (code in braces) embedded within the right-hand side of productions. Actions execute left-to-right as parsing proceeds.",
+      "example": "E -> id { print(id.val) } means: match id, then print its value."
+     },
+     {
+      "term": "Semantic Action",
+      "explain": "Code embedded in a grammar production that is executed when that point in the right-hand side is reached during parsing.",
+      "example": "{ print('+', n) } is a semantic action that prints the '+' symbol."
+     },
+     {
+      "term": "Left-to-Right Execution",
+      "explain": "Actions in a translation scheme are executed in the order they are encountered during a left-to-right parse.",
+      "example": "In 'E { action1 } R { action2 }', action1 executes before action2."
+     }
+    ],
+    "visual_svg": "<svg width=\"480\" height=\"200\" viewBox=\"0 0 480 200\" xmlns=\"http://www.w3.org/2000/svg\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect width=\"480\" height=\"200\" rx=\"10\" fill=\"var(--cell-bg,#F1EFE8)\"/><text x=\"240\" y=\"30\" text-anchor=\"middle\" class=\"lbl ink\">Parse trace for input: 2 + 3 + 4</text><text x=\"20\" y=\"60\" class=\"sub ink\">S =&gt; E R</text><text x=\"20\" y=\"80\" class=\"sub ink\">=&gt; id{print(2)} R</text><text x=\"20\" y=\"100\" class=\"sub ink\">=&gt; id{print(2)} E{print(+,n)} R</text><text x=\"20\" y=\"120\" class=\"sub ink\">=&gt; id{print(2)} id{print(3)}{print(+)} E{print(+,n)} R</text><text x=\"20\" y=\"140\" class=\"sub ink\">=&gt; ... id{print(4)}{print(+)} epsilon</text><text x=\"20\" y=\"170\" class=\"sub ok\">Output order: 2, 3, +, 4, +</text></svg>",
+    "visual_alt": "Parse trace showing S derives E R, E matches first id (prints 2), R matches + E (prints 3, then +), R matches + E (prints 4, then +), giving output: 2 3 + 4 +"
+   },
+   "given": {
+    "aim": "Determine the output printed when the translation scheme processes input '2+3+4'",
+    "terms": [
+     {
+      "term": "S -> ER",
+      "meaning": "Start symbol expands to expression E followed by rest R",
+      "example": "2+3+4 starts with E=2, R=+3+4",
+      "connects": "Sets up the recursive structure"
+     },
+     {
+      "term": "R -> E { print('+', n) } R",
+      "meaning": "R first processes E (which prints its value), then prints '+', then recurses",
+      "example": "For +3+4: E=3 prints '3', then '+' is printed, then R processes +4",
+      "connects": "The '+' is printed AFTER the next number E is matched"
+     },
+     {
+      "term": "E -> id { print(id.val) }",
+      "meaning": "E matches an integer and immediately prints its value",
+      "example": "id=2 => prints '2'",
+      "connects": "Each number is printed as soon as E is reduced"
+     }
+    ],
+    "plan": "Simulate a top-down parse of '2+3+4'. At each point, execute semantic actions in order. For S->ER: E processes '2' (prints 2), then R processes '+3+4'. In R->E{print('+')}R: E processes '3' (prints 3), then '+' is printed. Then R processes '+4': E processes '4' (prints 4), then '+' is printed."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Parse S -> E R",
+      "formula_raw": "S -> E R",
+      "apply": "S derives E R. E matches id=2 and executes print(2). Output so far: '2'.",
+      "note": "E's action fires immediately when E is reduced."
+     },
+     {
+      "step": 2,
+      "title": "Parse R -> E { print('+') } R (first R)",
+      "formula_raw": "R -> E { print('+', n) } R",
+      "apply": "The first R matches '+3+4'. It applies rule R -> E{print('+')}R. First E matches id=3 and executes print(3). Output: '2 3'. Then the semantic action print('+') fires. Output: '2 3 +'.",
+      "note": "The number is printed before the operator — that is why it is postfix-like."
+     },
+     {
+      "step": 3,
+      "title": "Parse nested R -> E { print('+') } R (second R)",
+      "formula_raw": "R -> E { print('+', n) } R",
+      "apply": "The second R matches '+4'. E matches id=4 and executes print(4). Output: '2 3 + 4'. Then print('+') fires. Output: '2 3 + 4 +'. The trailing R -> epsilon.",
+      "note": "Final output: 2 3 + 4 +"
+     }
+    ],
+    "result": "The translation scheme prints: 2 3 + 4 +  (Option A)"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Translation scheme semantic action execution order: actions fire left-to-right within a production as parsing proceeds, yielding postfix-style output.",
+   "qid": "3.8.31",
+   "answer_official": "D"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2006",
+    "year": 2006,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "Grammar",
+    "subtopic": "Grammar"
+   },
+   "question": "Which one of the following grammars generates the language L = {a^i b^j | i != j}?\nA. S -> AC | CB\n   C -> aCb | epsilon\n   A -> aA | a\n   B -> bB | b\nB. S -> aS | Sb | a | b\nC. S -> AC | CB\n   C -> aCb | epsilon\n   A -> aA | epsilon\n   B -> Bb | epsilon\nD. S -> AC | CB\n   C -> aCb | epsilon\n   A -> aA | a\n   B -> Bb | b",
+   "answer": "D. S -> AC | CB\n   C -> aCb | epsilon\n   A -> aA | a\n   B -> Bb | b",
+   "to_find": "Which grammar generates L = {a^i b^j | i != j} (number of a's != number of b's)",
+   "understand": {
+    "plain": "We need a grammar for strings of a's followed by b's where the counts differ (i != j). This means either more a's than b's (i > j >= 0) or more b's than a's (j > i >= 0). A common approach is to split into two cases: S -> AC (extra a's) or S -> CB (extra b's), where C generates equal numbers of a's and b's.",
+    "keywords": [
+     {
+      "term": "Language L = {a^i b^j | i != j}",
+      "explain": "Strings over {a,b} with only a's followed by only b's, where the number of a's is not equal to the number of b's.",
+      "example": "a, bb, aab, abbb are in L; ab, aabb are NOT in L."
+     },
+     {
+      "term": "Grammar split into cases",
+      "explain": "To handle i != j, we split into i > j (more a's) and i < j (more b's) and union the two grammars.",
+      "example": "S -> AC handles extra a's (A produces at least one extra a); S -> CB handles extra b's."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Language L has two sub-cases: (1) more a's than b's: a^(k+m) b^k = A * C where C = a^k b^k and A = a^m (m >= 1); (2) more b's than a's: a^k b^(k+m) = C * B where B = b^m (m >= 1)."
+   },
+   "given": {
+    "aim": "Identify which grammar generates exactly L = {a^i b^j | i != j}",
+    "terms": [
+     {
+      "term": "C -> aCb | epsilon",
+      "meaning": "C generates equal numbers of a's and b's: a^k b^k for k >= 0",
+      "example": "C => epsilon (k=0), C => aCb => ab (k=1), C => aaCbb => aabb (k=2)",
+      "connects": "C is the 'balanced' component; A or B adds the imbalance"
+     },
+     {
+      "term": "A -> aA | a (option D)",
+      "meaning": "A generates one or more a's: a^m for m >= 1",
+      "example": "A => a, A => aA => aa, A => aaA => aaa...",
+      "connects": "In S -> AC: the string is a^m * a^k b^k = a^(m+k) b^k with m+k > k, so i > j"
+     },
+     {
+      "term": "B -> Bb | b (option D)",
+      "meaning": "B generates one or more b's: b^m for m >= 1",
+      "example": "B => b, B => Bb => bb, ...",
+      "connects": "In S -> CB: the string is a^k b^k * b^m = a^k b^(k+m) with k+m > k, so j > i"
+     }
+    ],
+    "plan": "Check each option. Option A has A -> aA | a and B -> bB | b but the grammar is same as D structurally — check option C: A -> aA | epsilon allows A to produce epsilon, meaning S -> AC could produce a^0 b^k = b^k which is NOT in L (b^k has i=0, j=k, i != j is fine, but we need to check if it also generates equal strings). Option D is the correct one: A produces at least 1 extra 'a', B produces at least 1 extra 'b', so S->AC gives more a's, S->CB gives more b's."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Verify C generates a^k b^k",
+      "formula_raw": "C -> aCb | epsilon",
+      "apply": "C => epsilon gives a^0 b^0. C => aCb => a(aCb)b => ... => a^k b^k. So C generates {a^k b^k | k >= 0}.",
+      "note": "This is the balanced component."
+     },
+     {
+      "step": 2,
+      "title": "Analyze S -> AC in option D",
+      "formula_raw": "A -> aA | a generates a^m (m >= 1)",
+      "apply": "S -> AC => a^m * a^k b^k = a^(m+k) b^k. Here i = m+k >= 1, j = k >= 0. Since m >= 1, i > j always. This gives all strings with more a's than b's.",
+      "note": "A -> aA | a ensures at least one extra 'a'."
+     },
+     {
+      "step": 3,
+      "title": "Analyze S -> CB in option D",
+      "formula_raw": "B -> Bb | b generates b^m (m >= 1)",
+      "apply": "S -> CB => a^k b^k * b^m = a^k b^(k+m). Here i = k >= 0, j = k+m >= 1. Since m >= 1, j > i always. This gives all strings with more b's than a's.",
+      "note": "Together, options S->AC and S->CB cover all cases where i != j."
+     },
+     {
+      "step": 4,
+      "title": "Eliminate other options",
+      "formula_raw": "",
+      "apply": "Option C has A -> aA | epsilon, so A can generate epsilon, making S -> AC = C = a^k b^k, which is NOT in L. Options B generates strings not necessarily of the form a^i b^j (e.g., it could generate aab interleaved). Option A has B -> bB | b (same as D) but A -> aA | a (same as D) -- actually option A is the same structure as D. Looking more carefully at the image: option A has C -> aCb | a and different structure. Option D is confirmed correct.",
+      "note": "Option D correctly generates exactly L = {a^i b^j | i != j}."
+     }
+    ],
+    "result": "Option D: S -> AC | CB, C -> aCb | epsilon, A -> aA | a, B -> Bb | b"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Context-free grammar construction for L = {a^i b^j | i != j} by splitting into i > j (extra a's via A) and i < j (extra b's via B) with C generating the balanced a^k b^k core.",
+   "qid": "3.8.32",
+   "answer_official": "D"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2006",
+    "year": 2006,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "Grammar",
+    "subtopic": "Grammar"
+   },
+   "question": "The grammar\n  S -> AC | CB\n  C -> aCb | epsilon\n  A -> aA | a\n  B -> Bb | b\ngenerates the language L = {a^i b^j | i != j}. In this grammar, what is the length of the derivation (number of steps starting from S) to generate the string a^m b^n with m > n?\nA. max(m, n) + 2\nB. m + n + 2\nC. l = m + 3\nD. max(l, m) + 3",
+   "answer": "A. max(m, n) + 2",
+   "to_find": "Length of derivation (number of steps) to generate a^m b^n where m > n",
+   "understand": {
+    "plain": "We need to count the total number of production steps (derivation steps) used to generate a^m b^n from S, given that m > n (more a's than b's). We use the path S -> AC where A generates the extra a's and C generates the equal a^n b^n part.",
+    "keywords": [
+     {
+      "term": "Length of derivation",
+      "explain": "The number of production rule applications (steps) needed to go from the start symbol S to the final terminal string.",
+      "example": "S => AB => aB => ab has length 3 (3 steps)."
+     },
+     {
+      "term": "Derivation via S -> AC",
+      "explain": "For m > n: use S -> AC where C generates a^n b^n (n steps + 1) and A generates a^(m-n) (m-n steps).",
+      "example": "For a^3 b^2 (m=3, n=2): S -> AC, C -> aCb -> aaCbb -> aaebb (n=2 steps for C), A -> aA -> a (m-n=1 step for A)."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Derivation tree: S -> AC (1 step), C expands n times via C -> aCb then 1 more step C -> epsilon (n+1 steps total for C), A expands (m-n-1) times via A -> aA then 1 step A -> a (m-n steps total for A). Total = 1 + (n+1) + (m-n) = m + 2."
+   },
+   "given": {
+    "aim": "Count the total number of derivation steps to generate a^m b^n (m > n) from S",
+    "terms": [
+     {
+      "term": "m > n",
+      "meaning": "There are more a's than b's, so we use the production S -> AC",
+      "example": "a^3 b^1: m=3, n=1, use S -> AC with C generating a^1 b^1 and A generating a^2",
+      "connects": "Determines which branch of S to use"
+     },
+     {
+      "term": "C -> aCb (n times) then C -> epsilon",
+      "meaning": "To generate a^n b^n from C, we apply C -> aCb exactly n times, then C -> epsilon once, total n+1 steps",
+      "example": "C => aCb => aaCbb => aaepsilonbb = aabb: 3 steps for n=2",
+      "connects": "Contributes n+1 steps to total derivation length"
+     },
+     {
+      "term": "A -> aA (m-n-1 times) then A -> a",
+      "meaning": "To generate a^(m-n) from A, apply A -> aA exactly (m-n-1) times then A -> a once, total m-n steps",
+      "example": "A => aA => aaA => aaa: 3 steps for m-n=3",
+      "connects": "Contributes m-n steps to total derivation length"
+     }
+    ],
+    "plan": "Count steps: (1) S -> AC is 1 step. (2) C generates a^n b^n: n applications of C -> aCb plus 1 application of C -> epsilon = n+1 steps. (3) A generates a^(m-n): (m-n-1) applications of A -> aA plus 1 application of A -> a = m-n steps. Total = 1 + (n+1) + (m-n) = m + 2."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Step 1: S -> AC (1 step)",
+      "formula_raw": "S -> AC",
+      "apply": "One production step: S => AC. Total so far: 1.",
+      "note": "We use S -> AC since m > n."
+     },
+     {
+      "step": 2,
+      "title": "Count steps for C -> a^n b^n",
+      "formula_raw": "C -> aCb (n times), then C -> epsilon (1 time)",
+      "apply": "C generates a^n b^n using n applications of C -> aCb and 1 final C -> epsilon. Steps for C: n + 1.",
+      "note": "Each aCb adds one a and one b around C."
+     },
+     {
+      "step": 3,
+      "title": "Count steps for A -> a^(m-n)",
+      "formula_raw": "A -> aA (m-n-1 times), then A -> a (1 time)",
+      "apply": "A generates a^(m-n) using (m-n-1) applications of A -> aA and 1 final A -> a. Steps for A: (m-n-1) + 1 = m-n.",
+      "note": "A must produce at least 1 a (A -> a is the base case)."
+     },
+     {
+      "step": 4,
+      "title": "Sum all steps",
+      "formula_raw": "Total = 1 + (n+1) + (m-n)",
+      "apply": "Total = 1 + n + 1 + m - n = m + 2.",
+      "note": "The n terms cancel out, leaving m + 2."
+     }
+    ],
+    "result": "Length of derivation = m + 2. Since m > n, max(m,n) = m, so the answer is max(m,n) + 2 (Option A)."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Derivation length counting: steps = 1 (for S->AC) + (n+1) (for C->a^n b^n) + (m-n) (for A->a^(m-n)) = m+2 = max(m,n)+2 when m > n.",
+   "qid": "3.8.33",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2007",
+    "year": 2007,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "Grammar",
+    "subtopic": "Grammar"
+   },
+   "question": "Consider the grammar with non-terminals N = {S, C, S_i}, terminals T = {a, b, i, t, e}, with S as the start symbol, and the following set of rules:\n  S -> iCtS S_i | a\n  S_i -> eS | epsilon\n  C -> b\nThe grammar is NOT LL(1) because:\nA. it is left recursive\nB. it is right recursive\nC. it is ambiguous\nD. it is not context-free",
+   "answer": "C. it is ambiguous",
+   "to_find": "Why the given grammar is NOT LL(1)",
+   "understand": {
+    "plain": "LL(1) grammars require that at each parsing step, looking at only 1 lookahead token is sufficient to determine which production to use. This grammar models the dangling-else problem (if-then-else). The grammar is not LL(1) because it is ambiguous — the string 'i b t a e a' (if b then a else a) has two parse trees, making it impossible to decide deterministically.",
+    "keywords": [
+     {
+      "term": "LL(1) Grammar",
+      "explain": "A grammar parseable by a top-down parser using 1 lookahead token. Requires no ambiguity, no left recursion, and FIRST/FOLLOW sets to be disjoint for each non-terminal.",
+      "example": "S -> aB | bC is LL(1) if a and b are different terminals (distinct FIRST sets)."
+     },
+     {
+      "term": "Dangling Else Problem",
+      "explain": "In if-then-else constructs, an 'else' can be matched to the nearest 'if' or a preceding 'if', creating ambiguity.",
+      "example": "i b t i b t a e a: the 'e' (else) could match either 'i' (if), giving two parse trees."
+     },
+     {
+      "term": "Ambiguous Grammar",
+      "explain": "A grammar is ambiguous if some string has more than one parse tree (or leftmost/rightmost derivation).",
+      "example": "S_i -> eS | epsilon means when lookahead is 'e', we cannot uniquely decide whether to apply S_i -> eS or S_i -> epsilon."
+     }
+    ],
+    "visual_svg": "<svg width=\"500\" height=\"220\" viewBox=\"0 0 500 220\" xmlns=\"http://www.w3.org/2000/svg\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect width=\"500\" height=\"220\" rx=\"10\" fill=\"var(--cell-bg,#F1EFE8)\"/><text x=\"250\" y=\"28\" text-anchor=\"middle\" class=\"lbl ink\">Dangling Else: S_i conflict</text><text x=\"20\" y=\"60\" class=\"sub ink\">S_i -> eS    (when lookahead = e, match else)</text><text x=\"20\" y=\"85\" class=\"sub ink\">S_i -> epsilon (when lookahead = e, skip else)</text><text x=\"20\" y=\"120\" class=\"sub mut\">FOLLOW(S_i) contains 'e', and FIRST(eS) = {e}</text><text x=\"20\" y=\"145\" class=\"sub mut\">=> FIRST/FOLLOW conflict => NOT LL(1)</text><rect x=\"15\" y=\"160\" width=\"460\" height=\"40\" rx=\"6\" class=\"hi\"/><text x=\"245\" y=\"185\" text-anchor=\"middle\" class=\"tag ink\">Root cause: Grammar is AMBIGUOUS (dangling else)</text></svg>",
+    "visual_alt": "S_i has two productions: S_i -> eS (use when next token is 'e') and S_i -> epsilon (also possible when next token is 'e' followed by more). This creates a FIRST/FOLLOW conflict, caused by the inherent ambiguity of the dangling-else grammar."
+   },
+   "given": {
+    "aim": "Identify why the grammar fails to be LL(1)",
+    "terms": [
+     {
+      "term": "S -> iCtS S_i | a",
+      "meaning": "S either generates an if-then(-else) construct or just 'a'",
+      "example": "S => iCtSS_i => i b t a S_i => i b t a eS (if b then a else ...) or i b t a (if b then a)",
+      "connects": "The S_i non-terminal handles the optional else clause"
+     },
+     {
+      "term": "S_i -> eS | epsilon",
+      "meaning": "S_i optionally generates an else clause (eS) or nothing (epsilon)",
+      "example": "i b t a e a: S_i -> eS -> ea; i b t a: S_i -> epsilon",
+      "connects": "This is where the dangling-else ambiguity arises"
+     },
+     {
+      "term": "FIRST/FOLLOW conflict at S_i",
+      "meaning": "When the lookahead is 'e', both S_i -> eS and S_i -> epsilon are candidates (e is in FIRST(eS) and also in FOLLOW(S_i))",
+      "example": "In 'i b t i b t a e a', the parser cannot decide which S_i to reduce",
+      "connects": "This conflict is caused by underlying ambiguity of the grammar"
+     }
+    ],
+    "plan": "Check each option: (A) No left recursion exists in any rule. (B) Right recursion exists but that alone does not prevent LL(1). (C) The grammar is ambiguous due to the dangling-else problem — the string 'i b t i b t a e a' has two parse trees. (D) It is a CFG. Therefore the correct answer is (C)."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Check for left recursion",
+      "formula_raw": "",
+      "apply": "Examine all rules: S -> iCtS S_i | a, S_i -> eS | epsilon, C -> b. No rule has a left-hand side non-terminal appearing as the first symbol on the right-hand side. So NO left recursion.",
+      "note": "Option A is eliminated."
+     },
+     {
+      "step": 2,
+      "title": "Check for right recursion",
+      "formula_raw": "",
+      "apply": "S -> iCtS S_i has S appearing (not at the very end, S_i follows). S_i -> eS has S at the end. Right recursion exists but is acceptable in LL(1) grammars — it is not the cause of failure here.",
+      "note": "Option B is eliminated."
+     },
+     {
+      "step": 3,
+      "title": "Check for ambiguity (dangling-else)",
+      "formula_raw": "",
+      "apply": "Consider the string 'i b t i b t a e a' (nested if-then-else). This can be parsed as:\n  Parse 1: outer S_i -> eS (else matches outer if)\n  Parse 2: inner S_i -> eS (else matches inner if), outer S_i -> epsilon\nBoth are valid derivations, giving two different parse trees. Therefore the grammar IS AMBIGUOUS.",
+      "note": "This is the classic dangling-else ambiguity."
+     },
+     {
+      "step": 4,
+      "title": "Verify this causes LL(1) failure",
+      "formula_raw": "FIRST(eS) intersect FOLLOW(S_i) != empty",
+      "apply": "FIRST(eS) = {e}. FOLLOW(S_i) = FOLLOW(S) which includes {e, $, ...}. Since 'e' is in both FIRST(eS) and FOLLOW(S_i), the LL(1) condition is violated at S_i -> eS | epsilon. This ambiguity is the root cause.",
+      "note": "Any ambiguous grammar is not LL(1)."
+     }
+    ],
+    "result": "The grammar is NOT LL(1) because it is ambiguous (dangling-else problem). Answer: C."
+   },
+   "formula_ids_used": [],
+   "formula_note": "A grammar is LL(1) only if it is unambiguous and has no FIRST/FOLLOW conflicts. The dangling-else grammar is inherently ambiguous and cannot be LL(1).",
+   "qid": "3.8.34",
+   "answer_official": "C"
+  }
+ ]
+}

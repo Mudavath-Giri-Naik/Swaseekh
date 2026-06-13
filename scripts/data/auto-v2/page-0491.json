@@ -1,0 +1,177 @@
+{
+ "page": 491,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2015",
+    "year": 2015,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Operating System",
+    "topic": "Process Synchronization",
+    "subtopic": "Process Synchronization"
+   },
+   "question": "The following two functions P1 and P2 share a variable B with an initial value of 2, execute concurrently.\n\nP1() {          P2() {\n  C = B - 1;      D = 2 * B;\n  B = 2 * C;      B = D - 1;\n}               }\n\nThe number of distinct values that B can possibly take after the execution is ______.",
+   "answer": "3",
+   "to_find": "Number of distinct values that B can possibly take after P1 and P2 execute concurrently",
+   "understand": {
+    "plain": "Two functions P1 and P2 share a variable B initialized to 2. Since there is no synchronization, their individual statements can interleave in any order. We must enumerate all possible interleavings and find how many distinct final values B can have.",
+    "keywords": [
+     {
+      "term": "Race condition",
+      "explain": "When two concurrent processes access a shared variable without synchronization, the final result depends on the order of execution (interleaving).",
+      "example": "If P1 reads B before P2 writes it, P1 uses the old value; but if P2 writes first, P1 uses the new value."
+     },
+     {
+      "term": "Interleaving",
+      "explain": "The possible orderings in which atomic statements from two concurrent processes can execute.",
+      "example": "With 2 statements each, there are C(4,2) = 6 possible interleavings of their statements."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='520' height='260'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='230' height='110' rx='8' class='bg'/><text x='125' y='35' text-anchor='middle' class='lbl ink'>P1()</text><text x='125' y='60' text-anchor='middle' class='sub ink'>s1: C = B - 1</text><text x='125' y='85' text-anchor='middle' class='sub ink'>s2: B = 2 * C</text><rect x='280' y='10' width='230' height='110' rx='8' class='bg'/><text x='395' y='35' text-anchor='middle' class='lbl ink'>P2()</text><text x='395' y='60' text-anchor='middle' class='sub ink'>s3: D = 2 * B</text><text x='395' y='85' text-anchor='middle' class='sub ink'>s4: B = D - 1</text><rect x='10' y='140' width='500' height='105' rx='8' class='hi'/><text x='260' y='163' text-anchor='middle' class='lbl ink'>Possible Final Values of B</text><text x='260' y='188' text-anchor='middle' class='sub ink'>Sequential P1 then P2: B = 3</text><text x='260' y='208' text-anchor='middle' class='sub ink'>Sequential P2 then P1: B = 4</text><text x='260' y='228' text-anchor='middle' class='sub ink'>Interleaved (s1,s3,s2,s4) etc: B = 2</text></svg>",
+    "visual_alt": "P1 has two statements: C=B-1 and B=2*C. P2 has two statements: D=2*B and B=D-1. B starts at 2. All 6 interleavings are enumerated to find distinct values."
+   },
+   "given": {
+    "aim": "Find how many distinct values B can have after P1 and P2 complete execution concurrently.",
+    "terms": [
+     {
+      "term": "B",
+      "meaning": "Shared variable, initial value = 2",
+      "example": "B = 2 at start",
+      "connects": "Both P1 and P2 read and write B; final value depends on interleaving order"
+     },
+     {
+      "term": "P1 statements",
+      "meaning": "s1: C = B - 1; s2: B = 2 * C",
+      "example": "If B=2: C=1, then B=2",
+      "connects": "P1 reads B in s1 and writes B in s2"
+     },
+     {
+      "term": "P2 statements",
+      "meaning": "s3: D = 2 * B; s4: B = D - 1",
+      "example": "If B=2: D=4, then B=3",
+      "connects": "P2 reads B in s3 and writes B in s4"
+     }
+    ],
+    "plan": "Enumerate all C(4,2)=6 possible interleavings of the 4 statements (s1,s2 from P1 and s3,s4 from P2, preserving each process's internal order). Compute B's final value in each case and count distinct results."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "List all valid interleavings (s1 before s2, s3 before s4)",
+      "formula_raw": "C(4,2) = 6 interleavings",
+      "apply": "The 6 orderings are:\n1. s1,s2,s3,s4 (P1 first, then P2)\n2. s3,s4,s1,s2 (P2 first, then P1)\n3. s1,s3,s2,s4\n4. s1,s3,s4,s2\n5. s3,s1,s2,s4\n6. s3,s1,s4,s2",
+      "note": "Within each process, statement order must be preserved (s1 before s2 for P1; s3 before s4 for P2)"
+     },
+     {
+      "step": 2,
+      "title": "Compute B for each interleaving",
+      "formula_raw": "",
+      "apply": "1. s1,s2,s3,s4: C=2-1=1, B=2*1=2, D=2*2=4, B=4-1=3 → B=3\n2. s3,s4,s1,s2: D=2*2=4, B=4-1=3, C=3-1=2, B=2*2=4 → B=4\n3. s1,s3,s2,s4: C=2-1=1, D=2*2=4, B=2*1=2, B=4-1=3 → B=3\n4. s1,s3,s4,s2: C=2-1=1, D=2*2=4, B=4-1=3, B=2*1=2 → B=2\n5. s3,s1,s2,s4: D=2*2=4, C=2-1=1, B=2*1=2, B=4-1=3 → B=3\n6. s3,s1,s4,s2: D=2*2=4, C=2-1=1, B=4-1=3, B=2*1=2 → B=2",
+      "note": "In interleavings 4 and 6, P2's write to B (s4) happens before P1's write (s2), so P1 overwrites P2's result"
+     },
+     {
+      "step": 3,
+      "title": "Count distinct values",
+      "formula_raw": "",
+      "apply": "Results: {3, 4, 3, 2, 3, 2} → distinct values are {2, 3, 4} → 3 distinct values",
+      "note": "B=2 appears in interleavings 4 and 6; B=3 appears in 1,3,5; B=4 appears in interleaving 2 only"
+     }
+    ],
+    "result": "3 distinct values (B can be 2, 3, or 4)"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Race condition analysis via exhaustive interleaving enumeration. With n atomic statements from two processes (m from P1, k from P2), there are C(m+k, m) valid interleavings, each potentially yielding a different final shared-variable value.",
+   "qid": "7.20.38",
+   "answer_official": "N/A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2015",
+    "year": 2015,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Process Synchronization",
+    "subtopic": "Process Synchronization"
+   },
+   "question": "Two processes X and Y need to access a critical section. Consider the following synchronization construct used by both the processes:\n\nProcess X                    Process Y\n/* other code for process X */   /* other code for process Y */\nwhile (true)                 while (true)\n{                            {\n  varP = true;                 varQ = true;\n  while (varQ == true)         while (varP == true)\n  {                            {\n    /* Critical Section */       /* Critical Section */\n    varP = false;                varQ = false;\n  }                            }\n}                            }\n/* other code for process X */   /* other code for process Y */\n\nHere varP and varQ are shared variables and both are initialized to false. Which one of the following statements is TRUE?\n\nA. The proposed solution prevents deadlock but fails to guarantee mutual exclusion.\nB. The proposed solution guarantees mutual exclusion but fails to prevent deadlock.\nC. The proposed solution guarantees mutual exclusion and prevents deadlock.\nD. It cannot cause a deadlock and fails to guarantee mutual exclusion.",
+   "answer": "B. The proposed solution guarantees mutual exclusion but fails to prevent deadlock.",
+   "to_find": "Which property (mutual exclusion, freedom from deadlock) the given synchronization construct satisfies",
+   "understand": {
+    "plain": "Process X sets varP=true and waits while varQ is true before entering critical section; Process Y sets varQ=true and waits while varP is true. This is a flag-based synchronization attempt. We need to check if mutual exclusion is guaranteed (at most one in CS at a time) and if deadlock is possible (both stuck waiting forever).",
+    "keywords": [
+     {
+      "term": "Mutual Exclusion",
+      "explain": "At most one process is inside the critical section at any given time.",
+      "example": "If X is in CS, Y must not be in CS simultaneously."
+     },
+     {
+      "term": "Deadlock",
+      "explain": "A situation where two or more processes are each waiting for the other to release a resource, resulting in all of them being stuck forever.",
+      "example": "X sets varP=true and waits for varQ=false; Y sets varQ=true and waits for varP=false. Both wait forever."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='520' height='220'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='230' height='90' rx='8' class='bg'/><text x='125' y='32' text-anchor='middle' class='lbl ink'>Process X</text><text x='125' y='55' text-anchor='middle' class='sub ink'>varP = true</text><text x='125' y='75' text-anchor='middle' class='sub ink'>while (varQ == true) wait</text><rect x='280' y='10' width='230' height='90' rx='8' class='bg'/><text x='395' y='32' text-anchor='middle' class='lbl ink'>Process Y</text><text x='395' y='55' text-anchor='middle' class='sub ink'>varQ = true</text><text x='395' y='75' text-anchor='middle' class='sub ink'>while (varP == true) wait</text><rect x='10' y='120' width='500' height='85' rx='8' class='no'/><text x='260' y='145' text-anchor='middle' class='lbl' style='fill:white'>DEADLOCK SCENARIO</text><text x='260' y='168' text-anchor='middle' class='sub' style='fill:white'>X sets varP=true, Y sets varQ=true (concurrent)</text><text x='260' y='190' text-anchor='middle' class='sub' style='fill:white'>X waits for varQ=false, Y waits for varP=false → STUCK</text></svg>",
+    "visual_alt": "Process X sets varP=true and loops while varQ is true. Process Y sets varQ=true and loops while varP is true. If both set their flags before checking the other's flag, both spin forever — deadlock."
+   },
+   "given": {
+    "aim": "Determine whether the synchronization construct guarantees mutual exclusion and/or freedom from deadlock.",
+    "terms": [
+     {
+      "term": "varP",
+      "meaning": "Boolean flag for Process X, initialized to false",
+      "example": "varP = true signals X wants to enter CS",
+      "connects": "Process Y checks varP in its while-loop before entering CS"
+     },
+     {
+      "term": "varQ",
+      "meaning": "Boolean flag for Process Y, initialized to false",
+      "example": "varQ = true signals Y wants to enter CS",
+      "connects": "Process X checks varQ in its while-loop before entering CS"
+     },
+     {
+      "term": "Critical Section entry condition",
+      "meaning": "X enters CS only when varQ == false; Y enters CS only when varP == false",
+      "example": "X can only be in CS if varQ is false, meaning Y is not trying",
+      "connects": "This mutual exclusion check ensures they cannot both be in CS simultaneously"
+     }
+    ],
+    "plan": "Check mutual exclusion: Can X and Y both be in CS simultaneously? Check deadlock: Can X and Y both be stuck in their while-loops forever?"
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Check Mutual Exclusion",
+      "formula_raw": "X in CS => varQ == false; Y in CS => varP == false",
+      "apply": "For X to be in CS: the while(varQ==true) loop must have exited, meaning varQ==false at that moment, meaning Y has varQ=false. If Y is also in CS simultaneously, Y must have passed its while(varP==true) loop, meaning varP==false. But X set varP=true before checking varQ. So varP=true and varQ=false for X in CS, and varP=false and varQ=true for Y in CS — these are contradictory. Both cannot be in CS at the same time. Mutual exclusion IS guaranteed.",
+      "note": "The flags act as mutual exclusion guards — if X is in CS (varQ was false), Y cannot enter because varP is still true (set by X before entering)"
+     },
+     {
+      "step": 2,
+      "title": "Check for Deadlock",
+      "formula_raw": "",
+      "apply": "Interleaving: X executes varP=true (varP=true, varQ=false), then Y executes varQ=true (varP=true, varQ=true). Now X checks while(varQ==true) — true, so X waits. Y checks while(varP==true) — true, so Y waits. Both are stuck in their while-loops forever. Neither can set their flag to false (that only happens inside the CS body). This is a deadlock.",
+      "note": "This is a classic example of a two-flag protocol without a tie-breaking mechanism (unlike Peterson's algorithm which uses a 'turn' variable to break ties)"
+     },
+     {
+      "step": 3,
+      "title": "Select the correct option",
+      "formula_raw": "",
+      "apply": "Mutual exclusion: YES (guaranteed). Deadlock freedom: NO (deadlock is possible). This matches option B.",
+      "note": "Peterson's algorithm fixes this by adding a 'turn' variable so that when both processes want to enter simultaneously, one of them gets priority and proceeds"
+     }
+    ],
+    "result": "B. The proposed solution guarantees mutual exclusion but fails to prevent deadlock."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Two-flag synchronization protocol analysis. Mutual exclusion holds because entry requires the other's flag to be false; deadlock occurs because both can set their flags before checking, creating a circular wait with no tie-breaking mechanism (contrast with Peterson's algorithm).",
+   "qid": "7.20.39",
+   "answer_official": "A"
+  }
+ ]
+}

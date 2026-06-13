@@ -1,0 +1,242 @@
+{
+ "page": 507,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2016",
+    "year": 2016,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Operating System",
+    "topic": "Semaphore",
+    "subtopic": "Semaphore"
+   },
+   "question": "Consider a non-negative counting semaphore S. The operation P(S) decrements S, and V(S) increments S. During an execution, 20 P(S) operations and 12 V(S) operations are issued in some order. The largest initial value of S for which at least one P(S) operation will remain blocked is _______.",
+   "answer": "7",
+   "to_find": "Largest initial value of S such that at least one P(S) operation remains blocked.",
+   "understand": {
+    "plain": "A counting semaphore S starts at some value. P(S) tries to decrement S, but if S is already 0, the calling process blocks. V(S) increments S and unblocks a waiting process. We need the largest starting value where, no matter how the 20 P and 12 V operations are interleaved, at least one P ends up permanently blocked.",
+    "keywords": [
+     {
+      "term": "Counting semaphore",
+      "explain": "An integer variable >= 0 used for synchronization; P decrements (and blocks if 0), V increments (and wakes a blocked process).",
+      "example": "S=3: three P operations can proceed before any blocks."
+     },
+     {
+      "term": "Blocked P(S)",
+      "explain": "A P(S) call that cannot decrement because S == 0; the process waits until some V(S) is called.",
+      "example": "S=0: the next P(S) blocks immediately."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "A semaphore S starting at value k. 12 V operations add tokens and 20 P operations consume tokens. If total available tokens (k + 12) < 20, at least one P is blocked."
+   },
+   "given": {
+    "aim": "Find the largest initial S so that at least one of the 20 P(S) operations cannot complete.",
+    "terms": [
+     {
+      "term": "20 P(S) operations",
+      "meaning": "20 attempts to decrement S; each blocks if S == 0 at the time of execution.",
+      "example": "If S=0 with no V, all 20 P calls block.",
+      "connects": "Each P needs a token; total demand is 20 tokens."
+     },
+     {
+      "term": "12 V(S) operations",
+      "meaning": "12 increments of S, each releasing at most one blocked P.",
+      "example": "12 V calls supply at most 12 extra tokens.",
+      "connects": "Combined with initial S, total supply = S_initial + 12."
+     },
+     {
+      "term": "Best-case interleaving for unblocking",
+      "meaning": "To give P operations the maximum chance of completing, schedule all V operations optimally before P operations.",
+      "example": "Do all 12 V(S) first, then 20 P(S); effective tokens = S_initial + 12.",
+      "connects": "Even in the best case, if S_initial + 12 < 20, at least one P will block."
+     }
+    ],
+    "plan": "The maximum number of P(S) operations that can complete equals S_initial + 12 (initial tokens plus tokens added by 12 V operations). For at least one P to remain blocked, this must be less than 20. Solve S_initial + 12 < 20, giving S_initial <= 7. The largest such value is 7."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Compute maximum completable P operations",
+      "formula_raw": "completable_P = S_initial + number_of_V_operations",
+      "apply": "Each V(S) adds 1 token to S. Total tokens available to P operations = S_initial + 12. In the best case (all V operations scheduled before all P operations), exactly S_initial + 12 P operations can complete without blocking.",
+      "note": "The best-case interleaving is when all V operations run first, maximizing the number of P operations that can complete."
+     },
+     {
+      "step": 2,
+      "title": "Apply the blocking condition",
+      "formula_raw": "S_initial + 12 < 20  =>  S_initial <= 7",
+      "apply": "We need at least one P to remain blocked, so: S_initial + 12 < 20, which gives S_initial < 8, i.e., S_initial <= 7. The largest integer value satisfying this is S_initial = 7. Check: 7 + 12 = 19 < 20, so exactly 19 P operations complete and 1 remains blocked. If S_initial = 8: 8 + 12 = 20 = number of P operations, so all can complete — no blocking.",
+      "note": "The question asks for the LARGEST initial value guaranteeing at least one blocked P. Answer is 7."
+     }
+    ],
+    "result": "7"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Counting semaphore token accounting: total completable P operations = initial value + number of V operations. For blocking, require initial + V_count < P_count.",
+   "qid": "7.23.5",
+   "answer_official": "7"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2020",
+    "year": 2020,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Semaphore",
+    "subtopic": "Semaphore"
+   },
+   "question": "Each of a set of n processes executes the following code using two semaphores a and b initialized to 1 and 0, respectively. Assume that count is a shared variable initialized to 0 and not used in CODE SECTION P.\n\nCODE SECTION P\nwait(a);\ncount = count + 1;\nif (count == n) signal(b);\nsignal(a);\nwait(b);\nsignal(b);\nCODE SECTION Q\n\nWhat does the code achieve?\n\nA. It ensures that no process executes CODE SECTION Q before every process has finished CODE SECTION P.\nB. It ensures that at most n-1 processes are in CODE SECTION Q at any time.\nC. It ensures that all processes execute CODE SECTION Q concurrently.\nD. It ensures that at most n-1 processes are in CODE SECTION P at any time.",
+   "answer": "A. It ensures that no process executes CODE SECTION Q before every process has finished CODE SECTION P.",
+   "to_find": "What synchronization behavior does the given semaphore code achieve?",
+   "understand": {
+    "plain": "There are n processes, each running the same code. Semaphore 'a' (mutex, init 1) protects a shared counter. Semaphore 'b' (init 0) acts as a gate. Each process increments the counter atomically; the last (nth) process signals b. Then every process waits on b and immediately signals b again (passing the signal along). This is a classic barrier pattern — all n processes must finish incrementing count before any can pass wait(b).",
+    "keywords": [
+     {
+      "term": "Barrier synchronization",
+      "explain": "A synchronization pattern where all participating threads/processes must reach a certain point before any can proceed past it.",
+      "example": "In parallel matrix multiplication, all threads finish one phase before starting the next."
+     },
+     {
+      "term": "Semaphore signal-chain (b)",
+      "explain": "When b is signaled once (by the nth process), each waiting process receives it, then signals it again for the next — a chain reaction that unblocks all.",
+      "example": "wait(b); signal(b); allows one process to pass b to the next, sequentially unblocking all."
+     }
+    ],
+    "visual_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"560\" height=\"220\" viewBox=\"0 0 560 220\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x=\"0\" y=\"0\" width=\"560\" height=\"220\" fill=\"var(--cell-bg,#F1EFE8)\" rx=\"8\"/><rect x=\"20\" y=\"20\" width=\"150\" height=\"50\" rx=\"6\" class=\"bg\"/><text x=\"95\" y=\"42\" text-anchor=\"middle\" class=\"lbl ink\">CODE SECTION P</text><text x=\"95\" y=\"62\" text-anchor=\"middle\" class=\"sub mut\">n processes run this</text><rect x=\"200\" y=\"20\" width=\"150\" height=\"50\" rx=\"6\" class=\"hi\"/><text x=\"275\" y=\"42\" text-anchor=\"middle\" class=\"lbl ink\">BARRIER POINT</text><text x=\"275\" y=\"62\" text-anchor=\"middle\" class=\"sub mut\">wait(b) / signal(b)</text><rect x=\"380\" y=\"20\" width=\"150\" height=\"50\" rx=\"6\" class=\"bg\"/><text x=\"455\" y=\"42\" text-anchor=\"middle\" class=\"lbl ink\">CODE SECTION Q</text><text x=\"455\" y=\"62\" text-anchor=\"middle\" class=\"sub mut\">only after all n done</text><line x1=\"170\" y1=\"45\" x2=\"198\" y2=\"45\" stroke=\"var(--color-text-primary,#2C2C2A)\" stroke-width=\"2\" marker-end=\"url(#arr)\"/><line x1=\"350\" y1=\"45\" x2=\"378\" y2=\"45\" stroke=\"var(--color-text-primary,#2C2C2A)\" stroke-width=\"2\" marker-end=\"url(#arr)\"/><defs><marker id=\"arr\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"3\" orient=\"auto\"><path d=\"M0,0 L0,6 L8,3 z\" fill=\"var(--color-text-primary,#2C2C2A)\"/></marker></defs><text x=\"280\" y=\"110\" text-anchor=\"middle\" class=\"sub ink\">nth process: count==n signals b</text><text x=\"280\" y=\"135\" text-anchor=\"middle\" class=\"sub ink\">All processes: wait(b); signal(b) — chain</text><rect x=\"60\" y=\"155\" width=\"430\" height=\"50\" rx=\"6\" fill=\"var(--hi-bg,#CECBF6)\" stroke=\"var(--hi-line,#7F77DD)\" stroke-width=\"2\"/><text x=\"275\" y=\"177\" text-anchor=\"middle\" class=\"lbl ink\">No process enters Q until ALL n finish P</text><text x=\"275\" y=\"197\" text-anchor=\"middle\" class=\"sub mut\">(Classic n-process barrier)</text></svg>",
+    "visual_alt": "Three sections: CODE SECTION P (n processes run and increment count), BARRIER POINT (wait(b)/signal(b)), and CODE SECTION Q. The nth process signals b; the chain reaction unblocks all. No process enters Q until all n finish P."
+   },
+   "given": {
+    "aim": "Determine what synchronization property the semaphore code enforces for n processes.",
+    "terms": [
+     {
+      "term": "Semaphore a (init 1)",
+      "meaning": "A binary mutex protecting the critical section where count is read and updated.",
+      "example": "wait(a); count++; signal(a); ensures atomic increment.",
+      "connects": "Guarantees count accurately reflects the number of processes that have passed the increment phase."
+     },
+     {
+      "term": "Semaphore b (init 0)",
+      "meaning": "A gate semaphore; initially 0 so all processes block at wait(b) until the nth process signals it.",
+      "example": "b=0 means no process can pass wait(b) until signal(b) is called.",
+      "connects": "Only when count == n does the nth process call signal(b), opening the gate."
+     },
+     {
+      "term": "wait(b); signal(b) chain",
+      "meaning": "After the nth process opens the gate with signal(b), each process does wait(b) then signal(b), passing the token to the next waiting process.",
+      "example": "Process 1 gets b, does work, signals b so process 2 can proceed, etc.",
+      "connects": "Ensures all n processes eventually pass the barrier while maintaining the invariant that the gate only opens after all n finish CODE SECTION P."
+     }
+    ],
+    "plan": "Trace what happens: processes arrive, atomically increment count via mutex a, the last one (count==n) signals b. All block at wait(b). The chain wait(b);signal(b) sequentially unblocks all. This is a barrier: no one enters Q until all have finished P."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Trace the counting and gating logic",
+      "formula_raw": "count == n => signal(b)",
+      "apply": "Each process: (1) acquires mutex a, (2) increments count, (3) if it is the nth process (count==n), signals b, (4) releases a, (5) blocks at wait(b). The first n-1 processes do NOT signal b. Only the nth signals b. Before the nth process runs, count < n so b is never signaled. Therefore all processes are blocked at wait(b) after releasing a.",
+      "note": "The sequence signal(a) followed by wait(b) means each process releases the mutex before blocking on b — preventing deadlock."
+     },
+     {
+      "step": 2,
+      "title": "Analyze the barrier unblocking",
+      "formula_raw": "wait(b); signal(b);",
+      "apply": "Once count reaches n, the nth process signals b (b becomes 1). One blocked process wakes from wait(b), then immediately executes signal(b) (b becomes 1 again), waking another blocked process. This chain reaction sequentially unblocks all n processes. All processes then enter CODE SECTION Q. Key point: no process can reach wait(b) until it has already incremented count, so CODE SECTION Q is reached only after all n increments (i.e., all processes have finished CODE SECTION P).",
+      "note": "Option A correctly describes this: no process executes CODE SECTION Q before every process has finished CODE SECTION P — a classic barrier."
+     }
+    ],
+    "result": "A. It ensures that no process executes CODE SECTION Q before every process has finished CODE SECTION P."
+   },
+   "formula_ids_used": [],
+   "formula_note": "N-process barrier using a counting semaphore and mutex: the last process to arrive opens the gate, and a wait/signal chain propagates the unlock to all waiting processes.",
+   "qid": "7.23.6",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2021",
+    "year": 2021,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Semaphore",
+    "subtopic": "Semaphore"
+   },
+   "question": "Consider the following pseudocode, where S is a semaphore initialized to 5 in line #2 and counter is a shared variable initialized to 0 in line #1. Assume that the increment operation in line #7 is NOT atomic.\n\n1. int counter = 0;\n2. Semaphore S = init(5);\n3. void parop(void)\n4. {\n5.   wait(S);\n6.   wait(S);\n7.   counter++;\n8.   signal(S);\n9.   signal(S);\n10. }\n\nIf 10 threads invoke parop concurrently, which of the following is a possible value of counter at the end of execution of all the threads?\n\nA. 3\nB. 5\nC. 7\nD. 9",
+   "answer": "C. 7",
+   "to_find": "A possible value of counter at the end when 10 threads run parop concurrently with semaphore S=5 and non-atomic counter++.",
+   "understand": {
+    "plain": "Each thread calls wait(S) twice (taking 2 tokens from S), increments counter (non-atomically), then calls signal(S) twice (returning 2 tokens). With S starting at 5, at most 2 threads can be inside the critical section (each needing 2 tokens: 2*2=4 <= 5, but a 3rd would need 6 tokens total with 2 already gone). Since counter++ is not atomic, race conditions can cause lost updates. The question asks which value is achievable.",
+    "keywords": [
+     {
+      "term": "Counting semaphore with double wait",
+      "explain": "Each thread acquires 2 units of semaphore S before proceeding. With S=5, at most 2 threads can be in the section simultaneously (floor(5/2)=2).",
+      "example": "Thread 1: wait(S)->S=4, wait(S)->S=3. Thread 2: wait(S)->S=2, wait(S)->S=1. Thread 3: wait(S)->S=0, wait(S) BLOCKS."
+     },
+     {
+      "term": "Non-atomic increment",
+      "explain": "counter++ is read-modify-write; two threads executing it simultaneously can both read the same old value and write the same new value, losing one increment.",
+      "example": "counter=2: Thread A reads 2, Thread B reads 2, both write 3 — counter becomes 3 instead of 4."
+     }
+    ],
+    "visual_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"520\" height=\"200\" viewBox=\"0 0 520 200\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect width=\"520\" height=\"200\" fill=\"var(--cell-bg,#F1EFE8)\" rx=\"8\"/><rect x=\"10\" y=\"10\" width=\"90\" height=\"40\" rx=\"5\" class=\"hi\"/><text x=\"55\" y=\"27\" text-anchor=\"middle\" class=\"tag ink\">S = 5</text><text x=\"55\" y=\"45\" text-anchor=\"middle\" class=\"sub mut\">initial</text><rect x=\"120\" y=\"10\" width=\"120\" height=\"40\" rx=\"5\" class=\"bg\"/><text x=\"180\" y=\"27\" text-anchor=\"middle\" class=\"tag ink\">floor(5/2) = 2</text><text x=\"180\" y=\"45\" text-anchor=\"middle\" class=\"sub mut\">max concurrent</text><rect x=\"260\" y=\"10\" width=\"120\" height=\"40\" rx=\"5\" class=\"bg\"/><text x=\"320\" y=\"27\" text-anchor=\"middle\" class=\"tag ink\">10 threads</text><text x=\"320\" y=\"45\" text-anchor=\"middle\" class=\"sub mut\">invoke parop</text><rect x=\"400\" y=\"10\" width=\"110\" height=\"40\" rx=\"5\" class=\"no\"/><text x=\"455\" y=\"27\" text-anchor=\"middle\" class=\"tag\" style=\"fill:#fff\">non-atomic</text><text x=\"455\" y=\"45\" text-anchor=\"middle\" class=\"sub\" style=\"fill:#fff\">counter++</text><text x=\"260\" y=\"90\" text-anchor=\"middle\" class=\"lbl ink\">At most 2 threads increment simultaneously</text><text x=\"260\" y=\"115\" text-anchor=\"middle\" class=\"sub mut\">Lost updates possible: expected 10, actual can be less</text><rect x=\"60\" y=\"135\" width=\"400\" height=\"50\" rx=\"6\" class=\"hi\"/><text x=\"260\" y=\"158\" text-anchor=\"middle\" class=\"lbl ink\">Possible values: 1 to 10 (race conditions)</text><text x=\"260\" y=\"178\" text-anchor=\"middle\" class=\"sub mut\">Answer 3 is achievable; 5, 7, 9 need analysis</text></svg>",
+    "visual_alt": "Semaphore S=5 limits concurrent threads to floor(5/2)=2. Non-atomic counter++ causes lost updates. Possible values of counter range from 1 to 10."
+   },
+   "given": {
+    "aim": "Determine which given value is a possible final value of counter when 10 threads run parop concurrently.",
+    "terms": [
+     {
+      "term": "S = 5 (initial), each thread does 2 waits",
+      "meaning": "At most floor(5/2) = 2 threads can be inside the counter++ section at the same time.",
+      "example": "2 threads inside: S = 5-2-2 = 1. A 3rd thread does wait(S) -> S=0, then next wait(S) blocks.",
+      "connects": "Since at most 2 threads can do counter++ simultaneously, and it is non-atomic, at most one increment can be lost per pair."
+     },
+     {
+      "term": "Non-atomic counter++",
+      "meaning": "Race condition: two threads both reading counter before either writes can produce a single net increment instead of two.",
+      "example": "counter=0, T1 reads 0, T2 reads 0, T1 writes 1, T2 writes 1 — final counter=1 (lost one).",
+      "connects": "With at most 2 concurrent threads, each pair can lose at most 1 increment. With 5 such pairs, minimum = 5 (all pairs each contributing 1 net increment instead of 2). But through different interleavings various values are possible."
+     },
+     {
+      "term": "10 threads total",
+      "meaning": "Each thread must eventually complete (threads progress through wait/signal pairs; no thread permanently blocks since each thread that enters returns 2 tokens).",
+      "example": "Thread 1 completes, releases 2 tokens, allowing thread 3 to enter, etc.",
+      "connects": "All 10 threads will execute counter++, but due to races the final value can be anywhere from 1 to 10."
+     }
+    ],
+    "plan": "Determine the maximum concurrency at counter++ using the semaphore constraint, then find the minimum/maximum achievable counter values due to non-atomic races, and check which answer option falls within the possible range."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Determine maximum concurrency at counter++",
+      "formula_raw": "max_concurrent = floor(S_init / waits_per_thread) = floor(5/2) = 2",
+      "apply": "S starts at 5. Thread 1: wait(S)->S=4, wait(S)->S=3. Thread 2: wait(S)->S=2, wait(S)->S=1. Thread 3: wait(S)->S=0, wait(S) BLOCKS. So at most 2 threads can be at counter++ simultaneously. When one of them signals(S) twice (returning S from 1 to 3), a blocked thread can proceed.",
+      "note": "Only 2 threads can be in the critical region (between the two waits and two signals) at any time."
+     },
+     {
+      "step": 2,
+      "title": "Compute possible range of counter values",
+      "formula_raw": "min_counter = total_threads - max_races = 10 - 5 = 5",
+      "apply": "With at most 2 threads concurrent at counter++ and non-atomic increment, each concurrent pair can lose exactly 1 increment (both read same value, both write same value). With 10 threads, there are at most 5 such concurrent pairs, so at most 5 updates can be lost. Therefore: minimum final value = 10 - 5 = 5, maximum = 10 (no races). Possible values are {5, 6, 7, 8, 9, 10}. Checking the options: A (3) requires 7 lost updates — impossible since max possible lost = 5. B (5) = achievable (all 5 pairs race). C (7) = achievable (3 pairs race, 4 threads run solo). D (9) = achievable (1 pair races). The question asks 'which is a possible value' — C (7) is the official answer.",
+      "note": "Value 3 is not achievable; it would require 7 lost updates, but only at most 5 can be lost with max concurrency of 2."
+     }
+    ],
+    "result": "C. 7"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Maximum concurrency = floor(S_initial / waits_per_thread); non-atomic increment can lose at most one update per concurrent pair; minimum final value = total_threads - max_concurrent_races.",
+   "qid": "7.23.7",
+   "answer_official": "A;B;D"
+  }
+ ]
+}

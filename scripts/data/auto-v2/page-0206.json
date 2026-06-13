@@ -1,0 +1,278 @@
+{
+ "page": 206,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 1988",
+    "year": 1988,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "Runtime Environment",
+    "subtopic": "Runtime Environment"
+   },
+   "question": "Consider the following program skeleton and the figure which shows activation records of procedures involved in the calling sequence p -> s -> q -> r -> q.\n\nprocedure p;\n  procedure s;\n  begin\n  end s;\n  procedure q;\n    procedure r;\n    begin\n    end r;\n  begin\n    r\n  end q;\n  procedure s;\n  begin\n  end s;\nbegin\n  s\nend p;\n\nThe calling sequence is p -> s -> q -> r -> q.\n\nWrite the access links of the activation records to enable correct access to variables in the procedures from other procedures involved in the calling sequence.\n\nWhich of the following correctly describes the access link (static link) that each activation record must store to enable correct non-local variable access?\nA. Each activation record stores a pointer to the activation record of the procedure that defined (statically enclosed) it.\nB. Each activation record stores a pointer to the activation record of the procedure that called (dynamically invoked) it.\nC. Access links are not required when all variables are global.\nD. Access links point to the most recently created activation record on the stack.",
+   "answer": "A. Each activation record stores a pointer to the activation record of the procedure that defined (statically enclosed) it.",
+   "to_find": "The correct description of access links (static links) in activation records for enabling non-local variable access",
+   "understand": {
+    "plain": "In block-structured languages, procedures can be nested inside other procedures. When a procedure needs to access a variable declared in an enclosing (outer) procedure, it needs a way to find that enclosing procedure's activation record on the runtime stack. The access link (also called static link) provides this path by pointing to the activation record of the statically enclosing procedure, following the nesting structure of the source code.",
+    "keywords": [
+     {
+      "term": "Access Link (Static Link)",
+      "explain": "A pointer stored in each activation record that points to the activation record of the statically enclosing procedure (the procedure that lexically contains the current procedure in the source code).",
+      "example": "If procedure r is defined inside q, then r's activation record has an access link pointing to q's activation record."
+     },
+     {
+      "term": "Activation Record",
+      "explain": "A block of memory on the runtime stack allocated when a procedure is called; it holds local variables, parameters, return address, and links.",
+      "example": "When q is called, a new activation record for q is pushed onto the stack containing q's local variables."
+     },
+     {
+      "term": "Static (Lexical) Scoping",
+      "explain": "Variable bindings are resolved based on the textual/lexical structure of the source code, not the call sequence at runtime.",
+      "example": "In static scoping, a variable x used in r refers to x declared in the innermost enclosing procedure in the source text."
+     }
+    ],
+    "visual_svg": "<svg width='520' height='300' viewBox='0 0 520 300' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='120' height='50' class='bg'/><text x='70' y='40' text-anchor='middle' class='lbl ink'>AR: p</text><rect x='10' y='80' width='120' height='50' class='bg'/><text x='70' y='110' text-anchor='middle' class='lbl ink'>AR: s</text><rect x='10' y='150' width='120' height='50' class='bg'/><text x='70' y='180' text-anchor='middle' class='lbl ink'>AR: q</text><rect x='10' y='220' width='120' height='50' class='bg'/><text x='70' y='250' text-anchor='middle' class='lbl ink'>AR: r</text><text x='160' y='40' class='sub mut'>access link -> p (enclosing p)</text><text x='160' y='110' class='sub mut'>access link -> p (s defined in p)</text><text x='160' y='180' class='sub mut'>access link -> p (q defined in p)</text><text x='160' y='250' class='sub mut'>access link -> q (r defined in q)</text><line x1='130' y1='35' x2='155' y2='35' stroke='#7F77DD' stroke-width='2' marker-end='url(#arr)'/><line x1='130' y1='105' x2='155' y2='105' stroke='#7F77DD' stroke-width='2' marker-end='url(#arr)'/><line x1='130' y1='175' x2='155' y2='175' stroke='#7F77DD' stroke-width='2' marker-end='url(#arr)'/><line x1='130' y1='245' x2='155' y2='245' stroke='#7F77DD' stroke-width='2' marker-end='url(#arr)'/><defs><marker id='arr' markerWidth='8' markerHeight='8' refX='6' refY='3' orient='auto'><path d='M0,0 L0,6 L8,3 z' fill='#7F77DD'/></marker></defs></svg>",
+    "visual_alt": "Stack of activation records for calling sequence p->s->q->r->q. Each AR stores an access link pointing to its statically enclosing procedure's AR: s and q point to p, r points to q."
+   },
+   "given": {
+    "aim": "Determine what the access link in each activation record must point to for correct non-local variable access in a statically-scoped language.",
+    "terms": [
+     {
+      "term": "Calling sequence p -> s -> q -> r -> q",
+      "meaning": "The dynamic call order at runtime: p calls s, then q, q calls r, r calls q again.",
+      "example": "At runtime, the stack from bottom to top would be: p, s, q, r (then another q).",
+      "connects": "The dynamic call chain differs from the static nesting; access links follow static nesting, not dynamic calls."
+     },
+     {
+      "term": "Static nesting",
+      "meaning": "The lexical containment hierarchy in source code: p contains s, q, s; q contains r.",
+      "example": "r is lexically inside q, which is inside p.",
+      "connects": "Access links follow static nesting: r's access link points to q's AR, q's to p's AR."
+     },
+     {
+      "term": "Non-local variable access",
+      "meaning": "When a procedure references a variable declared in an enclosing (outer) procedure.",
+      "example": "If r uses a variable declared in q, it must follow the access link to q's AR to find it.",
+      "connects": "This is the primary reason access links (static links) are needed."
+     }
+    ],
+    "plan": "Access links implement static scoping by linking each activation record to the activation record of its statically (lexically) enclosing procedure. When a procedure is called, its access link is set to point to the caller's AR only if the caller is the static parent; otherwise it is set to the appropriate static ancestor's AR."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Identify the static nesting structure",
+      "formula_raw": "",
+      "apply": "From the program code: p is at nesting level 1. s is defined inside p (level 2). q is defined inside p (level 2). r is defined inside q (level 3). So the static parent of s is p, static parent of q is p, static parent of r is q.",
+      "note": "Static parent = the procedure whose body immediately contains the definition of the current procedure."
+     },
+     {
+      "step": 2,
+      "title": "Set access links based on static nesting",
+      "formula_raw": "access_link(AR_X) = AR of static parent of X",
+      "apply": "AR of p: no access link (top-level). AR of s: access link -> AR of p (s is defined in p). AR of q: access link -> AR of p (q is defined in p). AR of r: access link -> AR of q (r is defined in q). The second AR of q: access link -> AR of p (q is defined in p).",
+      "note": "The access link is set at the time of the call, using the static nesting depth difference between caller and callee."
+     },
+     {
+      "step": 3,
+      "title": "Select the correct option",
+      "formula_raw": "",
+      "apply": "Option A states: 'Each activation record stores a pointer to the activation record of the procedure that defined (statically enclosed) it.' This exactly matches the definition of an access (static) link. Option B describes the dynamic link (control link), not the access link.",
+      "note": "Dynamic link (control link) points to the caller's AR; access link (static link) points to the static parent's AR. These are different pointers."
+     }
+    ],
+    "result": "A. Each activation record stores a pointer to the activation record of the procedure that defined (statically enclosed) it."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Access links (static links) implement static/lexical scoping by pointing each activation record to its statically enclosing procedure's activation record, enabling correct non-local variable access.",
+   "qid": "3.19.1",
+   "answer_official": "N/A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1989",
+    "year": 1989,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Compiler Design",
+    "topic": "Runtime Environment",
+    "subtopic": "Runtime Environment"
+   },
+   "question": "Will recursion work correctly in a language with static allocation of all variables? Explain.",
+   "answer": "No",
+   "to_find": "Whether recursion works correctly when all variables are statically allocated, and the reason why or why not",
+   "understand": {
+    "plain": "Static allocation means every variable has a fixed memory location determined at compile time. Recursion means a procedure can call itself, creating multiple simultaneous (concurrent) instances of the same procedure. The question asks if these two concepts are compatible. When a procedure calls itself recursively, each call needs its own separate set of local variables; with static allocation, all calls share the same fixed memory locations, so recursion breaks.",
+    "keywords": [
+     {
+      "term": "Static Allocation",
+      "explain": "Every variable (local or global) is assigned a fixed memory address at compile time; no memory is allocated or freed at runtime.",
+      "example": "FORTRAN uses static allocation: the variable x in a function always lives at the same address."
+     },
+     {
+      "term": "Recursion",
+      "explain": "A procedure that calls itself directly or indirectly, creating multiple simultaneously active invocations.",
+      "example": "factorial(n) calls factorial(n-1), so both invocations are active at the same time."
+     },
+     {
+      "term": "Activation Record / Stack Frame",
+      "explain": "A fresh block of memory allocated for each invocation of a procedure at runtime; contains local variables, parameters, return address.",
+      "example": "factorial(5) and factorial(4) each get their own stack frame with their own copy of n."
+     }
+    ],
+    "visual_svg": "<svg width='420' height='220' viewBox='0 0 420 220' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><text x='60' y='25' class='lbl ink'>Static Allocation (WRONG)</text><rect x='10' y='35' width='160' height='50' class='no' opacity='0.3'/><rect x='10' y='35' width='160' height='50' stroke='#D85A30' stroke-width='2' fill='none'/><text x='90' y='55' text-anchor='middle' class='sub ink'>fact: n = fixed addr</text><text x='90' y='72' text-anchor='middle' class='sub no'>All calls share same n!</text><text x='250' y='25' class='lbl ink'>Stack Allocation (CORRECT)</text><rect x='210' y='35' width='160' height='40' class='ok' opacity='0.3'/><rect x='210' y='35' width='160' height='40' stroke='#1D9E75' stroke-width='2' fill='none'/><text x='290' y='60' text-anchor='middle' class='sub ink'>fact(5): n=5</text><rect x='210' y='82' width='160' height='40' class='ok' opacity='0.3'/><rect x='210' y='82' width='160' height='40' stroke='#1D9E75' stroke-width='2' fill='none'/><text x='290' y='107' text-anchor='middle' class='sub ink'>fact(4): n=4</text><rect x='210' y='129' width='160' height='40' class='ok' opacity='0.3'/><rect x='210' y='129' width='160' height='40' stroke='#1D9E75' stroke-width='2' fill='none'/><text x='290' y='154' text-anchor='middle' class='sub ink'>fact(3): n=3</text><text x='290' y='195' text-anchor='middle' class='sub mut'>Each call has own frame</text></svg>",
+    "visual_alt": "Comparison: static allocation gives one shared memory location for all recursive calls (wrong), while stack allocation gives each call its own activation record with its own variables (correct)."
+   },
+   "given": {
+    "aim": "Determine if recursion can work correctly when all variables (including locals) are statically allocated.",
+    "terms": [
+     {
+      "term": "Static allocation",
+      "meaning": "Variables get fixed addresses at compile time; the same memory location is used every time a procedure is invoked.",
+      "example": "If factorial's local variable n is at address 1000, every call to factorial uses address 1000 for n.",
+      "connects": "When factorial(5) calls factorial(4), both try to use address 1000 for n; the second call overwrites the first call's n."
+     },
+     {
+      "term": "Mutual exclusion of recursive instances",
+      "meaning": "Recursion requires that simultaneously active instances of a procedure each have their own independent copies of local variables.",
+      "example": "factorial(5) needs n=5 and factorial(4) needs n=4 at the same time; they must not share the same storage.",
+      "connects": "Static allocation cannot provide independent copies; only one copy of each variable exists."
+     },
+     {
+      "term": "Return address",
+      "meaning": "The address to return to after a procedure finishes.",
+      "example": "factorial(4) must return to factorial(5)'s code, not overwrite the return address with factorial(3)'s return.",
+      "connects": "With static allocation, return addresses are also statically fixed, causing incorrect returns in recursive calls."
+     }
+    ],
+    "plan": "With static allocation, all invocations of a recursive procedure share the same memory for local variables and return addresses. Each new recursive call will overwrite the values stored by the previous (still-active) call, so when the inner call returns, the outer call finds its local variables corrupted. Therefore, recursion does not work correctly with static allocation."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Understand what static allocation means for procedure calls",
+      "formula_raw": "",
+      "apply": "With static allocation, each procedure has exactly one copy of its local variables in memory. This copy is allocated once at program load time and never changes location. There is no runtime stack of activation records.",
+      "note": "Languages like FORTRAN-77 use static allocation and explicitly forbid recursion for this reason."
+     },
+     {
+      "step": 2,
+      "title": "Trace a recursive call and show the conflict",
+      "formula_raw": "",
+      "apply": "Consider factorial(n): statically, n lives at address A. Call factorial(3): n=3 stored at A. Inside, call factorial(2): n=2 overwrites A. Now factorial(3)'s copy of n (which was 3) is destroyed. When factorial(2) returns, factorial(3) reads n from A and finds 2, not 3. The computation is wrong. Similarly, the return address stored at a fixed location is overwritten by recursive calls.",
+      "note": "This is a definitive demonstration that recursion cannot be correctly implemented with static allocation."
+     },
+     {
+      "step": 3,
+      "title": "Conclusion",
+      "formula_raw": "",
+      "apply": "Recursion requires that each active invocation of a procedure maintain its own separate copies of local variables, parameters, and return address. This is only possible if memory is allocated dynamically for each invocation (e.g., on a runtime stack). Static allocation provides only one copy per variable per procedure, making multiple simultaneous activations impossible without data corruption.",
+      "note": "The correct answer is: No, recursion will NOT work correctly with static allocation of all variables."
+     }
+    ],
+    "result": "No. Recursion does not work correctly with static allocation because all recursive calls share the same fixed memory locations for local variables and return addresses, causing each recursive call to overwrite the data of enclosing (still-active) calls."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Recursion requires dynamic (stack-based) storage allocation so each invocation gets its own activation record; static allocation provides only one shared copy of each variable, which is corrupted by recursive calls.",
+   "qid": "3.19.2",
+   "answer_official": "N/A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1989",
+    "year": 1989,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Compiler Design",
+    "topic": "Runtime Environment",
+    "subtopic": "Runtime Environment"
+   },
+   "question": "Indicate the result of the following program if the language uses (i) static scope rules and (ii) dynamic scope rules.\n\nvar x, y: integer;\nprocedure A (var z: integer);\n  var x: integer;\n  begin\n    x := 1;\n    B;\n    z := x\n  end;\nprocedure B;\n  begin\n    x := x + 1\n  end;\nbegin\n  x := 5;\n  A(y);\n  write(y)\nend.",
+   "answer": "Static scope: y = 1. Dynamic scope: y = 2.",
+   "to_find": "The value of y printed under (i) static scoping rules and (ii) dynamic scoping rules",
+   "understand": {
+    "plain": "The program has a global variable x and a local variable x inside procedure A. Procedure B reads and writes x. Under static scoping, B always refers to the global x (because B is defined at the global level). Under dynamic scoping, when B is called from within A, B sees A's local x (because A's x is the most recently declared x on the call stack). The difference in x's value when control returns to A determines the value of z (and thus y).",
+    "keywords": [
+     {
+      "term": "Static (Lexical) Scope",
+      "explain": "A variable reference is resolved by looking at the textual/lexical environment where the procedure is defined, not where it is called from.",
+      "example": "B is defined at global level, so B's x always refers to the global x, regardless of who calls B."
+     },
+     {
+      "term": "Dynamic Scope",
+      "explain": "A variable reference is resolved by looking at the most recent binding on the runtime call stack at the point of the call.",
+      "example": "When B is called from A, the most recent binding of x on the stack is A's local x (value 1), so B's x refers to A's x."
+     },
+     {
+      "term": "Pass by reference (var z: integer)",
+      "explain": "z is an alias for the actual argument y; assigning to z changes y directly.",
+      "example": "A(y) means z and y refer to the same location; z := x sets y = x."
+     }
+    ],
+    "visual_svg": "<svg width='500' height='260' viewBox='0 0 500 260' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><text x='10' y='22' class='lbl ink'>(i) Static Scope</text><rect x='10' y='30' width='220' height='30' class='bg'/><text x='120' y='50' text-anchor='middle' class='sub ink'>global x=5, y=?</text><rect x='10' y='65' width='220' height='30' class='hi'/><text x='120' y='85' text-anchor='middle' class='sub ink'>A called: local x_A=1</text><rect x='10' y='100' width='220' height='30' class='bg'/><text x='120' y='120' text-anchor='middle' class='sub ink'>B called: B sees global x</text><rect x='10' y='135' width='220' height='30' class='bg'/><text x='120' y='155' text-anchor='middle' class='sub ink'>global x = 5+1 = 6</text><rect x='10' y='170' width='220' height='30' class='bg'/><text x='120' y='190' text-anchor='middle' class='sub ink'>back in A: z := x_A = 1</text><rect x='10' y='205' width='220' height='30' class='ok' opacity='0.4'/><rect x='10' y='205' width='220' height='30' stroke='#1D9E75' stroke-width='2' fill='none'/><text x='120' y='225' text-anchor='middle' class='sub ink'>write(y) = 1</text><text x='260' y='22' class='lbl ink'>(ii) Dynamic Scope</text><rect x='260' y='30' width='220' height='30' class='bg'/><text x='370' y='50' text-anchor='middle' class='sub ink'>global x=5, y=?</text><rect x='260' y='65' width='220' height='30' class='hi'/><text x='370' y='85' text-anchor='middle' class='sub ink'>A called: local x_A=1</text><rect x='260' y='100' width='220' height='30' class='bg'/><text x='370' y='120' text-anchor='middle' class='sub ink'>B called: B sees A's x</text><rect x='260' y='135' width='220' height='30' class='bg'/><text x='370' y='155' text-anchor='middle' class='sub ink'>A's x_A = 1+1 = 2</text><rect x='260' y='170' width='220' height='30' class='bg'/><text x='370' y='190' text-anchor='middle' class='sub ink'>back in A: z := x_A = 2</text><rect x='260' y='205' width='220' height='30' class='ok' opacity='0.4'/><rect x='260' y='205' width='220' height='30' stroke='#1D9E75' stroke-width='2' fill='none'/><text x='370' y='225' text-anchor='middle' class='sub ink'>write(y) = 2</text></svg>",
+    "visual_alt": "Two columns comparing static vs dynamic scope execution. Static: B modifies global x to 6, A's local x remains 1, so y=1. Dynamic: B modifies A's local x to 2, so y=2."
+   },
+   "given": {
+    "aim": "Find the value printed by write(y) under static scoping and under dynamic scoping.",
+    "terms": [
+     {
+      "term": "global x",
+      "meaning": "The variable x declared at the outermost level, initialized to 5.",
+      "example": "x := 5 at the main block sets global x = 5.",
+      "connects": "Under static scoping, B's reference to x always means this global x."
+     },
+     {
+      "term": "A's local x",
+      "meaning": "The x declared with 'var x: integer' inside procedure A, initialized to 1 inside A.",
+      "example": "x := 1 inside A sets A's own local x to 1.",
+      "connects": "Under dynamic scoping, when B is called from A, B sees A's local x (most recent x on call chain)."
+     },
+     {
+      "term": "z (pass by reference to y)",
+      "meaning": "z is an alias for the actual argument y; 'z := x' assigns the current value of x (A's local x) to y.",
+      "example": "If A's local x is 1 when z := x executes, then y becomes 1.",
+      "connects": "The value of A's local x after B returns determines what y is written with."
+     }
+    ],
+    "plan": "Trace the execution twice: once assuming static scoping (B's free variable x resolved at definition time, i.e., global x) and once assuming dynamic scoping (B's free variable x resolved at call time, i.e., most recent x on stack when B is called, which is A's local x)."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Initialize and call A",
+      "formula_raw": "",
+      "apply": "Main block: global x := 5, call A(y) so z is an alias for y. Inside A: A's local x := 1. Now B is called.",
+      "note": "At this point: global x = 5, A's local x = 1. The call stack is: main -> A -> B."
+     },
+     {
+      "step": 2,
+      "title": "Trace B under Static Scoping",
+      "formula_raw": "",
+      "apply": "Under static scoping, B is defined at the global (top) level. So B's reference to x is the global x. B executes: (global) x := (global) x + 1 = 5 + 1 = 6. B returns. Back in A: A's local x is still 1 (unchanged). z := (A's local) x = 1. Since z is an alias for y, y = 1. write(y) prints 1.",
+      "note": "Static scoping: B cannot see A's local x because B is not textually nested inside A."
+     },
+     {
+      "step": 3,
+      "title": "Trace B under Dynamic Scoping",
+      "formula_raw": "",
+      "apply": "Under dynamic scoping, when B is called from within A, the most recently declared/bound x on the call stack is A's local x (value 1). B executes: x := x + 1 = 1 + 1 = 2, modifying A's local x to 2. B returns. Back in A: A's local x is now 2. z := (A's local) x = 2. Since z is an alias for y, y = 2. write(y) prints 2.",
+      "note": "Dynamic scoping: B finds the most recent binding of x, which is A's local x, not the global x."
+     }
+    ],
+    "result": "(i) Static scope: write(y) prints 1. (ii) Dynamic scope: write(y) prints 2."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Static scoping resolves free variables at the point of procedure definition (lexical environment); dynamic scoping resolves them at the point of call (most recent binding on the runtime stack). This classic example demonstrates the key behavioral difference between the two scoping rules.",
+   "qid": "3.19.3",
+   "answer_official": "N/A"
+  }
+ ]
+}

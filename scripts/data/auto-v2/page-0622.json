@@ -1,0 +1,299 @@
+{
+ "page": 622,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2006",
+    "year": 2006,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Programming in C",
+    "topic": "Structure",
+    "subtopic": "Structure"
+   },
+   "question": "Which one of the choices given below would be printed when the following program is executed?\n\n#include <stdio.h>\nstruct test {\n    int i;\n    char *c;\n} st[] = {5, \"become\", 4, \"better\", 6, \"jungle\", 8, \"ancestor\", 7, \"brother\"};\nmain() {\n    struct test *p = st;\n    p += 1;\n    ++p -> c;\n    printf(\"%s,\", p++ -> c);\n    printf(\"%d,\", p -> i);\n    printf(\"%s\", p -> c);\n}\n\nA. jungle, is, 6, ancestor\nB. etter, is, 6, jungle\nC. etter, 6, jungle\nD. etter, 6, ancestor",
+   "answer": "C. etter, 6, jungle",
+   "to_find": "The output printed by the program involving struct pointer arithmetic",
+   "understand": {
+    "plain": "The program defines an array of structs, each holding an int and a char pointer. A pointer p walks through the array using pointer arithmetic. The key operations are: incrementing the struct pointer (p += 1 moves to next struct), and incrementing a char pointer within a struct (++p->c moves one character forward inside a string). We must trace each step to determine what gets printed.",
+    "keywords": [
+     {
+      "term": "struct pointer arithmetic",
+      "explain": "p += 1 on a struct pointer moves p to the next struct in the array (not just one byte).",
+      "example": "If st[0] is at address 0, st[1] is at address sizeof(struct test)."
+     },
+     {
+      "term": "++p->c",
+      "explain": "Due to precedence, -> binds tighter than ++. So this is ++(p->c), which increments the char* field c inside the struct that p points to, advancing it past the first character.",
+      "example": "If p->c points to 'better', after ++p->c it points to 'etter'."
+     },
+     {
+      "term": "p++ -> c (post-increment)",
+      "explain": "p++ -> c first accesses p->c (using current p), then increments p to point to the next struct.",
+      "example": "If p points to st[1], p++ -> c gives st[1].c, then p becomes st[2]."
+     }
+    ],
+    "visual_svg": "<svg width='520' height='200' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='150' height='60' class='bg'/><text x='85' y='35' text-anchor='middle' class='sub ink'>st[0]</text><text x='85' y='55' text-anchor='middle' class='sub mut'>i=5, c-&gt;\"become\"</text><rect x='10' y='80' width='150' height='60' class='hi'/><text x='85' y='105' text-anchor='middle' class='sub ink'>st[1] (p after p+=1)</text><text x='85' y='125' text-anchor='middle' class='sub mut'>i=4, c-&gt;\"etter\" (after ++c)</text><rect x='10' y='150' width='150' height='40' class='bg'/><text x='85' y='175' text-anchor='middle' class='sub ink'>st[2] (p after p++)</text><text x='200' y='105' class='lbl ink'>p+=1 -&gt; st[1]</text><text x='200' y='130' class='sub mut'>++p-&gt;c: \"better\"-&gt;\"etter\"</text><text x='200' y='155' class='sub mut'>printf: \"etter\"</text><text x='200' y='175' class='sub mut'>p++ -&gt; now st[2]</text><text x='200' y='55' class='sub mut'>i=6, c-&gt;\"jungle\"</text></svg>",
+    "visual_alt": "Array of structs st[0..4]. p starts at st[0], moves to st[1] via p+=1. ++p->c changes c in st[1] from 'better' to 'etter'. printf prints 'etter' and advances p to st[2] (i=6, c='jungle')."
+   },
+   "given": {
+    "aim": "Trace struct pointer operations to determine the printed output.",
+    "terms": [
+     {
+      "term": "st[]",
+      "meaning": "Array of struct test initialized: st[0]={5,\"become\"}, st[1]={4,\"better\"}, st[2]={6,\"jungle\"}, st[3]={8,\"ancestor\"}, st[4]={7,\"brother\"}",
+      "example": "st[1].i = 4, st[1].c = \"better\"",
+      "connects": "The data values that will be read and printed"
+     },
+     {
+      "term": "p += 1",
+      "meaning": "Moves struct pointer p from st[0] to st[1]",
+      "example": "p now points to {4, \"better\"}",
+      "connects": "Positions p for subsequent operations"
+     },
+     {
+      "term": "++p->c",
+      "meaning": "Increments the char* field c in the struct p points to; 'better' becomes 'etter'",
+      "example": "String pointer advances past 'b', pointing at 'etter'",
+      "connects": "Determines what the first printf outputs"
+     },
+     {
+      "term": "p++ -> c",
+      "meaning": "Returns p->c (current value 'etter') and then increments p to st[2]",
+      "example": "First print uses st[1].c = 'etter'; p now = st[2]",
+      "connects": "After the first printf, p points to st[2] = {6, 'jungle'}"
+     }
+    ],
+    "plan": "Step through each statement: (1) p = st -> st[0]. (2) p += 1 -> st[1]. (3) ++p->c increments st[1].c: 'better' -> 'etter'. (4) printf(\"%s,\", p++->c) prints 'etter' and moves p to st[2]. (5) printf(\"%d,\", p->i) prints st[2].i = 6. (6) printf(\"%s\", p->c) prints st[2].c = 'jungle'."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Initialize and advance pointer",
+      "formula_raw": "p = st; p += 1;",
+      "apply": "p starts at st[0] = {5, 'become'}. After p += 1, p points to st[1] = {4, 'better'}.",
+      "note": "Pointer arithmetic on a struct pointer advances by sizeof(struct test), not by 1 byte."
+     },
+     {
+      "step": 2,
+      "title": "Increment char pointer inside struct",
+      "formula_raw": "++p->c   (equivalent to ++(p->c))",
+      "apply": "p->c currently points to the string 'better'. After ++p->c, p->c points to the character 'e', so the string now reads as 'etter'.",
+      "note": "Operator precedence: -> has higher precedence than prefix ++, so this modifies the char* field, not the struct pointer."
+     },
+     {
+      "step": 3,
+      "title": "First printf: print p->c then post-increment p",
+      "formula_raw": "printf(\"%s,\", p++ -> c)",
+      "apply": "p->c is 'etter'. printf prints 'etter,'. Then p is post-incremented to st[2] = {6, 'jungle'}.",
+      "note": "Post-increment returns the old value (p = st[1]) for the current expression, then advances p."
+     },
+     {
+      "step": 4,
+      "title": "Second and third printf",
+      "formula_raw": "printf(\"%d,\", p->i); printf(\"%s\", p->c);",
+      "apply": "p now points to st[2] = {6, 'jungle'}. Second printf prints '6,'. Third printf prints 'jungle'.",
+      "note": "p was not incremented between these two printfs, so both use st[2]."
+     }
+    ],
+    "result": "Output is: etter,6,jungle — matching option C."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Struct pointer arithmetic and operator precedence (-> binds tighter than prefix ++; post-increment vs prefix increment on pointers)",
+   "qid": "9.15.5",
+   "answer_official": "B"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2012",
+    "year": 2012,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Programming in C",
+    "topic": "Switch Case",
+    "subtopic": "Switch Case"
+   },
+   "question": "What will be the output of the following C program segment?\n\nchar inChar = 'A';\nswitch ( inChar ) {\n    case 'A' : printf (\"Choice A \\n\");\n    case 'B' :\n    case 'C' : printf (\"Choice B\");\n    case 'D' :\n    case 'E' :\n    default  : printf (\"No Choice\");\n}\n\nA. No Choice\nB. Choice A\nC. Choice A\n   Choice BNo Choice\nD. Program gives no output as it is erroneous",
+   "answer": "C. Choice A\n   Choice BNo Choice",
+   "to_find": "The output of the C switch statement with no break statements (fall-through behavior)",
+   "understand": {
+    "plain": "In C, a switch statement executes the matching case and then continues executing all subsequent cases unless a break statement stops it. This is called fall-through. Since no break is present anywhere in this switch, once case 'A' matches, execution will continue through all following cases including default, printing everything.",
+    "keywords": [
+     {
+      "term": "fall-through",
+      "explain": "When a switch case has no break, execution continues into the next case label and runs that code too.",
+      "example": "case 'A' runs, then falls through to case 'B'/'C', then to 'D'/'E'/default."
+     },
+     {
+      "term": "empty case",
+      "explain": "A case label with no code (like case 'B':) simply serves as an additional entry point; execution falls through to the next non-empty case.",
+      "example": "case 'B': and case 'C': are grouped, so both 'B' and 'C' would trigger the same printf."
+     }
+    ],
+    "visual_svg": "<svg width='400' height='260' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='180' height='40' class='hi'/><text x='100' y='35' text-anchor='middle' class='lbl ink'>case 'A' MATCH</text><line x1='100' y1='50' x2='100' y2='80' stroke='#7F77DD' stroke-width='2' marker-end='url(#arrow)'/><rect x='10' y='80' width='180' height='40' class='bg'/><text x='100' y='105' text-anchor='middle' class='sub ink'>print \"Choice A\\n\"</text><line x1='100' y1='120' x2='100' y2='150' stroke='#B4B2A9' stroke-width='2'/><text x='200' y='140' class='sub mut'>no break -&gt; fall through</text><rect x='10' y='150' width='180' height='40' class='bg'/><text x='100' y='175' text-anchor='middle' class='sub ink'>print \"Choice B\"</text><line x1='100' y1='190' x2='100' y2='220' stroke='#B4B2A9' stroke-width='2'/><text x='200' y='210' class='sub mut'>no break -&gt; fall through</text><rect x='10' y='220' width='180' height='35' class='bg'/><text x='100' y='243' text-anchor='middle' class='sub ink'>print \"No Choice\"</text></svg>",
+    "visual_alt": "Flow diagram: case 'A' matches and prints 'Choice A', then falls through (no break) to print 'Choice B', then falls through again to print 'No Choice'."
+   },
+   "given": {
+    "aim": "Determine the output when a switch with no break statements is executed for inChar = 'A'.",
+    "terms": [
+     {
+      "term": "inChar = 'A'",
+      "meaning": "The switch expression evaluates to 'A', so execution begins at case 'A'.",
+      "example": "Matches the first case label.",
+      "connects": "Entry point into the switch body."
+     },
+     {
+      "term": "no break after case 'A'",
+      "meaning": "After printing 'Choice A\\n', execution does not exit; it falls through to case 'B' and then case 'C'.",
+      "example": "Both case 'B' and 'C' share the printf(\"Choice B\") statement.",
+      "connects": "Causes 'Choice B' to also be printed."
+     },
+     {
+      "term": "default label",
+      "meaning": "Execution falls through from case 'C' through empty cases 'D' and 'E' to default, printing 'No Choice'.",
+      "example": "default executes even though the value matched case 'A', due to fall-through.",
+      "connects": "Adds 'No Choice' to the output."
+     }
+    ],
+    "plan": "Trace execution from case 'A' all the way to default since no break is present anywhere. Accumulate all printf outputs."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Match case 'A' and execute",
+      "formula_raw": "case 'A': printf(\"Choice A \\n\");",
+      "apply": "inChar = 'A' matches case 'A'. printf prints 'Choice A' followed by a newline. No break follows, so execution falls through.",
+      "note": "The \\n causes a newline after 'Choice A'."
+     },
+     {
+      "step": 2,
+      "title": "Fall through case 'B', execute case 'C' printf",
+      "formula_raw": "case 'B': case 'C': printf(\"Choice B\");",
+      "apply": "case 'B' is empty, execution continues to case 'C' which has printf(\"Choice B\"). This prints 'Choice B' (no newline). No break, falls through again.",
+      "note": "case 'B' has no code but does not block fall-through from case 'A'."
+     },
+     {
+      "step": 3,
+      "title": "Fall through cases 'D', 'E', default",
+      "formula_raw": "case 'D': case 'E': default: printf(\"No Choice\");",
+      "apply": "cases 'D' and 'E' are empty. Execution reaches default and prints 'No Choice'. No more code; switch ends.",
+      "note": "Output so far: 'Choice A\\nChoice BNo Choice'."
+     }
+    ],
+    "result": "Output: Choice A (newline) Choice BNo Choice — matching option C."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Switch fall-through in C: without a break statement, execution continues sequentially through all subsequent case labels",
+   "qid": "9.16.1",
+   "answer_official": "X"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2015",
+    "year": 2015,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Programming in C",
+    "topic": "Switch Case",
+    "subtopic": "Switch Case"
+   },
+   "question": "Consider the following C program:\n\n#include<stdio.h>\nint main() {\n    int i, j, k = 0;\n    j = 2 * 3 / 4 + 2.0 / 5 + 8 / 5;\n    k -= --j;\n    for (i = 0; i < 5; i++) {\n        switch(i + k) {\n            case 1: printf(\"j=%d\\n\", j);\n            case 2: printf(\"j=%d\\n\", j);\n        }\n    }\n    return 0;\n}\n\nThe number of times printf statement is executed is _______.",
+   "answer": "3",
+   "to_find": "The total number of times a printf statement executes in the program",
+   "understand": {
+    "plain": "This program computes j from a mixed integer/float expression, then derives k using a compound assignment. A for loop runs 5 times, and inside each iteration a switch selects among two cases based on i+k. Since there are no break statements, fall-through can cause multiple printfs in one iteration. We count total printf calls across all iterations.",
+    "keywords": [
+     {
+      "term": "integer arithmetic in C",
+      "explain": "2*3/4 is computed as (2*3)/4 = 6/4 = 1 (integer division). 8/5 = 1. But 2.0/5 = 0.4 (floating point), and since j is int, the whole expression is truncated to an integer.",
+      "example": "j = 1 + 0 + 1 = 2 (after truncation of 0.4)"
+     },
+     {
+      "term": "k -= --j",
+      "explain": "--j decrements j first (j becomes 1), then k -= j means k = k - j = 0 - 1 = -1.",
+      "example": "After this statement, j=1, k=-1."
+     },
+     {
+      "term": "switch fall-through",
+      "explain": "When case 1 matches and has no break, execution continues into case 2 as well, causing two printfs in one iteration.",
+      "example": "When i+k=1, both case 1 and case 2 printf execute."
+     }
+    ],
+    "visual_svg": "<svg width='440' height='220' xmlns='http://www.w3.org/2000/svg'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='60' height='30' class='bg'/><text x='40' y='30' text-anchor='middle' class='sub ink'>i=0</text><rect x='10' y='50' width='60' height='30' class='bg'/><text x='40' y='70' text-anchor='middle' class='sub ink'>i=1</text><rect x='10' y='90' width='60' height='30' class='hi'/><text x='40' y='110' text-anchor='middle' class='sub ink'>i=2</text><rect x='10' y='130' width='60' height='30' class='hi'/><text x='40' y='150' text-anchor='middle' class='sub ink'>i=3</text><rect x='10' y='170' width='60' height='30' class='bg'/><text x='40' y='190' text-anchor='middle' class='sub ink'>i=4</text><rect x='80' y='10' width='80' height='30' class='bg'/><text x='120' y='30' text-anchor='middle' class='sub ink'>i+k = -1</text><rect x='80' y='50' width='80' height='30' class='bg'/><text x='120' y='70' text-anchor='middle' class='sub ink'>i+k = 0</text><rect x='80' y='90' width='80' height='30' class='hi'/><text x='120' y='110' text-anchor='middle' class='sub ink'>i+k = 1</text><rect x='80' y='130' width='80' height='30' class='hi'/><text x='120' y='150' text-anchor='middle' class='sub ink'>i+k = 2</text><rect x='80' y='170' width='80' height='30' class='bg'/><text x='120' y='190' text-anchor='middle' class='sub ink'>i+k = 3</text><rect x='170' y='10' width='120' height='30' class='bg'/><text x='230' y='30' text-anchor='middle' class='sub mut'>no match</text><rect x='170' y='50' width='120' height='30' class='bg'/><text x='230' y='70' text-anchor='middle' class='sub mut'>no match</text><rect x='170' y='90' width='120' height='30' class='ok'/><text x='230' y='110' text-anchor='middle' class='sub ink'>case1: 2 prints</text><rect x='170' y='130' width='120' height='30' class='ok'/><text x='230' y='150' text-anchor='middle' class='sub ink'>case2: 1 print</text><rect x='170' y='170' width='120' height='30' class='bg'/><text x='230' y='190' text-anchor='middle' class='sub mut'>no match</text><text x='300' y='110' class='lbl ink'>Total = 3</text></svg>",
+    "visual_alt": "Table of i values (0-4), i+k values (-1,0,1,2,3), and printf count per iteration (0,0,2,1,0). Total = 3."
+   },
+   "given": {
+    "aim": "Count the total number of printf executions in the loop.",
+    "terms": [
+     {
+      "term": "j = 2*3/4 + 2.0/5 + 8/5",
+      "meaning": "Integer expression evaluation: (2*3)/4 = 1, 2.0/5 = 0.4, 8/5 = 1. Sum = 2.4, truncated to j = 2.",
+      "example": "j is int, so the fractional part 0.4 is discarded.",
+      "connects": "Initial value of j before k computation."
+     },
+     {
+      "term": "k -= --j",
+      "meaning": "--j decrements j from 2 to 1; then k = k - j = 0 - 1 = -1.",
+      "example": "After: j=1, k=-1.",
+      "connects": "k=-1 shifts the switch expression in the loop."
+     },
+     {
+      "term": "switch(i + k) with k = -1",
+      "meaning": "switch(i - 1). Only matches case 1 (when i=2) and case 2 (when i=3).",
+      "example": "i=2: i+k=1 (case 1 match); i=3: i+k=2 (case 2 match).",
+      "connects": "Determines which iterations produce output."
+     },
+     {
+      "term": "no break in switch",
+      "meaning": "When case 1 matches (i=2), execution falls through to case 2 as well, causing 2 printfs.",
+      "example": "i=2 triggers case 1 then falls into case 2: 2 printfs total for that iteration.",
+      "connects": "Adds an extra printf when case 1 is matched."
+     }
+    ],
+    "plan": "Compute j and k. Then for each i in [0,4], compute i+k and determine how many case labels fire (accounting for fall-through). Sum all printf calls."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Compute j",
+      "formula_raw": "j = 2*3/4 + 2.0/5 + 8/5",
+      "apply": "2*3 = 6; 6/4 = 1 (integer division). 2.0/5 = 0.4 (float). 8/5 = 1 (integer division). Sum = 1 + 0.4 + 1 = 2.4. Since j is int, j = 2 (truncation).",
+      "note": "Mixed int and float arithmetic: only 2.0/5 produces a float; the final assignment to int truncates."
+     },
+     {
+      "step": 2,
+      "title": "Compute k",
+      "formula_raw": "k -= --j",
+      "apply": "--j: j goes from 2 to 1. k -= j means k = 0 - 1 = -1. After: j=1, k=-1.",
+      "note": "k -= --j is NOT k -= j--. The pre-decrement happens before the subtraction."
+     },
+     {
+      "step": 3,
+      "title": "Trace the loop iterations",
+      "formula_raw": "switch(i + k) = switch(i - 1)",
+      "apply": "i=0: switch(-1) -> no match -> 0 printfs.\ni=1: switch(0) -> no match -> 0 printfs.\ni=2: switch(1) -> matches case 1, prints 'j=1'; no break, falls to case 2, prints 'j=1'. 2 printfs.\ni=3: switch(2) -> matches case 2, prints 'j=1'. 1 printf.\ni=4: switch(3) -> no match -> 0 printfs.",
+      "note": "i=2 causes 2 prints due to fall-through from case 1 to case 2."
+     },
+     {
+      "step": 4,
+      "title": "Total count",
+      "formula_raw": "total = 0 + 0 + 2 + 1 + 0",
+      "apply": "Total printf executions = 0 + 0 + 2 + 1 + 0 = 3.",
+      "note": "j prints as 1 in all cases since --j made j=1 before the loop."
+     }
+    ],
+    "result": "The printf statement is executed 3 times."
+   },
+   "formula_ids_used": [],
+   "formula_note": "C integer arithmetic truncation, pre-decrement operator precedence, and switch fall-through (no break causes execution to continue into subsequent case labels)",
+   "qid": "9.16.2",
+   "answer_official": "10"
+  }
+ ]
+}

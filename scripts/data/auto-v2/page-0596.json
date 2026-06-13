@@ -1,0 +1,366 @@
+{
+ "page": 596,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2010",
+    "year": 2010,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Programming in C",
+    "topic": "Parameter Passing",
+    "subtopic": "Parameter Passing"
+   },
+   "question": "What does the following program print?\n\n#include<stdio.h>\nvoid f(int *p, int *q)\n{\n    p = q;\n    *p = 2;\n}\nint i = 0, j = 1;\nint main()\n{\n    f(&i, &j);\n    printf(\"%d %d\", i, j);\n    return 0;\n}\n\nA. 2 2\nB. 2 1\nC. 0 1\nD. 0 2",
+   "answer": "D. 0 2",
+   "to_find": "What values are printed for i and j after the function call f(&i, &j)",
+   "understand": {
+    "plain": "The function f receives pointers to i and j. Inside f, the statement p=q makes the local pointer p point to j (not to i). Then *p=2 sets the value at the address p points to (which is j) to 2. Since p and q are local copies of the pointers, the change to p does not affect i at all. So i remains 0 and j becomes 2.",
+    "keywords": [
+     {
+      "term": "pointer assignment (p=q)",
+      "explain": "This copies the address stored in q into p. It changes where p points, but does NOT change the variable that p originally pointed to.",
+      "example": "If p points to i and q points to j, after p=q both p and q point to j. i is untouched."
+     },
+     {
+      "term": "dereferenced assignment (*p=2)",
+      "explain": "This writes the value 2 to the memory location p currently points to.",
+      "example": "After p=q, *p=2 sets j=2, not i."
+     },
+     {
+      "term": "pass by pointer",
+      "explain": "Passing &i means the function receives the address of i. Changes via *p affect the original variable, but reassigning p (the local copy of the address) does not.",
+      "example": "p=q changes the local pointer; *p=2 changes what p now points to."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='480' height='200'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='20' width='80' height='40' class='bg'/><text x='50' y='35' text-anchor='middle' class='tag ink'>i = 0</text><text x='50' y='52' text-anchor='middle' class='sub mut'>addr: 100</text><rect x='140' y='20' width='80' height='40' class='hi'/><text x='180' y='35' text-anchor='middle' class='tag ink'>j = 2</text><text x='180' y='52' text-anchor='middle' class='sub mut'>addr: 200</text><rect x='10' y='110' width='80' height='40' class='bg'/><text x='50' y='125' text-anchor='middle' class='tag ink'>p = 200</text><text x='50' y='142' text-anchor='middle' class='sub mut'>(was 100)</text><rect x='140' y='110' width='80' height='40' class='bg'/><text x='180' y='125' text-anchor='middle' class='tag ink'>q = 200</text><text x='180' y='142' text-anchor='middle' class='sub mut'>unchanged</text><line x1='50' y1='150' x2='180' y2='60' stroke='#7F77DD' stroke-width='2' marker-end='url(#arr)'/><line x1='180' y1='150' x2='180' y2='60' stroke='#1D9E75' stroke-width='2' marker-end='url(#arr)'/><defs><marker id='arr' markerWidth='8' markerHeight='8' refX='4' refY='4' orient='auto'><path d='M0,0 L8,4 L0,8 Z' fill='#7F77DD'/></marker></defs><text x='240' y='145' class='sub ink'>p=q: p now points to j</text><text x='240' y='162' class='sub ink'>*p=2: j becomes 2</text><text x='240' y='179' class='sub ink'>i untouched: i=0</text></svg>",
+    "visual_alt": "Memory layout showing i=0 at address 100, j changes to 2 at address 200. After p=q inside f, local pointer p points to j. *p=2 sets j=2. i stays 0."
+   },
+   "given": {
+    "aim": "Determine the output of i and j after calling f(&i, &j) where f reassigns the local pointer and then dereferences it.",
+    "terms": [
+     {
+      "term": "i = 0, j = 1 (global)",
+      "meaning": "Global integer variables initialized to 0 and 1 respectively.",
+      "example": "i is at some address, say 100; j is at address 200.",
+      "connects": "These are the variables whose values we print at the end."
+     },
+     {
+      "term": "p = q (inside f)",
+      "meaning": "Local pointer p is reassigned to hold the address of j.",
+      "example": "After this, p and q both hold address 200 (address of j).",
+      "connects": "This means subsequent *p operations affect j, not i."
+     },
+     {
+      "term": "*p = 2 (inside f)",
+      "meaning": "Sets the value at the address p currently points to (j) to 2.",
+      "example": "*p=2 means j=2.",
+      "connects": "i is untouched because p no longer points to i."
+     }
+    ],
+    "plan": "Trace the pointer operations step by step: p=q redirects p from i to j; *p=2 sets j=2; i never changes. Print i=0, j=2."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Function call: initial pointer values",
+      "formula_raw": "p = &i, q = &j",
+      "apply": "f is called with f(&i, &j). Inside f, local pointer p holds address of i (say 100), and local pointer q holds address of j (say 200).",
+      "note": "p and q are local copies of the addresses; modifying p does not affect i directly."
+     },
+     {
+      "step": 2,
+      "title": "Execute p = q",
+      "formula_raw": "p = q => p now holds address of j",
+      "apply": "p is reassigned to hold address 200 (address of j). Now both p and q point to j. The variable i at address 100 is no longer pointed to by p.",
+      "note": "This is pointer reassignment, NOT *p = *q. The original variable i is completely unaffected."
+     },
+     {
+      "step": 3,
+      "title": "Execute *p = 2",
+      "formula_raw": "*p = 2 => value at address 200 = 2 => j = 2",
+      "apply": "Since p now points to j, *p=2 sets j=2. i remains 0.",
+      "note": "The key insight: p=q changed WHERE p points, so *p=2 modifies j, not i."
+     },
+     {
+      "step": 4,
+      "title": "Back in main: print i and j",
+      "formula_raw": "printf(\"%d %d\", i, j)",
+      "apply": "i=0 (never modified), j=2 (set inside f). Output: 0 2",
+      "note": "Answer is D: 0 2"
+     }
+    ],
+    "result": "The program prints: 0 2 (Option D)"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Pointer reassignment (p=q) changes the local pointer's target; dereferencing (*p=2) then modifies the new target. The original variable pointed to by p before reassignment is unaffected.",
+   "qid": "9.8.6",
+   "answer_official": "D"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2013",
+    "year": 2013,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Programming in C",
+    "topic": "Parameter Passing",
+    "subtopic": "Parameter Passing"
+   },
+   "question": "What is the return value of f(x, c), if the value of x is initialized to 5 before the call? Note that the first parameter is passed by reference, whereas the second parameter is passed by value.\n\nint f(int &x, int c)\n{\n    c = c - 1;\n    if (c == 0) return 1;\n    x = x + 1;\n    return f(x, c) * x;\n}",
+   "answer": "6561",
+   "to_find": "The return value of f(x, c) with x=5 and c=5 (first parameter by reference, second by value)",
+   "understand": {
+    "plain": "The function f is recursive. x is passed by reference (all recursive calls share the same x variable), while c is passed by value (each call gets its own copy). Each recursive call decrements c by 1 and increments x by 1 (via the shared reference). When c reaches 0, the recursion stops and returns 1. On the way back up, each frame multiplies f(x,c)*x, but x is now the final shared value (9) at the time of unwinding.",
+    "keywords": [
+     {
+      "term": "pass by reference",
+      "explain": "The function receives the memory address of x. Any change to x inside the function changes the original variable. All recursive calls see the same x.",
+      "example": "x=5 initially; after 4 recursive increments x=9; all frames see x=9 when returning."
+     },
+     {
+      "term": "pass by value",
+      "explain": "The function receives a copy of c. Changes to c inside one call do not affect c in the calling frame.",
+      "example": "c=5 in the first call; each recursive call starts with its own copy decremented by 1."
+     },
+     {
+      "term": "recursive unwinding",
+      "explain": "After the base case returns, each frame executes its return statement multiplying the result by x. Since x is shared and has reached its final value, all frames see the same x.",
+      "example": "Each of the 4 returning frames multiplies by x=9, giving 9^4=6561."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Recursion tree: f(x,5) -> f(x,4) -> f(x,3) -> f(x,2) -> f(x,1) returns 1. x increments from 5 to 9 across calls. On unwind: 1*9 * 9 * 9 * 9 = 6561."
+   },
+   "given": {
+    "aim": "Trace the recursive function with x (by reference) starting at 5 and c (by value) starting at 5, and find the return value.",
+    "terms": [
+     {
+      "term": "x = 5 (initial, passed by reference)",
+      "meaning": "x is a shared variable; every recursive call modifies the same x.",
+      "example": "After 4 calls each doing x=x+1, x becomes 9.",
+      "connects": "When unwinding, all return statements use x=9."
+     },
+     {
+      "term": "c = 5 (initial, passed by value)",
+      "meaning": "Each call gets its own copy of c, decremented by 1 at the start.",
+      "example": "Call 1 has c=4 after decrement, call 2 has c=3, ..., call 5 has c=0 (base case).",
+      "connects": "c controls the recursion depth: 4 recursive calls before base case."
+     },
+     {
+      "term": "return f(x,c) * x",
+      "meaning": "Each frame returns the product of the recursive call result and the current x.",
+      "example": "Since x is by reference and final value is 9, each frame contributes a factor of 9.",
+      "connects": "4 frames each multiply by 9: result = 1 * 9 * 9 * 9 * 9 = 9^4 = 6561."
+     }
+    ],
+    "plan": "Trace each recursive call: c decrements, x increments (shared). Base case at c=0 returns 1. On unwinding, multiply by x (which is 9 by then) four times."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Trace recursive calls (descent)",
+      "formula_raw": "Each call: c_new = c-1, x_new = x+1 (shared)",
+      "apply": "Call 1: c=5->4, x=5->6. Calls f(x,4).\nCall 2: c=4->3, x=6->7. Calls f(x,3).\nCall 3: c=3->2, x=7->8. Calls f(x,2).\nCall 4: c=2->1, x=8->9. Calls f(x,1).\nCall 5: c=1->0. Base case: return 1.",
+      "note": "After all descending calls, x = 9 (incremented 4 times from 5)."
+     },
+     {
+      "step": 2,
+      "title": "Unwinding: compute return values",
+      "formula_raw": "return f(x,c) * x where x=9 at unwind time",
+      "apply": "Call 4 returns: 1 * x = 1 * 9 = 9\nCall 3 returns: 9 * x = 9 * 9 = 81\nCall 2 returns: 81 * x = 81 * 9 = 729\nCall 1 returns: 729 * x = 729 * 9 = 6561",
+      "note": "Because x is passed by reference, all frames see x=9 (the final value) when multiplying on return."
+     }
+    ],
+    "result": "The return value of f(x, 5) with x initialized to 5 is 6561."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Pass-by-reference means all recursive frames share the same variable x. After 4 increments x=9. On unwinding, 4 frames each multiply by 9: result = 9^4 = 6561.",
+   "qid": "9.8.7",
+   "answer_official": "6561"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2016",
+    "year": 2016,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Programming in C",
+    "topic": "Parameter Passing",
+    "subtopic": "Parameter Passing"
+   },
+   "question": "Consider the following C program.\n\n#include <stdio.h>\nvoid mystery(int *ptra, int *ptrb)\n{\n    int *temp;\n    temp = ptrb;\n    ptrb = ptra;\n    ptra = temp;\n}\nint main()\n{\n    int a = 2016, b = 0, c = 4, d = 42;\n    mystery(&a, &b);\n    if (a < c)\n        b = b + d;\n    else\n        b = b - d;\n    printf(\"%d\\n\", b);\n    return 0;\n}\n\nThe output of the program is:\n\nA. -42\nB. 0\nC. 2016\nD. 42",
+   "answer": "A. -42",
+   "to_find": "The value printed by the program after calling mystery(&a, &b) and the conditional update to b",
+   "understand": {
+    "plain": "The function mystery receives pointers to a and b, and swaps the local pointer variables ptra and ptrb. However, since the pointers themselves are passed by value, swapping the local copies does not affect the actual variables a and b in main. So a remains 2016 and b remains 0. Then since a=2016 is NOT less than c=4, the else branch executes: b = b - d = 0 - 42 = -42.",
+    "keywords": [
+     {
+      "term": "pointer swap (local only)",
+      "explain": "Inside mystery, ptra and ptrb are local copies of the pointer arguments. Swapping them changes which local variable holds which address, but has no effect outside the function.",
+      "example": "After mystery(&a,&b): a=2016 and b=0 are unchanged."
+     },
+     {
+      "term": "pass by pointer (pointer by value)",
+      "explain": "Even though we pass pointers, the pointers themselves are passed by value. Reassigning the pointer variable (not dereferencing) affects only the local copy.",
+      "example": "To actually swap a and b, we would need to dereference: *ptra=..., not ptra=..."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "mystery() receives copies of &a and &b. Swapping ptra and ptrb locally does not affect a or b. After return: a=2016, b=0. Since 2016 is not < 4, else executes: b=0-42=-42."
+   },
+   "given": {
+    "aim": "Determine if mystery() actually swaps a and b, then evaluate the conditional to find the printed value.",
+    "terms": [
+     {
+      "term": "a=2016, b=0, c=4, d=42",
+      "meaning": "Initial values of local variables in main.",
+      "example": "a and b are passed by address to mystery.",
+      "connects": "After mystery (which does nothing to actual values), a=2016 and b=0."
+     },
+     {
+      "term": "mystery function effect",
+      "meaning": "Only swaps local pointer copies. No dereferencing, so actual values of a and b are unchanged.",
+      "example": "temp=ptrb; ptrb=ptra; ptra=temp; — all local pointer operations.",
+      "connects": "a stays 2016, b stays 0 after the call."
+     },
+     {
+      "term": "if (a < c): 2016 < 4",
+      "meaning": "2016 is not less than 4, so the else branch executes.",
+      "example": "else: b = b - d = 0 - 42 = -42",
+      "connects": "The final printed value is -42."
+     }
+    ],
+    "plan": "Recognize that mystery only swaps local pointer copies (no dereferencing), so a and b are unchanged. Then evaluate 2016 < 4 (false), take else branch: b = 0 - 42 = -42."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Analyze mystery() function",
+      "formula_raw": "temp=ptrb; ptrb=ptra; ptra=temp (local swap of pointer variables)",
+      "apply": "mystery receives copies of &a and &b. Inside, it only swaps the local pointer variables ptra and ptrb. There is no dereferencing (*ptra = ... or *ptrb = ...). Therefore, the actual variables a and b in main are completely unmodified.",
+      "note": "This is a classic trap: swapping pointer variables vs. swapping what they point to."
+     },
+     {
+      "step": 2,
+      "title": "State after mystery call",
+      "formula_raw": "a=2016, b=0 (unchanged)",
+      "apply": "Since mystery does not change the values at the addresses, a=2016 and b=0 remain as initialized.",
+      "note": "If mystery had used *ptra and *ptrb, the values would have swapped."
+     },
+     {
+      "step": 3,
+      "title": "Evaluate conditional and compute output",
+      "formula_raw": "if (a < c) => if (2016 < 4) => false => else: b = b - d",
+      "apply": "2016 < 4 is false. Execute else: b = b - d = 0 - 42 = -42. printf prints -42.",
+      "note": "Answer is A: -42"
+     }
+    ],
+    "result": "The output of the program is -42 (Option A)."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Swapping pointer variables inside a function (without dereferencing) has no effect on the original variables. Only dereferencing (*ptr = ...) modifies the pointed-to values.",
+   "qid": "9.8.8",
+   "answer_official": "2016"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2016",
+    "year": 2016,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Programming in C",
+    "topic": "Parameter Passing",
+    "subtopic": "Parameter Passing"
+   },
+   "question": "The value printed by the following program is _______.\n\nvoid f(int *p, int m)\n{\n    m = m + 5;\n    *p = *p + m;\n    return;\n}\nvoid main()\n{\n    int i = 5, j = 10;\n    f(&i, j);\n    printf(\"%d\", i + j);\n}",
+   "answer": "30",
+   "to_find": "The value of i + j printed after calling f(&i, j)",
+   "understand": {
+    "plain": "The function f takes a pointer to i and a copy of j. Inside f, m (copy of j=10) is incremented to 15. Then *p (which is i) is updated: i = i + m = 5 + 15 = 20. j is passed by value so j remains 10 in main. The printf prints i + j = 20 + 10 = 30.",
+    "keywords": [
+     {
+      "term": "pass by pointer (*p)",
+      "explain": "f receives the address of i. *p=*p+m modifies i directly in main.",
+      "example": "i starts at 5; after *p=*p+m (m=15): i=20."
+     },
+     {
+      "term": "pass by value (m)",
+      "explain": "m is a copy of j. Changing m inside f does not affect j in main.",
+      "example": "m=j=10 initially; m becomes 15 inside f; j stays 10 in main."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "f(&i, j): p points to i (=5), m is copy of j (=10). m becomes 15. *p = 5+15 = 20, so i=20. j is unchanged at 10. i+j = 30."
+   },
+   "given": {
+    "aim": "Compute i + j after f(&i, j) modifies i via pointer while j remains unchanged.",
+    "terms": [
+     {
+      "term": "i = 5, j = 10",
+      "meaning": "Local variables in main with initial values.",
+      "example": "i will be modified via pointer; j will not be modified.",
+      "connects": "Final answer is i+j after the function call."
+     },
+     {
+      "term": "m = m + 5 (inside f)",
+      "meaning": "m is a local copy of j (=10). After m=m+5, m=15.",
+      "example": "This does not change j in main.",
+      "connects": "m=15 is used to update *p."
+     },
+     {
+      "term": "*p = *p + m",
+      "meaning": "Dereferences p (which points to i) and sets i = i + m = 5 + 15 = 20.",
+      "example": "i is now 20 after this operation.",
+      "connects": "i=20 contributes to the final sum i+j."
+     }
+    ],
+    "plan": "Trace the function: m becomes 15 (local copy), i is updated via pointer to 5+15=20, j stays 10. Compute i+j = 30."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Function f called with f(&i, j): f(&5_addr, 10)",
+      "formula_raw": "p = &i, m = j = 10",
+      "apply": "Inside f: p points to i (value 5), m is a local copy of j=10.",
+      "note": "m is by value; changes to m do not affect j in main."
+     },
+     {
+      "step": 2,
+      "title": "Execute m = m + 5",
+      "formula_raw": "m = 10 + 5 = 15",
+      "apply": "m is now 15. j in main is still 10.",
+      "note": "Only the local copy m changes."
+     },
+     {
+      "step": 3,
+      "title": "Execute *p = *p + m",
+      "formula_raw": "*p = 5 + 15 = 20 => i = 20",
+      "apply": "p points to i. *p (which is i) = 5 + 15 = 20. So i is now 20 in main.",
+      "note": "i is modified via pointer; this change persists in main."
+     },
+     {
+      "step": 4,
+      "title": "Compute and print i + j",
+      "formula_raw": "i + j = 20 + 10 = 30",
+      "apply": "Back in main: i=20, j=10 (unchanged). printf(\"%d\", i+j) prints 30.",
+      "note": "Answer is 30."
+     }
+    ],
+    "result": "The value printed is 30."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Pass-by-pointer allows the function to modify the caller's variable (i becomes 20). Pass-by-value protects j from modification. Final sum i+j = 20+10 = 30.",
+   "qid": "9.8.9",
+   "answer_official": "30"
+  }
+ ]
+}

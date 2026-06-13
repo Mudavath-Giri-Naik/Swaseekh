@@ -1,0 +1,222 @@
+{
+ "page": 488,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2009",
+    "year": 2009,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Process Synchronization",
+    "subtopic": "Process Synchronization"
+   },
+   "question": "The enter_CS() and leave_CS() functions to implement critical section of a process are realized using test-and-set instruction as follows:\n\nvoid enter_CS(X)\n{\n  while(test_and_set(X));\n}\n\nvoid leave_CS(X)\n{\n  X = 0;\n}\n\nIn the above solution, X is a memory location associated with the CS and is initialized to 0. Now consider the following statements:\n\nI. The solution is deadlock-free\nII. The solution is starvation-free\nIII. The processes enter CS in FIFO order\nIV. More than one process can enter CS at the same time\n\nWhich of the above statements are TRUE?\nA. (I) only\nB. (I) and (II)\nC. (II) and (III)\nD. (IV) only",
+   "answer": "A. (I) only",
+   "to_find": "Which statements about the test-and-set based critical section solution are true",
+   "understand": {
+    "plain": "The test-and-set instruction atomically reads a variable and sets it to 1, returning the old value. enter_CS keeps looping (busy-waiting) until X was 0 (meaning CS was free). leave_CS resets X to 0. The question asks which of four properties hold for this solution.",
+    "keywords": [
+     {
+      "term": "test-and-set",
+      "explain": "An atomic hardware instruction that reads the current value of a memory location, sets it to 1, and returns the old value — all in one uninterruptible operation.",
+      "example": "If X=0, test_and_set(X) returns 0 and sets X=1; next call returns 1 (locked)."
+     },
+     {
+      "term": "deadlock-free",
+      "explain": "No set of processes can be permanently blocked waiting for each other; at least one process will eventually make progress.",
+      "example": "If one process holds the lock and eventually exits, others can enter — so no deadlock."
+     },
+     {
+      "term": "starvation-free (bounded waiting)",
+      "explain": "Every process that wants to enter the critical section will eventually be allowed to do so in a bounded number of turns.",
+      "example": "With pure spin-lock using test-and-set, a process can be skipped indefinitely if others keep grabbing the lock first."
+     }
+    ],
+    "visual_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 520 220\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x=\"10\" y=\"10\" width=\"500\" height=\"200\" rx=\"10\" class=\"bg\"/><text x=\"260\" y=\"40\" text-anchor=\"middle\" class=\"lbl ink\">Test-and-Set Critical Section</text><rect x=\"30\" y=\"55\" width=\"200\" height=\"130\" rx=\"8\" class=\"hi\"/><text x=\"130\" y=\"75\" text-anchor=\"middle\" class=\"tag ink\">Process A</text><text x=\"130\" y=\"98\" text-anchor=\"middle\" class=\"sub ink\">enter_CS: spin on X</text><text x=\"130\" y=\"118\" text-anchor=\"middle\" class=\"sub ink\">while(TAS(X));</text><text x=\"130\" y=\"145\" text-anchor=\"middle\" class=\"sub ink\">--- Critical Section ---</text><text x=\"130\" y=\"168\" text-anchor=\"middle\" class=\"sub ink\">leave_CS: X = 0</text><rect x=\"290\" y=\"55\" width=\"200\" height=\"130\" rx=\"8\" class=\"bg\"/><text x=\"390\" y=\"75\" text-anchor=\"middle\" class=\"tag ink\">Process B</text><text x=\"390\" y=\"98\" text-anchor=\"middle\" class=\"sub ink\">enter_CS: spin on X</text><text x=\"390\" y=\"118\" text-anchor=\"middle\" class=\"sub ink\">(X=1, keeps looping)</text><text x=\"390\" y=\"145\" text-anchor=\"middle\" class=\"sub mut\">-- waiting (busy) --</text><text x=\"390\" y=\"168\" text-anchor=\"middle\" class=\"sub mut\">may wait indefinitely</text></svg>",
+    "visual_alt": "Two processes: Process A holds the lock (X=1) and is in CS; Process B spins in enter_CS. When A sets X=0, B or any other waiting process may grab the lock — no guaranteed order, so starvation is possible."
+   },
+   "given": {
+    "aim": "Determine which correctness properties hold for the test-and-set spin-lock implementation",
+    "terms": [
+     {
+      "term": "X",
+      "meaning": "Shared lock variable initialized to 0; 0 means CS is free, 1 means CS is occupied",
+      "example": "X=0 => enter_CS succeeds immediately; X=1 => enter_CS spins",
+      "connects": "The atomicity of TAS on X ensures mutual exclusion"
+     },
+     {
+      "term": "test_and_set(X)",
+      "meaning": "Atomic read-and-set: returns old value of X and sets X to 1",
+      "example": "If X=0, returns 0 (loop exits, CS entered); if X=1, returns 1 (loop continues)",
+      "connects": "The while loop in enter_CS uses this to implement a spin-lock"
+     },
+     {
+      "term": "Starvation",
+      "meaning": "A process may never get to enter the CS if others continuously grab the lock after it is released",
+      "example": "P1 releases lock; P2 and P3 both spin — P3 might keep winning every time, starving P2",
+      "connects": "Since TAS does not enforce ordering or bounded waiting, starvation is possible"
+     },
+     {
+      "term": "FIFO ordering",
+      "meaning": "Processes enter the CS in the order they first requested it",
+      "example": "Peterson's algorithm does guarantee order; pure TAS spin-lock does not",
+      "connects": "No queue or ordering mechanism exists in TAS spin-lock, so FIFO is not guaranteed"
+     }
+    ],
+    "plan": "Evaluate each statement: (I) Deadlock — if one process holds CS, it will eventually leave (no circular wait). (II) Starvation — TAS has no ordering, so a process may spin forever. (III) FIFO — no queue, so not guaranteed. (IV) Mutual exclusion — TAS atomicity ensures only one process enters CS."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Check Statement I: Deadlock-free",
+      "formula_raw": "Deadlock requires circular wait; here processes only wait on lock X",
+      "apply": "A deadlock would require processes to be waiting for each other in a circular chain. In this solution, processes only wait on the single shared variable X. The process holding the lock will eventually finish its CS and call leave_CS(X) setting X=0. At that point, at least one waiting process will succeed in entering. There is no circular dependency — so the solution is DEADLOCK-FREE. Statement I is TRUE.",
+      "note": "Deadlock is impossible because there is only one resource (X) and the holder always eventually releases it."
+     },
+     {
+      "step": 2,
+      "title": "Check Statement II: Starvation-free",
+      "formula_raw": "Starvation-free requires bounded waiting for every process",
+      "apply": "After P1 releases the lock (X=0), multiple processes may be spinning in enter_CS. The TAS instruction picks one non-deterministically. There is no queue or turn-based mechanism. Thus P2 could repeatedly lose to P3, P4, etc., and wait indefinitely. Statement II is FALSE.",
+      "note": "TAS-based spin-locks do not guarantee bounded waiting — they can starve processes."
+     },
+     {
+      "step": 3,
+      "title": "Check Statement III: FIFO order",
+      "formula_raw": "",
+      "apply": "FIFO order requires processes to enter CS in the order they requested it. This solution has no queue or timestamp mechanism — processes simply spin and attempt TAS. The order of entry is non-deterministic. Statement III is FALSE.",
+      "note": "To achieve FIFO, one would need a ticket-lock or a queue-based approach."
+     },
+     {
+      "step": 4,
+      "title": "Check Statement IV: Multiple processes in CS simultaneously",
+      "formula_raw": "TAS is atomic => mutual exclusion holds",
+      "apply": "Because test_and_set is an atomic instruction, once a process reads X=0 and sets X=1, no other process can simultaneously read X=0. Only one process can enter CS at a time. Mutual exclusion is guaranteed. Statement IV is FALSE.",
+      "note": "Atomicity of TAS is precisely what ensures mutual exclusion."
+     },
+     {
+      "step": 5,
+      "title": "Conclude",
+      "formula_raw": "",
+      "apply": "Only Statement I (deadlock-free) is TRUE. The answer is A.",
+      "note": "This is a classic GATE topic: TAS ensures mutual exclusion and deadlock-freedom but not starvation-freedom or FIFO."
+     }
+    ],
+    "result": "A. (I) only — the solution is deadlock-free but not starvation-free, not FIFO, and does not allow multiple simultaneous entries."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Test-and-set atomic instruction guarantees mutual exclusion and deadlock-freedom; it does not guarantee bounded waiting (starvation-freedom) or FIFO entry order.",
+   "qid": "7.20.31",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2010",
+    "year": 2010,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Process Synchronization",
+    "subtopic": "Process Synchronization"
+   },
+   "question": "Consider the methods used by processes P1 and P2 for accessing their critical sections whenever needed, as given below. The initial values of shared boolean variables S1 and S2 are randomly assigned.\n\nMethod used by P1:\nwhile (S1 == S2);\nCritical Section\nS1 = S2;\n\nMethod used by P2:\nwhile (S1 != S2);\nCritical Section\nS2 = not(S1);\n\nWhich one of the following statements describes the properties achieved?\nA. Mutual exclusion but not progress\nB. Progress but not mutual exclusion\nC. Neither mutual exclusion nor progress\nD. Both mutual exclusion and progress",
+   "answer": "A. Mutual exclusion but not progress",
+   "to_find": "Which synchronization properties (mutual exclusion, progress) hold for the given P1/P2 method",
+   "understand": {
+    "plain": "Two processes P1 and P2 use shared boolean variables S1 and S2 to coordinate access to their critical sections. P1 enters when S1 equals S2; P2 enters when S1 is not equal to S2. After finishing their critical sections, they update S1 or S2. We need to check if mutual exclusion and progress hold.",
+    "keywords": [
+     {
+      "term": "Mutual exclusion",
+      "explain": "At most one process is in the critical section at any given time.",
+      "example": "If P1 is in CS (S1==S2 was true), then S1==S2 is true; for P2 to enter it needs S1!=S2, which is false — so both cannot be in CS simultaneously."
+     },
+     {
+      "term": "Progress",
+      "explain": "If no process is in the critical section and some processes want to enter, eventually one of them must be allowed to enter (no deadlock-like indefinite postponement due to the synchronization mechanism itself).",
+      "example": "If S1=0, S2=0 initially: P1 sees S1==S2 (true) and can enter; P2 sees S1!=S2 (false) and waits. After P1 exits, S1=S2 still holds (P1 sets S1=S2), so P2 is still blocked — progress fails."
+     }
+    ],
+    "visual_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 560 250\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x=\"10\" y=\"10\" width=\"540\" height=\"230\" rx=\"10\" class=\"bg\"/><text x=\"280\" y=\"38\" text-anchor=\"middle\" class=\"lbl ink\">P1 / P2 Critical Section Protocol</text><rect x=\"20\" y=\"50\" width=\"240\" height=\"170\" rx=\"8\" class=\"hi\"/><text x=\"140\" y=\"72\" text-anchor=\"middle\" class=\"tag ink\">Process P1</text><text x=\"140\" y=\"95\" text-anchor=\"middle\" class=\"sub ink\">ENTRY: while(S1 == S2);</text><text x=\"140\" y=\"115\" text-anchor=\"middle\" class=\"sub ink\">(waits if S1 != S2)</text><text x=\"140\" y=\"140\" text-anchor=\"middle\" class=\"sub ink\">Critical Section</text><text x=\"140\" y=\"163\" text-anchor=\"middle\" class=\"sub ink\">EXIT: S1 = S2</text><text x=\"140\" y=\"200\" text-anchor=\"middle\" class=\"sub mut\">(P1 can enter only</text><text x=\"140\" y=\"215\" text-anchor=\"middle\" class=\"sub mut\">when S1 == S2)</text><rect x=\"300\" y=\"50\" width=\"240\" height=\"170\" rx=\"8\" class=\"bg\"/><text x=\"420\" y=\"72\" text-anchor=\"middle\" class=\"tag ink\">Process P2</text><text x=\"420\" y=\"95\" text-anchor=\"middle\" class=\"sub ink\">ENTRY: while(S1 != S2);</text><text x=\"420\" y=\"115\" text-anchor=\"middle\" class=\"sub ink\">(waits if S1 == S2)</text><text x=\"420\" y=\"140\" text-anchor=\"middle\" class=\"sub ink\">Critical Section</text><text x=\"420\" y=\"163\" text-anchor=\"middle\" class=\"sub ink\">EXIT: S2 = not(S1)</text><text x=\"420\" y=\"200\" text-anchor=\"middle\" class=\"sub mut\">(P2 can enter only</text><text x=\"420\" y=\"215\" text-anchor=\"middle\" class=\"sub mut\">when S1 != S2)</text></svg>",
+    "visual_alt": "P1 enters CS when S1==S2 and exits by setting S1=S2 (no change). P2 enters CS when S1!=S2 and exits by setting S2=not(S1) (makes them equal). Their entry conditions are mutually exclusive (one needs equality, the other needs inequality), but depending on initial values one process may never get to enter."
+   },
+   "given": {
+    "aim": "Determine whether mutual exclusion and/or progress hold for the P1/P2 synchronization scheme",
+    "terms": [
+     {
+      "term": "S1, S2",
+      "meaning": "Shared boolean variables with randomly assigned initial values (both 0, both 1, or one of each)",
+      "example": "If S1=0, S2=0: P1's condition S1==S2 is true (can enter); P2's condition S1!=S2 is false (blocked)",
+      "connects": "The entry conditions of P1 and P2 are complements, ensuring mutual exclusion"
+     },
+     {
+      "term": "P1 entry condition: S1==S2",
+      "meaning": "P1 can proceed to CS only when S1 and S2 hold the same value",
+      "example": "S1=1, S2=1 => P1 enters; S1=0, S2=1 => P1 waits",
+      "connects": "Exactly one of P1 or P2 conditions can be true at any moment, guaranteeing mutual exclusion"
+     },
+     {
+      "term": "P2 exit action: S2 = not(S1)",
+      "meaning": "After P2 finishes CS, it sets S2 to the complement of S1, making S1==S2 true — enabling P1 next",
+      "example": "If S1=0 before P2 exits, S2 becomes 1, so S1(0)!=S2(1) => P2 condition becomes true again; but if S1=1, S2=0 => P1 condition S1==S2 becomes false",
+      "connects": "Determines who can enter next; but P1's exit does not enable P2 — progress for P2 may fail"
+     },
+     {
+      "term": "P1 exit action: S1 = S2",
+      "meaning": "After P1 finishes CS, it sets S1 equal to S2, so both hold the same value — S1==S2 remains true",
+      "example": "If S1=1, S2=0 on entry, P1 exits by setting S1=0; now S1=S2=0, so P1's condition is still true, P2 still blocked",
+      "connects": "After P1 exits, the condition S1==S2 holds again, meaning P1 could re-enter but P2 is still blocked — violating progress"
+     }
+    ],
+    "plan": "Check mutual exclusion by showing P1 and P2 entry conditions are mutually exclusive (S1==S2 and S1!=S2 cannot both be true). Then check progress by examining what happens after P1 exits — does P2 ever get a chance to enter?"
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Verify Mutual Exclusion",
+      "formula_raw": "P1 enters iff S1==S2; P2 enters iff S1!=S2; these two conditions cannot be simultaneously true",
+      "apply": "For both P1 and P2 to be in the critical section simultaneously, we would need S1==S2 AND S1!=S2 to be true at the same time. This is a logical contradiction. Therefore, mutual exclusion IS guaranteed regardless of initial values.",
+      "note": "The entry conditions are exact logical complements, ensuring at most one process can be in CS at any time."
+     },
+     {
+      "step": 2,
+      "title": "Analyze P1 exit and its effect on P2",
+      "formula_raw": "P1 exit: S1 := S2 (after this, S1 == S2 holds)",
+      "apply": "Case: S1=0, S2=0 initially. P1 enters CS (S1==S2 is true). P2 is blocked (S1!=S2 is false). P1 exits: sets S1=S2=0. After exit: S1=0, S2=0, so S1==S2 is STILL true. P2 still cannot enter. P1 can enter again. P2 is perpetually blocked — progress fails for P2.",
+      "note": "P1's exit action does not toggle any variable to enable P2; it merely confirms the current value of S1 equals S2."
+     },
+     {
+      "step": 3,
+      "title": "Analyze P2 exit and its effect on P1",
+      "formula_raw": "P2 exit: S2 := not(S1) (after this, S1 != S2 holds)",
+      "apply": "Case: S1=0, S2=1 initially. P2 enters CS (S1!=S2 is true). P1 is blocked (S1==S2 is false). P2 exits: sets S2=not(S1)=1. After exit: S1=0, S2=1, so S1!=S2 is STILL true. P1 still cannot enter. P2 can enter again. P1 is perpetually blocked — progress fails for P1 too.",
+      "note": "Similarly, P2's exit action keeps S1!=S2 true, allowing only P2 to re-enter repeatedly."
+     },
+     {
+      "step": 4,
+      "title": "Conclusion on Progress",
+      "formula_raw": "",
+      "apply": "Progress requires that if some processes wish to enter and no process is in the CS, eventually some process must enter. When S1==S2: only P1 can enter, and after P1 exits S1==S2 still holds, so P2 can never enter (assuming P1 keeps wanting to enter or no one else changes the state). Progress is violated.",
+      "note": "The scheme essentially locks out one process indefinitely based on the initial assignment of S1 and S2."
+     },
+     {
+      "step": 5,
+      "title": "Final Answer",
+      "formula_raw": "",
+      "apply": "Mutual exclusion: YES (entry conditions are logical complements). Progress: NO (one process can be permanently blocked based on initial values). The answer is A.",
+      "note": "This is analogous to a flawed two-process synchronization where the exit protocol does not properly alternate access."
+     }
+    ],
+    "result": "A. Mutual exclusion but not progress — the entry conditions guarantee at most one process in CS, but depending on initial values, one process may never be able to enter."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Critical section problem requirements: mutual exclusion (at most one in CS), progress (no indefinite blocking by synchronization mechanism), and bounded waiting. This scheme satisfies only mutual exclusion.",
+   "qid": "7.20.32",
+   "answer_official": "A"
+  }
+ ]
+}

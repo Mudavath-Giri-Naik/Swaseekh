@@ -1,0 +1,253 @@
+{
+ "page": 333,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2011",
+    "year": 2011,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "SQL",
+    "subtopic": "SQL"
+   },
+   "question": "Database table by name Loan_Records is given below:\n\nBorrower    | Bank_Manager | Loan_Amount\n------------|--------------|------------\nRamesh      | Suderajan    | 10000.00\nSuresh      | Rasaggopal   | 5000.00\nMahesh      | Suderajan    | 7000.00\n\nWhat is the output of the following SQL query?\n\nSELECT count(*)\nFROM (\n  SELECT Borrower, Bank_Manager FROM Loan_Records\n) AS S\nNATURAL JOIN\n(\n  SELECT Bank_Manager, Loan_Amount FROM Loan_Records\n) AS T\n);\n\nA. 3\nB. 9\nC. 5\nD. 6",
+   "answer": "C. 5",
+   "to_find": "The count of tuples returned by a NATURAL JOIN of two subqueries derived from Loan_Records.",
+   "understand": {
+    "plain": "Two subqueries are created from the same table. Subquery S picks (Borrower, Bank_Manager) and subquery T picks (Bank_Manager, Loan_Amount). A NATURAL JOIN is performed on the common attribute Bank_Manager. We need to count how many rows result from this join.",
+    "keywords": [
+     {
+      "term": "NATURAL JOIN",
+      "explain": "Automatically joins two tables on all columns that share the same name, producing one output column for each shared attribute.",
+      "example": "If S has (Ramesh, Suderajan) and T has (Suderajan, 10000), NATURAL JOIN on Bank_Manager gives (Ramesh, Suderajan, 10000)."
+     },
+     {
+      "term": "count(*)",
+      "explain": "SQL aggregate function that counts the total number of rows in the result set, including duplicates.",
+      "example": "SELECT count(*) FROM T returns 3 if T has 3 rows."
+     },
+     {
+      "term": "Subquery (derived table)",
+      "explain": "A SELECT statement used inside another query, treated as a temporary named table.",
+      "example": "SELECT * FROM (SELECT col FROM T) AS sub;"
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='520' height='260'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='220' height='110' class='bg' rx='6'/><text x='20' y='32' class='lbl ink'>S (Borrower, Bank_Mgr)</text><text x='20' y='55' class='sub ink'>Ramesh  | Suderajan</text><text x='20' y='75' class='sub ink'>Suresh  | Rasaggopal</text><text x='20' y='95' class='sub ink'>Mahesh  | Suderajan</text><rect x='290' y='10' width='220' height='110' class='bg' rx='6'/><text x='300' y='32' class='lbl ink'>T (Bank_Mgr, Amount)</text><text x='300' y='55' class='sub ink'>Suderajan  | 10000</text><text x='300' y='75' class='sub ink'>Rasaggopal | 5000</text><text x='300' y='95' class='sub ink'>Suderajan  | 7000</text><text x='240' y='65' class='big ink' text-anchor='middle'>&#x2A1D;</text><text x='240' y='82' class='sub mut' text-anchor='middle'>NATURAL</text><rect x='10' y='140' width='500' height='110' class='hi' rx='6'/><text x='20' y='162' class='lbl ink'>Result (5 rows)</text><text x='20' y='182' class='sub ink'>Ramesh, Suderajan, 10000</text><text x='20' y='198' class='sub ink'>Ramesh, Suderajan, 7000</text><text x='20' y='214' class='sub ink'>Suresh, Rasaggopal, 5000</text><text x='20' y='230' class='sub ink'>Mahesh, Suderajan, 10000</text><text x='20' y='246' class='sub ink'>Mahesh, Suderajan, 7000</text></svg>",
+    "visual_alt": "Subquery S has 3 rows with (Borrower, Bank_Manager). Subquery T has 3 rows with (Bank_Manager, Loan_Amount). NATURAL JOIN on Bank_Manager: Suderajan appears twice in T so Ramesh and Mahesh each match 2 rows, Suresh matches 1 row giving 5 total result rows."
+   },
+   "given": {
+    "aim": "Count rows in NATURAL JOIN of two subqueries derived from Loan_Records.",
+    "terms": [
+     {
+      "term": "Subquery S",
+      "meaning": "Projects (Borrower, Bank_Manager) from Loan_Records — 3 rows.",
+      "example": "(Ramesh, Suderajan), (Suresh, Rasaggopal), (Mahesh, Suderajan)",
+      "connects": "Left side of the NATURAL JOIN; join key is Bank_Manager."
+     },
+     {
+      "term": "Subquery T",
+      "meaning": "Projects (Bank_Manager, Loan_Amount) from Loan_Records — 3 rows.",
+      "example": "(Suderajan, 10000), (Rasaggopal, 5000), (Suderajan, 7000)",
+      "connects": "Right side of the NATURAL JOIN; note Suderajan appears twice."
+     },
+     {
+      "term": "NATURAL JOIN on Bank_Manager",
+      "meaning": "Pairs each row of S with every matching row of T where Bank_Manager values are equal.",
+      "example": "Ramesh (Suderajan) matches T rows for Suderajan → 2 output rows.",
+      "connects": "Determines the total row count in the result."
+     }
+    ],
+    "plan": "List all rows of S and for each row find how many rows of T share the same Bank_Manager value. Sum the match counts to get the total number of output rows."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Enumerate S and T rows",
+      "formula_raw": "",
+      "apply": "S: (Ramesh, Suderajan), (Suresh, Rasaggopal), (Mahesh, Suderajan).\nT: (Suderajan, 10000), (Rasaggopal, 5000), (Suderajan, 7000).\nNote Suderajan appears in T twice (rows 1 and 3).",
+      "note": "Duplicate values in T are the reason we get more than 3 output rows."
+     },
+     {
+      "step": 2,
+      "title": "Count matches for each row of S",
+      "formula_raw": "total = sum of |T matches per S row|",
+      "apply": "Ramesh (Suderajan) matches T rows 1 and 3 → 2 matches.\nSuresh (Rasaggopal) matches T row 2 → 1 match.\nMahesh (Suderajan) matches T rows 1 and 3 → 2 matches.\nTotal = 2 + 1 + 2 = 5.",
+      "note": "count(*) counts all resulting rows, so the answer is 5."
+     }
+    ],
+    "result": "5 — option C."
+   },
+   "formula_ids_used": [],
+   "formula_note": "NATURAL JOIN multiplies matching rows; if a join-key value appears k times in T and m times in S, it contributes k*m rows to the result.",
+   "qid": "5.18.28",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2012",
+    "year": 2012,
+    "marks": 2,
+    "difficulty": "easy",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "SQL",
+    "subtopic": "SQL"
+   },
+   "question": "Which of the following statements are TRUE about an SQL query?\n\nP : An SQL query can contain a HAVING clause even if it does not have a GROUP BY clause.\nQ : An SQL query can contain a HAVING clause only if it has a GROUP BY clause.\nR : All attributes used in the GROUP BY clause must appear in the SELECT clause.\nS : Not all attributes used in the GROUP BY clause need to appear in the SELECT clause.\n\nA. P and R\nB. P and S\nC. Q and R\nD. Q and S",
+   "answer": "B. P and S",
+   "to_find": "Which pair of statements about HAVING and GROUP BY in SQL are both TRUE.",
+   "understand": {
+    "plain": "This question tests knowledge of SQL syntax rules for HAVING and GROUP BY clauses. Some believe HAVING requires GROUP BY, but in standard SQL HAVING can stand alone treating the whole table as one group. Also, GROUP BY attributes do not have to appear in the SELECT list.",
+    "keywords": [
+     {
+      "term": "HAVING clause",
+      "explain": "A filter applied after grouping (like WHERE, but on aggregated results). In SQL it can be used without GROUP BY, in which case the entire table is treated as a single group.",
+      "example": "SELECT count(*) FROM T HAVING count(*) > 2; — valid without GROUP BY."
+     },
+     {
+      "term": "GROUP BY clause",
+      "explain": "Groups rows with the same values in specified columns so aggregate functions operate per group.",
+      "example": "SELECT dept, avg(salary) FROM Emp GROUP BY dept; — groups by department."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "P is TRUE: HAVING without GROUP BY treats the whole table as one group. Q is FALSE (contradicts P). R is FALSE: GROUP BY columns need not appear in SELECT. S is TRUE: only the grouped columns (plus aggregates) determine valid SELECT columns, but GROUP BY columns themselves don't have to be SELECTed."
+   },
+   "given": {
+    "aim": "Identify which two statements about SQL HAVING and GROUP BY are both TRUE.",
+    "terms": [
+     {
+      "term": "Statement P",
+      "meaning": "HAVING can appear without GROUP BY.",
+      "example": "SELECT count(*) FROM Orders HAVING count(*) > 5; — entire table is one group.",
+      "connects": "P is TRUE — standard SQL allows this."
+     },
+     {
+      "term": "Statement Q",
+      "meaning": "HAVING requires GROUP BY.",
+      "example": "If P is true, Q must be false.",
+      "connects": "Q is FALSE — directly contradicted by P."
+     },
+     {
+      "term": "Statement R",
+      "meaning": "GROUP BY attributes must be in SELECT.",
+      "example": "SELECT max(salary) FROM Emp GROUP BY dept; — dept not in SELECT but query is valid.",
+      "connects": "R is FALSE — SQL does not mandate this."
+     },
+     {
+      "term": "Statement S",
+      "meaning": "GROUP BY attributes need not appear in SELECT.",
+      "example": "SELECT avg(age) FROM Students GROUP BY major; — major not selected, valid.",
+      "connects": "S is TRUE — complements and corrects R."
+     }
+    ],
+    "plan": "Evaluate each statement against standard SQL rules. P true, Q false, R false, S true. The true pair is P and S."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Evaluate statements about HAVING",
+      "formula_raw": "",
+      "apply": "P: HAVING without GROUP BY is allowed in standard SQL (the whole table is treated as a single group). TRUE.\nQ: HAVING only with GROUP BY. This is incorrect per the SQL standard. FALSE.\nSince P and Q are contradictory and P is the correct one, Q is eliminated.",
+      "note": "Some older SQL textbooks incorrectly state Q; the SQL standard and most DBMS engines allow HAVING alone."
+     },
+     {
+      "step": 2,
+      "title": "Evaluate statements about GROUP BY and SELECT",
+      "formula_raw": "",
+      "apply": "R: GROUP BY columns must appear in SELECT. FALSE — e.g., SELECT avg(marks) FROM T GROUP BY subject is valid even without subject in SELECT.\nS: GROUP BY columns need not all appear in SELECT. TRUE — this is the correct rule.\nTrue pair: P and S → Option B.",
+      "note": "The rule is the reverse of R: any column in SELECT (non-aggregate) MUST be in GROUP BY, not the other way around."
+     }
+    ],
+    "result": "P and S are both TRUE — option B."
+   },
+   "formula_ids_used": [],
+   "formula_note": "SQL rule: non-aggregate columns in SELECT must appear in GROUP BY; GROUP BY columns need not appear in SELECT; HAVING can be used without GROUP BY treating all rows as one group.",
+   "qid": "5.18.29",
+   "answer_official": "C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2012",
+    "year": 2012,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "SQL",
+    "subtopic": "SQL"
+   },
+   "question": "Consider the following relations A, B and C:\n\nA:\nId | Name  | Age\n---|-------|----\n12 | Arun  | 60\n15 | Shreya| 24\n99 | Rohit | 11\n\nB:\nId | Name  | Age\n---|-------|----\n15 | Shreya| 24\n25 | Hari  | 40\n99 | Rohit | 11\n\nHow many tuples does the result of the following SQL query contain?\n\nSELECT A.Id\nFROM A\nWHERE A.Age > ALL\n  (SELECT B.Age\n   FROM B\n   WHERE B.Name = 'Arun');\n\nA. 4\nB. 3\nC. 0\nD. 1",
+   "answer": "B. 3",
+   "to_find": "Number of tuples returned when A.Age > ALL applied to an empty subquery result.",
+   "understand": {
+    "plain": "The inner subquery looks for rows in B where Name = 'Arun'. Since there is no such row in B, the subquery returns an empty set. In SQL, the condition 'x > ALL (empty set)' evaluates to TRUE for any value of x. So every row of A satisfies the condition and all 3 IDs are returned.",
+    "keywords": [
+     {
+      "term": "ALL predicate",
+      "explain": "x > ALL (subquery) returns TRUE if x is greater than every value returned by the subquery. When the subquery is empty, the condition is vacuously TRUE.",
+      "example": "5 > ALL ({}) is TRUE; 5 > ALL ({3, 4}) is TRUE; 5 > ALL ({3, 6}) is FALSE."
+     },
+     {
+      "term": "Vacuous truth",
+      "explain": "A universal statement over an empty domain is automatically true because there is no counterexample.",
+      "example": "'All unicorns can fly' is vacuously true because there are no unicorns to serve as counterexamples."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='480' height='200'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='200' height='100' class='bg' rx='6'/><text x='20' y='32' class='lbl ink'>Table A</text><text x='20' y='52' class='sub ink'>Id=12, Age=60</text><text x='20' y='70' class='sub ink'>Id=15, Age=24</text><text x='20' y='88' class='sub ink'>Id=99, Age=11</text><rect x='260' y='10' width='210' height='80' class='no' rx='6'/><text x='270' y='32' class='lbl ink'>Subquery result</text><text x='270' y='55' class='sub ink'>WHERE B.Name = 'Arun'</text><text x='270' y='75' class='lbl ink'>= EMPTY SET {}</text><rect x='10' y='130' width='460' height='60' class='hi' rx='6'/><text x='20' y='153' class='lbl ink'>x &gt; ALL({}) is TRUE for every row</text><text x='20' y='178' class='sub ink'>All 3 rows of A qualify  →  count = 3</text></svg>",
+    "visual_alt": "Table A has 3 rows. Subquery on B for Name='Arun' returns empty set. Since x > ALL(empty) is TRUE for all x, all 3 rows of A are selected."
+   },
+   "given": {
+    "aim": "Count rows of A satisfying A.Age > ALL (ages of B rows named 'Arun').",
+    "terms": [
+     {
+      "term": "Inner subquery",
+      "meaning": "SELECT B.Age FROM B WHERE B.Name = 'Arun' — scans table B for rows where Name is 'Arun'.",
+      "example": "B contains Shreya(24), Hari(40), Rohit(11) — none named Arun.",
+      "connects": "Returns empty set, which is the key to solving the problem."
+     },
+     {
+      "term": "ALL with empty set",
+      "meaning": "x > ALL(empty) is vacuously TRUE for any x in SQL.",
+      "example": "60 > ALL({}) → TRUE, 11 > ALL({}) → TRUE.",
+      "connects": "Every row of A passes the WHERE condition."
+     },
+     {
+      "term": "Outer query",
+      "meaning": "SELECT A.Id FROM A WHERE A.Age > ALL(...) — returns Id for every qualifying row of A.",
+      "example": "Returns 12, 15, 99 when all rows qualify.",
+      "connects": "Count of returned tuples is the answer."
+     }
+    ],
+    "plan": "Evaluate the inner subquery first. It returns empty because B has no row with Name='Arun'. Apply x > ALL(empty) = TRUE for every row of A, so all 3 rows qualify."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Evaluate the inner subquery",
+      "formula_raw": "SELECT B.Age FROM B WHERE B.Name = 'Arun'",
+      "apply": "Check table B: rows are (Shreya, 24), (Hari, 40), (Rohit, 11). None has Name = 'Arun'. The subquery returns an empty set {}.",
+      "note": "This is the critical observation — no row in B is named 'Arun'."
+     },
+     {
+      "step": 2,
+      "title": "Apply ALL predicate with empty subquery",
+      "formula_raw": "x > ALL({}) = TRUE (vacuous truth)",
+      "apply": "For each row of A, check A.Age > ALL({}):\n  Age=60: 60 > ALL({}) = TRUE\n  Age=24: 24 > ALL({}) = TRUE\n  Age=11: 11 > ALL({}) = TRUE\nAll 3 rows pass the condition. The query returns 3 tuples (Id: 12, 15, 99).",
+      "note": "In SQL, ALL over an empty set is vacuously true, unlike ANY (EXISTS) over an empty set which is false."
+     }
+    ],
+    "result": "3 tuples — option B."
+   },
+   "formula_ids_used": [],
+   "formula_note": "SQL ALL predicate: x > ALL(empty set) evaluates to TRUE (vacuous truth); contrast with x > ANY(empty set) which is FALSE.",
+   "qid": "5.18.30",
+   "answer_official": "B"
+  }
+ ]
+}

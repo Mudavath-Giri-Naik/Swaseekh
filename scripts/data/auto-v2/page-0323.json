@@ -1,0 +1,342 @@
+{
+ "page": 323,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2007",
+    "year": 2007,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "Relational Calculus",
+    "subtopic": "Relational Calculus"
+   },
+   "question": "Consider a selection of the form sigma_{A <= v <= B}(r), where r is a relation with 1000 tuples. Assume that the attribute values for A among the tuples are uniformly distributed in the interval [0, 500]. Which one of the following options is the best estimate of the number of tuples returned by the given selection query (where v = pi approximately 3.1416 and B = 100)?\n\nA. 50\nB. 190\nC. 150\nD. 200",
+   "answer": "B. 190",
+   "to_find": "Best estimate of tuples returned by sigma_{pi <= A <= 100}(r) with uniform distribution in [0, 500] over 1000 tuples",
+   "understand": {
+    "plain": "We have a relation r with 1000 tuples. The attribute values are spread uniformly between 0 and 500. We run a range selection query that picks tuples where the attribute value falls between pi (approximately 3.1416) and 100. We need to estimate how many tuples will be returned.",
+    "keywords": [
+     {
+      "term": "Uniform distribution selectivity",
+      "explain": "When attribute values are uniformly spread over a range [a, b], the fraction of tuples satisfying l <= A <= u is (u - l) / (b - a).",
+      "example": "If values are uniform in [0, 100] and we select [20, 60], selectivity = (60-20)/(100-0) = 0.4."
+     },
+     {
+      "term": "Range selection (sigma_{l <= A <= u})",
+      "explain": "A relational algebra selection that returns all tuples where attribute A lies between l and u (inclusive).",
+      "example": "sigma_{50 <= age <= 60}(Employees) returns employees aged 50 to 60."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "A number line from 0 to 500 with a highlighted region from pi (~3.14) to 100, representing the selection range. The fraction of the highlighted region to the total range gives the selectivity."
+   },
+   "given": {
+    "aim": "Estimate the number of tuples returned by a range selection on a uniformly distributed attribute.",
+    "terms": [
+     {
+      "term": "n = 1000",
+      "meaning": "Total number of tuples in relation r.",
+      "example": "r has 1000 rows.",
+      "connects": "Multiplied by selectivity to get estimated result size."
+     },
+     {
+      "term": "Domain [0, 500]",
+      "meaning": "Attribute values are uniformly distributed between 0 and 500.",
+      "example": "Each value in [0,500] is equally likely.",
+      "connects": "Determines the denominator for selectivity calculation."
+     },
+     {
+      "term": "Selection range [pi, 100]",
+      "meaning": "We want tuples where A is between approximately 3.1416 and 100.",
+      "example": "pi ~= 3.1416, so range width = 100 - 3.1416 = 96.858.",
+      "connects": "Determines the numerator for selectivity calculation."
+     }
+    ],
+    "plan": "Use the uniform distribution selectivity formula: estimated_tuples = ((B - A) / (domain_max - domain_min)) * n. Substitute A = pi, B = 100, domain = [0,500], n = 1000 and round to the nearest option."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Apply uniform selectivity formula",
+      "formula_raw": "estimated = ((B - A) / (domain_max - domain_min)) * n",
+      "apply": "estimated = ((100 - 3.1416) / (500 - 0)) * 1000\n= (96.858 / 500) * 1000\n= 0.19372 * 1000\n= 193.72",
+      "note": "pi is approximately 3.1416; the range width from pi to 100 is about 96.86."
+     },
+     {
+      "step": 2,
+      "title": "Round to nearest option",
+      "formula_raw": "",
+      "apply": "193.72 is closest to 190 among the given options (50, 190, 150, 200).",
+      "note": "We always use the closest option; 193.72 rounds to 190 since it is only 3.72 away from 190 versus 6.28 away from 200."
+     }
+    ],
+    "result": "The best estimate is 190 tuples. Answer: B. 190"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Uniform distribution selectivity formula for range queries: selectivity = (high - low) / (domain_max - domain_min); estimated result size = selectivity * total_tuples.",
+   "qid": "5.16.14",
+   "answer_official": "D"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2008",
+    "year": 2008,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "Relational Calculus",
+    "subtopic": "Relational Calculus"
+   },
+   "question": "Consider the following relational schema:\n  Student(school-id, sch-roll-no, sname, saddress)\n  Enrolment(school-id, sch-roll-no, exam-name, emp-place)\n  ExamResult(eno, exam-name, examiner, marks)\n\nConsider the following tuple relational calculus query:\n{ t | exists E in Enrolment ( t[school-id] = E[school-id] and\n    forall x in Student ( x[school-id] = t[school-id] ->\n      exists e in Enrolment ( e[school-id] = x[school-id] and e[sch-roll-no] = x[sch-roll-no] and\n        forall r in ExamResult ( r[exam-name] = e[exam-name] -> r[marks] > 35 ) ) ) ) }\n\nIf a student needs to score more than 35 marks to pass an exam, what does the query return?\n\nA. The empty set\nB. Schools with more than 50% of its students enrolled in some exam or the other\nC. Schools with at least one student who has passed in every exam that the student has appeared for\nD. Schools where every student has passed in every exam that the student has appeared for",
+   "answer": "D. Schools where every student has passed in every exam that the student has appeared for",
+   "to_find": "What the given tuple relational calculus query returns, given that passing requires marks > 35",
+   "understand": {
+    "plain": "The relational calculus query finds schools where, for every student enrolled in that school, every exam result that student has is above 35 marks. In other words, every student in those schools has passed every exam they appeared in. The query combines universal and existential quantifiers to check this condition school-wide.",
+    "keywords": [
+     {
+      "term": "Universal quantifier (forall) in TRC",
+      "explain": "forall x P(x) means the condition P must hold for every element x in the relation. In TRC it is expressed as: for all tuples x in a relation, some property holds.",
+      "example": "forall r in ExamResult (r[marks] > 35) means every exam result has marks > 35."
+     },
+     {
+      "term": "Existential quantifier (exists) in TRC",
+      "explain": "exists x P(x) means there is at least one tuple x for which property P holds.",
+      "example": "exists E in Enrolment means at least one enrolment record exists."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Nested quantifier structure: outer exists binds a school; inner forall iterates every student in that school; innermost forall checks all exam results for that student are > 35 marks."
+   },
+   "given": {
+    "aim": "Interpret a nested TRC query over Student, Enrolment and ExamResult to determine which schools it returns.",
+    "terms": [
+     {
+      "term": "Outer exists E in Enrolment",
+      "meaning": "The result tuple t corresponds to a school that appears in the Enrolment relation.",
+      "example": "t[school-id] = E[school-id] anchors t to a real school.",
+      "connects": "Ensures result contains valid school IDs from Enrolment."
+     },
+     {
+      "term": "forall x in Student (x[school-id] = t[school-id] -> ...)",
+      "meaning": "For every student belonging to the same school as t, the following condition must hold.",
+      "example": "If school S1 has students s1, s2, s3, all three must satisfy the inner condition.",
+      "connects": "Requires the condition to hold for ALL students of that school."
+     },
+     {
+      "term": "forall r in ExamResult (r[exam-name] = e[exam-name] -> r[marks] > 35)",
+      "meaning": "For every exam result record matching the student's enrolled exam, marks must be > 35.",
+      "example": "If student appeared in 'Math' exam, all result records for 'Math' must have marks > 35.",
+      "connects": "Encodes the passing condition for each exam the student appeared in."
+     }
+    ],
+    "plan": "Trace the quantifiers from outside in: the query selects school-ids where every student of that school is enrolled in some exam AND every exam result for each enrolled exam has marks > 35 (i.e., every student passed every exam they sat for)."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Identify the outermost condition",
+      "formula_raw": "exists E in Enrolment (t[school-id] = E[school-id])",
+      "apply": "The query returns school-ids. The outer exists E ensures t is a school that has at least one enrolment record. This simply anchors the result to known school IDs.",
+      "note": "This alone does not restrict to any special schools; it is a basic anchor."
+     },
+     {
+      "step": 2,
+      "title": "Interpret the forall over students",
+      "formula_raw": "forall x in Student (x[school-id] = t[school-id] -> exists e in Enrolment ... and forall r ...)",
+      "apply": "For every student x in the school: x must be enrolled in some exam e, AND for every result r of exam e, r[marks] > 35. This means: every student of the school has appeared in some exam AND passed every exam they appeared in.",
+      "note": "The implication (->): if x belongs to this school, then x must satisfy the passing condition. A student not in the school vacuously satisfies this, so only school members matter."
+     },
+     {
+      "step": 3,
+      "title": "Combine to determine the query result",
+      "formula_raw": "",
+      "apply": "The query returns schools where EVERY student (in that school) who is enrolled in any exam has scored more than 35 in EVERY exam result for that exam. This matches option D: schools where every student has passed in every exam that the student has appeared for.",
+      "note": "Option C is weaker (only one student needs to satisfy), B talks about 50% enrollment (not relevant), A (empty set) is wrong since valid schools can exist."
+     }
+    ],
+    "result": "The query returns schools where every student has passed in every exam that the student has appeared for. Answer: D."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Tuple Relational Calculus (TRC) with nested universal and existential quantifiers; universal quantifier over students combined with universal quantifier over exam results expresses an 'every student passed every exam' condition.",
+   "qid": "5.16.15",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2023",
+    "year": 2023,
+    "marks": 1,
+    "difficulty": "easy",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "Relational Model",
+    "subtopic": "Relational Model"
+   },
+   "question": "Which one of the options given below refers to the degree (or arity) of a relation in relational database systems?\n\nA. Number of attributes of its relation schema.\nB. Number of tuples stored in the relation.\nC. Number of entries in the relation.\nD. Number of distinct domains of its relation schema.",
+   "answer": "A. Number of attributes of its relation schema.",
+   "to_find": "What the degree (or arity) of a relation means in relational database systems",
+   "understand": {
+    "plain": "In relational database theory, a relation has two structural properties: its degree (also called arity) and its cardinality. The degree refers to the number of columns (attributes) in the relation schema. Cardinality refers to the number of rows (tuples). This question asks which option correctly defines degree/arity.",
+    "keywords": [
+     {
+      "term": "Degree (Arity) of a relation",
+      "explain": "The degree or arity of a relation is the number of attributes (columns) in its schema.",
+      "example": "Relation Employee(eid, name, salary) has degree 3."
+     },
+     {
+      "term": "Cardinality of a relation",
+      "explain": "The cardinality is the number of tuples (rows) currently stored in the relation.",
+      "example": "If Employee has 500 rows, its cardinality is 500."
+     }
+    ],
+    "visual_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"420\" height=\"180\" viewBox=\"0 0 420 180\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x=\"10\" y=\"10\" width=\"400\" height=\"160\" rx=\"8\" class=\"bg\"/><rect x=\"20\" y=\"30\" width=\"120\" height=\"30\" class=\"hi\"/><rect x=\"145\" y=\"30\" width=\"120\" height=\"30\" class=\"hi\"/><rect x=\"270\" y=\"30\" width=\"120\" height=\"30\" class=\"hi\"/><text x=\"80\" y=\"51\" text-anchor=\"middle\" class=\"lbl ink\">eid</text><text x=\"205\" y=\"51\" text-anchor=\"middle\" class=\"lbl ink\">name</text><text x=\"330\" y=\"51\" text-anchor=\"middle\" class=\"lbl ink\">salary</text><rect x=\"20\" y=\"65\" width=\"120\" height=\"28\" class=\"bg\"/><text x=\"80\" y=\"84\" text-anchor=\"middle\" class=\"sub ink\">101</text><rect x=\"145\" y=\"65\" width=\"120\" height=\"28\" class=\"bg\"/><text x=\"205\" y=\"84\" text-anchor=\"middle\" class=\"sub ink\">Alice</text><rect x=\"270\" y=\"65\" width=\"120\" height=\"28\" class=\"bg\"/><text x=\"330\" y=\"84\" text-anchor=\"middle\" class=\"sub ink\">50000</text><rect x=\"20\" y=\"95\" width=\"120\" height=\"28\" class=\"bg\"/><text x=\"80\" y=\"114\" text-anchor=\"middle\" class=\"sub ink\">102</text><rect x=\"145\" y=\"95\" width=\"120\" height=\"28\" class=\"bg\"/><text x=\"205\" y=\"114\" text-anchor=\"middle\" class=\"sub ink\">Bob</text><rect x=\"270\" y=\"95\" width=\"120\" height=\"28\" class=\"bg\"/><text x=\"330\" y=\"114\" text-anchor=\"middle\" class=\"sub ink\">60000</text><text x=\"210\" y=\"158\" text-anchor=\"middle\" class=\"tag mut\">Degree = 3 (columns) | Cardinality = 2 (rows)</text></svg>",
+    "visual_alt": "A table with 3 columns (eid, name, salary) and 2 data rows. Degree = 3 refers to the number of columns; cardinality = 2 refers to the number of rows."
+   },
+   "given": {
+    "aim": "Identify the correct definition of 'degree' or 'arity' of a relation.",
+    "terms": [
+     {
+      "term": "Relation schema",
+      "meaning": "The structure of a relation defined by its name and set of attributes.",
+      "example": "Employee(eid, name, salary) is a schema with 3 attributes.",
+      "connects": "Degree is a property of the schema, not the data."
+     },
+     {
+      "term": "Attribute",
+      "meaning": "A column in a relation, representing one property of each tuple.",
+      "example": "In Employee(eid, name, salary), 'name' is an attribute.",
+      "connects": "Count of attributes gives the degree."
+     },
+     {
+      "term": "Tuple",
+      "meaning": "A single row in a relation representing one entity instance.",
+      "example": "(101, 'Alice', 50000) is one tuple in Employee.",
+      "connects": "Count of tuples gives cardinality, NOT degree."
+     }
+    ],
+    "plan": "Recall the definitions: degree = number of attributes (columns), cardinality = number of tuples (rows). Match with options."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Recall degree vs. cardinality",
+      "formula_raw": "degree(R) = |attributes of R| , cardinality(R) = |tuples in R|",
+      "apply": "Degree (arity) = number of attributes in the relation schema.\nCardinality = number of tuples stored in the relation.\nThese are the two fundamental descriptors of a relation.",
+      "note": "These are standard definitions from Codd's relational model."
+     },
+     {
+      "step": 2,
+      "title": "Evaluate each option",
+      "formula_raw": "",
+      "apply": "A. Number of attributes of its relation schema — this IS the degree. CORRECT.\nB. Number of tuples stored — this is cardinality, not degree.\nC. Number of entries — ambiguous but generally means total cells = degree * cardinality; not degree alone.\nD. Number of distinct domains — domains can repeat or be fewer than attributes; this is NOT degree.",
+      "note": "Option D is a common distractor: a relation with two INTEGER attributes still has degree 2, but only 1 distinct domain."
+     }
+    ],
+    "result": "The degree (arity) of a relation is the number of attributes of its relation schema. Answer: A."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Fundamental relational model definitions: degree (arity) = number of attributes in the schema; cardinality = number of tuples in the instance.",
+   "qid": "5.17.1",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2025",
+    "year": 2025,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "Relational Model",
+    "subtopic": "Relational Model"
+   },
+   "question": "Consider the following two relations, named Customer and Person, in a database:\n  Person ( aadhaar CHAR(12) PRIMARY KEY, name VARCHAR(32) )\n  Customer ( name VARCHAR(32), phone CHAR(10), aadhaar CHAR(12),\n             FOREIGN KEY (aadhaar) REFERENCES Person(aadhaar) )\n\nWhich one of the following statements is/are correct?\n\nA. aadhaar is a candidate key in the Customer relation.\nB. phone can be NULL in the Customer relation.\nC. aadhaar is a candidate key in the Person relation.\nD. aadhaar can be NULL in the Customer relation.",
+   "answer": "B, C, D",
+   "to_find": "Which statements about keys and NULL values in the Person and Customer relations are correct",
+   "understand": {
+    "plain": "Two relations are given: Person with aadhaar as PRIMARY KEY, and Customer with aadhaar as a FOREIGN KEY referencing Person. We need to determine which statements about candidate keys and NULL values are correct. A PRIMARY KEY implies it is a candidate key. A FOREIGN KEY attribute can be NULL (unless explicitly declared NOT NULL). Phone has no constraint so it can be NULL.",
+    "keywords": [
+     {
+      "term": "Candidate key",
+      "explain": "A minimal set of attributes that uniquely identifies every tuple in a relation. Every primary key is also a candidate key.",
+      "example": "If aadhaar is PRIMARY KEY in Person, then {aadhaar} is a candidate key of Person."
+     },
+     {
+      "term": "FOREIGN KEY NULL semantics",
+      "explain": "In SQL, a FOREIGN KEY column can be NULL unless explicitly declared NOT NULL. A NULL FK means 'no reference' (e.g., a customer who is not a registered Person yet).",
+      "example": "Customer.aadhaar can be NULL, meaning that customer has no associated Person record."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Two relation schemas: Person with aadhaar (PK) and name; Customer with name, phone, and aadhaar (FK referencing Person). Arrows show the FK relationship. aadhaar in Customer can be NULL."
+   },
+   "given": {
+    "aim": "Determine which SQL constraint-based statements about keys and NULLs are correct for the given schema.",
+    "terms": [
+     {
+      "term": "Person.aadhaar PRIMARY KEY",
+      "meaning": "aadhaar uniquely identifies each Person tuple; it cannot be NULL and must be unique.",
+      "example": "No two persons can have the same aadhaar; it is both unique and NOT NULL.",
+      "connects": "PRIMARY KEY => candidate key, so statement C is correct."
+     },
+     {
+      "term": "Customer.aadhaar FOREIGN KEY",
+      "meaning": "Customer.aadhaar references Person.aadhaar but is not declared as PRIMARY KEY or NOT NULL in Customer.",
+      "example": "A customer record can exist without a linked Person entry by having aadhaar = NULL.",
+      "connects": "FK without NOT NULL constraint => can be NULL, so statement D is correct."
+     },
+     {
+      "term": "Customer.phone (no constraint)",
+      "meaning": "phone in Customer has no NOT NULL or UNIQUE constraint declared.",
+      "example": "phone can be left empty (NULL) for a customer.",
+      "connects": "No constraint => can be NULL, so statement B is correct."
+     }
+    ],
+    "plan": "Evaluate each statement: A (is aadhaar a candidate key in Customer?), B (can phone be NULL in Customer?), C (is aadhaar a candidate key in Person?), D (can aadhaar be NULL in Customer?). Use SQL PRIMARY KEY, FOREIGN KEY, and NULL rules."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Evaluate statement A: aadhaar is candidate key in Customer",
+      "formula_raw": "",
+      "apply": "In Customer, aadhaar is declared only as FOREIGN KEY, not as PRIMARY KEY or UNIQUE. Multiple customers could potentially have the same aadhaar (or NULL). Therefore aadhaar does NOT uniquely identify tuples in Customer and is NOT a candidate key of Customer.",
+      "note": "A FOREIGN KEY does not imply uniqueness in the referencing table."
+     },
+     {
+      "step": 2,
+      "title": "Evaluate statement B: phone can be NULL in Customer",
+      "formula_raw": "",
+      "apply": "Customer.phone is declared as CHAR(10) with no NOT NULL constraint. In SQL, columns without NOT NULL can hold NULL values. Therefore phone CAN be NULL in Customer. Statement B is CORRECT.",
+      "note": "Only PRIMARY KEY implicitly implies NOT NULL; other columns default to nullable."
+     },
+     {
+      "step": 3,
+      "title": "Evaluate statement C: aadhaar is candidate key in Person",
+      "formula_raw": "",
+      "apply": "Person.aadhaar is declared as PRIMARY KEY. Every PRIMARY KEY is by definition a candidate key (it is a minimal superkey). Therefore aadhaar IS a candidate key in Person. Statement C is CORRECT.",
+      "note": "In a simple single-attribute primary key, {aadhaar} is trivially minimal."
+     },
+     {
+      "step": 4,
+      "title": "Evaluate statement D: aadhaar can be NULL in Customer",
+      "formula_raw": "",
+      "apply": "Customer.aadhaar is a FOREIGN KEY but is NOT declared NOT NULL. In SQL, FOREIGN KEY constraints permit NULL values in the referencing column (NULL means 'no reference'). Therefore aadhaar CAN be NULL in Customer. Statement D is CORRECT.",
+      "note": "This is an important SQL subtlety: FK != NOT NULL. To prevent NULL, you must explicitly add NOT NULL."
+     }
+    ],
+    "result": "Statements B, C, and D are correct. Answer: B, C, D."
+   },
+   "formula_ids_used": [],
+   "formula_note": "SQL constraint rules: PRIMARY KEY => candidate key and NOT NULL + UNIQUE; FOREIGN KEY alone does not imply NOT NULL or UNIQUE in the referencing table; columns without explicit NOT NULL are nullable by default.",
+   "qid": "5.17.2",
+   "answer_official": "B;C"
+  }
+ ]
+}

@@ -1,0 +1,276 @@
+{
+ "page": 324,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 1988",
+    "year": 1988,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "SQL",
+    "subtopic": "SQL"
+   },
+   "question": "Describe the relational algebraic expression giving the relation returned by the following SQL query.\n\nSelect SNAME\nfrom S\nWhere SNO in\n  (select SNO\n   from SP\n   where PNO in\n     (select PNO\n      from P\n      Where COLOUR='BLUE'))\n\nA. pi_SNAME( S |x| SP |x| sigma_{COLOUR='BLUE'}(P) )\nB. pi_SNAME( sigma_{COLOUR='BLUE'}(S x SP x P) )\nC. pi_SNAME( S |x| (SP |x| sigma_{COLOUR='BLUE'}(P)) )\nD. pi_SNAME( sigma_{COLOUR='BLUE'}(S) |x| SP |x| P )",
+   "answer": "C. pi_SNAME( S |x| (SP |x| sigma_{COLOUR='BLUE'}(P)) )",
+   "to_find": "The equivalent relational algebra expression for the given nested SQL query.",
+   "understand": {
+    "plain": "The SQL query finds the names of all suppliers (SNAME from relation S) who supply at least one part that is coloured BLUE. It uses two nested subqueries: the inner-most finds blue part numbers from P, the middle one finds supplier numbers from SP who supply those parts, and the outer query retrieves names from S. We need to express this in relational algebra.",
+    "keywords": [
+     {
+      "term": "Relational Algebra",
+      "explain": "A formal query language that operates on relations (tables) using operators like selection (sigma), projection (pi), and join (|x|).",
+      "example": "sigma_{age>30}(Employee) selects employees older than 30."
+     },
+     {
+      "term": "Natural Join (|x|)",
+      "explain": "Combines two relations by matching tuples that have equal values on all common attributes.",
+      "example": "S |x| SP joins on the common attribute SNO."
+     },
+     {
+      "term": "Selection (sigma)",
+      "explain": "Filters tuples from a relation based on a condition.",
+      "example": "sigma_{COLOUR='BLUE'}(P) returns only blue parts from P."
+     },
+     {
+      "term": "Projection (pi)",
+      "explain": "Extracts specified columns from a relation.",
+      "example": "pi_SNAME(S) returns only the SNAME column."
+     }
+    ],
+    "visual_svg": "<svg width=\"520\" height=\"160\" viewBox=\"0 0 520 160\" xmlns=\"http://www.w3.org/2000/svg\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x=\"10\" y=\"10\" width=\"500\" height=\"140\" rx=\"8\" class=\"bg\"/><text x=\"260\" y=\"38\" text-anchor=\"middle\" class=\"lbl ink\">SQL Nested Subquery to Relational Algebra</text><rect x=\"30\" y=\"55\" width=\"120\" height=\"30\" rx=\"4\" class=\"hi\"/><text x=\"90\" y=\"75\" text-anchor=\"middle\" class=\"tag ink\">sigma_COLOUR='BLUE'(P)</text><text x=\"195\" y=\"75\" text-anchor=\"middle\" class=\"ink sub\">|x|</text><rect x=\"220\" y=\"55\" width=\"60\" height=\"30\" rx=\"4\" class=\"bg\"/><text x=\"250\" y=\"75\" text-anchor=\"middle\" class=\"tag ink\">SP</text><text x=\"315\" y=\"75\" text-anchor=\"middle\" class=\"ink sub\">|x|</text><rect x=\"335\" y=\"55\" width=\"40\" height=\"30\" rx=\"4\" class=\"bg\"/><text x=\"355\" y=\"75\" text-anchor=\"middle\" class=\"tag ink\">S</text><text x=\"430\" y=\"75\" text-anchor=\"middle\" class=\"ink sub\">=> pi_SNAME</text><text x=\"260\" y=\"115\" text-anchor=\"middle\" class=\"sub mut\">pi_SNAME( S |x| (SP |x| sigma_COLOUR='BLUE'(P)) )</text><text x=\"260\" y=\"140\" text-anchor=\"middle\" class=\"sub mut\">Innermost subquery evaluated first, then joined outward</text></svg>",
+    "visual_alt": "Three relations P, SP, S joined left-to-right: first filter P for COLOUR='BLUE', join with SP on PNO, join result with S on SNO, then project SNAME."
+   },
+   "given": {
+    "aim": "Convert the nested SQL query to an equivalent relational algebra expression.",
+    "terms": [
+     {
+      "term": "Relation S",
+      "meaning": "Supplier relation with attributes including SNO (supplier number) and SNAME (supplier name).",
+      "example": "S = {(S1, Smith, ...), (S2, Jones, ...)}",
+      "connects": "The outer query targets S to retrieve SNAME."
+     },
+     {
+      "term": "Relation SP",
+      "meaning": "Supplier-Part relation with attributes SNO and PNO linking suppliers to parts.",
+      "example": "SP = {(S1, P1), (S1, P2), (S2, P3)}",
+      "connects": "Middle subquery looks up SNO values in SP for matching PNOs."
+     },
+     {
+      "term": "Relation P",
+      "meaning": "Part relation with attributes PNO (part number) and COLOUR among others.",
+      "example": "P = {(P1, Nut, BLUE), (P2, Bolt, RED)}",
+      "connects": "Innermost subquery selects PNO where COLOUR='BLUE' from P."
+     },
+     {
+      "term": "Nested subquery evaluation",
+      "meaning": "The innermost SELECT is evaluated first, its result is used by the next level, and so on outward.",
+      "example": "inner: get blue PNOs -> middle: get SNOs -> outer: get SNAMEs",
+      "connects": "This corresponds to joining from P outward: sigma(P) |x| SP |x| S, then projecting SNAME."
+     }
+    ],
+    "plan": "Evaluate the innermost subquery first: select parts with COLOUR='BLUE' from P. Natural join that with SP (on PNO) to get supplier numbers. Natural join that result with S (on SNO) to get supplier names. Finally project SNAME. The correct algebra is pi_SNAME( S |x| (SP |x| sigma_{COLOUR='BLUE'}(P)) )."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Innermost subquery: select blue parts",
+      "formula_raw": "sigma_{COLOUR='BLUE'}(P)",
+      "apply": "The innermost SQL: SELECT PNO FROM P WHERE COLOUR='BLUE' corresponds to sigma_{COLOUR='BLUE'}(P), which returns all tuples in P with COLOUR='BLUE' (keeping PNO and other attributes).",
+      "note": "Selection filters rows; the result is a subset of relation P containing only blue parts."
+     },
+     {
+      "step": 2,
+      "title": "Middle subquery: find suppliers who supply blue parts",
+      "formula_raw": "SP |x| sigma_{COLOUR='BLUE'}(P)",
+      "apply": "SELECT SNO FROM SP WHERE PNO IN (...blue PNOs...) is equivalent to natural joining SP with the result of step 1 on PNO. This gives tuples where a supplier supplies a blue part.",
+      "note": "Natural join on PNO automatically matches PNO values between SP and the filtered P."
+     },
+     {
+      "step": 3,
+      "title": "Outer query: get supplier names",
+      "formula_raw": "pi_SNAME( S |x| (SP |x| sigma_{COLOUR='BLUE'}(P)) )",
+      "apply": "SELECT SNAME FROM S WHERE SNO IN (...SNOs from step 2...) is equivalent to natural joining S with the result of step 2 on SNO, then projecting SNAME. Final expression: pi_SNAME( S |x| (SP |x| sigma_{COLOUR='BLUE'}(P)) ).",
+      "note": "The parenthesization shows the order: P filtered first, joined with SP, then joined with S. All three options A, B, C are algebraically equivalent in pure relational algebra, but C best mirrors the nested evaluation order."
+     }
+    ],
+    "result": "C. pi_SNAME( S |x| (SP |x| sigma_{COLOUR='BLUE'}(P)) )"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Relational algebra operators: selection (sigma), projection (pi), and natural join (|x|). Nested SQL subqueries translate to sequences of selection and join operations applied inside-out.",
+   "qid": "5.18.1",
+   "answer_official": "N/A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1988",
+    "year": 1988,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "SQL",
+    "subtopic": "SQL"
+   },
+   "question": "Select SNAME\nfrom S\nWhere SNO in\n  (select SNO\n   from SP\n   where PNO in\n     (select PNO\n      from P\n      Where COLOUR='BLUE'))\n\nWhat relations are being used in the above SQL query? Give at least two attributes of each of these relations.\n\nA. S (SNO, SNAME); SP (SNO, PNO); P (PNO, COLOUR)\nB. S (SNO, SNAME); SP (SNO, PNAME); P (PNO, COLOUR)\nC. S (SNO, SNAME); SP (SNO, PNO); P (COLOUR, PNAME)\nD. S (SNAME, SCITY); SP (SNO, PNO); P (PNO, COLOUR)",
+   "answer": "A. S (SNO, SNAME); SP (SNO, PNO); P (PNO, COLOUR)",
+   "to_find": "Which three relations and their attributes appear in the given SQL query.",
+   "understand": {
+    "plain": "This question asks us to identify the relations (tables) referenced in the nested SQL query, and list at least two attributes from each. The SQL query references three relations: S, SP, and P. We need to name the attributes actually used in the query for each relation.",
+    "keywords": [
+     {
+      "term": "Relation (Table)",
+      "explain": "A named set of tuples with a fixed schema (set of attribute names), like a spreadsheet with column headers.",
+      "example": "Relation S has attributes SNO, SNAME, STATUS, CITY."
+     },
+     {
+      "term": "Attribute",
+      "explain": "A named column in a relation representing one piece of information per tuple.",
+      "example": "In SP, SNO is the supplier number attribute and PNO is the part number attribute."
+     }
+    ],
+    "visual_svg": "<svg width=\"480\" height=\"130\" viewBox=\"0 0 480 130\" xmlns=\"http://www.w3.org/2000/svg\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x=\"10\" y=\"10\" width=\"135\" height=\"80\" rx=\"6\" class=\"bg\"/><text x=\"77\" y=\"32\" text-anchor=\"middle\" class=\"lbl ink\">S</text><text x=\"77\" y=\"52\" text-anchor=\"middle\" class=\"sub ink\">SNO (PK)</text><text x=\"77\" y=\"68\" text-anchor=\"middle\" class=\"sub hi ink\">SNAME</text><rect x=\"170\" y=\"10\" width=\"135\" height=\"80\" rx=\"6\" class=\"bg\"/><text x=\"237\" y=\"32\" text-anchor=\"middle\" class=\"lbl ink\">SP</text><text x=\"237\" y=\"52\" text-anchor=\"middle\" class=\"sub ink\">SNO (FK)</text><text x=\"237\" y=\"68\" text-anchor=\"middle\" class=\"sub ink\">PNO (FK)</text><rect x=\"330\" y=\"10\" width=\"135\" height=\"80\" rx=\"6\" class=\"bg\"/><text x=\"397\" y=\"32\" text-anchor=\"middle\" class=\"lbl ink\">P</text><text x=\"397\" y=\"52\" text-anchor=\"middle\" class=\"sub ink\">PNO (PK)</text><text x=\"397\" y=\"68\" text-anchor=\"middle\" class=\"sub hi ink\">COLOUR</text><line x1=\"145\" y1=\"50\" x2=\"170\" y2=\"50\" stroke=\"#7F77DD\" stroke-width=\"2\"/><line x1=\"305\" y1=\"50\" x2=\"330\" y2=\"50\" stroke=\"#7F77DD\" stroke-width=\"2\"/><text x=\"240\" y=\"115\" text-anchor=\"middle\" class=\"sub mut\">S.SNO &lt;- SP.SNO, SP.PNO -&gt; P.PNO</text></svg>",
+    "visual_alt": "Three relation boxes: S with SNO and SNAME, SP with SNO and PNO as foreign keys linking to S and P, P with PNO and COLOUR. Arrows show SNO links S-SP and PNO links SP-P."
+   },
+   "given": {
+    "aim": "Identify all three relations used in the SQL query and at least two attributes of each.",
+    "terms": [
+     {
+      "term": "Relation S",
+      "meaning": "Supplier table; referenced in FROM S (outer query) and supplies SNAME (selected) and SNO (used in WHERE).",
+      "example": "S(SNO, SNAME, STATUS, CITY)",
+      "connects": "Outer query: SELECT SNAME FROM S WHERE SNO IN ..."
+     },
+     {
+      "term": "Relation SP",
+      "meaning": "Supplier-Part table; referenced in the middle subquery FROM SP. Attributes SNO and PNO are used.",
+      "example": "SP(SNO, PNO, QTY)",
+      "connects": "Middle subquery: SELECT SNO FROM SP WHERE PNO IN ..."
+     },
+     {
+      "term": "Relation P",
+      "meaning": "Part table; referenced in the innermost subquery FROM P. Attributes PNO (selected) and COLOUR (filtered) are used.",
+      "example": "P(PNO, PNAME, COLOUR, WEIGHT)",
+      "connects": "Innermost subquery: SELECT PNO FROM P WHERE COLOUR='BLUE'"
+     }
+    ],
+    "plan": "Read the FROM clauses in all three levels of the SQL query: the outer FROM S, the middle FROM SP, and the inner FROM P. Then list the attributes accessed in each: for S, the SELECT returns SNAME and the WHERE uses SNO; for SP, the SELECT returns SNO and the WHERE uses PNO; for P, the SELECT returns PNO and the WHERE filters on COLOUR."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Identify relations from FROM clauses",
+      "formula_raw": "",
+      "apply": "Outer query: FROM S -> relation S is used. Middle subquery: FROM SP -> relation SP is used. Innermost subquery: FROM P -> relation P is used. So three relations: S, SP, P.",
+      "note": "Always look at every FROM clause including nested subqueries to identify all relations used."
+     },
+     {
+      "step": 2,
+      "title": "Identify attributes used in each relation",
+      "formula_raw": "",
+      "apply": "For S: SELECT SNAME (attribute SNAME) and WHERE SNO IN ... (attribute SNO). Attributes: SNO, SNAME.\nFor SP: SELECT SNO (attribute SNO) and WHERE PNO IN ... (attribute PNO). Attributes: SNO, PNO.\nFor P: SELECT PNO (attribute PNO) and WHERE COLOUR='BLUE' (attribute COLOUR). Attributes: PNO, COLOUR.",
+      "note": "Two attributes are required per relation minimum; here exactly two per relation are referenced directly in the query."
+     }
+    ],
+    "result": "A. S (SNO, SNAME); SP (SNO, PNO); P (PNO, COLOUR)"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Identifying relations and attributes in SQL: examine every FROM clause (including nested subqueries) for relation names, and every SELECT list and WHERE condition for attribute names used.",
+   "qid": "5.18.2",
+   "answer_official": "N/A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1991",
+    "year": 1991,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "SQL",
+    "subtopic": "SQL"
+   },
+   "question": "Consider the following relational database:\n  employees (eno, ename, address, basic-salary)\n  projects (pno, pname, nos-of-staffs-allotted)\n  working (pno, eno, pjob)\n\nThe queries regarding data in the above database are formulated below in SQL. Describe in ENGLISH sentences the two queries that have been posted:\n\ni.  SELECT ename\n    FROM employees\n    WHERE eno IN\n      (SELECT eno\n       FROM working\n       GROUP BY eno\n       HAVING COUNT(*) > 1)\n\nii. SELECT ename\n    FROM employees\n    WHERE eno NOT IN\n      (SELECT eno\n       FROM working)\n\nA. (i) Names of employees working on more than one project; (ii) Names of employees not assigned to any project\nB. (i) Names of employees working on exactly one project; (ii) Names of employees assigned to all projects\nC. (i) Names of employees working on more than one project; (ii) Names of employees working on all projects\nD. (i) Names of employees with more than one job; (ii) Names of employees not in the working table",
+   "answer": "A. (i) Names of employees working on more than one project; (ii) Names of employees not assigned to any project",
+   "to_find": "The English description of the two given SQL queries on the employees/projects/working database.",
+   "understand": {
+    "plain": "We are given a database of employees, projects, and a working table that records which employee works on which project. Query (i) uses GROUP BY and HAVING COUNT(*) > 1 in the subquery, which finds employees who appear in the working table more than once — meaning they work on more than one project. Query (ii) uses NOT IN to find employees whose eno does not appear in the working table at all — meaning they are not assigned to any project.",
+    "keywords": [
+     {
+      "term": "GROUP BY ... HAVING COUNT(*) > 1",
+      "explain": "Groups rows by a column and keeps only groups with more than one row, i.e., employees appearing in more than one record.",
+      "example": "If employee E1 appears in working for projects P1 and P2, COUNT(*) for E1 = 2 > 1, so E1 is included."
+     },
+     {
+      "term": "NOT IN (subquery)",
+      "explain": "Filters rows where the column value does NOT appear in the result of the subquery.",
+      "example": "WHERE eno NOT IN (SELECT eno FROM working) finds employees with no entry in working at all."
+     },
+     {
+      "term": "working relation",
+      "explain": "The working table records which employee (eno) is assigned to which project (pno) with a job role (pjob). An employee appears once per project assigned.",
+      "example": "working = {(P1, E1, developer), (P2, E1, tester), (P3, E2, manager)}"
+     }
+    ],
+    "visual_svg": "<svg width=\"520\" height=\"160\" viewBox=\"0 0 520 160\" xmlns=\"http://www.w3.org/2000/svg\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x=\"10\" y=\"10\" width=\"240\" height=\"140\" rx=\"6\" class=\"bg\"/><text x=\"130\" y=\"32\" text-anchor=\"middle\" class=\"lbl ink\">Query (i)</text><text x=\"130\" y=\"52\" text-anchor=\"middle\" class=\"sub ink\">GROUP BY eno</text><text x=\"130\" y=\"70\" text-anchor=\"middle\" class=\"sub ink\">HAVING COUNT(*) &gt; 1</text><rect x=\"30\" y=\"82\" width=\"80\" height=\"28\" rx=\"4\" class=\"hi\"/><text x=\"70\" y=\"100\" text-anchor=\"middle\" class=\"tag ink\">E1: 2 rows</text><rect x=\"130\" y=\"82\" width=\"80\" height=\"28\" rx=\"4\" class=\"bg\"/><text x=\"170\" y=\"100\" text-anchor=\"middle\" class=\"tag ink\">E2: 1 row</text><text x=\"70\" y=\"135\" text-anchor=\"middle\" class=\"sub ok\">Included</text><text x=\"170\" y=\"135\" text-anchor=\"middle\" class=\"sub no\">Excluded</text><rect x=\"270\" y=\"10\" width=\"240\" height=\"140\" rx=\"6\" class=\"bg\"/><text x=\"390\" y=\"32\" text-anchor=\"middle\" class=\"lbl ink\">Query (ii)</text><text x=\"390\" y=\"52\" text-anchor=\"middle\" class=\"sub ink\">NOT IN working</text><rect x=\"290\" y=\"65\" width=\"80\" height=\"28\" rx=\"4\" class=\"no\"/><text x=\"330\" y=\"83\" text-anchor=\"middle\" class=\"tag ink\">E3: in working</text><rect x=\"390\" y=\"65\" width=\"80\" height=\"28\" rx=\"4\" class=\"hi\"/><text x=\"430\" y=\"83\" text-anchor=\"middle\" class=\"tag ink\">E4: NOT in working</text><text x=\"330\" y=\"120\" text-anchor=\"middle\" class=\"sub no\">Excluded</text><text x=\"430\" y=\"120\" text-anchor=\"middle\" class=\"sub ok\">Included</text></svg>",
+    "visual_alt": "Query (i) groups employees in working by eno; those with count > 1 (on multiple projects) are included. Query (ii) finds employees whose eno does not appear in working at all (not assigned to any project)."
+   },
+   "given": {
+    "aim": "Describe in plain English what each SQL query retrieves from the employees/projects/working database.",
+    "terms": [
+     {
+      "term": "employees (eno, ename, address, basic-salary)",
+      "meaning": "Stores employee information; eno is the unique employee number, ename is the employee name.",
+      "example": "employees = {(E1, Alice, ..., 50000), (E2, Bob, ..., 40000)}",
+      "connects": "Both queries select ename from employees based on eno conditions."
+     },
+     {
+      "term": "working (pno, eno, pjob)",
+      "meaning": "Records which project each employee is working on; one row per employee-project assignment.",
+      "example": "working = {(P1,E1,dev), (P2,E1,test)} means E1 works on 2 projects.",
+      "connects": "Query (i) groups this by eno; Query (ii) checks if eno exists here."
+     },
+     {
+      "term": "HAVING COUNT(*) > 1",
+      "meaning": "After grouping by eno, retains only employees who have more than 1 record in working, i.e., work on more than 1 project.",
+      "example": "E1 with 2 rows passes; E2 with 1 row does not.",
+      "connects": "This is the key condition distinguishing Query (i) from a simple IN subquery."
+     },
+     {
+      "term": "NOT IN (SELECT eno FROM working)",
+      "meaning": "Selects employees from the employees table whose eno never appears in the working table — they are not assigned to any project.",
+      "example": "If E4 is in employees but has no row in working, E4 is returned.",
+      "connects": "This is the negation: employees table minus those in working."
+     }
+    ],
+    "plan": "For each query, trace through the subquery logic: (i) the subquery groups working by eno and keeps only enos appearing more than once (multiple project assignments), then the outer query gets their names; (ii) the subquery returns all enos that appear in working (any project), and NOT IN negates this to find employees with no project assignment."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Interpret Query (i): employees on more than one project",
+      "formula_raw": "SELECT eno FROM working GROUP BY eno HAVING COUNT(*) > 1",
+      "apply": "The inner query groups all rows of 'working' by eno. Each group corresponds to one employee. COUNT(*) counts how many projects (rows) that employee has. HAVING COUNT(*) > 1 keeps only employees with 2 or more projects. The outer query then fetches ename for those enos. In English: 'Find the names of employees who are assigned to more than one project.'",
+      "note": "COUNT(*) counts rows per group; since working has one row per (pno, eno) assignment, this equals the number of projects the employee is on."
+     },
+     {
+      "step": 2,
+      "title": "Interpret Query (ii): employees not assigned to any project",
+      "formula_raw": "WHERE eno NOT IN (SELECT eno FROM working)",
+      "apply": "The inner query returns all eno values that appear anywhere in the working table (i.e., all employees assigned to at least one project). NOT IN then selects employees from the employees table whose eno is NOT in that set. In English: 'Find the names of employees who are not assigned to any project.'",
+      "note": "This is a set-difference style query: employees - (employees in working). Equivalent to employees that have no matching row in working."
+     }
+    ],
+    "result": "A. (i) Names of employees working on more than one project; (ii) Names of employees not assigned to any project"
+   },
+   "formula_ids_used": [],
+   "formula_note": "SQL GROUP BY with HAVING COUNT(*) > 1 identifies entities appearing in multiple rows (many-to-many relationship). NOT IN (subquery) implements set difference to find entities absent from a related table.",
+   "qid": "5.18.3",
+   "answer_official": "C"
+  }
+ ]
+}

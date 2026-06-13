@@ -1,0 +1,391 @@
+{
+ "page": 308,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 1997",
+    "year": 1997,
+    "marks": 2,
+    "difficulty": "easy",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "Referential Integrity",
+    "subtopic": "Referential Integrity"
+   },
+   "question": "Let R(a, b, c) and S(d, e, f) be two relations in which b is the foreign key of R that refers to the primary key d of S. Consider the following four operations:\nI. Insert into R\nII. Insert into S\nIII. Delete from R\nIV. Delete from S\nWhich of the following can cause violation of the referential integrity constraint above?\nA. Both I and IV\nB. Both II and III\nC. All of these\nD. None of these",
+   "answer": "A. Both I and IV",
+   "to_find": "Which operations among insert/delete on R and S can violate the referential integrity constraint",
+   "understand": {
+    "plain": "We have two tables R and S where column b in R is a foreign key pointing to column d in S. Referential integrity means every value of b in R must have a matching value in d in S. Inserting a row into R with a b-value that does not exist in S violates this. Deleting a row from S whose d-value is still referenced by some row in R also violates this.",
+    "keywords": [
+     {
+      "term": "Foreign Key",
+      "explain": "A column (or set of columns) in one table that refers to the primary key of another table, enforcing a link between them.",
+      "example": "b in R references d in S means every value of b must appear as d in S."
+     },
+     {
+      "term": "Referential Integrity",
+      "explain": "The constraint that every foreign-key value in the referencing relation must match a primary-key value in the referenced relation.",
+      "example": "If R has a row (1, 5, 'x') then S must have a row with d=5."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "R has columns a, b, c where b is a foreign key pointing to column d in S which has columns d, e, f."
+   },
+   "given": {
+    "aim": "Identify which operations on R and S can violate the referential integrity constraint b -> d.",
+    "terms": [
+     {
+      "term": "R(a, b, c)",
+      "meaning": "Relation R with primary attributes a,b,c where b is the foreign key.",
+      "example": "R could hold student enrollment records.",
+      "connects": "Insertions into R can violate referential integrity if b has no match in S."
+     },
+     {
+      "term": "S(d, e, f)",
+      "meaning": "Relation S with primary key d, referenced by R.b.",
+      "example": "S could hold department records.",
+      "connects": "Deletions from S can violate referential integrity if d is still referenced by R.b."
+     },
+     {
+      "term": "Foreign Key Constraint b -> d",
+      "meaning": "Every value of b in R must exist as a value of d in S.",
+      "example": "If b=10 exists in R, then d=10 must exist in S.",
+      "connects": "Any operation that breaks this link causes a violation."
+     }
+    ],
+    "plan": "For each of the four operations, check whether it can introduce a b-value in R with no matching d in S (forward direction) or remove a d-value from S while some R still references it (reverse direction)."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Analyze Insert into R (Operation I)",
+      "formula_raw": "Violation if new R.b not in pi_d(S)",
+      "apply": "When we insert a new row into R, we are adding a new b-value. If that b-value does not exist in S.d, the referential integrity is violated. So Operation I CAN cause a violation.",
+      "note": "This is the most common way referential integrity is violated: inserting a child row without a matching parent."
+     },
+     {
+      "step": 2,
+      "title": "Analyze Insert into S (Operation II)",
+      "formula_raw": "",
+      "apply": "Inserting a row into S only adds more values to d. This can only satisfy existing constraints, never break them. Operation II CANNOT cause a violation.",
+      "note": "Adding a parent row never orphans a child."
+     },
+     {
+      "step": 3,
+      "title": "Analyze Delete from R (Operation III)",
+      "formula_raw": "",
+      "apply": "Deleting from R removes a row that contains a b-value. This reduces references to S, so it cannot cause a violation. Operation III CANNOT cause a violation.",
+      "note": "Removing a child row never breaks the parent-child link."
+     },
+     {
+      "step": 4,
+      "title": "Analyze Delete from S (Operation IV)",
+      "formula_raw": "Violation if deleted S.d still in pi_b(R)",
+      "apply": "When we delete a row from S, we remove a d-value. If some row in R still has that d-value as its b-value, those rows in R now have no matching parent in S, violating referential integrity. So Operation IV CAN cause a violation.",
+      "note": "This is the other classic violation: deleting a parent row that still has children."
+     },
+     {
+      "step": 5,
+      "title": "Conclude",
+      "formula_raw": "",
+      "apply": "Operations that can cause violation: I (Insert into R) and IV (Delete from S). This matches option A.",
+      "note": "Operations II and III can never violate referential integrity."
+     }
+    ],
+    "result": "A. Both I and IV"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Referential integrity: for a foreign key b in R referencing primary key d in S, a violation occurs when inserting into the child table R with a missing parent, or deleting from the parent table S while children still exist in R.",
+   "qid": "5.14.1",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2005",
+    "year": 2005,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "Referential Integrity",
+    "subtopic": "Referential Integrity"
+   },
+   "question": "The following table has two attributes A and C where A is the primary key and C is the foreign key referencing A with on-delete cascade.\n\nA | C\n------\n2 | 4\n3 | 4\n4 | 3\n5 | 2\n7 | 2\n9 | 5\n6 | 4\n\nThe set of all tuples that must be additionally deleted to preserve referential integrity when the tuple (2, 4) is deleted is:\nA. (3,4) and (6,4)\nB. (5,2) and (7,2) and (9,5)\nC. (5,2) and (7,2)\nD. (3,4), (4,3), (6,4), (5,2), (7,2), and (9,5)",
+   "answer": "B. (5,2) and (7,2) and (9,5)",
+   "to_find": "Set of all tuples additionally deleted due to on-delete cascade when tuple (2,4) is deleted",
+   "understand": {
+    "plain": "We have a table with primary key A and foreign key C that references A. The on-delete cascade rule means: when a row with primary key value k is deleted, all rows whose C-value equals k are also automatically deleted. This cascades: those deleted rows may in turn trigger further cascading deletions. We need to find all rows deleted after initially deleting (2,4).",
+    "keywords": [
+     {
+      "term": "On-Delete Cascade",
+      "explain": "A referential action that automatically deletes all child rows (rows whose foreign key matches the deleted parent's primary key) when a parent row is deleted.",
+      "example": "Deleting row with A=2 cascades to delete all rows where C=2."
+     },
+     {
+      "term": "Cascading Deletion",
+      "explain": "A chain reaction of deletions triggered by on-delete cascade; deleted rows may themselves trigger further deletions.",
+      "example": "If deleting A=2 removes rows with A=5 (because C=2), and A=5 is referenced by A=9 (C=5), then A=9 is also deleted."
+     }
+    ],
+    "visual_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 480 300\" width=\"480\" height=\"300\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x=\"10\" y=\"10\" width=\"200\" height=\"280\" rx=\"8\" class=\"bg\"/><text x=\"60\" y=\"40\" class=\"lbl ink\">A  |  C</text><line x1=\"10\" y1=\"48\" x2=\"210\" y2=\"48\" stroke=\"#B4B2A9\" stroke-width=\"2\"/><rect x=\"12\" y=\"50\" width=\"196\" height=\"28\" class=\"no\" opacity=\"0.3\"/><text x=\"30\" y=\"70\" class=\"sub ink\">2  |  4  (DELETED)</text><text x=\"30\" y=\"100\" class=\"sub ink\">3  |  4</text><text x=\"30\" y=\"130\" class=\"sub ink\">4  |  3</text><rect x=\"12\" y=\"118\" width=\"196\" height=\"28\" class=\"hi\"/><text x=\"30\" y=\"130\" class=\"sub ink\">4  |  3</text><rect x=\"12\" y=\"148\" width=\"196\" height=\"28\" class=\"hi\"/><text x=\"30\" y=\"160\" class=\"sub ink\">5  |  2  (cascade)</text><text x=\"30\" y=\"190\" class=\"sub ink\">7  |  2  (cascade)</text><rect x=\"12\" y=\"178\" width=\"196\" height=\"28\" class=\"hi\"/><text x=\"30\" y=\"190\" class=\"sub ink\">7  |  2  (cascade)</text><rect x=\"12\" y=\"208\" width=\"196\" height=\"28\" class=\"hi\"/><text x=\"30\" y=\"220\" class=\"sub ink\">9  |  5  (cascade)</text><text x=\"30\" y=\"250\" class=\"sub ink\">6  |  4</text><text x=\"240\" y=\"80\" class=\"sub mut\">Delete (2,4)</text><text x=\"240\" y=\"110\" class=\"sub mut\">C=2: remove (5,2),(7,2)</text><text x=\"240\" y=\"140\" class=\"sub mut\">C=5: remove (9,5)</text></svg>",
+    "visual_alt": "Table showing tuple (2,4) being deleted, cascading to (5,2) and (7,2) because their C=2, then further cascading to (9,5) because its C=5 and A=5 was just deleted."
+   },
+   "given": {
+    "aim": "Find all tuples deleted by on-delete cascade starting from deleting (2,4).",
+    "terms": [
+     {
+      "term": "Initial deletion: (2,4)",
+      "meaning": "The explicitly deleted row has A=2.",
+      "example": "A=2 is now gone from the table.",
+      "connects": "All rows with C=2 will now be cascade-deleted."
+     },
+     {
+      "term": "C references A with on-delete cascade",
+      "meaning": "Whenever a row with primary key value v is deleted, every row whose C=v is also deleted.",
+      "example": "Delete A=5 -> also delete all rows where C=5.",
+      "connects": "Drives the chain of cascading deletions."
+     },
+     {
+      "term": "Table contents",
+      "meaning": "Rows: (2,4),(3,4),(4,3),(5,2),(7,2),(9,5),(6,4)",
+      "example": "Row (5,2) has C=2, so it points back to row with A=2.",
+      "connects": "We trace which rows have C equal to each deleted A value."
+     }
+    ],
+    "plan": "Start with deletion of A=2. Find all rows with C=2 (cascade delete them). Then for each newly deleted row, find rows with C equal to that deleted A value. Repeat until no more cascading occurs."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Delete initial tuple (2,4); A=2 is removed",
+      "formula_raw": "Cascade: for each deleted row with A=v, delete all rows where C=v",
+      "apply": "Deleting (2,4) means A=2 is gone. Find all rows where C=2: rows (5,2) and (7,2). These are cascade-deleted.",
+      "note": "Rows (3,4) and (6,4) have C=4, not C=2, so they are NOT deleted in this step."
+     },
+     {
+      "step": 2,
+      "title": "Cascade from deletion of (5,2): A=5 is removed",
+      "formula_raw": "",
+      "apply": "Row (5,2) is deleted (A=5 gone). Find all rows where C=5: row (9,5). Row (9,5) is cascade-deleted.",
+      "note": "This is a second-level cascade."
+     },
+     {
+      "step": 3,
+      "title": "Cascade from deletion of (7,2): A=7 is removed",
+      "formula_raw": "",
+      "apply": "Row (7,2) is deleted (A=7 gone). Find all rows where C=7: none. No further cascade.",
+      "note": "No row has C=7."
+     },
+     {
+      "step": 4,
+      "title": "Cascade from deletion of (9,5): A=9 is removed",
+      "formula_raw": "",
+      "apply": "Row (9,5) is deleted (A=9 gone). Find all rows where C=9: none. No further cascade.",
+      "note": "No row has C=9."
+     },
+     {
+      "step": 5,
+      "title": "Collect all additionally deleted tuples",
+      "formula_raw": "",
+      "apply": "Additionally deleted (beyond the original (2,4)): (5,2), (7,2), (9,5). This matches option B.",
+      "note": "Tuples (3,4) and (6,4) are NOT deleted because they reference A=4, which was not deleted."
+     }
+    ],
+    "result": "B. (5,2) and (7,2) and (9,5)"
+   },
+   "formula_ids_used": [],
+   "formula_note": "On-delete cascade triggers a chain reaction: deleting a parent row automatically deletes all child rows referencing it, and this propagates recursively until no more children exist.",
+   "qid": "5.14.2",
+   "answer_official": "C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2012",
+    "year": 2012,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Databases",
+    "topic": "Referential Integrity",
+    "subtopic": "Referential Integrity"
+   },
+   "question": "Suppose R1 and R2 are two relation schemas. Let r1 and r2 be the corresponding relation instances. B is a foreign key that refers to C in R2. If data in r1 and r2 satisfy referential integrity constraints, which of the following is ALWAYS TRUE?\nA. pi_B(r1) subset_of pi_C(r2)\nB. pi_C(r2) subset_of pi_B(r1)\nC. pi_B(r1) = pi_C(r2)\nD. pi_B(r1) intersect pi_C(r2) != empty",
+   "answer": "A. pi_B(r1) subset_of pi_C(r2)",
+   "to_find": "Which set-theoretic relation between the projection of the foreign key column B in r1 and the primary key column C in r2 is always guaranteed by referential integrity",
+   "understand": {
+    "plain": "R1 has a foreign key B that references column C in R2. Referential integrity says every value that appears in B (in table r1) must also appear in C (in table r2). This means the set of B-values is a subset of the set of C-values. However, r2 may contain C-values that no row in r1 references, so the inclusion is one-directional.",
+    "keywords": [
+     {
+      "term": "Projection (pi)",
+      "explain": "pi_B(r1) means the set of all distinct values of column B in relation r1.",
+      "example": "If r1 has rows (1,10),(2,20),(3,10), then pi_B(r1) = {10,20}."
+     },
+     {
+      "term": "Subset (subset_of)",
+      "explain": "Set A is a subset of set B if every element of A also appears in B.",
+      "example": "{10,20} subset_of {10,20,30} is true; {10,40} subset_of {10,20,30} is false."
+     }
+    ],
+    "visual_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 400 220\" width=\"400\" height=\"220\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><ellipse cx=\"260\" cy=\"110\" rx=\"110\" ry=\"80\" fill=\"#CECBF6\" stroke=\"#7F77DD\" stroke-width=\"2\" opacity=\"0.6\"/><ellipse cx=\"230\" cy=\"110\" rx=\"60\" ry=\"50\" fill=\"#F1EFE8\" stroke=\"#B4B2A9\" stroke-width=\"2\"/><text x=\"200\" y=\"115\" class=\"lbl ink\">pi_B(r1)</text><text x=\"290\" y=\"115\" class=\"sub mut\">pi_C(r2)</text><text x=\"30\" y=\"50\" class=\"sub ink\">pi_B(r1) subset_of pi_C(r2)</text><text x=\"30\" y=\"75\" class=\"sub ink\">Every B-value in r1 must exist</text><text x=\"30\" y=\"95\" class=\"sub ink\">as a C-value in r2.</text><text x=\"30\" y=\"120\" class=\"sub ink\">r2 may have extra C-values</text><text x=\"30\" y=\"140\" class=\"sub ink\">not referenced by r1.</text></svg>",
+    "visual_alt": "A Venn diagram where the set pi_B(r1) is entirely contained within the larger set pi_C(r2), illustrating that every foreign-key value in r1 must exist as a primary-key value in r2, but not vice-versa."
+   },
+   "given": {
+    "aim": "Determine the always-true set relationship between pi_B(r1) and pi_C(r2) given referential integrity.",
+    "terms": [
+     {
+      "term": "pi_B(r1)",
+      "meaning": "The set of all distinct B-values appearing in relation instance r1.",
+      "example": "If r1 = {(a1,5),(a2,10),(a3,5)}, pi_B(r1) = {5,10}.",
+      "connects": "These are the foreign key values that must all exist in r2."
+     },
+     {
+      "term": "pi_C(r2)",
+      "meaning": "The set of all distinct C-values (primary key values) in relation instance r2.",
+      "example": "If r2 = {(5,x),(10,y),(15,z)}, pi_C(r2) = {5,10,15}.",
+      "connects": "This is the domain of legal foreign key values."
+     },
+     {
+      "term": "Referential Integrity constraint",
+      "meaning": "For every tuple t1 in r1, t1[B] must equal t2[C] for some tuple t2 in r2.",
+      "example": "If r1 has B=5, then C=5 must exist somewhere in r2.",
+      "connects": "Directly implies pi_B(r1) subset_of pi_C(r2)."
+     }
+    ],
+    "plan": "Translate the referential integrity definition into set notation. The definition says every B-value in r1 has a matching C-value in r2. In set terms this is pi_B(r1) subset_of pi_C(r2). Check each option against this definition."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "State the referential integrity definition",
+      "formula_raw": "For all t in r1, there exists s in r2 such that t[B] = s[C]",
+      "apply": "This definition means: every value that appears as B in r1 must appear as C in r2. Equivalently, pi_B(r1) subset_of pi_C(r2).",
+      "note": "This is the precise formal definition of referential integrity."
+     },
+     {
+      "step": 2,
+      "title": "Evaluate option A: pi_B(r1) subset_of pi_C(r2)",
+      "formula_raw": "pi_B(r1) subset_of pi_C(r2)",
+      "apply": "This is exactly what referential integrity guarantees. If B references C and the constraint is satisfied, then every B-value exists in C. This is ALWAYS TRUE.",
+      "note": "This is the direct logical equivalent of the referential integrity definition."
+     },
+     {
+      "step": 3,
+      "title": "Evaluate option B: pi_C(r2) subset_of pi_B(r1)",
+      "formula_raw": "",
+      "apply": "This is NOT always true. r2 may have C-values that no row in r1 references. Example: r2 has C={5,10,15} but r1 only references B={5,10}. Then 15 is in pi_C(r2) but not in pi_B(r1).",
+      "note": "Referential integrity is a one-way constraint: child must reference valid parent, but parent need not be referenced."
+     },
+     {
+      "step": 4,
+      "title": "Evaluate options C and D",
+      "formula_raw": "",
+      "apply": "C (equality) requires both subsets, which is stronger than necessary - NOT always true. D (non-empty intersection) is implied by A if r1 is non-empty, but is not as precise as A and fails if r1 is empty.",
+      "note": "Option A is the most precise and always-true characterization."
+     }
+    ],
+    "result": "A. pi_B(r1) subset_of pi_C(r2)"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Referential integrity in set notation: pi_{FK}(child_relation) subset_of pi_{PK}(parent_relation); the set of foreign key values in the child table is always a subset of primary key values in the parent table.",
+   "qid": "5.14.3",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2017",
+    "year": 2017,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Databases",
+    "topic": "Referential Integrity",
+    "subtopic": "Referential Integrity"
+   },
+   "question": "Consider the following tables T1 and T2:\n\nT1:\nP | Q\n-----\n2 | 2\n3 | 8\n7 | 3\n5 | 8\n6 | 9\n\nT2:\nR | S\n-----\n2 | 2\n8 | 3\n2 | 2\n8 | 3\n7 | 7\n\nIn table T2, R is the primary key and Q in table T1 is the foreign key referencing R in table T2 with on-delete cascade and on-update set NULL. In the table T1, P is the primary key. The number of additional records that need to be deleted from table T1 to preserve referential integrity, when the tuple (8, 3) is deleted from T2, is ____",
+   "answer": "2",
+   "to_find": "Number of additional records deleted from T1 due to referential integrity when (8,3) is deleted from T2",
+   "understand": {
+    "plain": "Table T1 has a foreign key Q that references the primary key R of T2, with on-delete cascade. When we delete a row from T2 with R=8, all rows in T1 whose Q=8 must also be deleted (cascading). We need to count how many rows in T1 have Q=8.",
+    "keywords": [
+     {
+      "term": "On-Delete Cascade",
+      "explain": "When a referenced parent row is deleted, all child rows referencing it via foreign key are automatically deleted.",
+      "example": "Delete T2 row with R=8 -> all T1 rows where Q=8 are deleted."
+     },
+     {
+      "term": "Primary Key in T2",
+      "explain": "R is the primary key of T2, so each R value is unique in T2.",
+      "example": "Deleting (8,3) from T2 removes R=8 entirely from T2."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "T1 table has rows (2,2),(3,8),(7,3),(5,8),(6,9). T2 table has R as primary key. Deleting T2 row with R=8 means all T1 rows with Q=8 must be cascade-deleted: rows (3,8) and (5,8)."
+   },
+   "given": {
+    "aim": "Count T1 rows that must be deleted when T2 row (8,3) is deleted, due to on-delete cascade on foreign key Q referencing R.",
+    "terms": [
+     {
+      "term": "T1 rows with Q=8",
+      "meaning": "Rows in T1 whose foreign key Q matches the deleted primary key R=8 in T2.",
+      "example": "From T1: (3,8) has Q=8, (5,8) has Q=8.",
+      "connects": "These are the rows that must be cascade-deleted."
+     },
+     {
+      "term": "Deleted tuple from T2: (8,3)",
+      "meaning": "R=8, S=3 is the row being explicitly deleted from T2.",
+      "example": "After deletion, R=8 no longer exists in T2.",
+      "connects": "Triggers cascade deletion of all T1 rows where Q=8."
+     },
+     {
+      "term": "On-delete cascade",
+      "meaning": "Referential action that deletes child rows automatically when the referenced parent is deleted.",
+      "example": "No manual action needed; the DBMS handles it.",
+      "connects": "We need to count how many rows in T1 satisfy Q=8."
+     }
+    ],
+    "plan": "Find all rows in T1 where Q equals the deleted primary key value (R=8). Count those rows - that is the number of additional records deleted."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Identify the deleted primary key value",
+      "formula_raw": "",
+      "apply": "The tuple deleted from T2 is (8,3). The primary key R=8 is no longer in T2 after this deletion.",
+      "note": "R is the primary key of T2, so deleting (8,3) means R=8 is completely removed."
+     },
+     {
+      "step": 2,
+      "title": "Find T1 rows with Q=8 (cascade-deleted rows)",
+      "formula_raw": "sigma_{Q=8}(T1)",
+      "apply": "Scanning T1: (2,2)->Q=2 no, (3,8)->Q=8 YES, (7,3)->Q=3 no, (5,8)->Q=8 YES, (6,9)->Q=9 no. Rows (3,8) and (5,8) must be cascade-deleted.",
+      "note": "Exactly 2 rows in T1 have Q=8."
+     },
+     {
+      "step": 3,
+      "title": "Check for further cascading",
+      "formula_raw": "",
+      "apply": "T1 has primary key P. After deleting (3,8) and (5,8), P=3 and P=5 are removed. Since Q in T1 references R in T2, not P in T1, there is no further cascading within T1. No further rows are affected.",
+      "note": "The foreign key Q in T1 references T2, not T1 itself, so no self-referential cascade."
+     },
+     {
+      "step": 4,
+      "title": "State the final count",
+      "formula_raw": "",
+      "apply": "The number of additional records deleted from T1 is 2 (the rows (3,8) and (5,8)).",
+      "note": "The on-update set NULL clause is irrelevant here since we are performing a delete, not an update."
+     }
+    ],
+    "result": "2"
+   },
+   "formula_ids_used": [],
+   "formula_note": "On-delete cascade: count |sigma_{FK=v}(child_table)| where v is the primary key value of the deleted parent row to find how many additional child rows are removed.",
+   "qid": "5.14.4",
+   "answer_official": "0.00"
+  }
+ ]
+}

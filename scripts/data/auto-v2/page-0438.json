@@ -1,0 +1,417 @@
+{
+ "page": 438,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2003",
+    "year": 2003,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Disk",
+    "subtopic": "Disk"
+   },
+   "question": "Using a larger block size in a fixed block size file system leads to\nA. better disk throughput but poorer disk space utilization\nB. better disk throughput and better disk space utilization\nC. poorer disk throughput but better disk space utilization\nD. poorer disk throughput and poorer disk space utilization",
+   "answer": "A. better disk throughput but poorer disk space utilization",
+   "to_find": "Effect of larger block size on disk throughput and space utilization",
+   "understand": {
+    "plain": "In a file system, every file is stored in fixed-size blocks. If the block size is large, fewer blocks are needed to hold a file so fewer disk seeks are required (good for throughput). However, the last block of every file is rarely completely full, so space is wasted inside that block (internal fragmentation — bad for space utilization).",
+    "keywords": [
+     {
+      "term": "Block size",
+      "explain": "The fixed unit of storage allocation on disk; a file occupies an integer number of blocks.",
+      "example": "With 4 KB blocks, a 5-byte file wastes 4091 bytes in its block."
+     },
+     {
+      "term": "Internal fragmentation",
+      "explain": "Wasted space inside an allocated block because the file data does not fill it completely.",
+      "example": "A 1 KB file in a 64 KB block wastes 63 KB."
+     },
+     {
+      "term": "Disk throughput",
+      "explain": "The rate at which useful data is transferred; large blocks mean fewer seeks and higher transfer efficiency.",
+      "example": "Reading 1 MB in one 1 MB block requires one seek vs 256 seeks for 256 x 4 KB blocks."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Trade-off diagram: larger block size arrow to fewer seeks (throughput up) and larger wasted space (utilization down)."
+   },
+   "given": {
+    "aim": "Determine how increasing block size affects throughput and space utilization.",
+    "terms": [
+     {
+      "term": "Larger block size",
+      "meaning": "Each allocation unit on disk is bigger.",
+      "example": "Moving from 512-byte blocks to 4096-byte blocks.",
+      "connects": "Fewer blocks per file -> fewer seeks -> higher throughput."
+     },
+     {
+      "term": "Disk throughput",
+      "meaning": "Amount of data transferred per unit time.",
+      "example": "Streaming large blocks saturates bus bandwidth.",
+      "connects": "Improves with larger blocks because seek + rotational overhead amortized over more data."
+     },
+     {
+      "term": "Disk space utilization",
+      "meaning": "Fraction of allocated disk space that actually holds useful data.",
+      "example": "50% utilization means half the allocated space is wasted.",
+      "connects": "Degrades with larger blocks due to greater internal fragmentation in partially filled blocks."
+     }
+    ],
+    "plan": "Analyze two independent effects of increasing block size: (1) throughput — larger transfers per I/O means better throughput; (2) space utilization — on average each file wastes half a block, so larger blocks waste more space on average."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Effect on throughput",
+      "formula_raw": "Throughput = (block size) / (seek time + rotational latency + transfer time)",
+      "apply": "With larger blocks, each disk I/O transfers more data. The fixed overhead (seek + rotation) is amortized over more bytes, so the effective data rate increases. Sequentially stored files require fewer block accesses, reducing seek frequency.",
+      "note": "This is why databases and video systems prefer large block/extent sizes."
+     },
+     {
+      "step": 2,
+      "title": "Effect on space utilization",
+      "formula_raw": "Average wasted space per file = block_size / 2",
+      "apply": "Because file sizes are not multiples of the block size, the last block is partially filled. On average, half the last block is wasted. With a larger block size this average waste per file is larger, so disk space utilization is poorer. E.g., with 64 KB blocks a 1-byte file wastes ~64 KB.",
+      "note": "This is called internal fragmentation and is the main drawback of large fixed block sizes."
+     }
+    ],
+    "result": "Larger block size gives better disk throughput but poorer disk space utilization. Answer: A."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Trade-off between I/O efficiency (throughput) and internal fragmentation (space utilization) in fixed block-size file systems.",
+   "qid": "7.3.13",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2004",
+    "year": 2004,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Disk",
+    "subtopic": "Disk"
+   },
+   "question": "A unix-style I-node has 10 direct pointers, and one single, one double and one triple indirect pointer. Disk block size is 1 Kbyte, disk block address is 32 bits, and 32-bit integers are used. What is the maximum possible file size?\nA. 2^24 bytes\nB. 2^28 bytes\nC. 2^32 bytes\nD. 2^34 bytes",
+   "answer": "D. 2^34 bytes",
+   "to_find": "Maximum possible file size given the inode structure and disk parameters",
+   "understand": {
+    "plain": "A Unix inode stores file metadata and pointers to data blocks. It has direct pointers (pointing straight to data blocks) and indirect pointers that point to blocks full of further pointers. With three levels of indirection and 256 pointers per index block (1024 bytes / 4 bytes per address), very large files can be addressed. We sum all blocks reachable from the inode to get the maximum file size.",
+    "keywords": [
+     {
+      "term": "Single indirect pointer",
+      "explain": "Points to one block that contains disk block addresses (not data directly).",
+      "example": "256 pointers in one index block -> 256 data blocks."
+     },
+     {
+      "term": "Triple indirect pointer",
+      "explain": "Points to a block of pointers, each pointing to a block of pointers, each pointing to a block of data blocks — three levels deep.",
+      "example": "256^3 = 16,777,216 data blocks reachable."
+     }
+    ],
+    "visual_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 520 200\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x=\"10\" y=\"10\" width=\"100\" height=\"180\" class=\"bg\"/><text x=\"60\" y=\"30\" text-anchor=\"middle\" class=\"tag ink\">inode</text><text x=\"60\" y=\"55\" text-anchor=\"middle\" class=\"sub mut\">10 direct</text><text x=\"60\" y=\"80\" text-anchor=\"middle\" class=\"sub mut\">1 single</text><text x=\"60\" y=\"100\" text-anchor=\"middle\" class=\"sub mut\">1 double</text><text x=\"60\" y=\"120\" text-anchor=\"middle\" class=\"sub mut\">1 triple</text><rect x=\"140\" y=\"60\" width=\"80\" height=\"30\" class=\"hi\"/><text x=\"180\" y=\"80\" text-anchor=\"middle\" class=\"sub ink\">256 ptrs</text><rect x=\"260\" y=\"40\" width=\"80\" height=\"30\" class=\"hi\"/><text x=\"300\" y=\"60\" text-anchor=\"middle\" class=\"sub ink\">256 ptrs</text><rect x=\"380\" y=\"20\" width=\"110\" height=\"30\" class=\"ok\"/><text x=\"435\" y=\"40\" text-anchor=\"middle\" class=\"sub ink\">data blocks</text><line x1=\"110\" y1=\"75\" x2=\"140\" y2=\"75\" stroke=\"#7F77DD\" stroke-width=\"2\"/><line x1=\"220\" y1=\"75\" x2=\"260\" y2=\"55\" stroke=\"#7F77DD\" stroke-width=\"2\"/><line x1=\"340\" y1=\"55\" x2=\"380\" y2=\"35\" stroke=\"#1D9E75\" stroke-width=\"2\"/></svg>",
+    "visual_alt": "inode box with 10 direct and 3 indirect pointer slots; single indirect leads to one index block of 256 pointers; triple indirect has 3 levels each with 256 pointers."
+   },
+   "given": {
+    "aim": "Calculate maximum file size addressable by a Unix inode with 10 direct + 1 single + 1 double + 1 triple indirect pointers.",
+    "terms": [
+     {
+      "term": "Block size = 1 KB",
+      "meaning": "Each data block holds 1024 bytes.",
+      "example": "10 direct blocks hold 10 * 1024 = 10240 bytes.",
+      "connects": "Determines both data per block and number of pointers per index block."
+     },
+     {
+      "term": "32-bit disk block address",
+      "meaning": "Each pointer occupies 4 bytes.",
+      "example": "1024 / 4 = 256 pointers fit in one index block.",
+      "connects": "Sets the branching factor N = 256 for indirect blocks."
+     },
+     {
+      "term": "N = 256 (pointers per block)",
+      "meaning": "Number of block addresses that fit in one 1 KB index block.",
+      "example": "Double indirect can address 256 * 256 = 65536 blocks.",
+      "connects": "Used to compute the capacity of each level of indirection."
+     }
+    ],
+    "plan": "Compute blocks reachable at each level (direct, single, double, triple) then multiply by block size (1 KB) to get total bytes."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Pointers per index block",
+      "formula_raw": "N = block_size / pointer_size = 1024 / 4 = 256",
+      "apply": "Each indirect index block holds N = 256 pointers.",
+      "note": "This branching factor N = 2^8 is used throughout."
+     },
+     {
+      "step": 2,
+      "title": "Blocks reachable from each pointer type",
+      "formula_raw": "direct=10, single=N=256, double=N^2=65536, triple=N^3=16777216",
+      "apply": "Direct: 10 blocks\nSingle indirect: 256 blocks\nDouble indirect: 256^2 = 65,536 blocks\nTriple indirect: 256^3 = 16,777,216 blocks\nTotal blocks = 10 + 256 + 65536 + 16777216 = 16,843,018 blocks",
+      "note": "The triple indirect term dominates overwhelmingly."
+     },
+     {
+      "step": 3,
+      "title": "Maximum file size in bytes",
+      "formula_raw": "file_size = total_blocks * block_size",
+      "apply": "file_size = 16,843,018 * 1024 bytes = 17,246,994,432 bytes\n256^3 * 1024 = 2^24 * 2^10 = 2^34 bytes (dominant term)\nFull value ~ 2^34 bytes (16,843,018 * 1024 is very close to 2^34 = 17,179,869,184).",
+      "note": "The answer choices are powers of 2; the closest and correct one is 2^34 bytes."
+     }
+    ],
+    "result": "Maximum possible file size is approximately 2^34 bytes. Answer: D."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Unix inode indirect block addressing: N = block_size / pointer_size; total blocks = 10 + N + N^2 + N^3; max size = total_blocks * block_size.",
+   "qid": "7.3.14",
+   "answer_official": "D"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2005",
+    "year": 2005,
+    "marks": 2,
+    "difficulty": "easy",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Disk",
+    "subtopic": "Disk"
+   },
+   "question": "What is the swap space in the disk used for?\nA. Saving temporary html pages\nB. Saving process data\nC. Storing the super-block\nD. Storing device drivers",
+   "answer": "B. Saving process data",
+   "to_find": "Purpose of swap space on disk",
+   "understand": {
+    "plain": "When physical RAM is full, the operating system moves the contents of some process's pages (or segments) out to a reserved area on disk called swap space. This frees up RAM for other processes. When those pages are needed again, they are swapped back in. So swap space is effectively an extension of physical memory on disk.",
+    "keywords": [
+     {
+      "term": "Swap space",
+      "explain": "A dedicated area on disk used by the OS to temporarily store process pages/data that cannot currently fit in RAM.",
+      "example": "On Linux, /proc/swaps lists active swap partitions or files."
+     },
+     {
+      "term": "Virtual memory",
+      "explain": "The abstraction that allows a process to use more memory than physically available by backing the excess with swap.",
+      "example": "A 2 GB process can run on a machine with 1 GB RAM + 1 GB swap."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "RAM and disk: when RAM is full, OS moves pages of process data to swap space on disk."
+   },
+   "given": {
+    "aim": "Identify what swap space stores.",
+    "terms": [
+     {
+      "term": "Swap space",
+      "meaning": "Reserved disk area for overflow process memory pages.",
+      "example": "Linux swap partition, Windows pagefile.sys.",
+      "connects": "Directly answers the question — it holds process data (pages/segments)."
+     },
+     {
+      "term": "Super-block",
+      "meaning": "Metadata structure at the start of a file system storing FS parameters.",
+      "example": "ext4 super-block stores block count, inode count.",
+      "connects": "Stored in a fixed location in the file system, not in swap."
+     },
+     {
+      "term": "Device drivers",
+      "meaning": "Kernel-level software modules for hardware control.",
+      "example": "NVIDIA GPU driver.",
+      "connects": "Loaded into kernel memory or stored as files in the file system, not in swap."
+     }
+    ],
+    "plan": "Recall the definition and purpose of swap space in virtual memory management."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Eliminate wrong options",
+      "formula_raw": "",
+      "apply": "A (HTML pages) — swap is not a web cache.\nC (super-block) — the super-block is a file-system metadata structure, not in swap.\nD (device drivers) — drivers are part of the kernel image or loadable modules, not swap.",
+      "note": "All three distractors describe other well-known disk structures unrelated to swap."
+     },
+     {
+      "step": 2,
+      "title": "Confirm correct option",
+      "formula_raw": "",
+      "apply": "Swap space is used by the OS's paging/swapping mechanism to store process data (pages or segments) that are evicted from physical RAM due to memory pressure. When the process needs that data, the OS swaps it back in.",
+      "note": "Swap is essentially backing store for virtual memory pages of processes."
+     }
+    ],
+    "result": "Swap space is used for saving process data. Answer: B."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Virtual memory management: swap space acts as backing store for process pages evicted from physical RAM.",
+   "qid": "7.3.15",
+   "answer_official": "B"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2007",
+    "year": 2007,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Disk",
+    "subtopic": "Disk"
+   },
+   "question": "Consider a disk pack with 16 surfaces, 128 tracks per surface and 256 sectors per track. 512 bytes of data are stored in a bit serial manner in a sector. The capacity of the disk pack and the number of bits required to specify a particular sector in the disk are respectively:\nA. 256 Mbyte, 19 bits\nB. 256 Mbyte, 28 bits\nC. 512 Mbyte, 20 bits\nD. 64 Gbyte, 28 bits",
+   "answer": "A. 256 Mbyte, 19 bits",
+   "to_find": "Total disk capacity and number of bits needed to address a sector",
+   "understand": {
+    "plain": "A disk pack has multiple platters (surfaces), each with many concentric tracks, and each track divided into sectors. Total capacity is surfaces * tracks * sectors * bytes per sector. To uniquely address any sector we need enough bits to encode the surface number, the track number, and the sector number within a track.",
+    "keywords": [
+     {
+      "term": "Surface (platter side)",
+      "explain": "One recording side of a disk platter; identified by a head number.",
+      "example": "16 surfaces require log2(16) = 4 bits to identify."
+     },
+     {
+      "term": "Track",
+      "explain": "A concentric circular path on a surface where data is stored.",
+      "example": "128 tracks per surface require log2(128) = 7 bits to identify."
+     },
+     {
+      "term": "Sector",
+      "explain": "The smallest addressable unit on a disk track, holding a fixed number of bytes.",
+      "example": "256 sectors per track require log2(256) = 8 bits to identify."
+     }
+    ],
+    "visual_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 400 160\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x=\"10\" y=\"10\" width=\"100\" height=\"40\" class=\"hi\"/><text x=\"60\" y=\"35\" text-anchor=\"middle\" class=\"tag ink\">Surface: 4 bits</text><rect x=\"130\" y=\"10\" width=\"110\" height=\"40\" class=\"bg\"/><text x=\"185\" y=\"35\" text-anchor=\"middle\" class=\"tag ink\">Track: 7 bits</text><rect x=\"260\" y=\"10\" width=\"120\" height=\"40\" class=\"ok\"/><text x=\"320\" y=\"35\" text-anchor=\"middle\" class=\"tag ink\">Sector: 8 bits</text><text x=\"200\" y=\"80\" text-anchor=\"middle\" class=\"lbl ink\">Total address bits = 4+7+8 = 19 bits</text><text x=\"200\" y=\"110\" text-anchor=\"middle\" class=\"sub mut\">Capacity = 16*128*256*512 = 256 MB</text></svg>",
+    "visual_alt": "Three address fields: surface (4 bits), track (7 bits), sector (8 bits) — total 19 bits; capacity calculation shown."
+   },
+   "given": {
+    "aim": "Calculate total disk capacity and minimum address bits to specify any sector.",
+    "terms": [
+     {
+      "term": "16 surfaces",
+      "meaning": "Number of recording surfaces (heads) in the disk pack.",
+      "example": "Needs log2(16) = 4 bits to address.",
+      "connects": "One component of the sector address and of total capacity."
+     },
+     {
+      "term": "128 tracks per surface",
+      "meaning": "Number of concentric circular tracks on each surface.",
+      "example": "Needs log2(128) = 7 bits to address.",
+      "connects": "Second component of sector address; multiplied into capacity."
+     },
+     {
+      "term": "256 sectors per track, 512 bytes per sector",
+      "meaning": "Granularity of data storage on each track.",
+      "example": "256 sectors needs log2(256) = 8 bits; 512 bytes per sector gives data density.",
+      "connects": "Third address component; final multiplier in capacity."
+     }
+    ],
+    "plan": "Compute capacity = 16 * 128 * 256 * 512 bytes. Compute address bits = ceil(log2(16)) + ceil(log2(128)) + ceil(log2(256)) = 4+7+8."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Total disk capacity",
+      "formula_raw": "Capacity = surfaces * tracks * sectors * bytes_per_sector",
+      "apply": "Capacity = 16 * 128 * 256 * 512\n= 16 * 128 * 131,072\n= 16 * 16,777,216\n= 268,435,456 bytes\n= 256 * 1,048,576 bytes = 256 MB",
+      "note": "268,435,456 = 2^28 bytes = 256 Mbytes."
+     },
+     {
+      "step": 2,
+      "title": "Address bits for a sector",
+      "formula_raw": "bits = log2(surfaces) + log2(tracks) + log2(sectors)",
+      "apply": "Surface bits = log2(16) = 4\nTrack bits = log2(128) = 7\nSector bits = log2(256) = 8\nTotal = 4 + 7 + 8 = 19 bits",
+      "note": "With 19 bits, 2^19 = 524,288 unique sector addresses, which exactly equals 16 * 128 * 256 = 524,288."
+     }
+    ],
+    "result": "Capacity = 256 Mbyte, address bits = 19. Answer: A."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Disk capacity = surfaces * tracks * sectors * bytes/sector; sector address bits = log2(surfaces) + log2(tracks) + log2(sectors/track).",
+   "qid": "7.3.16",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2008",
+    "year": 2008,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Disk",
+    "subtopic": "Disk"
+   },
+   "question": "For a magnetic disk with concentric circular tracks, the seek latency is not linearly proportional to the seek distance due to\nA. non-uniform distribution of requests\nB. arm starting and stopping inertia\nC. higher capacity of tracks on the periphery of the platter\nD. use of unfair arm scheduling policies",
+   "answer": "B. arm starting and stopping inertia",
+   "to_find": "Physical reason why seek latency is non-linear with seek distance",
+   "understand": {
+    "plain": "In a magnetic disk, the read/write head arm must physically move to the target track (seek). You might expect that moving twice as far takes twice as long, but it does not. The arm must accelerate from rest, travel, then decelerate and stop precisely over the target track. This acceleration and deceleration (inertia) phase is fixed overhead regardless of distance, making the relationship non-linear (more like a square-root or piecewise function).",
+    "keywords": [
+     {
+      "term": "Seek latency",
+      "explain": "Time taken to move the disk arm to the correct track.",
+      "example": "Moving 1 track might take 2 ms; moving 100 tracks might take 10 ms (not 200 ms)."
+     },
+     {
+      "term": "Arm inertia",
+      "explain": "The physical resistance of the arm to changes in velocity; it must accelerate to start and decelerate to stop.",
+      "example": "For short seeks the acceleration/deceleration dominates; for long seeks constant-speed travel dominates."
+     }
+    ],
+    "visual_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 420 180\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><line x1=\"40\" y1=\"150\" x2=\"380\" y2=\"150\" stroke=\"#B4B2A9\" stroke-width=\"2\"/><line x1=\"40\" y1=\"20\" x2=\"40\" y2=\"150\" stroke=\"#B4B2A9\" stroke-width=\"2\"/><text x=\"200\" y=\"170\" text-anchor=\"middle\" class=\"sub mut\">Seek Distance</text><text x=\"20\" y=\"90\" text-anchor=\"middle\" class=\"sub mut\" transform=\"rotate(-90,20,90)\">Latency</text><polyline points=\"40,150 80,120 140,100 220,85 320,72 380,65\" fill=\"none\" stroke=\"#7F77DD\" stroke-width=\"3\"/><line x1=\"40\" y1=\"150\" x2=\"380\" y2=\"40\" stroke=\"#D85A30\" stroke-width=\"2\" stroke-dasharray=\"6,4\"/><text x=\"310\" y=\"80\" class=\"sub\" fill=\"#7F77DD\">Actual</text><text x=\"310\" y=\"55\" class=\"sub\" fill=\"#D85A30\">(linear)</text></svg>",
+    "visual_alt": "Graph of seek latency vs distance: actual curve (concave, sub-linear) vs hypothetical straight line; actual is slower to rise for short seeks due to acceleration/deceleration overhead."
+   },
+   "given": {
+    "aim": "Identify why disk seek time is not linearly proportional to seek distance.",
+    "terms": [
+     {
+      "term": "Seek distance",
+      "meaning": "Number of tracks the arm must traverse to reach the target.",
+      "example": "Moving from track 10 to track 50 is a seek distance of 40 tracks.",
+      "connects": "If seek time were linear, doubling distance would double time — but it does not."
+     },
+     {
+      "term": "Acceleration phase",
+      "meaning": "At the start of every seek the arm must speed up from rest.",
+      "example": "A short 1-track seek is mostly acceleration + deceleration with almost no constant-speed travel.",
+      "connects": "Adds fixed, distance-independent overhead that makes short seeks proportionally slower."
+     },
+     {
+      "term": "Deceleration / settling phase",
+      "meaning": "At the end of every seek the arm slows down and settles over the target track.",
+      "example": "Settling time is typically 0.5-2 ms regardless of seek length.",
+      "connects": "Another fixed overhead term ensuring the seek-time vs distance relationship is concave (sub-linear)."
+     }
+    ],
+    "plan": "The seek motion profile has three phases: acceleration, constant velocity, deceleration. For short seeks only the first two phases exist. The fixed acceleration/deceleration time makes seek latency a non-linear (sub-linear / square-root-like) function of distance."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Analyze the seek motion profile",
+      "formula_raw": "seek_time = t_accel + t_constant_speed + t_decel",
+      "apply": "Every seek — regardless of distance — begins with the arm accelerating and ends with it decelerating and settling. For very short seeks there is no constant-speed phase at all; the arm is entirely in acceleration and deceleration. For long seeks a constant-speed phase exists between them. The acceleration/deceleration time is roughly proportional to sqrt(distance), not distance.",
+      "note": "This is a fundamental mechanical constraint of the voice-coil actuator used in hard drives."
+     },
+     {
+      "step": 2,
+      "title": "Eliminate incorrect options",
+      "formula_raw": "",
+      "apply": "A: Non-uniform request distribution affects average latency statistics, not the physical relationship between distance and time for a single seek.\nC: Tracks on the periphery may be longer but the number of tracks traversed is what determines seek distance, not data density.\nD: Scheduling policy affects which seek is made next, not the physical seek time for a given distance.",
+      "note": "Only the mechanical inertia of the arm (option B) directly explains the non-linear physical seek time vs distance relationship."
+     }
+    ],
+    "result": "Seek latency is not linearly proportional to seek distance because of arm starting and stopping inertia. Answer: B."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Disk seek time model: seek_time = k * sqrt(distance) approximately for short to medium seeks due to arm acceleration/deceleration; not linear in distance.",
+   "qid": "7.3.17",
+   "answer_official": "B"
+  }
+ ]
+}

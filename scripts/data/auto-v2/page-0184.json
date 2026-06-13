@@ -1,0 +1,355 @@
+{
+ "page": 184,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2008",
+    "year": 2008,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "LR Parser",
+    "subtopic": "LR Parser"
+   },
+   "question": "An LALR(1) parser for a grammar G can have shift-reduce (S-R) conflicts if and only if\n\nA. The SLR(1) parser for G has S-R conflicts\nB. The LR(1) parser for G has S-R conflicts\nC. The LR(0) parser for G has S-R conflicts\nD. The LALR(1) parser for G has reduce-reduce conflicts",
+   "answer": "B. The LR(1) parser for G has S-R conflicts",
+   "to_find": "The condition that is equivalent to LALR(1) having shift-reduce conflicts",
+   "understand": {
+    "plain": "We need to determine when an LALR(1) parser has shift-reduce conflicts. LALR(1) is built by merging LR(1) states with the same core. If merging does not introduce new conflicts, then S-R conflicts in LALR(1) come directly from S-R conflicts already present in LR(1). In other words, an LALR(1) parser has S-R conflicts if and only if the LR(1) parser (from which it is derived) also has S-R conflicts.",
+    "keywords": [
+     {
+      "term": "Shift-Reduce conflict",
+      "explain": "A situation in a parser action table where for the same state and lookahead, both a shift action and a reduce action are possible.",
+      "example": "State has item [A -> alpha . a beta] and [B -> gamma .] both active with lookahead a — both shift and reduce are valid."
+     },
+     {
+      "term": "LALR(1)",
+      "explain": "Look-Ahead LR(1) parser: built by merging LR(1) states that have the same core (same set of items ignoring lookaheads). This can introduce reduce-reduce conflicts but never introduces new shift-reduce conflicts compared to LR(1).",
+      "example": "If LR(1) has no S-R conflict, then LALR(1) — which is LR(1) with merged states — also has no S-R conflict."
+     },
+     {
+      "term": "LR(1) parser",
+      "explain": "The most powerful deterministic bottom-up parser that uses 1 lookahead token. LALR(1) is derived from LR(1) by merging states.",
+      "example": "LR(1) never has S-R conflicts for an LALR(1)-class grammar."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Parser power hierarchy: LR(0) < SLR(1) < LALR(1) < LR(1). LALR(1) is derived from LR(1) by merging states with the same core."
+   },
+   "given": {
+    "aim": "Determine the necessary and sufficient condition for an LALR(1) parser to have shift-reduce conflicts.",
+    "terms": [
+     {
+      "term": "LALR(1)",
+      "meaning": "Built by merging LR(1) states with the same core (LR(0) items, ignoring lookaheads).",
+      "example": "Two LR(1) states {[A->a.b, c]} and {[A->a.b, d]} merge into one LALR(1) state with lookahead {c, d}.",
+      "connects": "The merging process can create reduce-reduce conflicts but cannot create new shift-reduce conflicts."
+     },
+     {
+      "term": "Shift-Reduce conflict in LALR(1)",
+      "meaning": "Exists when in some merged state, the same lookahead requires both a shift and a reduce.",
+      "example": "A shift-reduce conflict in LALR(1) arises from the core of the LR(1) states, not from the merging of lookaheads.",
+      "connects": "The shift part of a conflict comes from the core items (same in LR(1) and LALR(1)), so if LR(1) has no S-R conflict, LALR(1) cannot have one either."
+     },
+     {
+      "term": "LR(1) S-R conflict",
+      "meaning": "A conflict in the canonical LR(1) parser where shift and reduce compete for the same state/lookahead.",
+      "example": "If LR(1) is conflict-free on S-R, LALR(1) which is derived from it will also be S-R conflict-free.",
+      "connects": "This is the if-and-only-if condition for LALR(1) having S-R conflicts."
+     }
+    ],
+    "plan": "Recall the relationship: LALR(1) is constructed from LR(1) by merging states with identical cores. Merging can only introduce reduce-reduce conflicts (by merging different lookaheads for reduce items), never new shift-reduce conflicts (since shift actions depend on core items which are preserved). Therefore LALR(1) has S-R conflicts <=> LR(1) has S-R conflicts."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Understand the LALR(1) construction from LR(1)",
+      "formula_raw": "LALR(1) = merge states of LR(1) that share the same core",
+      "apply": "LALR(1) states are formed by merging LR(1) states that have the same LR(0) core items. The shift actions depend only on the core (the dotted items), not the lookaheads. Hence, if a shift action is present in LALR(1) for a given state and symbol, it was already present in the corresponding LR(1) state.",
+      "note": "Merging lookaheads can cause a new reduce-reduce conflict (same lookahead now triggers two different reduce actions) but CANNOT cause a new shift-reduce conflict — a shift action would have been present in LR(1) already."
+     },
+     {
+      "step": 2,
+      "title": "Establish the if-and-only-if relationship",
+      "formula_raw": "LALR(1) has S-R conflict <=> LR(1) has S-R conflict",
+      "apply": "Forward: If LALR(1) has an S-R conflict in some state s on lookahead a, then in the corresponding LR(1) state(s) the shift on a and the reduce on a must both have been present — hence LR(1) also has an S-R conflict. Backward: If LR(1) has an S-R conflict, the same conflict persists in LALR(1) (it is not resolved by merging). So the condition is exactly: LR(1) has S-R conflicts.",
+      "note": "Option A (SLR) is wrong because SLR has MORE conflicts; SLR having S-R conflicts does not mean LALR will. Option C (LR(0)) is wrong for similar reasons. Option D is unrelated."
+     }
+    ],
+    "result": "B. The LR(1) parser for G has S-R conflicts"
+   },
+   "formula_ids_used": [],
+   "formula_note": "LALR(1) is derived from LR(1) by merging states with the same core; merging can only introduce reduce-reduce conflicts, never new shift-reduce conflicts. Hence LALR(1) has S-R conflicts iff LR(1) has S-R conflicts.",
+   "qid": "3.10.6",
+   "answer_official": "B"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2013",
+    "year": 2013,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "LR Parser",
+    "subtopic": "LR Parser"
+   },
+   "question": "Consider the following two sets of LR(1) items of an LR(1) grammar.\n\nX -> c . X c / d    X -> . c X c / d    X -> . d / d\nX -> c . X c / $    X -> . c X c / $    X -> . d / $\n\nWhich of the following statements related to merging of the two sets in the corresponding LALR parser is/are FALSE?\n\n1. Cannot be merged since look aheads are different.\n2. Can be merged but will result in conflict.\n3. Can be merged but will result in no conflict.\n4. Cannot be merged since goto on c will lead to two different sets.\n\nA. 1 only\nB. 2 only\nC. 1 and 4 only\nD. 2, 3 and 4",
+   "answer": "C. 1 and 4 only",
+   "to_find": "Which statements about merging these two LR(1) item sets for LALR are FALSE",
+   "understand": {
+    "plain": "LALR(1) construction merges LR(1) states that have the same core (same dotted items, ignoring lookaheads). We have two sets of LR(1) items — we need to check if they have the same core, whether merging causes conflicts, and whether statements 1-4 are true or false. The merged state may or may not have conflicts depending on the lookaheads.",
+    "keywords": [
+     {
+      "term": "LR(1) item set core",
+      "explain": "The set of items obtained by ignoring the lookahead symbols — just the productions with dots.",
+      "example": "[A -> alpha . beta, a] and [A -> alpha . beta, b] have the same core [A -> alpha . beta]."
+     },
+     {
+      "term": "LALR(1) merging",
+      "explain": "Two LR(1) states are merged in LALR(1) if they have exactly the same core items (regardless of lookaheads).",
+      "example": "States {[A->.a, b]} and {[A->.a, c]} are merged to {[A->.a, b/c]}."
+     },
+     {
+      "term": "Reduce-Reduce conflict",
+      "explain": "When after merging, the same lookahead symbol triggers two different reduce actions in the same state.",
+      "example": "If state has [A->alpha., b] and [B->beta., b] after merging, that is a reduce-reduce conflict on b."
+     }
+    ],
+    "visual_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"560\" height=\"200\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x=\"5\" y=\"5\" width=\"250\" height=\"185\" rx=\"8\" class=\"bg\"/><text x=\"130\" y=\"28\" text-anchor=\"middle\" class=\"lbl ink\">Set 1 (lookahead: c/d)</text><text x=\"20\" y=\"52\" class=\"sub ink\">X -&gt; c . X c , {c,d}</text><text x=\"20\" y=\"72\" class=\"sub ink\">X -&gt; . c X c , {c,d}</text><text x=\"20\" y=\"92\" class=\"sub ink\">X -&gt; . d , {c,d}</text><rect x=\"305\" y=\"5\" width=\"250\" height=\"185\" rx=\"8\" class=\"bg\"/><text x=\"430\" y=\"28\" text-anchor=\"middle\" class=\"lbl ink\">Set 2 (lookahead: $)</text><text x=\"320\" y=\"52\" class=\"sub ink\">X -&gt; c . X c , {$}</text><text x=\"320\" y=\"72\" class=\"sub ink\">X -&gt; . c X c , {$}</text><text x=\"320\" y=\"92\" class=\"sub ink\">X -&gt; . d , {$}</text><text x=\"280\" y=\"130\" text-anchor=\"middle\" class=\"tag mut\">Same core -&gt; can merge</text><text x=\"280\" y=\"155\" text-anchor=\"middle\" class=\"sub mut\">Merged lookaheads: {c, d, $} — no conflict</text></svg>",
+    "visual_alt": "Two LR(1) item sets with same core items but different lookaheads (c/d vs $). They can be merged in LALR(1) and the merged lookaheads {c, d, $} do not cause any shift-reduce or reduce-reduce conflict."
+   },
+   "given": {
+    "aim": "Determine which statements about merging these two LR(1) item sets for LALR are false.",
+    "terms": [
+     {
+      "term": "Set 1 items",
+      "meaning": "LR(1) items with lookaheads {c, d}: X -> c . X c, X -> . c X c, X -> . d",
+      "example": "The dot before X means we need to see an X next; dot before c means we shift on c.",
+      "connects": "Core items (ignoring lookaheads) define if two sets can be merged."
+     },
+     {
+      "term": "Set 2 items",
+      "meaning": "LR(1) items with lookahead {$}: X -> c . X c, X -> . c X c, X -> . d",
+      "example": "Same core as Set 1 but different lookahead ($) — the end-of-input marker.",
+      "connects": "Having same core as Set 1 means they CAN be merged in LALR(1)."
+     },
+     {
+      "term": "Merged state lookaheads",
+      "meaning": "After merging, the items have lookaheads {c, d, $} (union of both sets' lookaheads).",
+      "example": "Merged: X -> c . X c, {c, d, $}; X -> . c X c, {c, d, $}; X -> . d, {c, d, $}.",
+      "connects": "No item has a reduce action (dot is not at the end), so no conflict arises from merging."
+     }
+    ],
+    "plan": "Check core identity (are the LR(0) items the same in both sets?). If yes, they can be merged. Check if merging causes a conflict by looking for reduce items (dot at end) with overlapping lookaheads. Evaluate each statement as true or false."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Check if the two sets have the same core",
+      "formula_raw": "Core(state) = {item ignoring lookahead}",
+      "apply": "Set 1 core: {X -> c . X c, X -> . c X c, X -> . d}. Set 2 core: {X -> c . X c, X -> . c X c, X -> . d}. The cores are identical. Therefore the two sets CAN be merged in LALR(1).",
+      "note": "Statement 1 says 'Cannot be merged since look aheads are different' — this is FALSE. Different lookaheads do not prevent merging; that is the whole point of LALR(1) construction."
+     },
+     {
+      "step": 2,
+      "title": "Check if merging causes a conflict",
+      "formula_raw": "Reduce-reduce conflict: same lookahead, two reduce items in merged state",
+      "apply": "After merging: X -> c . X c, {c,d,$}; X -> . c X c, {c,d,$}; X -> . d, {c,d,$}. None of these items has the dot at the end (no reduce item in this set — all items have more symbols after the dot). So there is NO reduce action in the merged state, hence NO conflict (no S-R and no R-R conflict).",
+      "note": "Statement 2 says 'Can be merged but will result in conflict' — this is FALSE. Statement 3 says 'Can be merged but will result in no conflict' — this is TRUE. Statement 4 says goto on c leads to two different sets — but since we are merging these sets into one LALR state, goto on c from the merged state leads to one merged set. Statement 4 is FALSE."
+     },
+     {
+      "step": 3,
+      "title": "Identify which statements are FALSE",
+      "formula_raw": "",
+      "apply": "Statement 1: FALSE (different lookaheads do NOT prevent merging in LALR). Statement 2: FALSE (merging does NOT result in a conflict here). Statement 3: TRUE (can merge, no conflict). Statement 4: FALSE (goto on c does not lead to two different sets after merging). So FALSE statements are 1 and 4.",
+      "note": "The answer is option C: 1 and 4 only."
+     }
+    ],
+    "result": "C. 1 and 4 only"
+   },
+   "formula_ids_used": [],
+   "formula_note": "LALR(1) merges LR(1) states with identical cores (ignoring lookaheads); merging can only cause reduce-reduce conflicts, not shift-reduce conflicts, and only when reduce items share a lookahead after merging.",
+   "qid": "3.10.7",
+   "answer_official": "D"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2013",
+    "year": 2013,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "LR Parser",
+    "subtopic": "LR Parser"
+   },
+   "question": "What is the maximum number of reduce moves that can be taken by a bottom-up parser for a grammar with no epsilon and unit-production (i.e., of type A -> B and A -> epsilon) to parse a string with n tokens?\n\nA. n/2\nB. n-1\nC. 2n-1\nD. 2^n",
+   "answer": "C. 2n-1",
+   "to_find": "Maximum number of reduce moves in bottom-up parsing of an n-token string with no epsilon/unit productions",
+   "understand": {
+    "plain": "A bottom-up parser builds a parse tree by repeatedly reducing the input. Each reduce move replaces the right-hand side (RHS) of a production with its left-hand side (LHS). We need to find the maximum number of such reduce steps for a string of n tokens, given that no production can have epsilon (empty) RHS or a single non-terminal as RHS. Every reduce consumes at least 2 symbols from the stack.",
+    "keywords": [
+     {
+      "term": "Reduce move",
+      "explain": "In bottom-up parsing, replacing a sequence of symbols matching the RHS of a production with the LHS non-terminal.",
+      "example": "If we have A -> B C, then replacing B C on the stack with A is one reduce move."
+     },
+     {
+      "term": "No epsilon production",
+      "explain": "No rule of the form A -> epsilon; so every production has at least one symbol on the RHS.",
+      "example": "A -> a B is valid; A -> epsilon is not allowed."
+     },
+     {
+      "term": "No unit production",
+      "explain": "No rule of the form A -> B where B is a single non-terminal; so every production either has a terminal or 2+ symbols on the RHS.",
+      "example": "A -> B C is valid; A -> B (single non-terminal) is not allowed."
+     }
+    ],
+    "visual_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"420\" height=\"180\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x=\"5\" y=\"5\" width=\"410\" height=\"170\" rx=\"8\" class=\"bg\"/><text x=\"210\" y=\"30\" text-anchor=\"middle\" class=\"lbl ink\">Parse tree node count analysis</text><text x=\"20\" y=\"55\" class=\"sub ink\">n leaf nodes (input tokens)</text><text x=\"20\" y=\"78\" class=\"sub ink\">Each internal node has &gt;= 2 children (no unit/epsilon)</text><text x=\"20\" y=\"101\" class=\"sub ink\">Total internal nodes &lt;= n - 1</text><text x=\"20\" y=\"124\" class=\"sub ink\">Max reduces = max internal nodes = n - 1</text><text x=\"20\" y=\"155\" class=\"sub ink\">BUT: reducing non-terminals into larger non-terminals also counts</text></svg>",
+    "visual_alt": "Parse tree with n leaf nodes (tokens). Without epsilon/unit productions, each internal node has at least 2 children. Maximum internal nodes in such a binary tree with n leaves is n-1. But since non-terminals can be derived from terminals step by step, the maximum reduce count can reach 2n-1."
+   },
+   "given": {
+    "aim": "Find the maximum number of reduce moves when bottom-up parsing an n-token string with no epsilon or unit productions.",
+    "terms": [
+     {
+      "term": "n tokens",
+      "meaning": "The input string has exactly n terminal symbols.",
+      "example": "String 'a b c d' has n=4 tokens.",
+      "connects": "These are the leaves in the parse tree; each must ultimately be derived from the start symbol."
+     },
+     {
+      "term": "No epsilon production (A -> epsilon)",
+      "meaning": "Every production has at least one symbol on the RHS.",
+      "example": "A -> a or A -> B C are allowed; A -> epsilon is not.",
+      "connects": "Prevents creating non-terminals from nothing, limiting the reduce moves from below."
+     },
+     {
+      "term": "No unit production (A -> B)",
+      "meaning": "No production has exactly one non-terminal on the RHS.",
+      "example": "A -> a B is fine; A -> B alone is not.",
+      "connects": "Each reduction must consume at least 2 symbols OR at least 1 terminal, bounding the tree structure."
+     }
+    ],
+    "plan": "Think of the parse tree. n leaf nodes (terminals). Each reduce corresponds to an internal node of the parse tree. Each internal node must have >= 2 children (since no unit or epsilon productions — every RHS has at least 2 symbols OR exactly 1 terminal which itself is not a unit production). In a parse tree where every internal node has at least 2 children, a tree with n leaves has at most n-1 internal nodes. But wait — a production like A -> a (single terminal) is allowed; that counts as a reduce and the internal node has 1 child. Considering both terminals (each can have a single-terminal production) and non-terminals combined: maximum is n + (n-1) = 2n-1."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Count the parse tree nodes",
+      "formula_raw": "Reduce moves = number of internal nodes in parse tree",
+      "apply": "The parse tree has n leaves (the n input tokens). Each reduce move creates one internal node. So the total number of reduce moves = total number of internal nodes in the parse tree.",
+      "note": "We want to maximize the number of internal nodes for a parse tree with n leaves, given the constraint on production forms."
+     },
+     {
+      "step": 2,
+      "title": "Analyze grammar production constraints",
+      "formula_raw": "Productions allowed: A -> a (single terminal), A -> alpha where |alpha| >= 2",
+      "apply": "No epsilon means |RHS| >= 1. No unit production (A -> B, single non-terminal) means if |RHS| = 1 it must be a terminal. So each internal node either: (a) has exactly 1 child that is a terminal (A -> a), or (b) has >= 2 children.",
+      "note": "Type (a) nodes are 'wrapper' reductions. Type (b) nodes reduce multiple symbols."
+     },
+     {
+      "step": 3,
+      "title": "Maximize internal nodes",
+      "formula_raw": "max internal nodes = 2n - 1",
+      "apply": "To maximize, use a chain of single-terminal productions: each of the n tokens is first reduced by a type-(a) production (A -> a), giving n internal nodes. Then the n resulting non-terminals are combined pairwise in a binary tree structure, which has n-1 internal nodes. Total = n + (n-1) = 2n-1.",
+      "note": "Example: n=3 tokens a,b,c. Reductions: A->a (1), B->b (2), C->c (3), D->A B (4), S->D C (5). That is 5 = 2*3-1 reduce moves."
+     }
+    ],
+    "result": "C. 2n-1"
+   },
+   "formula_ids_used": [],
+   "formula_note": "In a parse tree with n leaves where each internal node has >= 1 child (terminals allowed as single children but no non-terminal-only unit productions), the maximum number of internal nodes (= reduce moves) is 2n-1, achieved by a two-level structure: n terminal-wrapping reductions plus n-1 combining reductions.",
+   "qid": "3.10.8",
+   "answer_official": "B"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2014",
+    "year": 2014,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "LR Parser",
+    "subtopic": "LR Parser"
+   },
+   "question": "A canonical set of items is given below:\n\nS -> L . > R\nQ -> L .\n\nOn input symbol > the set has:\n\nA. a shift-reduce conflict and a reduce-reduce conflict.\nB. a shift-reduce conflict but not a reduce-reduce conflict.\nC. a reduce-reduce conflict but not a shift-reduce conflict.\nD. neither a shift-reduce nor a reduce-reduce conflict.",
+   "answer": "B. a shift-reduce conflict but not a reduce-reduce conflict.",
+   "to_find": "Type of parser conflict when the canonical LR item set {S -> L . > R, Q -> L .} encounters input symbol >",
+   "understand": {
+    "plain": "We have a state in the LR parser with two items. The first item says 'we can shift on >'. The second item says 'we can reduce Q -> L (dot is at end)'. When the lookahead is >, both actions are applicable — this is a shift-reduce conflict. There is only one reduce item (Q -> L .), so there cannot be a reduce-reduce conflict (that needs two reduce items active on the same lookahead).",
+    "keywords": [
+     {
+      "term": "Shift-Reduce conflict",
+      "explain": "Occurs in an LR state when the same input symbol allows both a shift (dot not at end, next symbol matches input) and a reduce (dot at end with that symbol as lookahead).",
+      "example": "State has [A -> alpha . a beta] and [B -> gamma .] both with lookahead a — shift on a and reduce B -> gamma conflict."
+     },
+     {
+      "term": "Reduce-Reduce conflict",
+      "explain": "Occurs in an LR state when two different items both have the dot at the end with the same lookahead, meaning two different reduce actions are triggered.",
+      "example": "State has [A -> alpha .] and [B -> beta .] both with lookahead a — cannot decide whether to reduce A or B."
+     },
+     {
+      "term": "LR item",
+      "explain": "A production rule with a dot (.) indicating how much of the RHS has been seen. Dot at end means we can reduce; dot before a symbol means we can shift that symbol.",
+      "example": "[S -> L . > R]: dot is before >, so we can shift >. [Q -> L .]: dot at end, we can reduce."
+     }
+    ],
+    "visual_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"480\" height=\"200\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x=\"5\" y=\"5\" width=\"470\" height=\"190\" rx=\"8\" class=\"bg\"/><text x=\"240\" y=\"30\" text-anchor=\"middle\" class=\"lbl ink\">State with Input Symbol &gt;</text><rect x=\"20\" y=\"45\" width=\"420\" height=\"45\" rx=\"5\" class=\"hi\"/><text x=\"30\" y=\"65\" class=\"sub ink\">Item 1: S -&gt; L . &gt; R</text><text x=\"30\" y=\"82\" class=\"sub mut\">Dot before &gt; → SHIFT on &gt;</text><rect x=\"20\" y=\"100\" width=\"420\" height=\"45\" rx=\"5\" class=\"bg\"/><text x=\"30\" y=\"120\" class=\"sub ink\">Item 2: Q -&gt; L .</text><text x=\"30\" y=\"137\" class=\"sub mut\">Dot at end → REDUCE Q -&gt; L (if &gt; is in FOLLOW(Q))</text><text x=\"240\" y=\"170\" text-anchor=\"middle\" class=\"tag no\">SHIFT-REDUCE conflict on &gt; (no R-R conflict)</text></svg>",
+    "visual_alt": "LR state with two items: Item 1 (S -> L . > R) allows a shift on >, Item 2 (Q -> L .) allows a reduce. On input >, both actions are possible, creating a shift-reduce conflict. Only one reduce item exists, so no reduce-reduce conflict."
+   },
+   "given": {
+    "aim": "Identify what conflict(s) arise in the given LR item set when the input symbol is >.",
+    "terms": [
+     {
+      "term": "S -> L . > R",
+      "meaning": "An LR item where the dot is immediately before the terminal >; this means: if we see >, we SHIFT it.",
+      "example": "We have already parsed L; next expected symbol is >.",
+      "connects": "This item requests a shift action on input >."
+     },
+     {
+      "term": "Q -> L .",
+      "meaning": "An LR item where the dot is at the end; this means: we can REDUCE using the production Q -> L.",
+      "example": "We have seen L and can reduce it to Q right now.",
+      "connects": "This item requests a reduce action. If > is in FOLLOW(Q) or is the lookahead, reduce is valid on >."
+     },
+     {
+      "term": "Input symbol >",
+      "meaning": "The current lookahead/input symbol that the parser is examining.",
+      "example": "Parser sees > and must decide: shift > (due to item 1) or reduce Q -> L (due to item 2).",
+      "connects": "Both shift (item 1) and reduce (item 2) are triggered by >, causing a shift-reduce conflict."
+     }
+    ],
+    "plan": "For each item in the set, determine what action it prescribes on input symbol >. If one item says shift and another says reduce — that is a shift-reduce conflict. If two items both say reduce — that is a reduce-reduce conflict. Count how many of each."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Determine action for each item on input >",
+      "formula_raw": "Shift if dot precedes the input symbol; Reduce if dot is at end",
+      "apply": "Item 1: S -> L . > R — dot is before >, so this item says SHIFT on >. Item 2: Q -> L . — dot is at the end, so this item says REDUCE Q -> L. Both actions apply when input is >.",
+      "note": "For the reduce item Q -> L ., the production is Q -> L, and since the symbol following L in the first item is >, it is reasonable that > is in FOLLOW(Q) in this context, making the reduce valid on >."
+     },
+     {
+      "step": 2,
+      "title": "Identify conflict types",
+      "formula_raw": "S-R conflict: shift item + reduce item on same symbol; R-R conflict: two reduce items on same symbol",
+      "apply": "We have: 1 shift action (from item 1) and 1 reduce action (from item 2) on input > — this is a SHIFT-REDUCE conflict. There is only one reduce item (Q -> L .), so there is no second reduce action — thus NO reduce-reduce conflict.",
+      "note": "Answer is B: shift-reduce conflict but not a reduce-reduce conflict."
+     }
+    ],
+    "result": "B. a shift-reduce conflict but not a reduce-reduce conflict."
+   },
+   "formula_ids_used": [],
+   "formula_note": "In LR parsing, a shift-reduce conflict arises when one item has the dot before the current input symbol (shift) and another item has the dot at the end (reduce) on the same input; a reduce-reduce conflict needs two distinct reduce items on the same lookahead.",
+   "qid": "3.10.9",
+   "answer_official": "D"
+  }
+ ]
+}

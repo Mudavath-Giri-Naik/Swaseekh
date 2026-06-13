@@ -1,0 +1,345 @@
+{
+ "page": 22,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2014",
+    "year": 2014,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Algorithms",
+    "topic": "Dynamic Programming",
+    "subtopic": "Dynamic Programming"
+   },
+   "question": "Consider two strings A = \"qpqrr\" and B = \"pqprqrp\". Let x be the length of the longest common subsequence (not necessarily contiguous) between A and B and let y be the number of such longest common subsequences between A and B. Then x + 10y = ___.",
+   "answer": "34",
+   "to_find": "x + 10y where x = length of LCS and y = number of distinct LCS between A and B",
+   "understand": {
+    "plain": "We have two strings A = 'qpqrr' and B = 'pqprqrp'. We need to find the longest common subsequence (LCS) length x, then count how many distinct LCS sequences y exist, and finally compute x + 10y. A subsequence preserves relative order but need not be contiguous.",
+    "keywords": [
+     {
+      "term": "Longest Common Subsequence (LCS)",
+      "explain": "The longest sequence of characters that appears in the same relative order in both strings, but not necessarily contiguous.",
+      "example": "LCS of 'abcde' and 'ace' is 'ace' with length 3."
+     },
+     {
+      "term": "Number of LCS",
+      "explain": "The count of distinct subsequence strings (not index combinations) that achieve the maximum LCS length.",
+      "example": "If LCS of two strings is 'ab' and there is only one way, y = 1."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='520' height='200'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='500' height='50' class='bg'/><text x='20' y='40' class='lbl ink'>A = q p q r r (length 5)</text><rect x='10' y='70' width='500' height='50' class='bg'/><text x='20' y='100' class='lbl ink'>B = p q p r q r p (length 7)</text><rect x='10' y='130' width='500' height='50' class='hi'/><text x='20' y='158' class='lbl ink'>LCS candidates: 'pqrr', 'qprr', 'pqrr' => length x = 4, count y = 2</text></svg>",
+    "visual_alt": "Two strings A='qpqrr' and B='pqprqrp' being compared for longest common subsequences."
+   },
+   "given": {
+    "aim": "Find x + 10y where x is the LCS length and y is the number of distinct LCS strings.",
+    "terms": [
+     {
+      "term": "A = \"qpqrr\"",
+      "meaning": "First string of length 5",
+      "example": "Characters: q, p, q, r, r",
+      "connects": "One of the two strings we compute LCS for"
+     },
+     {
+      "term": "B = \"pqprqrp\"",
+      "meaning": "Second string of length 7",
+      "example": "Characters: p, q, p, r, q, r, p",
+      "connects": "Other string for LCS computation"
+     },
+     {
+      "term": "x",
+      "meaning": "Length of the LCS",
+      "example": "LCS of 'abc' and 'ac' has length 2",
+      "connects": "First component of the answer x + 10y"
+     },
+     {
+      "term": "y",
+      "meaning": "Number of distinct LCS subsequence strings",
+      "example": "If both 'ab' and 'ba' are LCS of same length, y = 2",
+      "connects": "Second component of the answer x + 10y"
+     }
+    ],
+    "plan": "Build the LCS DP table for A and B to find x. Then trace back through the table counting distinct LCS strings to find y. Finally compute x + 10y."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Build LCS DP table",
+      "formula_raw": "dp[i][j] = dp[i-1][j-1]+1 if A[i]==B[j], else max(dp[i-1][j], dp[i][j-1])",
+      "apply": "A = q p q r r (indices 1-5), B = p q p r q r p (indices 1-7).\nDP table (rows = A chars, cols = B chars):\n     ''  p  q  p  r  q  r  p\n''    0  0  0  0  0  0  0  0\nq     0  0  1  1  1  1  1  1\np     0  1  1  2  2  2  2  2\nq     0  1  2  2  2  3  3  3\nr     0  1  2  2  3  3  4  4\nr     0  1  2  2  3  3  4  4\nLCS length x = dp[5][7] = 4.",
+      "note": "The LCS length x = 4."
+     },
+     {
+      "step": 2,
+      "title": "Count distinct LCS strings by traceback",
+      "formula_raw": "Trace back from dp[5][7]; branch when dp[i-1][j] == dp[i][j-1] == dp[i][j]",
+      "apply": "Tracing back from dp[5][7]=4:\n- A[5]='r', B[7]='p': not equal. dp[4][7]=4, dp[5][6]=4 => branch.\nBranch 1 (go up): from dp[4][7]=4, A[4]='r', B[7]='p': not equal. dp[3][7]=3, dp[4][6]=4 => go left to dp[4][6]=4. A[4]='r', B[6]='r': equal! Take 'r'. Continue from dp[3][5]=3.\n  A[3]='q', B[5]='q': equal! Take 'q'. Continue from dp[2][4]=2.\n  A[2]='p', B[4]='r': not equal. dp[1][4]=1, dp[2][3]=2 => go up to dp[2][3]=2 (already tracking). Continue from dp[2][3]=2.\n  A[2]='p', B[3]='p': equal! Take 'p'. Continue from dp[1][2]=1.\n  A[1]='q', B[2]='q': equal! Take 'q'. LCS = 'qpqr' reversed => 'qpqr'.\nBranch 2 (go left): from dp[5][6]=4, A[5]='r', B[6]='r': equal! Take 'r'. Continue from dp[4][5]=3.\n  A[4]='r', B[5]='q': not equal. dp[3][5]=3, dp[4][4]=3 => branch.\n  Sub-branch 2a: from dp[3][5]=3, A[3]='q', B[5]='q': equal! Take 'q'. From dp[2][4]=2.\n    A[2]='p', B[4]='r': not equal. dp[1][4]=1, dp[2][3]=2 => go to dp[2][3]=2.\n    A[2]='p', B[3]='p': equal! Take 'p'. From dp[1][2]=1.\n    A[1]='q', B[2]='q': equal! Take 'q'. LCS = 'qpqr'.\n  Sub-branch 2b: from dp[4][4]=3, A[4]='r', B[4]='r': equal! Take 'r'. From dp[3][3]=2.\n    A[3]='q', B[3]='p': not equal. dp[2][3]=2, dp[3][2]=1 => go to dp[2][3]=2.\n    A[2]='p', B[3]='p': equal! Take 'p'. From dp[1][2]=1.\n    A[1]='q', B[2]='q': equal! Take 'q'. LCS = 'qprr'.\nDistinct LCS strings: 'qpqr' and 'qprr'. So y = 2.",
+      "note": "Two distinct LCS strings exist: 'qpqr' and 'qprr'."
+     },
+     {
+      "step": 3,
+      "title": "Compute x + 10y",
+      "formula_raw": "x + 10y",
+      "apply": "x = 4, y = 2. x + 10y = 4 + 10*2 = 4 + 20 = 24.\nNote: Some sources get y=2 giving 24, others trace additional paths giving y=3 giving 34. The official GATE 2014 answer is 34, meaning y=3 (three distinct LCS: 'qpqr', 'qprr', 'pqrr').\nVerifying 'pqrr': p at A[2], q at A[3], r at A[4], r at A[5] vs B: p at B[1], q at B[2], r at B[4], r at B[6]. Yes, 'pqrr' is valid!\nSo y = 3 (the three distinct LCS are 'qpqr', 'qprr', 'pqrr').\nx + 10y = 4 + 30 = 34.",
+      "note": "The official GATE 2014 answer is 34, with x=4 and y=3 distinct LCS strings."
+     }
+    ],
+    "result": "x + 10y = 4 + 10*3 = 34"
+   },
+   "formula_ids_used": [],
+   "formula_note": "LCS dynamic programming recurrence and traceback counting to enumerate distinct LCS strings.",
+   "qid": "1.12.7",
+   "answer_official": "34"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2014",
+    "year": 2014,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Algorithms",
+    "topic": "Dynamic Programming",
+    "subtopic": "Dynamic Programming"
+   },
+   "question": "Suppose you want to move from 0 to 100 on the number line. In each step, you either move right by a unit distance or you take a shortcut. A shortcut is simply a pre-specified pair of integers i, j with i < j. Given a shortcut (i, j), if you are at position i on the number line, you may directly move to j. Suppose T(k) denotes the smallest number of steps needed to move from k to 100. Suppose further that there is at most 1 shortcut involving any number, and in particular, from 9 there is a shortcut to 100. Let y and z be such that T(y) = 1 + min(T(y+1), T(z)) (shortcut from y to z). Then the value of T(9) is ___.",
+   "answer": "1",
+   "to_find": "The value of T(9), the minimum number of steps to move from 9 to 100",
+   "understand": {
+    "plain": "You are at position 9 on the number line and need to reach 100. You can either step right one unit at a time, or use shortcuts that instantly teleport you from one position to another. There is a shortcut from 9 directly to 100. We need to find the minimum number of steps T(9) from position 9 to position 100.",
+    "keywords": [
+     {
+      "term": "Shortcut (i, j)",
+      "explain": "A pre-specified pair where being at position i lets you jump directly to position j > i in one step.",
+      "example": "Shortcut (9, 100) means from position 9 you can jump directly to 100 in one step."
+     },
+     {
+      "term": "T(k)",
+      "explain": "The minimum number of steps needed to go from position k to position 100.",
+      "example": "T(100) = 0 (already at destination), T(99) = 1 (one step right)."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='500' height='150'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='60' width='480' height='30' class='bg'/><circle cx='50' cy='75' r='15' class='hi'/><text x='50' y='80' text-anchor='middle' class='tag ink'>9</text><circle cx='450' cy='75' r='15' class='ok'/><text x='450' y='80' text-anchor='middle' class='tag ink' style='fill:white'>100</text><path d='M 65 65 Q 250 10 435 65' stroke='#7F77DD' stroke-width='2' fill='none' marker-end='url(#arr)'/><text x='250' y='30' text-anchor='middle' class='sub ink'>shortcut (9,100): 1 step</text><text x='50' y='120' text-anchor='middle' class='sub mut'>T(9)=1</text><text x='450' y='120' text-anchor='middle' class='sub mut'>T(100)=0</text></svg>",
+    "visual_alt": "Number line from 9 to 100 with a shortcut arrow from 9 directly to 100, showing T(9)=1."
+   },
+   "given": {
+    "aim": "Find T(9), the minimum steps from position 9 to position 100, given a direct shortcut (9, 100).",
+    "terms": [
+     {
+      "term": "T(k)",
+      "meaning": "Minimum number of steps from k to 100",
+      "example": "T(100) = 0, T(99) = 1",
+      "connects": "The DP recurrence we evaluate"
+     },
+     {
+      "term": "Shortcut from 9 to 100",
+      "meaning": "From position 9, you can jump to 100 directly in 1 step",
+      "example": "If at position 9, use shortcut to reach 100 in 1 move",
+      "connects": "This makes T(9) = 1 + T(100) = 1"
+     },
+     {
+      "term": "Unit step",
+      "meaning": "Moving from position k to k+1 costs 1 step",
+      "example": "From 9 to 10 in 1 step, then need 90 more steps to reach 100",
+      "connects": "Alternative to using the shortcut; walking gives T(9)=91"
+     }
+    ],
+    "plan": "T(9) = 1 + min(T(10), T(100)) since shortcut goes from 9 to 100. T(100) = 0, so T(9) = 1 + min(T(10), 0) = 1 + 0 = 1."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Identify the recurrence for T(9)",
+      "formula_raw": "T(k) = 1 + min(T(k+1), T(shortcut_dest)) if shortcut exists from k",
+      "apply": "There is a shortcut from position 9 to position 100. So from position 9, we can either:\n- Move one step right to position 10: cost = 1 + T(10)\n- Use the shortcut to position 100: cost = 1 + T(100)\nT(9) = 1 + min(T(10), T(100))",
+      "note": "The shortcut to 100 competes with stepping to 10."
+     },
+     {
+      "step": 2,
+      "title": "Evaluate T(100) and determine T(9)",
+      "formula_raw": "T(100) = 0 (already at destination)",
+      "apply": "T(100) = 0 (we are already at 100, no steps needed).\nT(9) = 1 + min(T(10), T(100)) = 1 + min(T(10), 0) = 1 + 0 = 1.\nUsing the shortcut from 9 directly to 100 costs exactly 1 step, which is optimal.",
+      "note": "T(10) >= 1 > 0 = T(100), so using the shortcut is always optimal."
+     }
+    ],
+    "result": "T(9) = 1"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Dynamic programming on number line: T(k) = 1 + min(T(k+1), T(j)) when shortcut (k,j) exists. Base case T(100) = 0.",
+   "qid": "1.12.8",
+   "answer_official": "150"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2016",
+    "year": 2016,
+    "marks": 2,
+    "difficulty": "easy",
+    "type": "MCQ",
+    "subject": "Algorithms",
+    "topic": "Dynamic Programming",
+    "subtopic": "Dynamic Programming"
+   },
+   "question": "The Floyd-Warshall algorithm for all-pair shortest paths computation is based on\nA. Greedy paradigm.\nB. Divide-and-conquer paradigm.\nC. Dynamic Programming paradigm.\nD. Neither Greedy nor Divide-and-Conquer nor Dynamic Programming paradigm.",
+   "answer": "C. Dynamic Programming paradigm.",
+   "to_find": "Which algorithm design paradigm the Floyd-Warshall all-pairs shortest paths algorithm uses",
+   "understand": {
+    "plain": "Floyd-Warshall finds the shortest paths between every pair of vertices in a weighted graph. The question asks which design technique it uses: Greedy, Divide-and-Conquer, or Dynamic Programming. Understanding the structure of the algorithm reveals which paradigm it belongs to.",
+    "keywords": [
+     {
+      "term": "Floyd-Warshall Algorithm",
+      "explain": "An algorithm that computes shortest paths between all pairs of vertices in O(V^3) time by considering each vertex as an intermediate node.",
+      "example": "For a 4-node graph, it tries all 4 vertices as intermediates to improve path estimates."
+     },
+     {
+      "term": "Dynamic Programming",
+      "explain": "A paradigm that solves problems by breaking them into overlapping subproblems, solving each once, and storing results to avoid recomputation.",
+      "example": "Floyd-Warshall stores dist[i][j][k] = shortest path from i to j using only vertices 1..k as intermediates."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='480' height='160'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='460' height='60' class='hi'/><text x='240' y='45' text-anchor='middle' class='lbl ink'>Floyd-Warshall Recurrence</text><rect x='10' y='80' width='460' height='60' class='bg'/><text x='240' y='118' text-anchor='middle' class='sub ink'>dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])</text><text x='240' y='138' text-anchor='middle' class='sub mut'>for k = 1 to n (DP over intermediate vertices)</text></svg>",
+    "visual_alt": "Floyd-Warshall recurrence showing DP over intermediate vertices: dist[i][j] = min(dist[i][j], dist[i][k]+dist[k][j])."
+   },
+   "given": {
+    "aim": "Identify the algorithmic paradigm underlying Floyd-Warshall all-pairs shortest paths.",
+    "terms": [
+     {
+      "term": "All-pair shortest paths",
+      "meaning": "Finding shortest paths between every pair of vertices in a graph",
+      "example": "In a 5-node graph, finding shortest path for all 25 ordered pairs",
+      "connects": "The problem Floyd-Warshall solves"
+     },
+     {
+      "term": "Greedy paradigm",
+      "meaning": "Makes locally optimal choices at each step without reconsidering past decisions",
+      "example": "Dijkstra's algorithm greedily picks the nearest unvisited vertex",
+      "connects": "Floyd-Warshall does NOT use this; it reuses stored subproblem results"
+     },
+     {
+      "term": "DP recurrence",
+      "meaning": "dist[i][j][k] = min(dist[i][j][k-1], dist[i][k][k-1] + dist[k][j][k-1])",
+      "example": "Adding vertex k as allowed intermediate and checking if it improves path i->j",
+      "connects": "This is the classic DP formulation of Floyd-Warshall"
+     }
+    ],
+    "plan": "Analyze Floyd-Warshall's structure: it uses a 3D DP state where subproblems are shortest paths using a subset of vertices as intermediates, solving subproblems in order and reusing them."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Analyze Floyd-Warshall structure",
+      "formula_raw": "dist[i][j][k] = min(dist[i][j][k-1], dist[i][k][k-1] + dist[k][j][k-1])",
+      "apply": "Floyd-Warshall defines subproblems: let dist[i][j][k] be the shortest path from i to j using only vertices {1, 2, ..., k} as intermediates. Base case: dist[i][j][0] = direct edge weight (or infinity if no edge). For each k from 1 to n, update using the recurrence. The algorithm fills a 3D table in order of increasing k.",
+      "note": "This is the hallmark of dynamic programming: overlapping subproblems solved in bottom-up order."
+     },
+     {
+      "step": 2,
+      "title": "Eliminate other paradigms",
+      "formula_raw": "",
+      "apply": "Greedy: Floyd-Warshall revisits and updates all pairs for each intermediate vertex - not locally greedy. Divide-and-conquer: the subproblems overlap (dist[i][k] and dist[k][j] are reused), which distinguishes DP from D&C. Floyd-Warshall clearly matches Dynamic Programming: it has optimal substructure and overlapping subproblems, solves them in bottom-up order, and stores intermediate results.",
+      "note": "Dijkstra is greedy (single-source); Floyd-Warshall is DP (all-pairs)."
+     }
+    ],
+    "result": "C. Dynamic Programming paradigm."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Floyd-Warshall uses DP recurrence over intermediate vertices: dist[i][j][k] = min(dist[i][j][k-1], dist[i][k][k-1] + dist[k][j][k-1]). This exhibits both optimal substructure and overlapping subproblems.",
+   "qid": "1.12.9",
+   "answer_official": "C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1994",
+    "year": 1994,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Algorithms",
+    "topic": "Graph Algorithms",
+    "subtopic": "Graph Algorithms"
+   },
+   "question": "Which of the following statements is false?\nA. Optimal binary search tree construction can be performed efficiently using dynamic programming.\nB. Breadth-first search cannot be used to find connected components of a graph.\nC. Given the prefix and postfix walks over a binary tree, the binary tree cannot be uniquely constructed.\nD. Depth-first search can be used to find connected components of a graph.",
+   "answer": "B. Breadth-first search cannot be used to find connected components of a graph.",
+   "to_find": "Which statement among A, B, C, D is FALSE",
+   "understand": {
+    "plain": "We need to evaluate four statements about classic algorithms (optimal BST, BFS/DFS on graphs, and tree reconstruction from traversals) and identify which one is incorrect. Three statements are true and one is false.",
+    "keywords": [
+     {
+      "term": "Connected Components",
+      "explain": "Maximal subgraphs where every two vertices are connected by some path.",
+      "example": "A graph with nodes {1,2,3} where 1-2 are connected but 3 is isolated has 2 connected components."
+     },
+     {
+      "term": "BFS (Breadth-First Search)",
+      "explain": "Explores graph level by level; visits all neighbors of current node before moving deeper.",
+      "example": "BFS from node A visits all nodes reachable from A; repeating for unvisited nodes finds all components."
+     },
+     {
+      "term": "Prefix and Postfix traversal",
+      "explain": "Prefix (preorder) visits root before children; postfix (postorder) visits root after children.",
+      "example": "Tree with root A, left B, right C: preorder=ABC, postorder=BCA. These two together cannot uniquely determine the tree."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='500' height='200'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='480' height='35' class='ok'/><text x='20' y='33' class='tag ink' style='fill:white'>A. TRUE: Optimal BST uses DP (Knuth's algorithm)</text><rect x='10' y='50' width='480' height='35' class='no'/><text x='20' y='73' class='tag ink' style='fill:white'>B. FALSE: BFS CAN find connected components</text><rect x='10' y='90' width='480' height='35' class='ok'/><text x='20' y='113' class='tag ink' style='fill:white'>C. TRUE: Preorder+Postorder cannot uniquely determine tree</text><rect x='10' y='130' width='480' height='35' class='ok'/><text x='20' y='153' class='tag ink' style='fill:white'>D. TRUE: DFS can find connected components</text></svg>",
+    "visual_alt": "Four statements labeled A to D with TRUE/FALSE assessment. Statement B is the false one."
+   },
+   "given": {
+    "aim": "Identify the false statement among four claims about graph algorithms and tree algorithms.",
+    "terms": [
+     {
+      "term": "Optimal BST + Dynamic Programming",
+      "meaning": "Knuth's DP algorithm constructs an optimal BST in O(n^2) or O(n^3) time",
+      "example": "For keys with given search probabilities, DP finds the BST minimizing expected search cost",
+      "connects": "Statement A is TRUE"
+     },
+     {
+      "term": "BFS for Connected Components",
+      "meaning": "BFS from an unvisited node marks all reachable nodes; iterating over all nodes finds all components",
+      "example": "Standard BFS-based component finding: for each unvisited node, do BFS and label a new component",
+      "connects": "Statement B is FALSE (BFS CAN find connected components)"
+     },
+     {
+      "term": "Preorder + Postorder tree reconstruction",
+      "meaning": "Knowing only preorder and postorder traversals is insufficient to uniquely reconstruct a binary tree",
+      "example": "A node with only a left child vs only a right child can produce the same preorder and postorder",
+      "connects": "Statement C is TRUE"
+     },
+     {
+      "term": "DFS for Connected Components",
+      "meaning": "DFS from each unvisited node labels all reachable nodes as one component",
+      "example": "Standard DFS-based component finding is taught in every algorithms course",
+      "connects": "Statement D is TRUE"
+     }
+    ],
+    "plan": "Evaluate each statement: A (DP for optimal BST = true), B (BFS cannot find components = FALSE, it CAN), C (preorder+postorder not unique = true), D (DFS finds components = true). The false statement is B."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Evaluate statements A, C, D",
+      "formula_raw": "",
+      "apply": "Statement A: Optimal BST uses DP (Knuth-Yao algorithm). TRUE.\nStatement C: Given only preorder and postorder of a binary tree, the tree may not be uniquely determined. For example, if a node has only one child, we cannot tell if it is left or right child from preorder+postorder alone. TRUE.\nStatement D: DFS can find connected components by running DFS from each unvisited node and grouping. TRUE.",
+      "note": "Statements A, C, D are all true."
+     },
+     {
+      "step": 2,
+      "title": "Evaluate statement B",
+      "formula_raw": "",
+      "apply": "Statement B claims: 'BFS cannot be used to find connected components of a graph.' This is FALSE. BFS is perfectly capable of finding connected components: start BFS from any unvisited vertex, mark all reachable vertices as one component. Repeat for remaining unvisited vertices. This is the standard BFS-based connected components algorithm, running in O(V + E) time. Both BFS and DFS can find connected components of an undirected graph.",
+      "note": "The false statement is B. BFS absolutely CAN find connected components."
+     }
+    ],
+    "result": "B. Breadth-first search cannot be used to find connected components of a graph. (This statement is FALSE.)"
+   },
+   "formula_ids_used": [],
+   "formula_note": "BFS and DFS both find connected components in O(V+E). Optimal BST uses Knuth's DP. Preorder+postorder alone cannot uniquely reconstruct a binary tree (inorder is needed with either).",
+   "qid": "1.13.1",
+   "answer_official": "B"
+  }
+ ]
+}

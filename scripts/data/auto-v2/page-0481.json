@@ -1,0 +1,265 @@
+{
+ "page": 481,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 1997",
+    "year": 1997,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Process Synchronization",
+    "subtopic": "Process Synchronization"
+   },
+   "question": "A concurrent system consists of 3 processes using a shared resource R in a non-preemptible and mutually exclusive manner. The processes have unique priorities in the range 1...3, 3 being the highest priority. It is required to synchronize the processes such that the resource is always allocated to the highest priority requester.\n\nShared data:\n  mutex semaphore = 1  /* initialized to 1 */\n  process[i] semaphore = 0  /* initialized to 0 */\n  R_requested[i] boolean = false  /* initialized to false */\n  busy boolean = false  /* initialized to false */\n\nCode for processes:\n  begin process\n    my_priority_integer;\n    my_priority := /* in the range 1..3 */\n    repeat\n      request_R(my_priority);\n      /* use shared resource R */\n      release_R(my_priority);\n    forever\n  end process\n\nProcedures:\n  procedure request_R(priority);\n  begin\n    P(mutex);\n    if busy = true then\n      begin\n        R_requested[priority] := true;\n        V(mutex);\n        P(process[priority]);\n      end\n    else\n      begin\n        busy := true;\n        V(mutex);\n      end\n  end;\n\n  procedure release_R(priority);\n  begin\n    /* TO BE COMPLETED */\n  end;\n\nGive the pseudo-code for the procedure release_R.\n\nA. Set busy=false and signal the highest priority waiting process\nB. Simply call V(mutex) to release mutual exclusion\nC. Set R_requested[priority]=false and V(process[priority])\nD. Busy-wait until no process is requesting R, then set busy=false",
+   "answer": "A. Set busy=false and signal the highest priority waiting process",
+   "to_find": "Pseudo-code for the release_R procedure that allocates R to the highest priority waiting process",
+   "understand": {
+    "plain": "Three processes share a resource R and each has a unique priority (1, 2, or 3, where 3 is highest). When a process is done with R, it must give R to whichever waiting process has the highest priority. The request_R procedure uses semaphores and a boolean array to track who is waiting. We need to write release_R that correctly hands over R to the highest-priority waiter.",
+    "keywords": [
+     {
+      "term": "Semaphore",
+      "explain": "A variable used for process synchronization; P() decrements (waits if 0), V() increments (signals a waiting process).",
+      "example": "P(mutex) acquires a lock; V(mutex) releases it."
+     },
+     {
+      "term": "Priority-based resource allocation",
+      "explain": "When releasing a resource, the process with the highest priority among all waiters gets it next.",
+      "example": "If processes with priorities 1 and 3 are both waiting, priority 3 gets R first."
+     },
+     {
+      "term": "Mutual exclusion (mutex)",
+      "explain": "Only one process may access the shared data at a time, preventing race conditions.",
+      "example": "P(mutex) at the start of request_R ensures no two processes modify busy or R_requested simultaneously."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 520 200' width='520' height='200'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='100' height='50' rx='8' class='bg'/><text x='60' y='30' text-anchor='middle' class='lbl ink'>P1</text><text x='60' y='50' text-anchor='middle' class='sub mut'>priority=1</text><rect x='200' y='10' width='100' height='50' rx='8' class='bg'/><text x='250' y='30' text-anchor='middle' class='lbl ink'>P2</text><text x='250' y='50' text-anchor='middle' class='sub mut'>priority=2</text><rect x='390' y='10' width='100' height='50' rx='8' class='hi'/><text x='440' y='30' text-anchor='middle' class='lbl ink'>P3</text><text x='440' y='50' text-anchor='middle' class='sub mut'>priority=3 (HIGH)</text><rect x='185' y='130' width='130' height='50' rx='8' class='ok'/><text x='250' y='152' text-anchor='middle' class='lbl' style='fill:#fff'>Resource R</text><text x='250' y='170' text-anchor='middle' class='sub' style='fill:#fff'>busy=true</text><line x1='60' y1='60' x2='210' y2='130' stroke='#B4B2A9' stroke-width='2' stroke-dasharray='5,3'/><line x1='250' y1='60' x2='250' y2='130' stroke='#7F77DD' stroke-width='2'/><line x1='440' y1='60' x2='290' y2='130' stroke='#D85A30' stroke-width='2'/><text x='330' y='100' class='tag no'>gets R next</text></svg>",
+    "visual_alt": "Three processes P1 (priority 1), P2 (priority 2), P3 (priority 3) compete for Resource R. P3 has the highest priority and should be allocated R next when released."
+   },
+   "given": {
+    "aim": "Write release_R so that R is given to the highest-priority waiting process, or marked free if none are waiting.",
+    "terms": [
+     {
+      "term": "busy",
+      "meaning": "Boolean flag; true means R is currently in use.",
+      "example": "Set to true in request_R when a process acquires R.",
+      "connects": "release_R must either set busy=false or keep it true if handing R to a waiter."
+     },
+     {
+      "term": "R_requested[i]",
+      "meaning": "Boolean array; R_requested[i]=true means process with priority i is waiting for R.",
+      "example": "If process with priority 3 called request_R and found R busy, R_requested[3]=true.",
+      "connects": "release_R scans this array from highest priority down to find the next recipient."
+     },
+     {
+      "term": "process[i] semaphore",
+      "meaning": "A semaphore per priority level; V(process[i]) wakes up the process blocked at P(process[i]).",
+      "example": "V(process[3]) unblocks the priority-3 process waiting in request_R.",
+      "connects": "release_R calls V(process[j]) for the highest j with R_requested[j]=true."
+     },
+     {
+      "term": "mutex semaphore",
+      "meaning": "Guards access to shared variables busy and R_requested[].",
+      "example": "P(mutex) before checking/modifying busy ensures atomicity.",
+      "connects": "release_R must acquire mutex before scanning R_requested and modifying state."
+     }
+    ],
+    "plan": "In release_R, acquire mutex, then scan R_requested[] from priority 3 down to 1. If a waiting process is found, clear its R_requested flag and signal its semaphore (R stays busy, just transfers). If no waiter, set busy=false. Release mutex."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Acquire mutex to protect shared state",
+      "formula_raw": "P(mutex)",
+      "apply": "Before reading or modifying R_requested[] or busy, call P(mutex) to ensure mutual exclusion over the critical data.",
+      "note": "Without this, a concurrent request_R call could corrupt the state."
+     },
+     {
+      "step": 2,
+      "title": "Scan for highest-priority waiter",
+      "formula_raw": "for j := 3 downto 1 do if R_requested[j] then ...",
+      "apply": "Loop from j=3 down to j=1. The first j with R_requested[j]=true is the highest-priority waiter. Set R_requested[j]:=false, call V(mutex) to release the lock, then call V(process[j]) to wake up that process. R remains busy (busy stays true). Return immediately.",
+      "note": "Resetting R_requested[j] before V(mutex) prevents the waiter from seeing a stale flag."
+     },
+     {
+      "step": 3,
+      "title": "No waiter found — mark resource free",
+      "formula_raw": "busy := false; V(mutex)",
+      "apply": "If the loop completes without finding any R_requested[j]=true, set busy:=false and call V(mutex). The resource is now free for the next requester.",
+      "note": "busy=false allows the next call to request_R to acquire R immediately without blocking."
+     }
+    ],
+    "result": "release_R scans R_requested[] from priority 3 to 1; if a waiter exists it clears the flag and signals that process's semaphore; otherwise it sets busy=false. This always grants R to the highest-priority requester."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Priority-based semaphore handoff pattern: scan waiting array from highest to lowest priority and signal the first waiter found; if none, mark resource free.",
+   "qid": "7.20.14",
+   "answer_official": "N/A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1998",
+    "year": 1998,
+    "marks": 2,
+    "difficulty": "easy",
+    "type": "MCQ",
+    "subject": "Operating System",
+    "topic": "Process Synchronization",
+    "subtopic": "Process Synchronization"
+   },
+   "question": "When the result of a computation depends on the speed of the processes involved, there is said to be\n\nA. cycle stealing\nB. race condition\nC. a time lock\nD. a deadlock",
+   "answer": "B. race condition",
+   "to_find": "The term for a situation where computation results depend on the relative speeds of concurrent processes",
+   "understand": {
+    "plain": "In concurrent systems, two or more processes may access shared data. If the final result changes depending on which process runs faster or in what order they execute, we call this a race condition. This is a fundamental concurrency problem.",
+    "keywords": [
+     {
+      "term": "Race condition",
+      "explain": "A bug where the system's behavior depends on the non-deterministic timing/order of concurrent operations.",
+      "example": "Two processes both read a counter (value=5), both increment, both write back 6 — but expected result is 7."
+     },
+     {
+      "term": "Deadlock",
+      "explain": "A situation where two or more processes are each waiting for a resource held by another, so none can proceed.",
+      "example": "P1 holds lock A and waits for B; P2 holds lock B and waits for A — both wait forever."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Two processes concurrently reading and writing a shared variable; the result differs depending on execution order, illustrating a race condition."
+   },
+   "given": {
+    "aim": "Identify the concurrency problem where outcome depends on process execution speed.",
+    "terms": [
+     {
+      "term": "Cycle stealing",
+      "meaning": "A technique where a DMA controller temporarily takes control of the memory bus from the CPU.",
+      "example": "DMA steals one bus cycle to transfer a byte while the CPU is paused briefly.",
+      "connects": "Unrelated to speed-dependent computation results — it is a hardware bus mechanism."
+     },
+     {
+      "term": "Race condition",
+      "meaning": "When concurrent processes access shared data and the result depends on their execution order/speed.",
+      "example": "Two threads incrementing a counter without synchronization may produce wrong results depending on timing.",
+      "connects": "Directly matches the definition given in the question."
+     },
+     {
+      "term": "Deadlock",
+      "meaning": "A permanent blocking state where processes wait for each other's resources indefinitely.",
+      "example": "P1 waits for resource held by P2, P2 waits for resource held by P1.",
+      "connects": "About resource waiting, not speed-dependent results."
+     }
+    ],
+    "plan": "Match the given definition — 'result depends on speed of processes' — against standard OS terminology. This is the textbook definition of a race condition."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Recall definitions of each option",
+      "formula_raw": "",
+      "apply": "Cycle stealing: DMA hardware mechanism. Race condition: outcome depends on process speeds/order. Time lock: not a standard OS term. Deadlock: circular waiting for resources.",
+      "note": "Cycle stealing and deadlock are well-defined terms that don't match the given description."
+     },
+     {
+      "step": 2,
+      "title": "Match definition to race condition",
+      "formula_raw": "",
+      "apply": "The classic definition by Tanenbaum and other OS texts: 'A race condition occurs when two or more processes are reading or writing some shared data and the final result depends on who runs precisely when.' This exactly matches the question statement.",
+      "note": "Race conditions are prevented using critical sections, mutexes, and semaphores."
+     }
+    ],
+    "result": "B. race condition"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Definition of race condition: computation result is non-deterministic and depends on relative execution speeds of concurrent processes.",
+   "qid": "7.20.15",
+   "answer_official": "C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1999",
+    "year": 1999,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Operating System",
+    "topic": "Process Synchronization",
+    "subtopic": "Process Synchronization"
+   },
+   "question": "A certain processor provides a 'test and set' instruction that is used as follows:\n\n  TSET register, flag\n\nThis instruction atomically copies flag to register and sets flag to 1.\n\nGive pseudo-code for implementing the entry and exit code to a critical region using this instruction. (A shared boolean flag variable is used; flag=0 means the lock is free, flag=1 means it is held.)",
+   "answer": "Entry: busy-wait loop using TSET until register gets 0; Exit: set flag to 0.\n\nEntry code:\n  repeat\n    TSET reg, flag\n  until reg = 0\n\nExit code:\n  flag := 0",
+   "to_find": "Pseudo-code for entry (acquire lock) and exit (release lock) of a critical section using the TSET instruction",
+   "understand": {
+    "plain": "The TSET instruction reads a flag into a register and sets the flag to 1, all in one atomic (uninterruptible) step. We use this to build a spin-lock: a process loops doing TSET until it finds the flag was 0 (meaning the lock was free), which also sets it to 1 to claim it. To exit, the process simply sets flag back to 0.",
+    "keywords": [
+     {
+      "term": "Test-and-Set (TSET)",
+      "explain": "A hardware atomic instruction that reads a memory location and sets it to 1 in one indivisible operation, used to implement mutual exclusion.",
+      "example": "TSET reg, flag: if flag=0, reg gets 0 and flag becomes 1 (lock acquired); if flag=1, reg gets 1 and flag stays 1 (lock still held)."
+     },
+     {
+      "term": "Spin-lock (busy waiting)",
+      "explain": "A lock where the waiting process continuously loops checking the lock variable until it becomes free.",
+      "example": "repeat TSET reg, flag until reg=0 — the process spins until it successfully sees the lock was free."
+     },
+     {
+      "term": "Atomic operation",
+      "explain": "An operation that executes as a single, indivisible unit — no other process can interrupt it in the middle.",
+      "example": "TSET atomically reads AND sets in one step, so two processes cannot both see flag=0 simultaneously."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 480 220' width='480' height='220'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='460' height='40' rx='6' class='hi'/><text x='240' y='35' text-anchor='middle' class='lbl ink'>ENTRY: Acquire Lock</text><rect x='10' y='60' width='460' height='70' rx='6' class='bg'/><text x='30' y='82' class='sub ink'>repeat</text><text x='50' y='100' class='sub ink'>TSET reg, flag   // atomically: reg := flag; flag := 1</text><text x='30' y='118' class='sub ink'>until reg = 0   // loop while reg=1 (lock was held)</text><rect x='10' y='145' width='460' height='40' rx='6' class='ok'/><text x='240' y='170' text-anchor='middle' class='lbl' style='fill:#fff'>EXIT: Release Lock</text><rect x='10' y='193' width='460' height='22' rx='4' class='bg'/><text x='30' y='209' class='sub ink'>flag := 0   // release the lock</text></svg>",
+    "visual_alt": "Entry code: repeat TSET reg, flag until reg=0 (spin until lock was free). Exit code: flag := 0 (release lock)."
+   },
+   "given": {
+    "aim": "Implement a critical section entry and exit using the atomic TSET instruction.",
+    "terms": [
+     {
+      "term": "flag",
+      "meaning": "Shared boolean variable serving as a lock; 0=free, 1=held.",
+      "example": "Initially flag=0. When a process enters critical section, flag becomes 1.",
+      "connects": "TSET reads this and sets it to 1; exit code resets it to 0."
+     },
+     {
+      "term": "register (reg)",
+      "meaning": "A local CPU register that receives the old value of flag from TSET.",
+      "example": "If flag was 0, reg=0 after TSET, meaning the process just acquired the lock.",
+      "connects": "The loop condition checks reg: if reg=0 the lock was free and is now held; if reg=1 the lock was already taken."
+     },
+     {
+      "term": "Atomic copy-and-set",
+      "meaning": "TSET copies flag to reg AND sets flag=1 in one uninterruptible step.",
+      "example": "No other process can execute between the copy and the set, preventing two processes from both seeing flag=0.",
+      "connects": "This atomicity is what makes TSET safe for mutual exclusion without further hardware support."
+     }
+    ],
+    "plan": "Entry: loop calling TSET; when the returned reg value is 0, the process has successfully acquired the lock (it was free). Exit: simply write 0 to flag to release the lock."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Design the entry code (acquire lock)",
+      "formula_raw": "repeat TSET reg, flag until reg = 0",
+      "apply": "Each iteration: TSET atomically copies current flag into reg and sets flag:=1.\n- If flag was 0 (lock free): reg=0, flag becomes 1. Loop exits (reg=0). Process enters critical section.\n- If flag was 1 (lock held): reg=1, flag stays 1. Loop continues (reg != 0). Process keeps spinning.\nOnly one process can see reg=0 per TSET cycle because the read-and-set is atomic.",
+      "note": "This is busy-waiting (spin-lock). It wastes CPU cycles but is correct and requires no OS support."
+     },
+     {
+      "step": 2,
+      "title": "Design the exit code (release lock)",
+      "formula_raw": "flag := 0",
+      "apply": "After leaving the critical section, the process simply sets flag:=0. This is safe as a plain assignment because only the process that holds the lock (the one that saw reg=0) is executing the critical section, so no race occurs on this write.",
+      "note": "No TSET needed for exit — a simple store suffices since only the lock holder executes exit code."
+     }
+    ],
+    "result": "Entry: repeat TSET reg, flag until reg = 0\nExit: flag := 0"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Test-and-Set spin-lock: atomically read-and-set to 1; loop until old value was 0 (lock acquired); release by writing 0.",
+   "qid": "7.20.16",
+   "answer_official": "N/A"
+  }
+ ]
+}

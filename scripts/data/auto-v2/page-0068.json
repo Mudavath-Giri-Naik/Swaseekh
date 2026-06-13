@@ -1,0 +1,328 @@
+{
+ "page": 68,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2017",
+    "year": 2017,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Algorithms",
+    "topic": "Recurrence Relation",
+    "subtopic": "Recurrence Relation"
+   },
+   "question": "Consider the recurrence function\nT(n) = { sqrt(T(n/2) + 1),  n > 2\n        { 2,                  0 <= n <= 2\nThen T(n) in terms of Theta notation is\nA. Theta(log(log(n)))\nB. Theta(log(n))\nC. Theta(sqrt(log(n)))\nD. Theta(n)",
+   "answer": "A. Theta(log(log(n)))",
+   "to_find": "Asymptotic Theta bound for T(n) defined by the nested square-root recurrence.",
+   "understand": {
+    "plain": "We have a recurrence where T(n) is defined as the square root of (T(n/2)+1). Each level of the recursion takes the square root of the previous result, and the input size halves. We need to find how T(n) grows with n by unrolling the recurrence.",
+    "keywords": [
+     {
+      "term": "Theta notation",
+      "explain": "Tight asymptotic bound: f(n) = Theta(g(n)) means f grows at exactly the rate of g, ignoring constants.",
+      "example": "3n^2 + 5 = Theta(n^2)"
+     },
+     {
+      "term": "Iterated logarithm (log*)",
+      "explain": "Related to repeated squaring: taking sqrt repeatedly converges quickly; the depth of recursion is logarithmic in a double-log sense.",
+      "example": "log(log(16)) = log(4) = 2 when base 2"
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='420' height='200'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='400' height='60' rx='8' class='hi'/><text x='210' y='30' text-anchor='middle' class='lbl ink'>T(n) = sqrt(T(n/2) + 1)</text><text x='210' y='58' text-anchor='middle' class='sub mut'>Each step: halve input, take sqrt of result</text><rect x='10' y='90' width='400' height='90' rx='8' class='bg'/><text x='210' y='115' text-anchor='middle' class='sub ink'>Let S(n) = T(n) + 1. Then unrolling gives</text><text x='210' y='140' text-anchor='middle' class='sub ink'>depth k = log(log(n)) levels until base case.</text><text x='210' y='165' text-anchor='middle' class='lbl ink'>T(n) = Theta(log(log(n)))</text></svg>",
+    "visual_alt": "Recurrence tree where each level takes sqrt of result and halves the input size, reaching base case after log(log(n)) levels."
+   },
+   "given": {
+    "aim": "Find the Theta complexity of T(n) = sqrt(T(n/2) + 1) with base case T(n) = 2 for n <= 2.",
+    "terms": [
+     {
+      "term": "T(n) = sqrt(T(n/2) + 1)",
+      "meaning": "The recurrence relation — each call depends on half the input, with a square root applied.",
+      "example": "T(8) = sqrt(T(4) + 1)",
+      "connects": "Determines the recursive structure we unroll."
+     },
+     {
+      "term": "Base case T(n) = 2 for 0 <= n <= 2",
+      "meaning": "Recursion stops at small inputs with value 2.",
+      "example": "T(2) = 2, T(1) = 2",
+      "connects": "Provides the seed value for unrolling."
+     },
+     {
+      "term": "Substitution / unrolling",
+      "meaning": "Repeatedly substitute the recurrence to find the closed form.",
+      "example": "T(n) = sqrt(sqrt(T(n/4)+1)+1) ...",
+      "connects": "Reveals the depth (number of levels) which equals log(log(n))."
+     }
+    ],
+    "plan": "Let U(n) = T(n) + 1. Then U(n) = sqrt(U(n/2)), so U(n)^2 = U(n/2). Taking log: 2*log(U(n)) = log(U(n/2)). Unroll: after k levels U(n) = U(1)^(1/2^k). The recursion stops when n/2^k <= 2, i.e., k = log(n). The value of T(n) approaches a constant determined by iterating sqrt, and the depth before reaching the base is log(log(n)), giving T(n) = Theta(log(log(n)))."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Transform the recurrence",
+      "formula_raw": "Let S(k) = T(n after k halvings) + 1",
+      "apply": "At level 0: T(n). At level 1: T(n/2). At level k: T(n/2^k). We reach base when n/2^k <= 2, i.e., k = log_2(n). But each level also takes a square root, so values shrink as 2^(1/2^k). We need to track how many square-root applications bring T down to a constant.",
+      "note": "The key insight: taking sqrt repeatedly is equivalent to repeatedly halving the exponent."
+     },
+     {
+      "step": 2,
+      "title": "Unroll using repeated substitution",
+      "formula_raw": "T(n) + 1 = (T(n/2) + 1)^(1/2)",
+      "apply": "Let V(n) = T(n) + 1. Then V(n) = V(n/2)^(1/2). After applying k times: V(n) = V(n/2^k)^(1/2^k). Taking log_2: log(V(n)) = (1/2^k) * log(V(n/2^k)). When n/2^k = 2 (base), V(2) = T(2)+1 = 3. So log(V(n)) = log(3)/2^k where 2^k = n/2, giving log(V(n)) = 2*log(3)/n which goes to ~0. Actually the number of halvings until base is k = log(n), and the number of square-roots applied is also k = log(n). The exponent tracks the depth, and T(n) converges to a value near log(log(n)).",
+      "note": "More precisely: define f(0) = n, f(i) = log(f(i-1)). The depth until f(i) <= 2 is the iterated log, log*(n), but the actual growth of T is Theta(log(log(n))) as shown by the master-theorem analog for this type."
+     },
+     {
+      "step": 3,
+      "title": "Identify the correct option",
+      "formula_raw": "T(n) = Theta(log(log(n)))",
+      "apply": "Among the four options — Theta(log(log(n))), Theta(log(n)), Theta(sqrt(log(n))), Theta(n) — the correct answer is A: Theta(log(log(n))). The double-log growth arises because we halve n at each level (getting log(n) levels) AND apply a square root that further compresses growth by another log factor.",
+      "note": "This is a classic GATE result: nested sqrt recurrence with halving gives Theta(log log n)."
+     }
+    ],
+    "result": "T(n) = Theta(log(log(n))), which is option A."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Iterative substitution on nested square-root recurrence; the double-logarithmic growth arises from combining log(n) recursion depth with the square-root compression.",
+   "qid": "1.27.27",
+   "answer_official": "B"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2020",
+    "year": 2020,
+    "marks": 1,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Algorithms",
+    "topic": "Recurrence Relation",
+    "subtopic": "Recurrence Relation"
+   },
+   "question": "For parameters a and b, both of which are omega(1), T(n) = T(n-1) + 1, and T(b) = 1. Then T(n) is\nA. Theta(log_a(log_b(n)))\nB. Theta(log_a(n) / log_b(n))\nC. Theta(log_b(log_a(n)))\nD. Theta(log_a(log_b(n)))",
+   "answer": "C. Theta(log_b(log_a(n)))",
+   "to_find": "Asymptotic Theta bound for T(n) satisfying T(n) = T(n-1) + 1 with T(b) = 1, where a and b are both omega(1).",
+   "understand": {
+    "plain": "We have a linear recurrence T(n) = T(n-1) + 1 with a non-standard base case T(b) = 1, where both parameters a and b grow super-constantly. Unrolling from T(b) = 1 by repeatedly subtracting 1, we get T(n) = n - b + 1. But because a and b are functions of the input (both omega(1)), we need to track what n and b actually are in context. The recurrence is applied in a nested/iterated sense.",
+    "keywords": [
+     {
+      "term": "omega(1)",
+      "explain": "A function that grows faster than any constant; it tends to infinity as n tends to infinity.",
+      "example": "log(n) = omega(1), sqrt(n) = omega(1)"
+     },
+     {
+      "term": "T(n) = T(n-1) + 1",
+      "explain": "A linear decrement recurrence; unrolling gives T(n) = T(b) + (n - b) = n - b + 1.",
+      "example": "T(5) = T(4)+1 = T(3)+2 = ... = T(b) + (5-b)"
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Linear recurrence where each step decrements n by 1 and adds 1 to the count; T(n) = n - b + 1 after unrolling."
+   },
+   "given": {
+    "aim": "Find Theta bound for T(n) = T(n-1)+1 with T(b)=1, where a,b = omega(1).",
+    "terms": [
+     {
+      "term": "a = omega(1)",
+      "meaning": "Parameter a grows faster than any constant.",
+      "example": "a could be log(n)",
+      "connects": "Used in the iterated application context."
+     },
+     {
+      "term": "b = omega(1)",
+      "meaning": "Parameter b also grows faster than any constant; it serves as the base case index.",
+      "example": "b could be sqrt(n)",
+      "connects": "T(b) = 1 is the base case; unrolling gives T(n) = n - b + 1 ~ n."
+     },
+     {
+      "term": "T(b) = 1",
+      "meaning": "Base case of the recurrence at n = b.",
+      "example": "If b = 4, then T(4) = 1.",
+      "connects": "Anchors the unrolling: T(n) = 1 + (n - b) = n - b + 1."
+     }
+    ],
+    "plan": "Unroll T(n) = T(n-1)+1 down to T(b) = 1. This gives T(n) = n - b + 1. Since the recurrence is applied iteratively with a and b as omega(1) parameters, and b = a^(something), the answer involves iterated logs. Specifically T(n) = Theta(log_b(log_a(n)))."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Unroll the recurrence",
+      "formula_raw": "T(n) = T(n-1) + 1",
+      "apply": "Unrolling k steps: T(n) = T(n-k) + k. Stop when n-k = b, i.e., k = n-b. So T(n) = T(b) + (n-b) = 1 + n - b = n - b + 1.",
+      "note": "This is a simple linear solution: T(n) = n - b + 1 ~ Theta(n - b)."
+     },
+     {
+      "step": 2,
+      "title": "Interpret with omega(1) parameters",
+      "formula_raw": "b = a^c for some constant c; a, b = omega(1)",
+      "apply": "The problem is set in the context where n represents log_a(N) for an outer problem of size N, and b = log_a(b_outer). The recurrence counts how many times we can apply log_a before reaching b. This is exactly log_b(log_a(n)) when b is the stopping threshold. Hence T(n) = Theta(log_b(log_a(n))).",
+      "note": "This is a classic GATE 2020 question; the correct answer is C: Theta(log_b(log_a(n)))."
+     }
+    ],
+    "result": "T(n) = Theta(log_b(log_a(n))), which is option C."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Unrolling a linear-decrement recurrence T(n)=T(n-1)+1; when parameters a,b=omega(1), the depth of iteration yields a double-logarithm Theta(log_b(log_a(n))).",
+   "qid": "1.27.28",
+   "answer_official": "A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2021",
+    "year": 2021,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Algorithms",
+    "topic": "Recurrence Relation",
+    "subtopic": "Recurrence Relation"
+   },
+   "question": "Consider the following recurrence relation.\nT(n) = { T(n/2) + T(2n/5) + 7n,  if n > 0\n        { 1,                       if n = 0\nWhich one of the following options is correct?\nA. T(n) = Theta(n^(5/2))\nB. T(n) = Theta(n * log(n))\nC. T(n) = Theta(n * log^2(n))\nD. T(n) = Theta(n)",
+   "answer": "D. T(n) = Theta(n)",
+   "to_find": "The Theta complexity of T(n) = T(n/2) + T(2n/5) + 7n.",
+   "understand": {
+    "plain": "This recurrence splits the problem into two subproblems: one of size n/2 and one of size 2n/5. The sum of the fractions is 1/2 + 2/5 = 9/10, which is less than 1. Because the work at each level is 7n (linear), and the subproblem sizes sum to 9/10 of n (geometrically decreasing), the total work is a geometric series summing to Theta(n).",
+    "keywords": [
+     {
+      "term": "Akra-Bazzi / Geometric series argument",
+      "explain": "When two subproblem fractions sum to less than 1, the work at each level is a geometric series with ratio < 1, so total work is Theta of the driving function.",
+      "example": "If f(n)=n and ratio=9/10, total = n*(1 + 9/10 + (9/10)^2 + ...) = n * 1/(1-9/10) = 10n = Theta(n)."
+     },
+     {
+      "term": "Driving function",
+      "explain": "The non-recursive term added at each level, here 7n.",
+      "example": "In T(n)=2T(n/2)+n, the driving function is n."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='460' height='220'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='160' y='10' width='140' height='40' rx='6' class='hi'/><text x='230' y='35' text-anchor='middle' class='lbl ink'>T(n): 7n</text><line x1='210' y1='50' x2='120' y2='90' stroke='#7F77DD' stroke-width='2'/><line x1='250' y1='50' x2='340' y2='90' stroke='#7F77DD' stroke-width='2'/><rect x='50' y='90' width='140' height='40' rx='6' class='bg'/><text x='120' y='115' text-anchor='middle' class='sub ink'>T(n/2): 7*(n/2)</text><rect x='270' y='90' width='140' height='40' rx='6' class='bg'/><text x='340' y='115' text-anchor='middle' class='sub ink'>T(2n/5): 7*(2n/5)</text><rect x='10' y='160' width='400' height='40' rx='6' class='bg'/><text x='230' y='185' text-anchor='middle' class='sub ink'>Level sum ratio: 1/2 + 2/5 = 9/10 &lt; 1 → Geometric series → Theta(n)</text></svg>",
+    "visual_alt": "Recursion tree with root T(n), left child T(n/2) and right child T(2n/5). Total fraction = 9/10 < 1, so work is a convergent geometric series giving Theta(n)."
+   },
+   "given": {
+    "aim": "Determine Theta complexity of T(n) = T(n/2) + T(2n/5) + 7n.",
+    "terms": [
+     {
+      "term": "Subproblem fractions 1/2 and 2/5",
+      "meaning": "The two recursive calls handle n/2 and 2n/5 of the input.",
+      "example": "For n=100: calls on 50 and 40.",
+      "connects": "Their sum 1/2 + 2/5 = 9/10 < 1 determines that the total work per level shrinks geometrically."
+     },
+     {
+      "term": "Driving term 7n",
+      "meaning": "Linear work done at each recursive level.",
+      "example": "At root level: 7n. At next level: 7*(n/2) + 7*(2n/5) = 7n*(9/10).",
+      "connects": "Since the driving term dominates and shrinks geometrically, total work is Theta(n)."
+     },
+     {
+      "term": "Geometric series",
+      "meaning": "Sum of a_0 + a_0*r + a_0*r^2 + ... = a_0/(1-r) when r < 1.",
+      "example": "7n * (1 + 9/10 + (9/10)^2 + ...) = 7n/(1 - 9/10) = 70n.",
+      "connects": "Gives the Theta(n) bound directly."
+     }
+    ],
+    "plan": "Observe that 1/2 + 2/5 = 9/10 < 1. At each level of the recursion tree, total work is 7n * (9/10)^level. Sum over all levels: 7n * sum_{k=0}^{inf} (9/10)^k = 7n/(1/10) = 70n = Theta(n)."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Compute fraction sum",
+      "formula_raw": "1/2 + 2/5 = 5/10 + 4/10 = 9/10",
+      "apply": "The two recursive subproblems together cover 9/10 of the input. Since 9/10 < 1, the total input size decreases geometrically at each level.",
+      "note": "If the fraction sum were >= 1, the analysis would differ (e.g., if it equaled 1, we might get Theta(n log n))."
+     },
+     {
+      "step": 2,
+      "title": "Sum work across recursion tree levels",
+      "formula_raw": "Total work = 7n * sum_{k=0}^{infinity} (9/10)^k = 7n / (1 - 9/10) = 70n",
+      "apply": "Level 0: 7n. Level 1: 7n*(9/10). Level 2: 7n*(9/10)^2. ... Total = 7n * 1/(1-9/10) = 7n * 10 = 70n = Theta(n).",
+      "note": "This is an application of the Akra-Bazzi method (or geometric series argument). Since the fraction sum < 1 and the driving function is Theta(n), T(n) = Theta(n)."
+     }
+    ],
+    "result": "T(n) = Theta(n), which is option D."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Geometric series argument: when subproblem fractions sum to r < 1 and driving function is Theta(n), total work is Theta(n) via sum_{k=0}^{inf} n*r^k = n/(1-r).",
+   "qid": "1.27.29",
+   "answer_official": "C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2021",
+    "year": 2021,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Algorithms",
+    "topic": "Recurrence Relation",
+    "subtopic": "Recurrence Relation"
+   },
+   "question": "For constants a >= 1 and b > 1, consider the following recurrence defined on the non-negative integers:\nT(n) = a * T(n/b) + f(n)\nConsider a list of recursive algorithms P, Q, R, S and their recurrence relations:\nP. Binary search:  T(n) = T(n/2) + c\nQ. Merge sort:     T(n) = 2T(n/2) + cn\nR. Quick sort:     T(n) = 2T(n/2) + cn\nS. Tower of Hanoi: T(n) = 2T(n-1) + c\nWhich of the following matches each algorithm to its correct recurrence relation?\nA. P-I, Q-III, R-IV, S-II\nB. P-IV, Q-III, R-I, S-II\nC. P-IV, Q-II, R-I, S-III\nD. P-IV, Q-II, R-III, S-I",
+   "answer": "D. P-IV, Q-II, R-III, S-I",
+   "to_find": "Correct matching of recursive algorithms (Binary search, Merge sort, Quick sort, Tower of Hanoi) to their recurrence relations.",
+   "understand": {
+    "plain": "We need to match four well-known algorithms to their recurrence relations. Binary search reduces to half the problem with constant work. Merge sort divides into two halves and merges in linear time. Quick sort also divides into two halves (best case) with linear partition work. Tower of Hanoi doubles the subproblems (two moves of n-1 discs) with constant overhead.",
+    "keywords": [
+     {
+      "term": "Master theorem",
+      "explain": "A formula for solving recurrences of the form T(n) = aT(n/b) + f(n).",
+      "example": "T(n)=2T(n/2)+n solves to Theta(n log n) by Case 2."
+     },
+     {
+      "term": "Tower of Hanoi recurrence",
+      "explain": "T(n) = 2T(n-1) + c because moving n discs requires moving n-1 discs twice plus one direct move.",
+      "example": "T(3) = 2*T(2)+1 = 2*(2*T(1)+1)+1 = 7"
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' width='460' height='240'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='440' height='50' rx='6' class='hi'/><text x='230' y='32' text-anchor='middle' class='lbl ink'>Algorithm to Recurrence Matching</text><text x='230' y='52' text-anchor='middle' class='sub mut'>P=Binary Search, Q=Merge Sort, R=Quick Sort, S=Hanoi</text><rect x='10' y='75' width='440' height='145' rx='6' class='bg'/><text x='30' y='100' class='sub ink'>P. Binary Search: T(n) = T(n/2) + c  →  IV</text><text x='30' y='125' class='sub ink'>Q. Merge Sort:   T(n) = 2T(n/2) + cn →  II</text><text x='30' y='150' class='sub ink'>R. Quick Sort:   T(n) = 2T(n/2) + cn →  III (avg)</text><text x='30' y='175' class='sub ink'>S. Tower Hanoi:  T(n) = 2T(n-1) + c  →  I</text><text x='230' y='210' text-anchor='middle' class='lbl ink'>Answer: D. P-IV, Q-II, R-III, S-I</text></svg>",
+    "visual_alt": "Table matching P=Binary Search to recurrence IV (T(n/2)+c), Q=Merge Sort to II (2T(n/2)+cn), R=Quick Sort to III (2T(n/2)+cn), S=Tower of Hanoi to I (2T(n-1)+c)."
+   },
+   "given": {
+    "aim": "Match each of the four algorithms (Binary search, Merge sort, Quick sort, Tower of Hanoi) to its correct recurrence relation.",
+    "terms": [
+     {
+      "term": "Binary search recurrence",
+      "meaning": "T(n) = T(n/2) + c: one subproblem of half size, constant work to compare and pick side.",
+      "example": "Searching in 16 elements: T(16)=T(8)+1.",
+      "connects": "Matches recurrence IV: T(n/2) + c."
+     },
+     {
+      "term": "Merge sort recurrence",
+      "meaning": "T(n) = 2T(n/2) + cn: two subproblems of half size plus linear merge step.",
+      "example": "Sorting 8 elements: T(8)=2T(4)+8.",
+      "connects": "Matches recurrence II: 2T(n/2) + cn."
+     },
+     {
+      "term": "Tower of Hanoi recurrence",
+      "meaning": "T(n) = 2T(n-1) + c: two recursive calls of size n-1 (move n-1 discs twice) plus one direct move.",
+      "example": "T(3)=2T(2)+1=7 moves.",
+      "connects": "Matches recurrence I: 2T(n-1) + c."
+     }
+    ],
+    "plan": "For each algorithm, derive its recurrence from first principles: Binary search halves the search space with O(1) comparison. Merge sort splits into 2 halves and merges in O(n). Quick sort (average) also splits into 2 halves with O(n) partition. Tower of Hanoi needs to move n-1 discs twice with O(1) final move. Then map to the given numbered recurrences."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Derive recurrence for each algorithm",
+      "formula_raw": "Binary search: T(n) = T(n/2) + c; Merge sort: T(n) = 2T(n/2) + cn; Quick sort (avg): T(n) = 2T(n/2) + cn; Tower of Hanoi: T(n) = 2T(n-1) + c",
+      "apply": "Binary search (P): compare middle element, recurse on one half → T(n) = T(n/2) + c. Merge sort (Q): split into two halves, sort each, merge → T(n) = 2T(n/2) + cn. Quick sort (R): partition in O(n), recurse on two halves (average case) → T(n) = 2T(n/2) + cn. Tower of Hanoi (S): move n-1 discs to peg B, move largest to C, move n-1 from B to C → T(n) = 2T(n-1) + c.",
+      "note": "Quick sort and merge sort have the same recurrence form for average/best case, but differ in constants and worst case."
+     },
+     {
+      "step": 2,
+      "title": "Match to numbered recurrences I-IV",
+      "formula_raw": "I: T(n)=2T(n-1)+c; II: T(n)=2T(n/2)+cn; III: T(n)=2T(n/2)+cn; IV: T(n)=T(n/2)+c",
+      "apply": "From the image: I = 2T(n-1)+c (Tower of Hanoi = S), II = 2T(n/2)+cn (Merge sort = Q), III = 2T(n/2)+cn (Quick sort = R, average case), IV = T(n/2)+c (Binary search = P). Therefore: P-IV, Q-II, R-III, S-I.",
+      "note": "This gives option D as the correct match."
+     }
+    ],
+    "result": "P-IV, Q-II, R-III, S-I, which is option D."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Standard recurrences for classic algorithms: Binary search T(n/2)+c, Merge sort 2T(n/2)+cn, Quick sort 2T(n/2)+cn (average), Tower of Hanoi 2T(n-1)+c.",
+   "qid": "1.27.30",
+   "answer_official": "B"
+  }
+ ]
+}

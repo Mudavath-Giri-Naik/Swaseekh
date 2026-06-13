@@ -1,0 +1,350 @@
+{
+ "page": 156,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 1992",
+    "year": 1992,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Compiler Design",
+    "topic": "Assembler",
+    "subtopic": "Assembler"
+   },
+   "question": "The purpose of instruction location counter in an assembler is _______",
+   "answer": "To keep track of the memory address (location) of the current instruction being assembled, so that labels and symbols can be assigned correct addresses during the first pass.",
+   "to_find": "The purpose/role of the Instruction Location Counter (ILC) in an assembler",
+   "understand": {
+    "plain": "An assembler converts assembly language programs into machine code. As it processes instructions one by one, it needs to know what memory address each instruction will be placed at. The Instruction Location Counter (ILC) is a variable that holds the current address and gets updated after each instruction is processed. This is essential for correctly assigning addresses to labels/symbols defined in the program.",
+    "keywords": [
+     {
+      "term": "Instruction Location Counter (ILC)",
+      "explain": "A counter maintained by the assembler that holds the address of the currently-being-processed instruction. It starts at the program's load address and advances by the size of each instruction.",
+      "example": "If ILC = 1000 and the current instruction is 4 bytes long, after processing it ILC becomes 1004."
+     },
+     {
+      "term": "Symbol Table",
+      "explain": "A table built during Pass 1 that maps label names to their memory addresses. The ILC value at the point a label is encountered gives that label its address.",
+      "example": "LOOP: ADD R1,R2 — if ILC = 2000 when LOOP is seen, LOOP gets address 2000 in the symbol table."
+     }
+    ],
+    "visual_svg": "<svg width=\"520\" height=\"160\" viewBox=\"0 0 520 160\" xmlns=\"http://www.w3.org/2000/svg\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x=\"10\" y=\"20\" width=\"130\" height=\"40\" rx=\"6\" class=\"bg\"/><text x=\"75\" y=\"45\" text-anchor=\"middle\" class=\"lbl ink\">ILC = 1000</text><rect x=\"10\" y=\"70\" width=\"130\" height=\"40\" rx=\"6\" class=\"hi\"/><text x=\"75\" y=\"95\" text-anchor=\"middle\" class=\"lbl ink\">LOOP: MOV</text><rect x=\"160\" y=\"45\" width=\"180\" height=\"40\" rx=\"6\" class=\"ok\"/><text x=\"250\" y=\"70\" text-anchor=\"middle\" class=\"lbl\" style=\"fill:#fff\">Symbol: LOOP=1000</text><text x=\"370\" y=\"50\" class=\"sub mut\">ILC advances</text><text x=\"370\" y=\"70\" class=\"sub mut\">by instr size</text><text x=\"370\" y=\"90\" class=\"sub mut\">(e.g. 4 bytes)</text><line x1=\"140\" y1=\"90\" x2=\"160\" y2=\"65\" stroke=\"#7F77DD\" stroke-width=\"2\" marker-end=\"url(#arr)\"/><defs><marker id=\"arr\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"3\" orient=\"auto\"><path d=\"M0,0 L0,6 L8,3 z\" fill=\"#7F77DD\"/></marker></defs></svg>",
+    "visual_alt": "ILC holding value 1000, pointing to instruction LOOP: MOV, which causes the symbol LOOP to be recorded with address 1000 in the symbol table. ILC then advances by the instruction size."
+   },
+   "given": {
+    "aim": "Explain the role of the Instruction Location Counter in the assembly process.",
+    "terms": [
+     {
+      "term": "ILC (Instruction Location Counter)",
+      "meaning": "A register/variable in the assembler that tracks the address of the current instruction being processed.",
+      "example": "Initialized to 0 (or program start address); incremented after each instruction.",
+      "connects": "Allows the assembler to assign correct memory addresses to all labels encountered during Pass 1."
+     },
+     {
+      "term": "Pass 1",
+      "meaning": "The first scan of the source program by the assembler, primarily used to build the symbol table.",
+      "example": "After Pass 1, all label addresses are known even if some forward references exist.",
+      "connects": "ILC is the main mechanism by which label addresses are determined in Pass 1."
+     },
+     {
+      "term": "Label / Symbol",
+      "meaning": "A name given to an instruction's address so it can be referenced by branches and data directives.",
+      "example": "LOOP: ADD R1,R2 — LOOP is a label.",
+      "connects": "The ILC value at the label's position is stored in the symbol table entry for that label."
+     }
+    ],
+    "plan": "Recall that during assembly, the assembler must know the address of every instruction and label. The ILC serves as the running 'program counter' during assembly — it is initialized to the program's starting address and incremented by the size of each instruction or data item processed, allowing correct address assignment to all symbols."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Role in Pass 1",
+      "formula_raw": "ILC = ILC + size_of_current_instruction",
+      "apply": "During Pass 1, the assembler scans each source line. When a label is encountered, its address equals the current ILC value. The assembler records (label, ILC) in the symbol table. Then ILC is incremented by the size of the current instruction before processing the next line.",
+      "note": "This is how forward references get resolved — by the time Pass 2 starts, all labels already have addresses from Pass 1."
+     },
+     {
+      "step": 2,
+      "title": "Role in Pass 2",
+      "formula_raw": "",
+      "apply": "In Pass 2, the ILC is again stepped through all instructions, but now its value is used together with the symbol table to generate actual machine code (resolving branch targets and address operands). It also helps the assembler emit the correct binary output at the correct offset.",
+      "note": "ILC in Pass 2 ensures the generated object code addresses match what was computed in Pass 1."
+     }
+    ],
+    "result": "The Instruction Location Counter (ILC) keeps track of the current memory address during assembly. In Pass 1, it assigns addresses to labels/symbols by recording the ILC value when each label is encountered. In Pass 2, it assists in generating correct machine code addresses. Essentially, ILC acts as a 'program counter' for the assembler."
+   },
+   "formula_ids_used": [],
+   "formula_note": "ILC is analogous to a program counter during assembly; it is incremented by the byte-size of each instruction/directive processed.",
+   "qid": "3.1.1",
+   "answer_official": "N/A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1992",
+    "year": 1992,
+    "marks": 2,
+    "difficulty": "easy",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "Assembler",
+    "subtopic": "Assembler"
+   },
+   "question": "Mention the pass number for each of the following activities that occur in a two pass assembler:\nA. Object code generation\nB. Literals added to literal table\nC. Listing printed\nD. Address resolution of local symbols\n\nWhich of the following correctly assigns pass numbers?\nA. Pass 2, Pass 1, Pass 2, Pass 1\nB. Pass 2, Pass 1, Pass 1, Pass 2\nC. Pass 1, Pass 2, Pass 2, Pass 1\nD. Pass 1, Pass 1, Pass 2, Pass 2",
+   "answer": "A. Pass 2, Pass 1, Pass 2, Pass 1",
+   "to_find": "The pass (Pass 1 or Pass 2) in which each assembler activity takes place",
+   "understand": {
+    "plain": "A two-pass assembler reads the source program twice. Pass 1 scans the code to build the symbol table (assign addresses to labels) and records literals. Pass 2 uses the symbol table to generate the actual machine code and print the listing. We need to assign each given activity to the correct pass.",
+    "keywords": [
+     {
+      "term": "Pass 1 (First Pass)",
+      "explain": "The first scan of the assembly source. Its main job is to compute addresses of all labels and build the symbol table. Literals are also recorded in the literal table during this pass.",
+      "example": "When the assembler sees LOOP: at ILC=100, it records LOOP->100 in Pass 1."
+     },
+     {
+      "term": "Pass 2 (Second Pass)",
+      "explain": "The second scan that uses the complete symbol table from Pass 1 to generate actual object/machine code and produce the program listing.",
+      "example": "A branch instruction like JMP LOOP is resolved to JMP 100 in Pass 2 using the symbol table."
+     },
+     {
+      "term": "Literal Table",
+      "explain": "A table that stores all literal constants found in the source code. Literals are added to this table during Pass 1 and their addresses are assigned at the end of Pass 1.",
+      "example": "=5 in an instruction causes entry 5 to be added to the literal table in Pass 1."
+     }
+    ],
+    "visual_svg": "<svg width=\"520\" height=\"200\" viewBox=\"0 0 520 200\" xmlns=\"http://www.w3.org/2000/svg\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x=\"10\" y=\"10\" width=\"220\" height=\"170\" rx=\"8\" class=\"bg\"/><text x=\"120\" y=\"35\" text-anchor=\"middle\" class=\"lbl ink\">Pass 1</text><text x=\"30\" y=\"60\" class=\"sub ink\">- Build Symbol Table</text><text x=\"30\" y=\"85\" class=\"sub ink\">- Add Literals to Literal Table</text><text x=\"30\" y=\"110\" class=\"sub ink\">- Compute ILC / addresses</text><text x=\"30\" y=\"135\" class=\"sub ink\">- Address resolution (local)</text><rect x=\"280\" y=\"10\" width=\"230\" height=\"170\" rx=\"8\" class=\"hi\"/><text x=\"395\" y=\"35\" text-anchor=\"middle\" class=\"lbl ink\">Pass 2</text><text x=\"295\" y=\"60\" class=\"sub ink\">- Generate Object Code</text><text x=\"295\" y=\"85\" class=\"sub ink\">- Print Listing</text><text x=\"295\" y=\"110\" class=\"sub ink\">- Resolve forward references</text><text x=\"295\" y=\"135\" class=\"sub ink\">- Assign literal addresses</text></svg>",
+    "visual_alt": "Two columns: Pass 1 activities (Build Symbol Table, Add Literals to Literal Table, Compute ILC/addresses, Address resolution of local symbols) and Pass 2 activities (Generate Object Code, Print Listing, Resolve forward references, Assign literal addresses)."
+   },
+   "given": {
+    "aim": "Assign each assembler activity (object code gen, literals added, listing printed, address resolution of local symbols) to Pass 1 or Pass 2.",
+    "terms": [
+     {
+      "term": "Object code generation",
+      "meaning": "Translating assembly mnemonics into actual binary machine instructions.",
+      "example": "MOV R1,R2 becomes its binary opcode + register fields.",
+      "connects": "Requires the completed symbol table, so it happens in Pass 2."
+     },
+     {
+      "term": "Literals added to literal table",
+      "meaning": "Recording literal constants (e.g., =5) encountered in the source into a literal table.",
+      "example": "LOAD R1,=7 causes literal 7 to be added to the literal pool in Pass 1.",
+      "connects": "Done in Pass 1 as the source is scanned for the first time."
+     },
+     {
+      "term": "Address resolution of local symbols",
+      "meaning": "Determining the final memory addresses of all locally defined labels/symbols.",
+      "example": "Label LOOP gets address 1004 based on ILC tracking in Pass 1.",
+      "connects": "Done in Pass 1 when ILC values are assigned to labels as they are encountered."
+     },
+     {
+      "term": "Listing printed",
+      "meaning": "Producing the assembly listing (source code annotated with addresses and machine code).",
+      "example": "A .lst file showing each source line alongside its hex machine code.",
+      "connects": "Can only be printed after object code is generated, so it is a Pass 2 activity."
+     }
+    ],
+    "plan": "Recall that Pass 1 builds the symbol table (assigns addresses) and records literals. Pass 2 generates code and the listing. Match each activity: object code gen -> Pass 2; literals added -> Pass 1; listing printed -> Pass 2; address resolution of local symbols -> Pass 1."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Identify Pass 1 activities",
+      "formula_raw": "",
+      "apply": "Pass 1 reads the source to assign addresses. Therefore:\n- Literals added to literal table: PASS 1 (encountered during first scan)\n- Address resolution of local symbols: PASS 1 (ILC is used to assign addresses to labels)",
+      "note": "Pass 1 cannot generate code yet because forward references may not be resolved; it only collects address information."
+     },
+     {
+      "step": 2,
+      "title": "Identify Pass 2 activities",
+      "formula_raw": "",
+      "apply": "Pass 2 uses the complete symbol table to:\n- Object code generation: PASS 2 (machine code is emitted using resolved addresses)\n- Listing printed: PASS 2 (listing shows machine code alongside source, requires Pass 2 data)",
+      "note": "The listing is a byproduct of Pass 2 since it includes machine code bytes that are only available after code generation."
+     },
+     {
+      "step": 3,
+      "title": "Assign to answer options",
+      "formula_raw": "",
+      "apply": "A. Object code generation -> Pass 2\nB. Literals added to literal table -> Pass 1\nC. Listing printed -> Pass 2\nD. Address resolution of local symbols -> Pass 1\n\nThis matches option A: Pass 2, Pass 1, Pass 2, Pass 1",
+      "note": "This is the standard two-pass assembler design."
+     }
+    ],
+    "result": "A. Pass 2, Pass 1, Pass 2, Pass 1"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Two-pass assembler design: Pass 1 builds symbol table and literal table; Pass 2 generates object code and listing using the completed symbol table.",
+   "qid": "3.1.2",
+   "answer_official": ""
+  },
+  {
+   "meta": {
+    "exam": "GATE 1992",
+    "year": 1992,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Compiler Design",
+    "topic": "Assembler",
+    "subtopic": "Assembler"
+   },
+   "question": "Which of the following macros can put a macro assembler into an infinite loop?\n\nMACRO M1, X          MACRO M2, X\n.IF EQ, X             .IF EQ, X\n  M1 X+1               M2 X\n.ENDC                 .ENDC\n.IF NE, X             .IF NE, X\n  .WORD X               .WORD X+1\n.ENDC                 .ENDC\n.ENDM                 .ENDM\n\nGive an example call that does so.\n\nA. M1 causes an infinite loop; called with M1 0\nB. M2 causes an infinite loop; called with M2 0\nC. Both M1 and M2 cause infinite loops\nD. Neither M1 nor M2 causes an infinite loop",
+   "answer": "B. M2 causes an infinite loop; called with M2 0",
+   "to_find": "Which macro (M1 or M2) can cause an infinite loop in the macro assembler, and with what call",
+   "understand": {
+    "plain": "Two macros M1 and M2 are defined. Each checks if argument X equals zero (.IF EQ,X). If X is zero, M1 calls itself with X+1 (which is 1, not zero, so recursion stops), while M2 calls itself with X (which remains 0 forever, causing infinite recursion). We need to identify which causes an infinite loop.",
+    "keywords": [
+     {
+      "term": "Macro recursion",
+      "explain": "A macro calling itself (directly or indirectly). Unlike function recursion at runtime, macro expansion happens at assembly time, so infinite macro recursion loops the assembler itself.",
+      "example": "If M calls M inside its body without a terminating condition, expanding M causes M to be expanded again, endlessly."
+     },
+     {
+      "term": ".IF EQ, X / .IF NE, X",
+      "explain": "Conditional assembly directives: .IF EQ,X means 'assemble the following block only if X equals 0'; .IF NE,X means 'only if X is not equal to 0'.",
+      "example": ".IF EQ, 0 — the block is assembled; .IF EQ, 1 — the block is skipped."
+     }
+    ],
+    "visual_svg": "<svg width=\"520\" height=\"220\" viewBox=\"0 0 520 220\" xmlns=\"http://www.w3.org/2000/svg\"><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x=\"10\" y=\"10\" width=\"220\" height=\"190\" rx=\"8\" class=\"ok\" style=\"fill:#d4edda;stroke:#1D9E75\"/><text x=\"120\" y=\"35\" text-anchor=\"middle\" class=\"lbl ink\">M1 (Safe)</text><text x=\"25\" y=\"60\" class=\"sub ink\">M1 0 -&gt; .IF EQ,0 -&gt; M1 1</text><text x=\"25\" y=\"80\" class=\"sub ink\">M1 1 -&gt; .IF EQ,1? NO</text><text x=\"25\" y=\"100\" class=\"sub ink\">      .IF NE,1? YES</text><text x=\"25\" y=\"120\" class=\"sub ink\">      .WORD 1 (terminates)</text><text x=\"25\" y=\"155\" class=\"sub mut\">X+1 ensures X != 0</text><text x=\"25\" y=\"175\" class=\"sub mut\">after first call. SAFE.</text><rect x=\"280\" y=\"10\" width=\"230\" height=\"190\" rx=\"8\" class=\"no\" style=\"fill:#fde8e0;stroke:#D85A30\"/><text x=\"395\" y=\"35\" text-anchor=\"middle\" class=\"lbl ink\">M2 (Infinite Loop)</text><text x=\"295\" y=\"60\" class=\"sub ink\">M2 0 -&gt; .IF EQ,0 -&gt; M2 0</text><text x=\"295\" y=\"80\" class=\"sub ink\">M2 0 -&gt; .IF EQ,0 -&gt; M2 0</text><text x=\"295\" y=\"100\" class=\"sub ink\">M2 0 -&gt; .IF EQ,0 -&gt; M2 0</text><text x=\"295\" y=\"120\" class=\"sub ink\">... forever ...</text><text x=\"295\" y=\"155\" class=\"sub mut\">X never changes!</text><text x=\"295\" y=\"175\" class=\"sub mut\">INFINITE LOOP.</text></svg>",
+    "visual_alt": "Two panels: M1 (safe) showing M1 0 calls M1 1, which then terminates because X is not 0; M2 (infinite) showing M2 0 repeatedly calls M2 0 because X is never changed."
+   },
+   "given": {
+    "aim": "Determine which macro causes the assembler to enter an infinite loop during macro expansion.",
+    "terms": [
+     {
+      "term": "M1 X — self-call with X+1",
+      "meaning": "When X=0, M1 calls M1 with argument X+1=1. In the next expansion, X=1 which is not equal to 0, so the .IF EQ block is skipped and .IF NE block emits .WORD 1 and terminates.",
+      "example": "M1 0 -> expand M1 with X=0 -> call M1 1 -> expand M1 with X=1 -> .WORD 1 -> done.",
+      "connects": "M1 terminates because the argument changes to a non-zero value, stopping recursion."
+     },
+     {
+      "term": "M2 X — self-call with X (unchanged)",
+      "meaning": "When X=0, M2 calls M2 with the same argument X=0. In the next expansion X is still 0, so .IF EQ is again true, causing another call to M2 0, forever.",
+      "example": "M2 0 -> expand M2 with X=0 -> call M2 0 -> expand M2 with X=0 -> ... infinite.",
+      "connects": "M2 causes an infinite loop because the argument never changes, making the base case never reachable."
+     },
+     {
+      "term": "Termination condition",
+      "meaning": "For a recursive macro to terminate, the argument must change in each recursive call so that eventually the recursive branch is not taken.",
+      "example": "M1 achieves this via X+1; M2 fails to do this because it passes X unchanged.",
+      "connects": "The absence of a termination condition in M2 is the root cause of the infinite loop."
+     }
+    ],
+    "plan": "Trace the expansion of each macro with argument X=0 (the EQ case). For M1, X+1 makes the argument non-zero on the next call, so it terminates. For M2, the argument stays X=0 on every recursive call, so expansion never stops — M2 causes an infinite loop."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Trace M1 with X=0",
+      "formula_raw": "",
+      "apply": "Call M1 0:\n  .IF EQ, 0 -> TRUE -> expand M1 (0+1) = M1 1\n    Now inside M1 with X=1:\n    .IF EQ, 1 -> FALSE -> skip\n    .IF NE, 1 -> TRUE -> emit .WORD 1\n  Expansion terminates.\nM1 0 does NOT cause an infinite loop.",
+      "note": "The key is that M1 changes X to X+1 = 1 in the recursive call, which breaks out of the .IF EQ condition."
+     },
+     {
+      "step": 2,
+      "title": "Trace M2 with X=0",
+      "formula_raw": "",
+      "apply": "Call M2 0:\n  .IF EQ, 0 -> TRUE -> expand M2 0 (same argument!)\n    Now inside M2 with X=0:\n    .IF EQ, 0 -> TRUE -> expand M2 0\n      ... and so on, forever.\nM2 0 causes an INFINITE LOOP because X=0 is passed unchanged, so .IF EQ always triggers the recursive call.",
+      "note": "The .IF NE block (.WORD X+1) is never reached because .IF EQ keeps recurring before .IF NE is evaluated."
+     }
+    ],
+    "result": "M2 causes an infinite loop. An example call that does so is: M2 0"
+   },
+   "formula_ids_used": [],
+   "formula_note": "Recursive macro expansion: a macro calling itself with an unchanged argument that satisfies the recursive condition produces an infinite expansion loop in the assembler.",
+   "qid": "3.1.3",
+   "answer_official": "N/A"
+  },
+  {
+   "meta": {
+    "exam": "GATE 1993",
+    "year": 1993,
+    "marks": 2,
+    "difficulty": "easy",
+    "type": "MSQ",
+    "subject": "Compiler Design",
+    "topic": "Assembler",
+    "subtopic": "Assembler"
+   },
+   "question": "A simple two-pass assembler does the following in the first pass:\nA. It allocates space for the literals.\nB. It computes the total length of the program.\nC. It builds the symbol table for the symbols and their values.\nD. It generates code for all the load and store register instructions.\nE. None of the above.\n\n(Select all that apply.)",
+   "answer": "A, B, C",
+   "to_find": "Which activities are performed by a two-pass assembler during Pass 1",
+   "understand": {
+    "plain": "A two-pass assembler processes the source code twice. During Pass 1 (the first scan), it does the groundwork: it goes through the code to figure out where everything goes in memory. It assigns addresses to all labels, builds a symbol table, records literals and allocates space for them, and computes the program's total length. It does NOT generate actual machine code in Pass 1.",
+    "keywords": [
+     {
+      "term": "Symbol Table",
+      "explain": "A data structure built during Pass 1 that maps every label name to its memory address.",
+      "example": "After Pass 1, the table contains {LOOP: 1000, END: 1020, ...}."
+     },
+     {
+      "term": "Literal Pool / Space Allocation",
+      "explain": "Literal constants (like =5) are collected during Pass 1 and space is reserved for them at the end of the program or segment.",
+      "example": "LOAD R1, =7 causes '7' to be entered in the literal table; its space is allocated at end of Pass 1."
+     },
+     {
+      "term": "Program Length Computation",
+      "explain": "As the ILC is advanced through all instructions and data items, its final value gives the total size (length) of the assembled program.",
+      "example": "If ILC ends at 500 after processing all instructions, the program length is 500 bytes."
+     }
+    ],
+    "visual_svg": "",
+    "visual_alt": "Pass 1 activities of a two-pass assembler: Allocate space for literals (A), Compute program length (B), Build symbol table (C). Code generation (D) is done in Pass 2, not Pass 1."
+   },
+   "given": {
+    "aim": "Identify all activities that a simple two-pass assembler performs during its first pass.",
+    "terms": [
+     {
+      "term": "A — Allocates space for literals",
+      "meaning": "Literals encountered during Pass 1 are collected into a literal table and memory space is reserved for them (often at the end of the code segment).",
+      "example": "=5 literal gets a reserved memory slot during Pass 1.",
+      "connects": "TRUE — this is a standard Pass 1 activity."
+     },
+     {
+      "term": "B — Computes total length of the program",
+      "meaning": "The ILC is incremented for each instruction; its final value = total program length.",
+      "example": "With 10 instructions of 4 bytes each, final ILC = 40.",
+      "connects": "TRUE — naturally computed as ILC is tracked through all instructions in Pass 1."
+     },
+     {
+      "term": "C — Builds symbol table",
+      "meaning": "Every label definition in the source is recorded with its ILC value.",
+      "example": "START: -> symbol START with value 0 added to symbol table.",
+      "connects": "TRUE — this is the primary purpose of Pass 1."
+     },
+     {
+      "term": "D — Generates code for load/store instructions",
+      "meaning": "Code generation requires knowledge of all symbol addresses; this is done in Pass 2.",
+      "example": "LOAD R1, ADDR requires knowing ADDR's final address from the symbol table.",
+      "connects": "FALSE — code generation is a Pass 2 activity."
+     }
+    ],
+    "plan": "Pass 1 of a two-pass assembler focuses on scanning the program to gather address information (symbol table, literal table, program length). Code generation is deferred to Pass 2. Evaluate each option against this principle."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Evaluate each option against Pass 1 responsibilities",
+      "formula_raw": "",
+      "apply": "A. Allocates space for literals -> YES (Pass 1 collects literals into a literal table and allocates space)\nB. Computes total length of program -> YES (ILC tracking during Pass 1 gives total length at the end)\nC. Builds symbol table -> YES (primary task of Pass 1 — assigns addresses to all labels)\nD. Generates code for load/store instructions -> NO (code generation requires complete symbol table, done in Pass 2)\nE. None of the above -> NO (A, B, C are all correct)",
+      "note": "The key distinguishing rule: anything requiring complete knowledge of all symbol addresses is a Pass 2 activity."
+     },
+     {
+      "step": 2,
+      "title": "Confirm the answer",
+      "formula_raw": "",
+      "apply": "Options A, B, and C are all correct Pass 1 activities. Option D is a Pass 2 activity. Option E is wrong because A, B, C are correct.",
+      "note": "This is a standard GATE question testing knowledge of two-pass assembler design."
+     }
+    ],
+    "result": "A, B, C — A two-pass assembler in Pass 1: allocates space for literals, computes total program length, and builds the symbol table. It does NOT generate code in Pass 1."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Two-pass assembler architecture: Pass 1 scans source to build symbol table, literal table, and compute program size; Pass 2 generates object code using the completed symbol table.",
+   "qid": "3.1.4",
+   "answer_official": "A;B;C"
+  }
+ ]
+}

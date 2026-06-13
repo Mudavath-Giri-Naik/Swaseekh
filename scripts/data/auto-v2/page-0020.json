@@ -1,0 +1,436 @@
+{
+ "page": 20,
+ "questions": [
+  {
+   "meta": {
+    "exam": "GATE 2025",
+    "year": 2025,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "NAT",
+    "subject": "Algorithms",
+    "topic": "Directed Graph",
+    "subtopic": "Directed Graph"
+   },
+   "question": "Consider a directed graph G = (V, E), where V = {0, 1, 2, ..., 100} and E = {(i, j) : 0 <= j - i <= 2} for all i, j in V. Suppose the adjacency list of each vertex is in decreasing order of vertex number, and depth-first search (DFS) is performed at vertex 0. The number of vertices that will be discovered after vertex 50 is ____________ (Answer in integer)",
+   "answer": "50",
+   "to_find": "Number of vertices discovered after vertex 50 during DFS from vertex 0",
+   "understand": {
+    "plain": "We have vertices 0 to 100, and a directed edge exists from i to j if j - i is 0, 1, or 2 (so each vertex points to itself, the next, and the one after next). The adjacency list of each vertex is in DECREASING order, meaning from vertex i we explore i+2 before i+1 before i. DFS starts at vertex 0, and we need to count how many vertices are discovered AFTER vertex 50 is first visited.",
+    "keywords": [
+     {
+      "term": "DFS discovery order",
+      "explain": "In DFS, a vertex is 'discovered' when it is first visited. The order depends on which neighbor is explored first.",
+      "example": "If adjacency list of 0 is [2, 1, 0], DFS visits 2 first, then recurses from 2."
+     },
+     {
+      "term": "Decreasing adjacency list",
+      "explain": "For vertex i, neighbors are i+2, i+1, i (in that decreasing order). DFS always goes to i+2 first.",
+      "example": "From vertex 0: explore 2 first, then 1, then 0 (self-loop, already visited)."
+     },
+     {
+      "term": "Self-loop edge",
+      "explain": "Since j - i >= 0 is allowed, each vertex i has edge (i, i), a self-loop.",
+      "example": "Vertex 5 has edges to 5, 6, 7."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 180'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='10' y='10' width='560' height='160' rx='8' class='bg'/><text x='300' y='35' text-anchor='middle' class='lbl ink'>DFS path (adjacency in decreasing order)</text><circle cx='80' cy='100' r='22' class='hi'/><text x='80' y='105' text-anchor='middle' class='lbl ink'>0</text><circle cx='180' cy='100' r='22' class='bg'/><text x='180' y='105' text-anchor='middle' class='lbl ink'>2</text><circle cx='280' cy='100' r='22' class='bg'/><text x='280' y='105' text-anchor='middle' class='lbl ink'>4</text><circle cx='380' cy='100' r='22' class='bg'/><text x='380' y='105' text-anchor='middle' class='lbl ink'>...</text><circle cx='480' cy='100' r='22' class='bg'/><text x='480' y='105' text-anchor='middle' class='lbl ink'>100</text><text x='300' y='145' text-anchor='middle' class='sub mut'>DFS jumps by +2 first: 0-&gt;2-&gt;4-&gt;...-&gt;100, then backtracks filling odd vertices</text><line x1='102' y1='100' x2='158' y2='100' stroke='#7F77DD' stroke-width='2' marker-end='url(#arr)'/><line x1='202' y1='100' x2='258' y2='100' stroke='#7F77DD' stroke-width='2'/><line x1='302' y1='100' x2='358' y2='100' stroke='#7F77DD' stroke-width='2'/><line x1='402' y1='100' x2='458' y2='100' stroke='#7F77DD' stroke-width='2'/></svg>",
+    "visual_alt": "Directed graph where each vertex i connects to i+1 and i+2. DFS starting at 0 with decreasing adjacency order explores 0->2->4->...->100, then backtracks to fill in 99, 97, ... and eventually odd vertices."
+   },
+   "given": {
+    "aim": "Find how many vertices are discovered after vertex 50 during DFS from vertex 0",
+    "terms": [
+     {
+      "term": "V = {0, 1, ..., 100}",
+      "meaning": "101 vertices total, labeled 0 through 100",
+      "example": "Vertex 50 is the 51st vertex",
+      "connects": "We need to count vertices discovered AFTER 50 is first found"
+     },
+     {
+      "term": "E = {(i,j): 0 <= j-i <= 2}",
+      "meaning": "From vertex i there are edges to i (self), i+1, and i+2 (if they exist)",
+      "example": "From vertex 3: edges to 3, 4, 5",
+      "connects": "Defines the neighbor structure used by DFS"
+     },
+     {
+      "term": "Adjacency list in decreasing order",
+      "meaning": "From vertex i, neighbors are listed as i+2, i+1, i (highest first)",
+      "example": "Adj[0] = [2, 1, 0]; DFS explores 2 before 1",
+      "connects": "DFS always goes to i+2 first, creating a specific traversal order"
+     },
+     {
+      "term": "DFS from vertex 0",
+      "meaning": "Depth-first search starts at vertex 0 and explores as deep as possible first",
+      "example": "From 0, go to 2 (first in adj list), then from 2 go to 4, etc.",
+      "connects": "Determines the order in which all vertices are discovered"
+     }
+    ],
+    "plan": "Simulate the DFS. With decreasing adjacency lists, from vertex i we always explore i+2 first. So DFS from 0 will go: 0 -> 2 -> 4 -> 6 -> ... -> 100 (all even vertices first). Then backtracking from 100, vertex 99 is discovered (via edge 98->100 blocked but 98->99 not yet visited). Working through the recursion carefully: DFS path goes 0->2->4->...->100, then back to 98 which explores 99 (unvisited), then 99 explores 100 (visited) and 101 (doesn't exist), so 99 is discovered. Continuing backtrack: from 96, explores 97 (unvisited)... This pattern means odd vertices are discovered after their predecessor even vertex. Vertex 50 is even and is discovered as the 26th vertex (0,2,4,...,50). After vertex 50 is discovered, DFS goes into 52,54,...,100 (25 even vertices), then odd vertices 99,97,...,51 (25 odd vertices) are discovered during backtracking. Total = 25 + 25 = 50."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Trace DFS with decreasing adjacency order",
+      "formula_raw": "Adj[i] = [i+2, i+1, i] (decreasing order, clipped at 100)",
+      "apply": "DFS from 0: visit 0, then explore neighbor i+2=2 first. From 2 explore 4 first. This creates a chain: 0->2->4->6->...->100. All even vertices {0,2,4,...,100} are discovered in this straight-line dive. That is 51 vertices (0,2,4,...,100).",
+      "note": "Vertex 50 is the 26th vertex discovered (index 25 in sequence 0,2,4,...,50), discovered before 52,54,...,100"
+     },
+     {
+      "step": 2,
+      "title": "Count vertices discovered after vertex 50",
+      "formula_raw": "After 50: even vertices {52,54,...,100} + odd vertices discovered on backtrack",
+      "apply": "After 50 is discovered, DFS continues the deep dive: 52, 54, 56, ..., 100. That is (100-52)/2 + 1 = 25 even vertices. Then backtracking: from 100 (no unvisited i+2 or i+1 since 101 doesn't exist and 99 unvisited), actually from vertex 98 we explore 100 (visited), then 99 (unvisited!) -> discover 99. From 99: explore 101(N/A), 100(visited), 99(visited). Backtrack to 98, then to 96 which explores 97 (unvisited)... Each even vertex k (when we backtrack to k) discovers the odd vertex k+1 via: from k, neighbors are k+2 (visited), k+1 (unvisited!). So odd vertices 51, 53, 55, ..., 99 are each discovered during backtrack. That is (99-51)/2 + 1 = 25 odd vertices. Total after vertex 50: 25 + 25 = 50.",
+      "note": "The self-loops (i,i) are ignored since i is already marked visited when DFS is at i."
+     }
+    ],
+    "result": "50 vertices are discovered after vertex 50."
+   },
+   "formula_ids_used": [],
+   "formula_note": "DFS traversal order with specific adjacency list ordering; even vertices discovered on the way down, odd vertices discovered on backtracking.",
+   "qid": "1.10.1",
+   "answer_official": "75"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2025",
+    "year": 2025,
+    "marks": 2,
+    "difficulty": "easy",
+    "type": "NAT",
+    "subject": "Algorithms",
+    "topic": "Double Hashing",
+    "subtopic": "Double Hashing"
+   },
+   "question": "In a double hashing scheme, h1(k) = k mod 11 and h2(k) = 1 + (k mod 7) are the auxiliary hash functions. The size of the hash table is 11. The hash function for the i-th probe in the open address table is h(k, i) = (h1(k) + i * h2(k)) mod 11. The following keys are inserted in the given order: 24, 50, 70, 75, 9, 2. The slot at which key 24 gets stored is ___________ (Answer in integer)",
+   "answer": "2",
+   "to_find": "The slot (index) where key 24 is stored in the hash table",
+   "understand": {
+    "plain": "We have a hash table of size 11 (slots 0 to 10) using double hashing for collision resolution. Keys are inserted one by one. When key 24 is inserted first, we compute its primary hash h1(24) = 24 mod 11 = 2. Since the table is initially empty, slot 2 is free and key 24 is stored there at slot 2.",
+    "keywords": [
+     {
+      "term": "Double hashing",
+      "explain": "A collision resolution technique where a second hash function determines the step size for probing. Probe sequence: h(k,0), h(k,1), h(k,2), ...",
+      "example": "If h1(k)=3 and h2(k)=4, probes are at slots 3, 7, 0, 4, ..."
+     },
+     {
+      "term": "Open addressing",
+      "explain": "All elements stored directly in the hash table; on collision, probe for next empty slot",
+      "example": "If slot 5 is full, try (5 + h2(k)) mod 11"
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 580 160'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='5' y='5' width='570' height='150' rx='8' class='bg'/><text x='290' y='28' text-anchor='middle' class='lbl ink'>Hash Table (size 11) after inserting 24</text><rect x='20' y='45' width='48' height='40' class='bg'/><text x='44' y='60' text-anchor='middle' class='sub mut'>0</text><text x='44' y='77' text-anchor='middle' class='lbl ink'>-</text><rect x='70' y='45' width='48' height='40' class='bg'/><text x='94' y='60' text-anchor='middle' class='sub mut'>1</text><text x='94' y='77' text-anchor='middle' class='lbl ink'>-</text><rect x='120' y='45' width='48' height='40' class='hi'/><text x='144' y='60' text-anchor='middle' class='sub mut'>2</text><text x='144' y='77' text-anchor='middle' class='lbl ink'>24</text><rect x='170' y='45' width='48' height='40' class='bg'/><text x='194' y='60' text-anchor='middle' class='sub mut'>3</text><text x='194' y='77' text-anchor='middle' class='lbl ink'>-</text><rect x='220' y='45' width='48' height='40' class='bg'/><text x='244' y='60' text-anchor='middle' class='sub mut'>4</text><text x='244' y='77' text-anchor='middle' class='lbl ink'>-</text><rect x='270' y='45' width='48' height='40' class='bg'/><text x='294' y='60' text-anchor='middle' class='sub mut'>5</text><text x='294' y='77' text-anchor='middle' class='lbl ink'>-</text><rect x='320' y='45' width='48' height='40' class='bg'/><text x='344' y='60' text-anchor='middle' class='sub mut'>6</text><text x='344' y='77' text-anchor='middle' class='lbl ink'>-</text><rect x='370' y='45' width='48' height='40' class='bg'/><text x='394' y='60' text-anchor='middle' class='sub mut'>7</text><text x='394' y='77' text-anchor='middle' class='lbl ink'>-</text><rect x='420' y='45' width='48' height='40' class='bg'/><text x='444' y='60' text-anchor='middle' class='sub mut'>8</text><text x='444' y='77' text-anchor='middle' class='lbl ink'>-</text><rect x='470' y='45' width='48' height='40' class='bg'/><text x='494' y='60' text-anchor='middle' class='sub mut'>9</text><text x='494' y='77' text-anchor='middle' class='lbl ink'>-</text><rect x='520' y='45' width='48' height='40' class='bg'/><text x='544' y='60' text-anchor='middle' class='sub mut'>10</text><text x='544' y='77' text-anchor='middle' class='lbl ink'>-</text><text x='290' y='125' text-anchor='middle' class='sub mut'>h1(24) = 24 mod 11 = 2 (no collision, stored at slot 2)</text></svg>",
+    "visual_alt": "Hash table of size 11 with slots 0-10. Key 24 is stored at slot 2 (highlighted). All other slots are empty at this point."
+   },
+   "given": {
+    "aim": "Find the slot where key 24 is stored after inserting keys 24, 50, 70, 75, 9, 2 in order",
+    "terms": [
+     {
+      "term": "h1(k) = k mod 11",
+      "meaning": "Primary hash function maps key k to a slot in [0,10]",
+      "example": "h1(24) = 24 mod 11 = 2",
+      "connects": "Gives the initial probe position for key 24"
+     },
+     {
+      "term": "h2(k) = 1 + (k mod 7)",
+      "meaning": "Secondary hash function gives step size for probing; always >= 1",
+      "example": "h2(24) = 1 + (24 mod 7) = 1 + 3 = 4",
+      "connects": "Used only if collision occurs; step size for subsequent probes"
+     },
+     {
+      "term": "h(k, i) = (h1(k) + i * h2(k)) mod 11",
+      "meaning": "i-th probe position formula; i=0 gives first probe at h1(k)",
+      "example": "h(24, 0) = (2 + 0*4) mod 11 = 2; h(24,1) = (2+4) mod 11 = 6",
+      "connects": "Determines the sequence of slots to check for insertion"
+     },
+     {
+      "term": "Insertion order: 24, 50, 70, 75, 9, 2",
+      "meaning": "Keys are inserted one by one; earlier keys can occupy slots before later keys try them",
+      "example": "24 is inserted first into an empty table, so no collision possible for 24",
+      "connects": "Since 24 is the first key inserted, it always goes to its primary hash slot"
+     }
+    ],
+    "plan": "Since key 24 is the FIRST key inserted (table is empty), compute h1(24) = 24 mod 11 = 2. Slot 2 is free (empty table), so key 24 is stored directly at slot 2. No probing needed."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Compute primary hash for key 24",
+      "formula_raw": "h1(k) = k mod 11",
+      "apply": "h1(24) = 24 mod 11 = 2. The first probe is at slot 2.",
+      "note": "24 = 2 * 11 + 2, so the remainder is 2."
+     },
+     {
+      "step": 2,
+      "title": "Check if slot 2 is free",
+      "formula_raw": "h(24, 0) = (h1(24) + 0 * h2(24)) mod 11 = h1(24) = 2",
+      "apply": "Key 24 is the FIRST key to be inserted (the table is completely empty). Slot 2 is free. Insert key 24 at slot 2.",
+      "note": "No collision occurs because the table is empty. The answer is slot 2."
+     }
+    ],
+    "result": "Key 24 is stored at slot 2."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Double hashing with h(k,i) = (h1(k) + i*h2(k)) mod m; first key inserted has no collision.",
+   "qid": "1.11.1",
+   "answer_official": "10"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2008",
+    "year": 2008,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Algorithms",
+    "topic": "Dynamic Programming",
+    "subtopic": "Dynamic Programming"
+   },
+   "question": "The subset-sum problem is defined as follows. Given a set S of n positive integers and a positive integer W, is there a subset of S whose elements sum to W? A dynamic program for solving this problem uses a 2-dimensional Boolean array X, with n rows and W+1 columns. X[i][j], 1 <= i <= n, 0 <= j <= W, is TRUE if and only if there is a subset of {a_1, a_2, ..., a_i} whose elements sum to j. Which of the following is the correct recurrence for X[i][j]?\n\nA. X[i][j] = X[i-1][j] OR X[i-1][j-a_i] if j >= a_i, else X[i-1][j]\nB. X[i][j] = X[i-1][j] OR X[i][j-a_i] if j >= a_i, else X[i-1][j]\nC. X[i][j] = X[i-1][j] AND X[i-1][j-a_i] if j >= a_i, else X[i-1][j]\nD. X[i][j] = X[i-1][j] OR X[i-1][j+a_i] if j+a_i <= W, else X[i-1][j]",
+   "answer": "A. X[i][j] = X[i-1][j] OR X[i-1][j-a_i] if j >= a_i, else X[i-1][j]",
+   "to_find": "Correct recurrence relation for the subset-sum DP table X[i][j]",
+   "understand": {
+    "plain": "We want to fill a DP table where X[i][j] = TRUE means 'using only the first i elements of S, can we form the sum j?'. For each new element a_i, we either include it in our subset or exclude it. If we exclude a_i, we need X[i-1][j] to be TRUE. If we include a_i (only possible if j >= a_i), we need X[i-1][j-a_i] to be TRUE. The result is TRUE if either option works.",
+    "keywords": [
+     {
+      "term": "Subset-sum DP",
+      "explain": "A 2D table where X[i][j] = TRUE if the first i elements can form sum j. Built bottom-up.",
+      "example": "X[2][3] = TRUE means {a_1, a_2} has a subset summing to 3."
+     },
+     {
+      "term": "Include/Exclude decision",
+      "explain": "For each element a_i we decide: include it (reduces target by a_i) or exclude it (problem unchanged on remaining i-1 elements).",
+      "example": "If a_i=3, j=5: exclude->X[i-1][5]; include->X[i-1][2]. TRUE if either."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 520 200'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='5' y='5' width='510' height='190' rx='8' class='bg'/><text x='260' y='30' text-anchor='middle' class='lbl ink'>Subset-Sum DP: Include or Exclude a_i</text><rect x='30' y='50' width='200' height='55' rx='6' class='bg'/><text x='130' y='72' text-anchor='middle' class='sub ink'>Exclude a_i:</text><text x='130' y='92' text-anchor='middle' class='sub ink'>Need X[i-1][j] = TRUE</text><rect x='280' y='50' width='210' height='55' rx='6' class='bg'/><text x='385' y='72' text-anchor='middle' class='sub ink'>Include a_i (if j &gt;= a_i):</text><text x='385' y='92' text-anchor='middle' class='sub ink'>Need X[i-1][j - a_i] = TRUE</text><rect x='160' y='130' width='200' height='50' rx='6' class='hi'/><text x='260' y='152' text-anchor='middle' class='sub ink'>X[i][j] = X[i-1][j]</text><text x='260' y='170' text-anchor='middle' class='sub ink'>OR X[i-1][j - a_i]</text></svg>",
+    "visual_alt": "Decision tree: for cell X[i][j], either exclude a_i (use X[i-1][j]) or include a_i (use X[i-1][j-a_i] if j>=a_i). X[i][j] is TRUE if either option gives TRUE."
+   },
+   "given": {
+    "aim": "Find the correct recurrence for the subset-sum DP table X[i][j]",
+    "terms": [
+     {
+      "term": "X[i][j]",
+      "meaning": "TRUE if some subset of {a_1,...,a_i} sums to j",
+      "example": "X[3][5] = TRUE means first 3 elements contain a subset summing to 5",
+      "connects": "The cell we are computing"
+     },
+     {
+      "term": "Exclude a_i",
+      "meaning": "Don't use the i-th element; then we need {a_1,...,a_{i-1}} to sum to j",
+      "example": "If a_3=4 and j=5, excluding gives X[2][5]",
+      "connects": "Contributes X[i-1][j] to the OR"
+     },
+     {
+      "term": "Include a_i",
+      "meaning": "Use the i-th element; then need {a_1,...,a_{i-1}} to sum to j-a_i (only if j >= a_i)",
+      "example": "If a_3=4 and j=5, including gives X[2][1]",
+      "connects": "Contributes X[i-1][j-a_i] to the OR"
+     },
+     {
+      "term": "Base case X[i][0] = TRUE",
+      "meaning": "Empty subset sums to 0, always TRUE",
+      "example": "X[any][0] = TRUE (empty subset)",
+      "connects": "Foundation for the recurrence"
+     }
+    ],
+    "plan": "For X[i][j], consider two choices: (1) Don't include a_i: X[i][j] = X[i-1][j]. (2) Include a_i (if j >= a_i): X[i][j] = X[i-1][j-a_i]. Result is TRUE if either choice leads to TRUE. So X[i][j] = X[i-1][j] OR (j >= a_i AND X[i-1][j-a_i]). Match with given options."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Formulate the include/exclude recurrence",
+      "formula_raw": "X[i][j] = X[i-1][j] OR X[i-1][j-a_i] (when j >= a_i)",
+      "apply": "Option A states: X[i][j] = X[i-1][j] OR X[i-1][j-a_i] if j >= a_i, else X[i-1][j]. This is correct: we use previous row (i-1) for both include and exclude cases, referencing {a_1,...,a_{i-1}}.",
+      "note": "Option B is WRONG: it uses X[i][j-a_i] (same row, current i), which would be incorrect for the 0/1 knapsack variant (though valid for unbounded). Options C and D are clearly wrong (AND instead of OR; adding a_i instead of subtracting)."
+     },
+     {
+      "step": 2,
+      "title": "Eliminate incorrect options",
+      "formula_raw": "",
+      "apply": "B: uses X[i][j-a_i] -- same row, valid for unbounded subset sum but wrong here (0/1 version). C: uses AND instead of OR -- requires BOTH including and excluding to work, which is too restrictive. D: uses j+a_i, which means subtracting a_i from the subset, nonsensical for building up to sum j.",
+      "note": "The defining property is using row i-1 (previous item) and OR for the two choices."
+     }
+    ],
+    "result": "Option A: X[i][j] = X[i-1][j] OR X[i-1][j-a_i] if j >= a_i, else X[i-1][j]."
+   },
+   "formula_ids_used": [],
+   "formula_note": "0/1 Subset-sum DP recurrence: include/exclude decision using previous row for 0/1 constraint.",
+   "qid": "1.12.1",
+   "answer_official": "B"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2008",
+    "year": 2008,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Algorithms",
+    "topic": "Dynamic Programming",
+    "subtopic": "Dynamic Programming"
+   },
+   "question": "The subset-sum problem is defined as follows. Given a set S of n positive integers and a positive integer W, is there a subset of S whose elements sum to W? A dynamic program for solving this problem uses a 2-dimensional Boolean array X, with n rows and W+1 columns. X[i][j], 1 <= i <= n, 0 <= j <= W, is TRUE if and only if there is a subset of {a_1, a_2, ..., a_i} whose elements sum to j.\n\nWhich entry of the array X, if TRUE, implies that there is a subset of S whose elements sum to W?\n\nA. X[1][W]\nB. X[n][0]\nC. X[n][W]\nD. X[n-1][W]",
+   "answer": "C. X[n][W]",
+   "to_find": "Which entry X[i][j] being TRUE implies there is a subset of S summing to W",
+   "understand": {
+    "plain": "The DP table X[i][j] is TRUE when some subset of the first i elements sums to j. We want to know if ANY subset of ALL n elements sums to W. This is captured exactly by X[n][W]: using all n elements (i=n), can we form sum W (j=W)?",
+    "keywords": [
+     {
+      "term": "X[n][W]",
+      "explain": "TRUE means there exists a subset of all n elements (the full set S) that sums to W.",
+      "example": "If S={1,3,5,7} and W=8, X[4][8]=TRUE because {1,7} or {3,5} sum to 8."
+     },
+     {
+      "term": "Final answer cell",
+      "explain": "In subset-sum DP, the answer to the original problem is always in the bottom-right of the relevant portion of the table.",
+      "example": "n rows, W+1 columns: row n uses all elements, column W is the target sum."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 220'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='5' y='5' width='390' height='210' rx='8' class='bg'/><text x='200' y='30' text-anchor='middle' class='lbl ink'>DP Table X[i][j]</text><text x='100' y='55' text-anchor='middle' class='sub mut'>j=0</text><text x='200' y='55' text-anchor='middle' class='sub mut'>j=...</text><text x='310' y='55' text-anchor='middle' class='sub mut'>j=W</text><text x='35' y='90' text-anchor='middle' class='sub mut'>i=1</text><rect x='70' y='68' width='60' height='35' class='bg'/><text x='100' y='90' text-anchor='middle' class='sub ink'>T</text><rect x='165' y='68' width='60' height='35' class='bg'/><text x='195' y='90' text-anchor='middle' class='sub ink'>...</text><rect x='275' y='68' width='60' height='35' class='bg'/><text x='305' y='90' text-anchor='middle' class='sub ink'>?</text><text x='35' y='145' text-anchor='middle' class='sub mut'>i=n</text><rect x='70' y='123' width='60' height='35' class='bg'/><text x='100' y='145' text-anchor='middle' class='sub ink'>T</text><rect x='165' y='123' width='60' height='35' class='bg'/><text x='195' y='145' text-anchor='middle' class='sub ink'>...</text><rect x='275' y='123' width='60' height='35' class='hi'/><text x='305' y='145' text-anchor='middle' class='lbl ink'>ANS</text><text x='200' y='185' text-anchor='middle' class='sub mut'>X[n][W] = TRUE means subset of all S sums to W</text></svg>",
+    "visual_alt": "DP table with i from 1 to n (rows) and j from 0 to W (columns). The answer cell X[n][W] is highlighted at the bottom-right corner, indicating all n elements considered with target sum W."
+   },
+   "given": {
+    "aim": "Identify which X[i][j] entry answers the subset-sum question for the full set S and target W",
+    "terms": [
+     {
+      "term": "X[i][j]",
+      "meaning": "TRUE iff some subset of first i elements sums to j",
+      "example": "X[2][4] = TRUE if {a_1, a_2} has subset summing to 4",
+      "connects": "We need i=n (all elements) and j=W (target sum)"
+     },
+     {
+      "term": "Full set S = {a_1, ..., a_n}",
+      "meaning": "All n elements; i=n means considering the full set",
+      "example": "n=4 means row 4 considers all 4 elements",
+      "connects": "Row index must be n to allow using any element"
+     },
+     {
+      "term": "Target sum W",
+      "meaning": "We want subsets that sum exactly to W",
+      "example": "j=W is the column corresponding to the target",
+      "connects": "Column index must be W"
+     },
+     {
+      "term": "X[n][0]",
+      "meaning": "TRUE iff first n elements have a subset summing to 0; always TRUE (empty subset)",
+      "example": "X[n][0] = TRUE always, useless for our answer",
+      "connects": "Eliminates option B"
+     }
+    ],
+    "plan": "The DP definition says X[i][j] = TRUE iff some subset of {a_1,...,a_i} sums to j. The original problem asks about ALL of S (n elements) summing to W. So the answer entry is X[n][W]."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Match the problem question to the DP table entry",
+      "formula_raw": "X[i][j] = TRUE iff exists subset of {a_1,...,a_i} summing to j",
+      "apply": "We want: does some subset of S = {a_1,...,a_n} sum to W? Set i=n (all elements considered) and j=W (target). This is exactly X[n][W].",
+      "note": "Option A (X[1][W]) only uses the first element. Option B (X[n][0]) asks if sum=0 (trivially TRUE with empty set). Option D (X[n-1][W]) excludes the last element a_n."
+     },
+     {
+      "step": 2,
+      "title": "Confirm X[n][W] is the correct answer",
+      "formula_raw": "",
+      "apply": "X[n][W] = TRUE means there exists a subset of {a_1, a_2, ..., a_n} = S whose elements sum to W. This is precisely the definition of the subset-sum problem's YES answer.",
+      "note": "The answer to subset-sum is YES iff X[n][W] = TRUE."
+     }
+    ],
+    "result": "Option C: X[n][W]. If X[n][W] is TRUE, then there exists a subset of S summing to W."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Subset-sum DP: answer cell is X[n][W] where n is the number of elements and W is the target sum.",
+   "qid": "1.12.2",
+   "answer_official": "C"
+  },
+  {
+   "meta": {
+    "exam": "GATE 2009",
+    "year": 2009,
+    "marks": 2,
+    "difficulty": "medium",
+    "type": "MCQ",
+    "subject": "Algorithms",
+    "topic": "Dynamic Programming",
+    "subtopic": "Dynamic Programming"
+   },
+   "question": "A sub-sequence of a given sequence is just the given sequence with some elements (possibly none or all) left out. We are given two sequences X[m] and Y[n] of lengths m and n, respectively with indexes of X and Y starting from 1. We wish to find the length of the longest common sub-sequence (LCS) of X and Y as L[m][n], where an incomplete recursive definition for the function L[i][j] to compute the length of the LCS of X[1..i] and Y[1..j] is given below:\n\nL[i][0] = 0, if i > 0 or j > 0\nL[i][j] = L[i-1][j-1] + 1, if X[i] = Y[j]\nL[i][j] = ___\n\nWhich of the following options correctly fills in the blank above?\n\nA. max(L[i-1][j], L[i][j-1])\nB. max(L[i][j-1], L[i-1][j-1])\nC. max(L[i-1][j-1], L[i][j])\nD. L[i-1][j-1]",
+   "answer": "A. max(L[i-1][j], L[i][j-1])",
+   "to_find": "The missing case in the LCS recurrence when X[i] != Y[j]",
+   "understand": {
+    "plain": "LCS (Longest Common Subsequence) DP builds a table L[i][j] = length of LCS of X[1..i] and Y[1..j]. When X[i] = Y[j], we extend the LCS by 1: L[i][j] = L[i-1][j-1] + 1. When X[i] != Y[j], the current characters don't match, so we can't use both. We take the best of: (a) LCS of X[1..i-1] and Y[1..j], or (b) LCS of X[1..i] and Y[1..j-1]. The maximum of these two is the answer.",
+    "keywords": [
+     {
+      "term": "Longest Common Subsequence (LCS)",
+      "explain": "A subsequence common to two sequences with maximum length. Elements need not be contiguous.",
+      "example": "LCS of ABCDE and ACE is ACE (length 3)."
+     },
+     {
+      "term": "L[i][j]",
+      "meaning": "Length of LCS of X[1..i] and Y[1..j]",
+      "explain": "DP table where L[i][j] stores length of LCS using first i chars of X and first j chars of Y.",
+      "example": "L[3][2] = length of LCS of first 3 chars of X and first 2 chars of Y."
+     }
+    ],
+    "visual_svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 220'><style>.bg{fill:var(--cell-bg,#F1EFE8);stroke:var(--cell-line,#B4B2A9);stroke-width:2;}.hi{fill:var(--hi-bg,#CECBF6);stroke:var(--hi-line,#7F77DD);stroke-width:3;}.ok{fill:var(--ok,#1D9E75);}.no{fill:var(--no,#D85A30);}.ink{fill:var(--color-text-primary,#2C2C2A);}.mut{fill:var(--mut,#5F5E5A);}.big{font-size:26px;font-weight:700;}.lbl{font-size:18px;font-weight:600;}.sub{font-size:14px;}.tag{font-size:14px;font-weight:600;}text{font-family:system-ui,-apple-system,Segoe UI,sans-serif;}</style><rect x='5' y='5' width='490' height='210' rx='8' class='bg'/><text x='250' y='28' text-anchor='middle' class='lbl ink'>LCS DP Table: X[i] != Y[j] case</text><rect x='60' y='50' width='100' height='45' class='bg'/><text x='110' y='68' text-anchor='middle' class='sub mut'>L[i-1][j-1]</text><text x='110' y='85' text-anchor='middle' class='sub ink'>(diagonal)</text><rect x='200' y='50' width='100' height='45' class='bg'/><text x='250' y='68' text-anchor='middle' class='sub mut'>L[i-1][j]</text><text x='250' y='85' text-anchor='middle' class='sub ink'>(above)</text><rect x='60' y='130' width='100' height='45' class='bg'/><text x='110' y='148' text-anchor='middle' class='sub mut'>L[i][j-1]</text><text x='110' y='165' text-anchor='middle' class='sub ink'>(left)</text><rect x='200' y='130' width='100' height='45' class='hi'/><text x='250' y='148' text-anchor='middle' class='sub ink'>L[i][j] =</text><text x='250' y='165' text-anchor='middle' class='sub ink'>max(above, left)</text><text x='400' y='110' text-anchor='middle' class='sub mut'>When X[i] != Y[j]:</text><text x='400' y='130' text-anchor='middle' class='sub mut'>take max of</text><text x='400' y='150' text-anchor='middle' class='sub mut'>L[i-1][j] and L[i][j-1]</text></svg>",
+    "visual_alt": "LCS DP table showing that when X[i] != Y[j], L[i][j] = max(L[i-1][j], L[i][j-1]). The cell above gives LCS ignoring X[i]; the cell to the left gives LCS ignoring Y[j]."
+   },
+   "given": {
+    "aim": "Find the recurrence for L[i][j] when X[i] != Y[j]",
+    "terms": [
+     {
+      "term": "L[i-1][j]",
+      "meaning": "LCS length of X[1..i-1] and Y[1..j]; effectively ignoring character X[i]",
+      "example": "If X=ABCD, Y=ACD, i=4(D), j=3(D), but X[4]!=Y[2](C): try without X[4]",
+      "connects": "One of the two candidates for the max"
+     },
+     {
+      "term": "L[i][j-1]",
+      "meaning": "LCS length of X[1..i] and Y[1..j-1]; effectively ignoring character Y[j]",
+      "example": "Try the LCS without using Y[j]",
+      "connects": "The other candidate for the max"
+     },
+     {
+      "term": "max(L[i-1][j], L[i][j-1])",
+      "meaning": "Take the longer LCS from either ignoring X[i] or ignoring Y[j]",
+      "example": "If L[i-1][j]=3 and L[i][j-1]=4, then L[i][j]=4",
+      "connects": "The correct recurrence for the non-matching case"
+     },
+     {
+      "term": "Base case L[i][0] = L[0][j] = 0",
+      "meaning": "LCS with an empty sequence is 0",
+      "example": "L[5][0] = 0: LCS of any sequence with empty sequence is 0",
+      "connects": "Foundation for building the DP table"
+     }
+    ],
+    "plan": "When X[i] != Y[j], neither X[i] nor Y[j] can simultaneously be at the end of the LCS. So we try removing X[i] (giving L[i-1][j]) or removing Y[j] (giving L[i][j-1]) and take the maximum."
+   },
+   "solution": {
+    "steps": [
+     {
+      "step": 1,
+      "title": "Analyze the non-matching case X[i] != Y[j]",
+      "formula_raw": "L[i][j] = max(L[i-1][j], L[i][j-1]) when X[i] != Y[j]",
+      "apply": "If X[i] != Y[j], these two characters cannot both be the last characters of the LCS. We have two sub-problems: (1) LCS of X[1..i-1] and Y[1..j] = L[i-1][j] (skip X[i]), (2) LCS of X[1..i] and Y[1..j-1] = L[i][j-1] (skip Y[j]). The LCS is the max of these two.",
+      "note": "This is the standard LCS recurrence. L[i-1][j-1] (diagonal) is always <= min(L[i-1][j], L[i][j-1]), so taking max of above and left is always at least as good as diagonal."
+     },
+     {
+      "step": 2,
+      "title": "Verify option A matches the standard LCS recurrence",
+      "formula_raw": "Complete LCS recurrence: L[i][j] = L[i-1][j-1]+1 if X[i]=Y[j], else max(L[i-1][j], L[i][j-1])",
+      "apply": "Option A: max(L[i-1][j], L[i][j-1]) -- CORRECT. Option B: max(L[i][j-1], L[i-1][j-1]) -- misses L[i-1][j], wrong. Option C: max(L[i-1][j-1], L[i][j]) -- circular reference to L[i][j] itself, invalid. Option D: L[i-1][j-1] -- only considers diagonal, loses information from above/left.",
+      "note": "The standard LCS algorithm uses exactly max(L[i-1][j], L[i][j-1]) for the mismatch case."
+     }
+    ],
+    "result": "Option A: L[i][j] = max(L[i-1][j], L[i][j-1]) when X[i] != Y[j]."
+   },
+   "formula_ids_used": [],
+   "formula_note": "Standard LCS DP recurrence: match case adds 1 to diagonal; mismatch case takes max of left and above cells.",
+   "qid": "1.12.3",
+   "answer_official": "C"
+  }
+ ]
+}
