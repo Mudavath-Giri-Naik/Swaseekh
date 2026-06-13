@@ -1,0 +1,42 @@
+{
+ "_id": "con_075",
+ "conceptId": "con_075",
+ "conceptTitle": "Framing, Error Detection and MAC",
+ "reference": "GATE CS — Computer Networks / Data Link Layer",
+ "decisionGuide": {
+  "title": "Which result do I use?",
+  "map": [
+   {"condition": "Burst-error detection", "use": "\\text{CRC: } r=\\deg G(x)"},
+   {"condition": "How many errors detect/correct", "use": "d-1,\\ \\lfloor (d-1)/2 \\rfloor"},
+   {"condition": "Ethernet min frame", "use": "T_{tx} \\ge 2T_p"},
+   {"condition": "Shared-medium throughput", "use": "\\eta=\\tfrac{1}{1+6.44a}"}
+  ]
+ },
+ "groups": [
+  {
+   "groupId": "error-detection",
+   "groupTitle": "Error Detection & Correction",
+   "formulas": [
+    {"formulaId": "con_075-crc", "name": "Cyclic Redundancy Check (CRC)", "latex": "T(x) = M(x)\\cdot x^{r} - [\\,M(x)\\cdot x^{r} \\bmod G(x)\\,]", "plain": "Transmit = M(x)*x^r minus (M(x)*x^r mod G(x)); r = degree of generator G(x)", "whenToUse": "Detecting burst errors on a frame using a generator polynomial.", "terms": [{"symbol": "M(x)", "means": "message polynomial"}, {"symbol": "G(x)", "means": "generator polynomial"}, {"symbol": "r", "means": "number of CRC/check bits = deg G(x)"}], "trap": "Append r zero bits BEFORE dividing; the remainder (not the quotient) is the CRC. A degree-r generator detects all bursts of length <= r.", "reference": "Data Link Layer — error detection"},
+    {"formulaId": "con_075-hamming-distance", "name": "Hamming Distance Detection/Correction", "latex": "\\text{detect } d-1,\\quad \\text{correct } \\left\\lfloor \\tfrac{d-1}{2} \\right\\rfloor", "plain": "Min Hamming distance d: detect up to d-1 errors, correct up to floor((d-1)/2)", "whenToUse": "Given the minimum Hamming distance of a code.", "terms": [{"symbol": "d", "means": "minimum Hamming distance of the code"}], "trap": "Detection and correction can't be claimed simultaneously at max; correcting t needs d >= 2t+1.", "reference": "Error-correcting codes"},
+    {"formulaId": "con_075-hamming-bits", "name": "Hamming Code Check Bits", "latex": "2^{r} \\ge m + r + 1", "plain": "Need r parity bits to correct single-bit errors in m data bits: 2^r >= m + r + 1", "whenToUse": "Sizing a single-error-correcting Hamming code.", "terms": [{"symbol": "m", "means": "data bits"}, {"symbol": "r", "means": "parity bits"}], "trap": "The +1 accounts for the no-error syndrome.", "reference": "Hamming code"},
+    {"formulaId": "con_075-parity", "name": "Parity Check", "latex": "p = b_1 \\oplus b_2 \\oplus \\cdots \\oplus b_n", "plain": "Single parity bit = XOR of data bits; detects any odd number of bit errors", "whenToUse": "Simplest single-bit error detection.", "terms": [{"symbol": "p", "means": "parity bit"}], "trap": "Cannot detect an even number of errors, and cannot correct.", "reference": "Parity"}
+   ]
+  },
+  {
+   "groupId": "framing",
+   "groupTitle": "Framing",
+   "formulas": [
+    {"formulaId": "con_075-bit-stuffing", "name": "Bit Stuffing (HDLC)", "latex": "5\\times 1 \\Rightarrow \\text{insert } 0", "plain": "After five consecutive 1s the sender stuffs a 0; flag 01111110 delimits frames", "whenToUse": "Counting transmitted bits with flag-based framing.", "terms": [{"symbol": "01111110", "means": "HDLC flag byte"}], "trap": "Stuffing happens on five 1s even if the sixth bit would not have formed a flag; receiver removes the 0 after five 1s.", "reference": "Framing"}
+   ]
+  },
+  {
+   "groupId": "mac",
+   "groupTitle": "Medium Access (CSMA/CD)",
+   "formulas": [
+    {"formulaId": "con_075-csma-cd-min-frame", "name": "CSMA/CD Minimum Frame Time", "latex": "T_{tx} \\ge 2\\,T_p \\;\\Rightarrow\\; L_{min} = 2\\,t_{prop}\\,\\times B", "plain": "Transmission time >= 2 x propagation time, so min frame length = 2 * Tprop * bandwidth", "whenToUse": "Finding minimum frame size so collisions are detected.", "terms": [{"symbol": "T_p", "means": "one-way propagation delay"}, {"symbol": "B", "means": "bandwidth"}, {"symbol": "L_{min}", "means": "minimum frame size in bits"}], "trap": "The factor is 2 (round trip). Ethernet's 64-byte min frame comes from this.", "reference": "CSMA/CD"},
+    {"formulaId": "con_075-csma-cd-efficiency", "name": "CSMA/CD Efficiency", "latex": "\\eta = \\frac{1}{1 + 6.44\\,a}, \\quad a = \\frac{T_p}{T_{tx}}", "plain": "Efficiency = 1 / (1 + 6.44a), where a = propagation/transmission time", "whenToUse": "Throughput of a CSMA/CD (classic Ethernet) shared medium.", "terms": [{"symbol": "a", "means": "ratio Tprop / Ttrans"}], "trap": "Smaller a (longer frames / shorter cable) gives higher efficiency.", "reference": "CSMA/CD throughput"}
+   ]
+  }
+ ]
+}

@@ -1,0 +1,349 @@
+{
+  "_id": "con_026",
+  "conceptId": "con_026",
+  "conceptTitle": "Combinational Circuits",
+  "reference": "GATE CS — Digital Logic / Circuits",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      { "condition": "Adding two N-bit numbers, ripple carry", "use": "t_{ripple} = N \\cdot t_{FA}" },
+      { "condition": "Carry lookahead adder delay", "use": "t_{CLA} = O(\\log N)" },
+      { "condition": "Array multiplier delay (gate delay model)", "use": "t_{array} = \\Theta(n)" },
+      { "condition": "MUX implementing a Boolean function of n variables", "use": "2^{n-1}\\text{-to-}1 \\text{ MUX suffices}" },
+      { "condition": "Decoder implementing any m-output combinational function", "use": "n\\text{-to-}2^n \\text{ decoder } + m \\text{ OR gates}" }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "adder-basics",
+      "groupTitle": "Adder Fundamentals",
+      "formulas": [
+        {
+          "formulaId": "con_026-half-adder",
+          "name": "Half Adder",
+          "latex": "S = A \\oplus B, \\quad C_{out} = A \\cdot B",
+          "plain": "S = A XOR B, C_out = A AND B",
+          "whenToUse": "Adding two single bits with no carry-in",
+          "terms": [
+            { "symbol": "S", "means": "Sum bit" },
+            { "symbol": "C_{out}", "means": "Carry out" },
+            { "symbol": "A, B", "means": "Input bits" }
+          ],
+          "trap": "Half adder cannot accept a carry-in; use full adder for cascading stages",
+          "reference": "Digital Logic / Adder"
+        },
+        {
+          "formulaId": "con_026-full-adder",
+          "name": "Full Adder",
+          "latex": "S = A \\oplus B \\oplus C_{in}, \\quad C_{out} = A \\cdot B + C_{in}(A \\oplus B)",
+          "plain": "S = A XOR B XOR Cin, C_out = AB + Cin(A XOR B)",
+          "whenToUse": "Adding two bits plus a carry-in; the building block of ripple and lookahead adders",
+          "terms": [
+            { "symbol": "C_{in}", "means": "Carry into the current bit position" },
+            { "symbol": "A \\oplus B", "means": "Propagate term P" },
+            { "symbol": "A \\cdot B", "means": "Generate term G" }
+          ],
+          "trap": "2's complement addition with N bits still needs N full adders — the sign bit is treated like any other bit",
+          "reference": "Digital Logic / Adder"
+        },
+        {
+          "formulaId": "con_026-ripple-carry-delay",
+          "name": "Ripple Carry Adder Delay",
+          "latex": "t_{ripple} = N \\cdot t_{FA}",
+          "plain": "t_ripple = N * t_FA",
+          "whenToUse": "Estimating worst-case delay of an N-bit ripple carry adder",
+          "terms": [
+            { "symbol": "N", "means": "Number of bit positions" },
+            { "symbol": "t_{FA}", "means": "Delay of one full adder stage" }
+          ],
+          "trap": "Ripple carry delay grows linearly with N; do not confuse with O(log N) of CLA",
+          "reference": "Digital Logic / Adder"
+        }
+      ]
+    },
+    {
+      "groupId": "carry-lookahead",
+      "groupTitle": "Carry Lookahead Adder (CLA)",
+      "formulas": [
+        {
+          "formulaId": "con_026-generate-propagate",
+          "name": "Generate and Propagate Terms",
+          "latex": "G_i = A_i \\cdot B_i, \\quad P_i = A_i \\oplus B_i",
+          "plain": "G_i = A_i AND B_i, P_i = A_i XOR B_i",
+          "whenToUse": "Defining the fundamental CLA building blocks for each bit position i",
+          "terms": [
+            { "symbol": "G_i", "means": "Carry generate at bit i (carry produced regardless of carry-in)" },
+            { "symbol": "P_i", "means": "Carry propagate at bit i (passes carry-in to carry-out)" }
+          ],
+          "trap": "Some texts define P_i = A_i OR B_i (used in group generate/propagate); the XOR form is used for sum computation",
+          "reference": "Digital Logic / Carry Generator"
+        },
+        {
+          "formulaId": "con_026-cla-carry",
+          "name": "CLA Carry Expressions",
+          "latex": "C_{i+1} = G_i + P_i \\cdot C_i",
+          "plain": "C_{i+1} = G_i + P_i * C_i",
+          "whenToUse": "Expanding carry equations in a carry lookahead adder (unfold to eliminate ripple)",
+          "terms": [
+            { "symbol": "C_i", "means": "Carry into bit position i" },
+            { "symbol": "G_i, P_i", "means": "Generate and propagate at bit i" }
+          ],
+          "trap": "Unfolding to C3 requires substituting C2, C1, C0 recursively; forgetting one level is a common error",
+          "reference": "Digital Logic / Carry Generator"
+        },
+        {
+          "formulaId": "con_026-cla-delay",
+          "name": "CLA Adder Delay",
+          "latex": "t_{CLA}(N) = O(\\log N)",
+          "plain": "t_CLA(N) = O(log N)",
+          "whenToUse": "Comparing CLA speed against ripple carry; multi-level CLA (e.g. 74181 + 74182) achieves this",
+          "terms": [
+            { "symbol": "N", "means": "Total number of bits" }
+          ],
+          "trap": "A single 4-bit CLA chip is O(1) delay; the log factor appears only in multi-level (hierarchical) CLA for large N",
+          "reference": "Digital Logic / Adder"
+        },
+        {
+          "formulaId": "con_026-group-generate",
+          "name": "Group Generate and Propagate (3-bit example)",
+          "latex": "G_{2:0} = G_2 + P_2(G_1 + P_1 G_0), \\quad P_{2:0} = P_2 P_1 P_0",
+          "plain": "G_2:0 = G2 + P2*(G1 + P1*G0), P_2:0 = P2*P1*P0",
+          "whenToUse": "Computing the carry-out of a group of bits in a hierarchical CLA (used in 74182-style circuits)",
+          "terms": [
+            { "symbol": "G_{2:0}", "means": "Group generate for bits 2 down to 0" },
+            { "symbol": "P_{2:0}", "means": "Group propagate for bits 2 down to 0" }
+          ],
+          "trap": "The group generate expression depends on the order of expansion; always expand from the MSB inward",
+          "reference": "Digital Logic / Carry Generator"
+        }
+      ]
+    },
+    {
+      "groupId": "array-multiplier",
+      "groupTitle": "Array Multiplier",
+      "formulas": [
+        {
+          "formulaId": "con_026-array-multiplier-structure",
+          "name": "Array Multiplier Structure",
+          "latex": "\\text{Partial products: } p_{ij} = a_i \\cdot b_j, \\quad 0 \\le i,j \\le n-1",
+          "plain": "Partial products: p_ij = a_i AND b_j, for 0 <= i,j <= n-1",
+          "whenToUse": "Understanding how an n×n array multiplier is constructed from AND gates and adder rows",
+          "terms": [
+            { "symbol": "a_i, b_j", "means": "Individual bits of the two n-bit operands" },
+            { "symbol": "p_{ij}", "means": "Bit of the partial product matrix" }
+          ],
+          "trap": "The partial product matrix has n rows each of n bits; the array has n-1 adder rows (not n)",
+          "reference": "Digital Logic / Array Multiplier"
+        },
+        {
+          "formulaId": "con_026-array-multiplier-delay",
+          "name": "Array Multiplier Gate Delay",
+          "latex": "t_{array}(n) = \\Theta(n)",
+          "plain": "t_array(n) = Theta(n)",
+          "whenToUse": "Answering GATE questions about the delay complexity of an n×n array multiplier",
+          "terms": [
+            { "symbol": "n", "means": "Bit-width of each operand" }
+          ],
+          "trap": "The delay is Theta(n), NOT Theta(n^2). The area (number of gates) is Theta(n^2); do not confuse delay with area",
+          "reference": "Digital Logic / Array Multiplier"
+        }
+      ]
+    },
+    {
+      "groupId": "multiplexer",
+      "groupTitle": "Multiplexer (MUX)",
+      "formulas": [
+        {
+          "formulaId": "con_026-mux-output",
+          "name": "N-to-1 MUX Output Expression",
+          "latex": "Y = \\sum_{i=0}^{N-1} I_i \\cdot m_i, \\quad N = 2^n",
+          "plain": "Y = sum over i of (I_i AND m_i), where N = 2^n and m_i is the minterm of select lines",
+          "whenToUse": "Deriving the Boolean output of a MUX circuit from its select lines and data inputs",
+          "terms": [
+            { "symbol": "I_i", "means": "Data input at position i" },
+            { "symbol": "m_i", "means": "Minterm of the n select-line variables corresponding to index i" },
+            { "symbol": "n", "means": "Number of select lines" }
+          ],
+          "trap": "Select line order (MSB vs LSB) determines which data input is selected; reversing the order flips outputs",
+          "reference": "Digital Logic / Multiplexer"
+        },
+        {
+          "formulaId": "con_026-mux-function-implementation",
+          "name": "MUX as Universal Combinational Element",
+          "latex": "2^{n-1}\\text{-to-}1 \\text{ MUX can implement any } n\\text{-variable Boolean function}",
+          "plain": "A 2^(n-1)-to-1 MUX can implement any n-variable Boolean function (one variable used to drive data inputs)",
+          "whenToUse": "Choosing MUX size when implementing an arbitrary Boolean function",
+          "terms": [
+            { "symbol": "n", "means": "Number of Boolean input variables" },
+            { "symbol": "2^{n-1}", "means": "Number of data inputs required (one variable drives data lines)" }
+          ],
+          "trap": "A 2^n-to-1 MUX (connecting variables only to select lines, data lines tied to 0/1) also works but is unnecessarily large",
+          "reference": "Digital Logic / Multiplexer"
+        },
+        {
+          "formulaId": "con_026-4to1-mux",
+          "name": "4-to-1 MUX Equation",
+          "latex": "Y = S_1'S_0' I_0 + S_1'S_0 I_1 + S_1 S_0' I_2 + S_1 S_0 I_3",
+          "plain": "Y = (!S1)(!S0)*I0 + (!S1)(S0)*I1 + (S1)(!S0)*I2 + (S1)(S0)*I3",
+          "whenToUse": "Evaluating the output of a 4-to-1 MUX given select and data inputs",
+          "terms": [
+            { "symbol": "S_1, S_0", "means": "Select lines (S1 = MSB)" },
+            { "symbol": "I_0 \\ldots I_3", "means": "Data inputs" }
+          ],
+          "trap": "Always verify which select bit is MSB; many GATE diagrams label S0 as MSB, causing an off-by-one in the output",
+          "reference": "Digital Logic / Multiplexer"
+        }
+      ]
+    },
+    {
+      "groupId": "decoder",
+      "groupTitle": "Decoder",
+      "formulas": [
+        {
+          "formulaId": "con_026-decoder-outputs",
+          "name": "n-to-2^n Decoder",
+          "latex": "n \\text{ inputs} \\Rightarrow 2^n \\text{ outputs, output } O_i = m_i \\text{ (minterm } i\\text{)}",
+          "plain": "n inputs => 2^n outputs; output O_i is the minterm m_i of the n input variables",
+          "whenToUse": "Implementing any combinational function using a decoder and OR gates",
+          "terms": [
+            { "symbol": "m_i", "means": "Minterm i of the n input variables" },
+            { "symbol": "O_i", "means": "Output line i (asserted when inputs equal binary i)" }
+          ],
+          "trap": "Decoders generate ALL minterms; to implement a function OR together the minterms in its SOP canonical form",
+          "reference": "Digital Logic / Decoder"
+        },
+        {
+          "formulaId": "con_026-decoder-or-implementation",
+          "name": "Implementing m Functions with Decoder",
+          "latex": "f_j(x_1,\\ldots,x_n) = \\sum_{\\text{minterms of } f_j} O_i \\quad (\\text{one OR gate per output})",
+          "plain": "f_j = OR of selected O_i outputs from the decoder (one OR gate per output function f_j)",
+          "whenToUse": "Designing a multiple-output combinational block using one decoder",
+          "terms": [
+            { "symbol": "f_j", "means": "One of the m output functions" }
+          ],
+          "trap": "Need NAND decoder? Use NAND gates instead of OR — each output is NOR/NAND form; verify active-high vs active-low",
+          "reference": "Digital Logic / Decoder"
+        }
+      ]
+    },
+    {
+      "groupId": "rom",
+      "groupTitle": "ROM as Combinational Logic",
+      "formulas": [
+        {
+          "formulaId": "con_026-rom-size",
+          "name": "ROM Size for a Combinational Function",
+          "latex": "\\text{ROM size} = 2^n \\times m \\text{ bits}",
+          "plain": "ROM size = 2^n x m bits (n = address/input bits, m = data/output bits)",
+          "whenToUse": "Sizing a ROM to implement a combinational function with n inputs and m outputs",
+          "terms": [
+            { "symbol": "n", "means": "Number of input (address) lines" },
+            { "symbol": "m", "means": "Number of output (data) lines" },
+            { "symbol": "2^n", "means": "Number of address locations (one per minterm)" }
+          ],
+          "trap": "ROM implements the complete truth table; do not try to minimize — all 2^n rows must be stored",
+          "reference": "Digital Logic / ROM"
+        },
+        {
+          "formulaId": "con_026-rom-structure",
+          "name": "ROM Internal Structure",
+          "latex": "\\text{ROM} = n\\text{-to-}2^n \\text{ decoder (fixed AND plane)} + m\\text{-bit OR plane (programmable)}",
+          "plain": "ROM = fixed n-to-2^n decoder (AND plane) + programmable OR plane with m outputs",
+          "whenToUse": "Explaining how a ROM realises any sum-of-minterms expression",
+          "terms": [
+            { "symbol": "\\text{AND plane}", "means": "Decoder that generates all 2^n minterms" },
+            { "symbol": "\\text{OR plane}", "means": "Programmable connections selecting which minterms contribute to each output" }
+          ],
+          "trap": "In a PLA the AND plane is also programmable; in a ROM only the OR plane is programmable",
+          "reference": "Digital Logic / ROM"
+        }
+      ]
+    },
+    {
+      "groupId": "static-hazard",
+      "groupTitle": "Static Hazard",
+      "formulas": [
+        {
+          "formulaId": "con_026-static-hazard-definition",
+          "name": "Static Hazard Definition",
+          "latex": "\\text{Static-1 hazard: output should stay 1 but momentarily goes 0 during input transition}",
+          "plain": "Static-1 hazard: output should stay 1 but glitches to 0 during a single-variable input change",
+          "whenToUse": "Identifying glitches in a combinational circuit caused by unequal gate delays",
+          "terms": [
+            { "symbol": "\\text{Static-1}", "means": "Output is 1 in both states but dips to 0 transiently" },
+            { "symbol": "\\text{Static-0}", "means": "Output is 0 in both states but rises to 1 transiently" }
+          ],
+          "trap": "Hazards occur during transitions between adjacent minterms (one variable changes); multi-variable transitions cause dynamic hazards",
+          "reference": "Digital Logic / Static Hazard"
+        },
+        {
+          "formulaId": "con_026-hazard-elimination",
+          "name": "Static Hazard Elimination",
+          "latex": "\\text{Add a redundant consensus term covering the transition: } f = AB + A'C + BC",
+          "plain": "Add redundant prime implicant BC that bridges the gap between the two original terms AB and A'C (consensus theorem)",
+          "whenToUse": "Eliminating a static-1 hazard in a SOP expression by adding a redundant cover",
+          "terms": [
+            { "symbol": "BC", "means": "Consensus/redundant term that overlaps the two adjacent prime implicants" }
+          ],
+          "trap": "Minimising with K-map alone may remove the bridging term, reintroducing the hazard; explicitly keep the redundant term",
+          "reference": "Digital Logic / Static Hazard"
+        }
+      ]
+    },
+    {
+      "groupId": "circuit-output-analysis",
+      "groupTitle": "Circuit Output Analysis",
+      "formulas": [
+        {
+          "formulaId": "con_026-nand-nand-equivalence",
+          "name": "NAND-NAND = SOP",
+          "latex": "\\overline{\\overline{AB} \\cdot \\overline{CD}} = AB + CD",
+          "plain": "NAND(NAND(A,B), NAND(C,D)) = AB + CD  (two-level NAND equals SOP)",
+          "whenToUse": "Converting a two-level NAND circuit to its equivalent Boolean SOP expression",
+          "terms": [
+            { "symbol": "\\overline{XY}", "means": "NAND of X and Y" }
+          ],
+          "trap": "NOR-NOR implements POS, not SOP; confusing NAND-NAND with NOR-NOR is the classic GATE pitfall",
+          "reference": "Digital Logic / Digital Circuits"
+        },
+        {
+          "formulaId": "con_026-nor-nor-equivalence",
+          "name": "NOR-NOR = POS",
+          "latex": "\\overline{\\overline{A+B} + \\overline{C+D}} = (A+B)(C+D)",
+          "plain": "NOR(NOR(A,B), NOR(C,D)) = (A+B)(C+D)  (two-level NOR equals POS)",
+          "whenToUse": "Converting a two-level NOR circuit to its equivalent Boolean POS expression",
+          "terms": [
+            { "symbol": "\\overline{X+Y}", "means": "NOR of X and Y" }
+          ],
+          "trap": "A NOR-NOR structure is NOT equivalent to SOP; students often write sum form instead of product form",
+          "reference": "Digital Logic / Digital Circuits"
+        },
+        {
+          "formulaId": "con_026-open-collector-wired-and",
+          "name": "Open-Collector Wired-AND",
+          "latex": "Z = \\overline{f_1} \\cdot \\overline{f_2} \\cdots \\overline{f_k} = \\overline{f_1 + f_2 + \\cdots + f_k}",
+          "plain": "Wired-AND of open-collector NAND outputs gives Z = NOT(f1 OR f2 OR ... OR fk)",
+          "whenToUse": "Analysing circuits where NAND outputs with open collectors are tied together to a pull-up resistor",
+          "terms": [
+            { "symbol": "f_i", "means": "Boolean function computed by the i-th NAND gate (before open-collector inversion)" },
+            { "symbol": "Z", "means": "Resulting wired output" }
+          ],
+          "trap": "Totem-pole TTL outputs cannot be wired-AND; only open-collector or tri-state outputs allow bus sharing",
+          "reference": "Digital Logic / Digital Circuits"
+        },
+        {
+          "formulaId": "con_026-feedback-nand-sr",
+          "name": "Cross-Coupled NAND = SR Latch",
+          "latex": "Q = \\overline{S' + \\overline{Q'}}, \\quad \\overline{Q} = \\overline{R' + Q} \\quad (\\text{but in combinational analysis: if no memory, trace signal levels})",
+          "plain": "Two cross-coupled NANDs form an SR latch; analyse by tracing stable signal values iteratively",
+          "whenToUse": "Analysing NAND feedback circuits in GATE questions that ask for steady-state output given an input A",
+          "terms": [
+            { "symbol": "S, R", "means": "Set and Reset active-low inputs (for NAND latch)" }
+          ],
+          "trap": "A single cross-coupled NAND pair with one external input acts as an inverter with feedback — analyse stable state, not sequential clocking",
+          "reference": "Digital Logic / Circuit Output"
+        }
+      ]
+    }
+  ]
+}

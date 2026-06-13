@@ -1,0 +1,348 @@
+{
+  "_id": "con_032",
+  "conceptId": "con_032",
+  "conceptTitle": "Instruction Pipelining and Hazards",
+  "reference": "GATE CS — Computer Organization and Architecture / Processor Design",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Comparing pipelined vs non-pipelined execution time for n instructions",
+        "use": "T_{pipeline}(n) = (k + n - 1) \\times t_{cycle}"
+      },
+      {
+        "condition": "Speedup from pipelining for large n",
+        "use": "S = \\frac{n \\times k}{k + n - 1} \\approx k \\text{ (as } n \\to \\infty)"
+      },
+      {
+        "condition": "Amdahl's law: part of program sped up by factor f",
+        "use": "S = \\frac{1}{(1 - p) + \\frac{p}{s}}"
+      },
+      {
+        "condition": "Overall CPU performance using CPI",
+        "use": "T_{exec} = IC \\times CPI \\times t_{cycle}"
+      },
+      {
+        "condition": "Stalls added due to data hazard / branch penalty",
+        "use": "CPI_{eff} = CPI_{ideal} + \\text{stalls per instruction}"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "clock-cycles-cpi",
+      "groupTitle": "Clock Cycles and CPU Performance",
+      "formulas": [
+        {
+          "formulaId": "con_032-exec-time",
+          "name": "CPU Execution Time",
+          "latex": "T_{exec} = IC \\times CPI \\times t_{cycle}",
+          "plain": "T_exec = IC * CPI * t_cycle",
+          "whenToUse": "Computing total execution time given instruction count, CPI, and clock period",
+          "terms": [
+            { "symbol": "IC", "means": "instruction count" },
+            { "symbol": "CPI", "means": "clock cycles per instruction (average)" },
+            { "symbol": "t_{cycle}", "means": "duration of one clock cycle (1 / clock frequency)" }
+          ],
+          "trap": "Mixing up CPI with IPC (instructions per cycle); also confusing clock period with frequency",
+          "reference": "Computer Organization and Architecture / Processor Design"
+        },
+        {
+          "formulaId": "con_032-clock-period-freq",
+          "name": "Clock Period and Frequency",
+          "latex": "t_{cycle} = \\frac{1}{f_{clock}} \\quad (\\text{in nanoseconds if } f \\text{ in GHz})",
+          "plain": "t_cycle = 1 / f_clock",
+          "whenToUse": "Converting between clock frequency and clock period to compute execution time",
+          "terms": [
+            { "symbol": "t_{cycle}", "means": "clock period in seconds (or ns)" },
+            { "symbol": "f_{clock}", "means": "clock frequency in Hz (or GHz)" }
+          ],
+          "trap": "Forgetting unit conversions: 1 GHz = 10^9 Hz, giving t_cycle in nanoseconds",
+          "reference": "Computer Organization and Architecture / Processor Design"
+        },
+        {
+          "formulaId": "con_032-weighted-cpi",
+          "name": "Weighted Average CPI",
+          "latex": "CPI_{avg} = \\sum_{i=1}^{n} f_i \\times CPI_i",
+          "plain": "CPI_avg = sum over i of (fraction_i * CPI_i)",
+          "whenToUse": "Multiple instruction types each with their own CPI and frequency of occurrence",
+          "terms": [
+            { "symbol": "f_i", "means": "fraction of instructions of type i (must sum to 1)" },
+            { "symbol": "CPI_i", "means": "CPI for instruction type i" }
+          ],
+          "trap": "Using instruction count instead of fraction; or forgetting to verify fractions sum to 1",
+          "reference": "Computer Organization and Architecture / Processor Design"
+        }
+      ]
+    },
+    {
+      "groupId": "pipeline-basics",
+      "groupTitle": "Basic Pipeline Timing",
+      "formulas": [
+        {
+          "formulaId": "con_032-pipeline-time",
+          "name": "Pipelined Execution Time (n instructions, k stages)",
+          "latex": "T_{pipeline}(n) = (k + n - 1) \\times t_{cycle}",
+          "plain": "T_pipeline(n) = (k + n - 1) * t_cycle",
+          "whenToUse": "Total time to complete n instructions on a k-stage pipeline with uniform stage time",
+          "terms": [
+            { "symbol": "k", "means": "number of pipeline stages" },
+            { "symbol": "n", "means": "number of instructions" },
+            { "symbol": "t_{cycle}", "means": "clock cycle time (= max stage latency for a balanced pipeline)" }
+          ],
+          "trap": "Using k*n (non-pipelined) instead of (k+n-1); the n-1 term accounts for fill-up of the pipeline",
+          "reference": "Computer Organization and Architecture / Processor Design"
+        },
+        {
+          "formulaId": "con_032-nonpipeline-time",
+          "name": "Non-Pipelined Execution Time",
+          "latex": "T_{non-pipeline}(n) = n \\times k \\times t_{stage}",
+          "plain": "T_non_pipeline(n) = n * k * t_stage",
+          "whenToUse": "Baseline time without pipelining when each instruction takes k stages each of duration t_stage",
+          "terms": [
+            { "symbol": "n", "means": "number of instructions" },
+            { "symbol": "k", "means": "number of stages" },
+            { "symbol": "t_{stage}", "means": "time per stage" }
+          ],
+          "trap": "Confusing this with T_pipeline; a single instruction takes k*t_stage in BOTH cases",
+          "reference": "Computer Organization and Architecture / Processor Design"
+        },
+        {
+          "formulaId": "con_032-pipeline-cycle-nonuniform",
+          "name": "Pipeline Cycle Time (Non-uniform Stages)",
+          "latex": "t_{cycle} = \\max(t_1, t_2, \\ldots, t_k) + t_{latch}",
+          "plain": "t_cycle = max(t_1, t_2, ..., t_k) + t_latch",
+          "whenToUse": "Stages have different latencies; the slowest stage (bottleneck) determines clock period",
+          "terms": [
+            { "symbol": "t_i", "means": "latency of stage i" },
+            { "symbol": "t_{latch}", "means": "inter-stage latch/register overhead (often 0 in GATE problems)" }
+          ],
+          "trap": "Using average or sum of stage times instead of the maximum",
+          "reference": "Computer Organization and Architecture / Processor Design"
+        },
+        {
+          "formulaId": "con_032-single-instruction-latency",
+          "name": "Single-Instruction Latency (Pipelined vs Non-Pipelined)",
+          "latex": "T_{single,pipeline} \\geq T_{single,non-pipeline} = k \\times t_{stage}",
+          "plain": "T_single_pipeline >= T_single_non_pipeline = k * t_stage",
+          "whenToUse": "Comparing latency of ONE instruction; pipelining does NOT reduce single-instruction latency",
+          "terms": [
+            { "symbol": "k", "means": "number of stages" },
+            { "symbol": "t_{stage}", "means": "time per stage (pipeline overhead can make it slightly worse)" }
+          ],
+          "trap": "Assuming pipelining speeds up individual instructions — it only improves throughput over many instructions",
+          "reference": "Computer Organization and Architecture / Processor Design"
+        }
+      ]
+    },
+    {
+      "groupId": "speedup",
+      "groupTitle": "Speedup Formulas",
+      "formulas": [
+        {
+          "formulaId": "con_032-pipeline-speedup",
+          "name": "Pipeline Speedup (n instructions)",
+          "latex": "S = \\frac{T_{non-pipeline}}{T_{pipeline}} = \\frac{n \\times k}{k + n - 1}",
+          "plain": "S = (n * k) / (k + n - 1)",
+          "whenToUse": "Computing speedup of pipelining over sequential execution for n instructions and k stages",
+          "terms": [
+            { "symbol": "n", "means": "number of instructions" },
+            { "symbol": "k", "means": "number of pipeline stages" }
+          ],
+          "trap": "For small n the speedup is far less than k; only as n -> infinity does S approach k",
+          "reference": "Computer Organization and Architecture / Processor Design"
+        },
+        {
+          "formulaId": "con_032-pipeline-speedup-max",
+          "name": "Ideal Pipeline Speedup (large n)",
+          "latex": "S_{max} = k \\quad (\\text{as } n \\to \\infty)",
+          "plain": "S_max = k  (as n -> infinity)",
+          "whenToUse": "Theoretical upper bound on speedup equals the number of pipeline stages",
+          "terms": [
+            { "symbol": "k", "means": "number of pipeline stages" }
+          ],
+          "trap": "Hazards and stalls reduce actual speedup below k even for large n",
+          "reference": "Computer Organization and Architecture / Processor Design"
+        },
+        {
+          "formulaId": "con_032-amdahl-law",
+          "name": "Amdahl's Law",
+          "latex": "S = \\frac{1}{(1 - p) + \\dfrac{p}{s}}",
+          "plain": "S = 1 / ((1 - p) + p/s)",
+          "whenToUse": "A fraction p of total time is sped up by factor s; compute overall speedup",
+          "terms": [
+            { "symbol": "p", "means": "fraction of execution time that is enhanced (0 <= p <= 1)" },
+            { "symbol": "s", "means": "speedup factor for the enhanced portion" }
+          ],
+          "trap": "p is a TIME fraction, not an instruction-count fraction; confusing the two gives wrong answers",
+          "reference": "Computer Organization and Architecture / Processor Design"
+        },
+        {
+          "formulaId": "con_032-cpi-comparison",
+          "name": "CPI-Based Speedup Between Two Processors",
+          "latex": "\\frac{Performance_1}{Performance_2} = \\frac{T_2}{T_1} = \\frac{IC_2 \\times CPI_2 \\times t_{c2}}{IC_1 \\times CPI_1 \\times t_{c1}}",
+          "plain": "Perf1/Perf2 = T2/T1 = (IC2*CPI2*t_c2)/(IC1*CPI1*t_c1)",
+          "whenToUse": "Comparing performance of two processors executing the same or different workloads",
+          "terms": [
+            { "symbol": "IC", "means": "instruction count for each processor" },
+            { "symbol": "CPI", "means": "average clock cycles per instruction for each processor" },
+            { "symbol": "t_c", "means": "clock cycle time for each processor" }
+          ],
+          "trap": "When the same ISA/program is used, IC cancels; do not cancel IC when processors run different code",
+          "reference": "Computer Organization and Architecture / Processor Design"
+        }
+      ]
+    },
+    {
+      "groupId": "pipeline-hazards",
+      "groupTitle": "Pipeline Hazards",
+      "formulas": [
+        {
+          "formulaId": "con_032-hazard-types",
+          "name": "Types of Pipeline Hazards",
+          "latex": "\\text{Hazards} = \\begin{cases} \\text{Structural} & \\text{resource conflict} \\\\ \\text{Data (RAW, WAR, WAW)} & \\text{data dependency} \\\\ \\text{Control} & \\text{branch/jump} \\end{cases}",
+          "plain": "Hazards: Structural (resource conflict), Data (RAW/WAR/WAW), Control (branch/jump)",
+          "whenToUse": "Classifying the cause of pipeline stalls to choose the correct mitigation",
+          "terms": [
+            { "symbol": "RAW", "means": "Read After Write — true data dependency (most common in GATE)" },
+            { "symbol": "WAR", "means": "Write After Read — anti-dependency" },
+            { "symbol": "WAW", "means": "Write After Write — output dependency" }
+          ],
+          "trap": "WAR and WAW are not true dependencies; they can be eliminated by register renaming, unlike RAW",
+          "reference": "Computer Organization and Architecture / Processor Design"
+        },
+        {
+          "formulaId": "con_032-raw-stall-cycles",
+          "name": "RAW Stall Cycles",
+          "latex": "\\text{Stall cycles} = \\max(0,\\; d_{produce} - d_{consume} - 1)",
+          "plain": "Stall cycles = max(0, stage_that_produces - stage_that_consumes - 1)",
+          "whenToUse": "Computing how many stall cycles a RAW hazard inserts (without forwarding)",
+          "terms": [
+            { "symbol": "d_{produce}", "means": "stage index where the result is written back (e.g., WB = stage 5)" },
+            { "symbol": "d_{consume}", "means": "stage index where the dependent instruction needs the value (e.g., EX = stage 3)" }
+          ],
+          "trap": "With full forwarding from EX/MEM/WB, stalls can be reduced to 0 for most ALU-ALU dependencies but not load-use",
+          "reference": "Computer Organization and Architecture / Processor Design"
+        },
+        {
+          "formulaId": "con_032-load-use-hazard",
+          "name": "Load-Use Hazard (1 Stall Even with Forwarding)",
+          "latex": "\\text{Load-use stall} = 1 \\text{ cycle} \\quad (\\text{even with full forwarding})",
+          "plain": "Load followed immediately by dependent instruction -> 1 mandatory stall cycle",
+          "whenToUse": "A load instruction is immediately followed by an instruction that reads the loaded register",
+          "terms": [
+            { "symbol": "\\text{Load-use}", "means": "sequence: LOAD Rd; USE Rd — the next instruction needs the memory value" }
+          ],
+          "trap": "Forwarding can hide most RAW hazards but cannot hide the load-use hazard; 1 bubble is unavoidable",
+          "reference": "Computer Organization and Architecture / Processor Design"
+        },
+        {
+          "formulaId": "con_032-branch-penalty",
+          "name": "Branch Penalty (Control Hazard)",
+          "latex": "\\text{Branch penalty} = k - 1 \\text{ cycles} \\quad (\\text{no branch prediction})",
+          "plain": "Branch penalty = k - 1 cycles (without branch prediction / delayed branching)",
+          "whenToUse": "Pipeline stalls due to a branch instruction; pipeline is flushed for k-1 stages after branch",
+          "terms": [
+            { "symbol": "k", "means": "number of pipeline stages" },
+            { "symbol": "k-1", "means": "cycles wasted while the branch target is fetched" }
+          ],
+          "trap": "With delayed branching (1 delay slot filled usefully), effective penalty = k - 2; read problem carefully",
+          "reference": "Computer Organization and Architecture / Processor Design"
+        },
+        {
+          "formulaId": "con_032-effective-cpi-hazards",
+          "name": "Effective CPI with Stalls",
+          "latex": "CPI_{eff} = CPI_{ideal} + \\text{stalls per instruction}",
+          "plain": "CPI_eff = CPI_ideal + avg_stalls_per_instruction",
+          "whenToUse": "Computing realistic CPI after accounting for data and control hazard stalls",
+          "terms": [
+            { "symbol": "CPI_{ideal}", "means": "ideal CPI (= 1 for a fully pipelined processor)" },
+            { "symbol": "\\text{stalls per instruction}", "means": "weighted average stall cycles contributed by all hazard sources" }
+          ],
+          "trap": "Must weight stall cycles by frequency of hazard-causing instructions (e.g., branch frequency * penalty)",
+          "reference": "Computer Organization and Architecture / Processor Design"
+        }
+      ]
+    },
+    {
+      "groupId": "forwarding-dependency",
+      "groupTitle": "Data Forwarding and Dependencies",
+      "formulas": [
+        {
+          "formulaId": "con_032-forwarding-condition",
+          "name": "Data Forwarding (Bypass) Condition",
+          "latex": "\\text{Forward if: } \\exists \\text{ earlier instr. } j < i \\text{ such that } Rd_j = Rs_i \\text{ and result available early enough}",
+          "plain": "Forward if a previous instruction's destination register matches current source register and result is ready in time",
+          "whenToUse": "Determining whether a stall can be eliminated by forwarding from EX/MEM/WB stage outputs",
+          "terms": [
+            { "symbol": "Rd_j", "means": "destination register of earlier instruction j" },
+            { "symbol": "Rs_i", "means": "source register of current instruction i" }
+          ],
+          "trap": "Data forwarding can eliminate RAW stalls for ALU-to-ALU but NOT for load-to-use (value is not ready in time)",
+          "reference": "Computer Organization and Architecture / Processor Design"
+        },
+        {
+          "formulaId": "con_032-dependency-detection",
+          "name": "RAW Dependency Detection Rule",
+          "latex": "\\text{RAW: Instr } i \\text{ writes } R_x, \\text{ Instr } j > i \\text{ reads } R_x \\text{ before } R_x \\text{ is written}",
+          "plain": "RAW: instruction i writes Rx, then instruction j (j > i) reads Rx before Rx is updated",
+          "whenToUse": "Identifying which instruction pairs create true data dependencies in a sequence",
+          "terms": [
+            { "symbol": "R_x", "means": "the register that creates the dependency" },
+            { "symbol": "i, j", "means": "instruction indices (i < j means i executes before j)" }
+          ],
+          "trap": "Only the most RECENT writer to R_x before the reader matters; older writes are shadowed",
+          "reference": "Computer Organization and Architecture / Processor Design"
+        }
+      ]
+    },
+    {
+      "groupId": "throughput-efficiency",
+      "groupTitle": "Pipeline Throughput and Efficiency",
+      "formulas": [
+        {
+          "formulaId": "con_032-throughput",
+          "name": "Pipeline Throughput",
+          "latex": "TP = \\frac{n}{(k + n - 1) \\times t_{cycle}}",
+          "plain": "TP = n / ((k + n - 1) * t_cycle)",
+          "whenToUse": "Computing instructions completed per unit time for a pipeline with n instructions",
+          "terms": [
+            { "symbol": "n", "means": "number of instructions" },
+            { "symbol": "k", "means": "number of pipeline stages" },
+            { "symbol": "t_{cycle}", "means": "clock cycle time" }
+          ],
+          "trap": "Maximum throughput is 1/t_cycle (one instruction per cycle), achieved only as n -> infinity",
+          "reference": "Computer Organization and Architecture / Processor Design"
+        },
+        {
+          "formulaId": "con_032-efficiency",
+          "name": "Pipeline Efficiency",
+          "latex": "E = \\frac{S}{k} = \\frac{n}{k + n - 1}",
+          "plain": "E = S / k = n / (k + n - 1)",
+          "whenToUse": "Measuring utilization of pipeline stages; ranges from 0 to 1",
+          "terms": [
+            { "symbol": "S", "means": "speedup" },
+            { "symbol": "k", "means": "number of pipeline stages" },
+            { "symbol": "n", "means": "number of instructions" }
+          ],
+          "trap": "Efficiency approaches 1 only for large n; for small n it is noticeably below 1",
+          "reference": "Computer Organization and Architecture / Processor Design"
+        },
+        {
+          "formulaId": "con_032-branch-speedup",
+          "name": "Pipelining Speedup with Branch Penalty",
+          "latex": "S_{actual} = \\frac{k}{1 + f_b \\times p}",
+          "plain": "S_actual = k / (1 + f_branch * branch_penalty_cycles)",
+          "whenToUse": "Adjusting ideal speedup k downward when a fraction f_b of instructions are branches with penalty p",
+          "terms": [
+            { "symbol": "k", "means": "number of pipeline stages" },
+            { "symbol": "f_b", "means": "fraction of instructions that are branches" },
+            { "symbol": "p", "means": "branch penalty in clock cycles" }
+          ],
+          "trap": "Penalty p is in units of cycles; multiply by f_b (not by count of branches) to get stalls per instruction",
+          "reference": "Computer Organization and Architecture / Processor Design"
+        }
+      ]
+    }
+  ]
+}

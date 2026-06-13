@@ -1,0 +1,333 @@
+{
+  "_id": "con_031",
+  "conceptId": "con_031",
+  "conceptTitle": "ALU, Data-path and Control Unit",
+  "reference": "GATE CS — Computer Organization and Architecture / Processor Design",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Counting bus transfers / micro-ops in single-bus datapath",
+        "use": "\\text{Steps} = \\text{fetch}(2) + \\text{decode}(1) + \\text{execute micro-ops}"
+      },
+      {
+        "condition": "Width of horizontal microinstruction word",
+        "use": "W_{\\text{horiz}} = N_{\\text{control signals}} + N_{\\text{cond bits}} + N_{\\text{branch addr bits}}"
+      },
+      {
+        "condition": "Width of vertical (encoded) microinstruction word",
+        "use": "W_{\\text{vert}} = \\lceil \\log_2 N_{\\text{signals}} \\rceil + N_{\\text{cond}} + N_{\\text{branch addr}}"
+      },
+      {
+        "condition": "Minimum bits when at most k signals active simultaneously",
+        "use": "\\text{bits} = \\lceil \\log_2 \\binom{N}{k} \\rceil \\text{ (or field-encoded)}"
+      },
+      {
+        "condition": "Control memory size",
+        "use": "\\text{Size} = \\text{(number of microinstructions)} \\times W_{\\text{microword}}"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "single-bus-datapath",
+      "groupTitle": "Single-Bus Data Path",
+      "formulas": [
+        {
+          "formulaId": "con_031-single-bus-micro-ops",
+          "name": "Micro-operation sequence on single bus",
+          "latex": "\\text{MAR} \\leftarrow \\text{PC},\\quad \\text{MDR} \\leftarrow M[\\text{MAR}],\\quad \\text{IR} \\leftarrow \\text{MDR},\\quad \\text{PC} \\leftarrow \\text{PC}+1",
+          "plain": "MAR <- PC; MDR <- M[MAR]; IR <- MDR; PC <- PC + 1  (fetch cycle, 4 micro-ops on single bus)",
+          "whenToUse": "Counting the minimum number of bus cycles to fetch an instruction in a single-bus CPU",
+          "terms": [
+            { "symbol": "MAR", "means": "Memory Address Register" },
+            { "symbol": "MDR", "means": "Memory Data Register" },
+            { "symbol": "IR", "means": "Instruction Register" },
+            { "symbol": "PC", "means": "Program Counter" }
+          ],
+          "trap": "On a single bus only one transfer can occur per clock; MAR and MDR always mediate memory access — do not skip them.",
+          "reference": "COA / Processor Design / Data Path"
+        },
+        {
+          "formulaId": "con_031-alu-execute-micro-op",
+          "name": "ALU execute micro-operation (register-register)",
+          "latex": "T_1: \\text{A} \\leftarrow R_s \\quad T_2: \\text{B} \\leftarrow R_t \\quad T_3: R_d \\leftarrow \\text{A} \\oplus \\text{B}",
+          "plain": "T1: A <- Rs; T2: B <- Rt; T3: Rd <- A op B  (three bus cycles for ALU R-R op)",
+          "whenToUse": "Determining the number of clock steps for a register-register ALU operation on a single-bus datapath with temporary registers A and B",
+          "terms": [
+            { "symbol": "A, B", "means": "Temporary (latch) registers feeding the ALU" },
+            { "symbol": "R_s, R_t", "means": "Source general-purpose registers" },
+            { "symbol": "R_d", "means": "Destination general-purpose register" }
+          ],
+          "trap": "The ALU cannot read two registers in one step on a single bus; temporary registers A and B must be loaded one at a time.",
+          "reference": "COA / Processor Design / Data Path"
+        },
+        {
+          "formulaId": "con_031-push-micro-ops",
+          "name": "PUSH instruction micro-operations (single-bus)",
+          "latex": "\\text{MAR} \\leftarrow \\text{SP},\\quad \\text{MDR} \\leftarrow R,\\quad M[\\text{MAR}] \\leftarrow \\text{MDR},\\quad \\text{SP} \\leftarrow \\text{SP}-1",
+          "plain": "MAR <- SP; MDR <- R; M[MAR] <- MDR; SP <- SP - 1",
+          "whenToUse": "Writing the micro-operation sequence for a PUSH instruction in a register-based, single-bus CPU",
+          "terms": [
+            { "symbol": "SP", "means": "Stack Pointer" },
+            { "symbol": "R", "means": "Register being pushed" }
+          ],
+          "trap": "Some CPUs decrement SP before the write (pre-decrement); others after (post-decrement). Read the ISA specification carefully.",
+          "reference": "COA / Processor Design / Data Path"
+        },
+        {
+          "formulaId": "con_031-memory-read-micro-ops",
+          "name": "Memory-read micro-operations",
+          "latex": "\\text{MAR} \\leftarrow \\text{addr},\\quad \\text{MDR} \\leftarrow M[\\text{MAR}],\\quad R_d \\leftarrow \\text{MDR}",
+          "plain": "MAR <- addr; MDR <- M[MAR]; Rd <- MDR",
+          "whenToUse": "Counting bus steps for a LOAD instruction on a single-bus datapath",
+          "terms": [
+            { "symbol": "addr", "means": "Effective address (may require additional computation steps)" }
+          ],
+          "trap": "The memory-read latency (MDR <- M[MAR]) is one step but can span multiple clock cycles depending on memory speed.",
+          "reference": "COA / Processor Design / Data Path"
+        }
+      ]
+    },
+    {
+      "groupId": "instruction-execution",
+      "groupTitle": "Instruction Execution & PC Behaviour",
+      "formulas": [
+        {
+          "formulaId": "con_031-pc-points-next",
+          "name": "PC always points to NEXT instruction",
+          "latex": "\\text{PC} = \\text{address of NEXT instruction to fetch}",
+          "plain": "PC = address of next instruction to fetch (not the currently executing one)",
+          "whenToUse": "Any question about the value of PC during or after instruction execution",
+          "terms": [
+            { "symbol": "PC", "means": "Program Counter (Instruction Pointer)" }
+          ],
+          "trap": "A common distractor states 'PC points to the last instruction executed' — this is FALSE. PC is incremented during fetch to point to the next instruction.",
+          "reference": "COA / Processor Design / Instruction Execution"
+        },
+        {
+          "formulaId": "con_031-stack-lifo",
+          "name": "Stack — LIFO discipline",
+          "latex": "\\text{Stack: Last-In, First-Out (LIFO)}",
+          "plain": "Stack operates as LIFO: the last element pushed is the first element popped",
+          "whenToUse": "Questions about the operating principle of the hardware stack (used for CALL/RET, PUSH/POP)",
+          "terms": [
+            { "symbol": "LIFO", "means": "Last-In First-Out" },
+            { "symbol": "SP", "means": "Stack Pointer, tracks top-of-stack" }
+          ],
+          "trap": "Do not confuse with queue (FIFO). Hardware stacks grow toward lower addresses on most architectures.",
+          "reference": "COA / Processor Design / Instruction Execution"
+        },
+        {
+          "formulaId": "con_031-flags-not-set-by-jump",
+          "name": "Conditional JUMP/CALL does NOT affect flags",
+          "latex": "\\text{Conditional JUMP/CALL: reads flags, does NOT modify them}",
+          "plain": "Conditional jump or call instructions test the flags register but do not alter it",
+          "whenToUse": "True/False questions about whether conditional branch instructions modify the flags register",
+          "terms": [
+            { "symbol": "Flags", "means": "Status/condition-code register bits (Z, N, C, V)" }
+          ],
+          "trap": "FALSE: conditional jumps/calls do not set flags. Flags are set only by arithmetic, logical, and compare instructions.",
+          "reference": "COA / Processor Design / Instruction Execution"
+        },
+        {
+          "formulaId": "con_031-prefetch-speedup",
+          "name": "Instruction prefetch / pipeline speedup",
+          "latex": "\\text{Prefetch overlaps } I_{\\text{fetch}}(i+1) \\text{ with } I_{\\text{exec}}(i)",
+          "plain": "Prefetch hides memory latency by fetching instruction i+1 while instruction i executes",
+          "whenToUse": "Explaining why instruction prefetching / instruction buffers speed up execution",
+          "terms": [
+            { "symbol": "I_fetch", "means": "Instruction fetch phase" },
+            { "symbol": "I_exec", "means": "Instruction execution phase" }
+          ],
+          "trap": "Speedup is reduced or eliminated when branches occur, because prefetched instructions may be wrong-path instructions.",
+          "reference": "COA / Processor Design / Instruction Execution"
+        },
+        {
+          "formulaId": "con_031-instruction-cycle-phases",
+          "name": "Instruction cycle phases",
+          "latex": "\\text{Fetch} \\rightarrow \\text{Decode} \\rightarrow \\text{Evaluate Address} \\rightarrow \\text{Fetch Operand} \\rightarrow \\text{Execute} \\rightarrow \\text{Store Result}",
+          "plain": "Fetch -> Decode -> EA -> Fetch Operand -> Execute -> Store Result",
+          "whenToUse": "Identifying which phase performs a specific action (e.g., which phase reads from memory for a LOAD)",
+          "terms": [
+            { "symbol": "EA", "means": "Effective Address computation" }
+          ],
+          "trap": "Not all phases occur for every instruction type; memory-reference instructions have more phases than register-register instructions.",
+          "reference": "COA / Processor Design / Instruction Execution"
+        }
+      ]
+    },
+    {
+      "groupId": "microprogramming-basics",
+      "groupTitle": "Microprogramming — Control Word Width",
+      "formulas": [
+        {
+          "formulaId": "con_031-horizontal-microword-width",
+          "name": "Horizontal microinstruction word width",
+          "latex": "W_{\\text{horiz}} = N_{\\text{ctrl}} + N_{\\text{cond}} + N_{\\text{next-addr}}",
+          "plain": "W_horiz = (number of control signals) + (condition select bits) + (next-address bits)",
+          "whenToUse": "Computing total bit-width of a horizontal (unencoded) microinstruction",
+          "terms": [
+            { "symbol": "N_{ctrl}", "means": "One bit per control signal (no encoding)" },
+            { "symbol": "N_{cond}", "means": "Bits to select among conditions for conditional branch" },
+            { "symbol": "N_{next-addr}", "means": "Bits to address the control memory (= ceil(log2(size)))" }
+          ],
+          "trap": "Horizontal means one bit per signal — no encoding. Do not take log of the control signals for the horizontal format.",
+          "reference": "COA / Processor Design / Microprogramming"
+        },
+        {
+          "formulaId": "con_031-vertical-microword-width",
+          "name": "Vertical (fully encoded) microinstruction word width",
+          "latex": "W_{\\text{vert}} = \\lceil \\log_2 (N_{\\text{ctrl}}+1) \\rceil + N_{\\text{cond}} + N_{\\text{next-addr}}",
+          "plain": "W_vert = ceil(log2(N_ctrl + 1)) + cond_bits + next_addr_bits",
+          "whenToUse": "Computing the minimum control word width when all signals are fully encoded into a single field",
+          "terms": [
+            { "symbol": "N_{ctrl}+1", "means": "+1 accounts for the 'no operation' (NOP) code" }
+          ],
+          "trap": "Full encoding minimises word width but requires a decoder, increasing latency — it is slower than horizontal microprogramming.",
+          "reference": "COA / Processor Design / Microprogramming"
+        },
+        {
+          "formulaId": "con_031-next-addr-bits",
+          "name": "Next-address field width in control word",
+          "latex": "N_{\\text{next-addr}} = \\lceil \\log_2 (\\text{number of microinstructions}) \\rceil",
+          "plain": "next_addr_bits = ceil(log2(control_memory_depth))",
+          "whenToUse": "Finding how many bits are needed to address the control store",
+          "terms": [
+            { "symbol": "\\text{control memory depth}", "means": "Total number of microinstructions stored" }
+          ],
+          "trap": "The next-address bits must be enough to address every microinstruction, so always round UP with ceiling.",
+          "reference": "COA / Processor Design / Microprogramming"
+        },
+        {
+          "formulaId": "con_031-cond-branch-bits",
+          "name": "Condition-select bits for conditional branching",
+          "latex": "N_{\\text{cond}} = \\lceil \\log_2 (\\text{number of testable conditions}) \\rceil",
+          "plain": "cond_bits = ceil(log2(number_of_conditions))",
+          "whenToUse": "Computing how many bits select among multiple branch conditions in a microinstruction",
+          "terms": [
+            { "symbol": "\\text{testable conditions}", "means": "e.g., Z=1, C=1, N=1, unconditional, …" }
+          ],
+          "trap": "Include the 'unconditional branch' and 'no-branch' cases when counting total conditions.",
+          "reference": "COA / Processor Design / Microprogramming"
+        },
+        {
+          "formulaId": "con_031-at-most-k-active-signals",
+          "name": "Minimum bits when at most k signals active simultaneously",
+          "latex": "\\text{bits} = \\left\\lceil \\log_2 \\left( \\sum_{i=0}^{k} \\binom{N}{i} \\right) \\right\\rceil",
+          "plain": "bits = ceil(log2(sum of C(N,i) for i=0 to k))  where N = total signals, k = max simultaneously active",
+          "whenToUse": "When at most k out of N control signals can be active at once — find the minimum encoding width",
+          "terms": [
+            { "symbol": "N", "means": "Total number of control signals" },
+            { "symbol": "k", "means": "Maximum number simultaneously active" },
+            { "symbol": "\\binom{N}{i}", "means": "Number of ways to choose i active signals from N" }
+          ],
+          "trap": "For k=1 this reduces to ceil(log2(N+1)). For k=2, N=25: C(25,0)+C(25,1)+C(25,2) = 1+25+300 = 326, so ceil(log2 326) = 9 bits.",
+          "reference": "COA / Processor Design / Microprogramming"
+        }
+      ]
+    },
+    {
+      "groupId": "microprogramming-concepts",
+      "groupTitle": "Microprogramming — Key Results & Properties",
+      "formulas": [
+        {
+          "formulaId": "con_031-hardwired-vs-microprogrammed",
+          "name": "Hardwired vs Microprogrammed control comparison",
+          "latex": "\\text{Hardwired: faster, inflexible} \\quad \\text{Microprogrammed: slower, flexible/extensible}",
+          "plain": "Hardwired control: faster execution, not easily modified.  Microprogrammed: easier to add new instructions, slower due to control-memory access.",
+          "whenToUse": "Questions comparing speed and flexibility of hardwired vs microprogrammed control units",
+          "terms": [
+            { "symbol": "\\text{Hardwired}", "means": "Logic-circuit-based control; fast but costly to modify" },
+            { "symbol": "\\text{Microprogrammed}", "means": "Control signals stored in control memory (ROM/RAM)" }
+          ],
+          "trap": "A common GATE trap: 'microprogrammed is faster than hardwired' is FALSE. Hardwired is faster; microprogrammed is more flexible.",
+          "reference": "COA / Processor Design / Microprogramming"
+        },
+        {
+          "formulaId": "con_031-control-memory-size",
+          "name": "Control memory (microprogram store) size",
+          "latex": "\\text{Control Memory Size} = \\text{depth} \\times W_{\\text{microword}} \\text{ bits}",
+          "plain": "Control Memory Size (bits) = number_of_microinstructions x microword_width_in_bits",
+          "whenToUse": "Calculating total size of the microprogram store",
+          "terms": [
+            { "symbol": "\\text{depth}", "means": "Number of microinstructions (rows in control store)" },
+            { "symbol": "W_{\\text{microword}}", "means": "Width of each microinstruction in bits" }
+          ],
+          "trap": "Do not confuse control memory (stores microinstructions) with main memory (stores instructions and data).",
+          "reference": "COA / Processor Design / Microprogramming"
+        },
+        {
+          "formulaId": "con_031-micro-vs-machine-instruction",
+          "name": "Microinstruction vs Machine instruction hierarchy",
+          "latex": "\\text{Machine Instruction} \\xrightarrow{\\text{decode}} \\text{Microprogram (sequence of microinstructions)}",
+          "plain": "Each machine instruction is decoded into a sequence of microinstructions that generate control signals",
+          "whenToUse": "Understanding what a microprogrammed control unit does when it receives a machine instruction",
+          "terms": [
+            { "symbol": "\\text{Microprogram}", "means": "Stored sequence of microinstructions implementing one machine instruction" },
+            { "symbol": "\\text{Microinstruction}", "means": "Specifies control signals for one micro-step" }
+          ],
+          "trap": "Microprogramming is NOT about running small user programs; it is about implementing the CPU's own control logic.",
+          "reference": "COA / Processor Design / Microprogramming"
+        },
+        {
+          "formulaId": "con_031-horizontal-vs-vertical",
+          "name": "Horizontal vs Vertical microinstruction format",
+          "latex": "\\text{Horizontal: wide word, parallel control, fast} \\quad \\text{Vertical: narrow word, encoded, needs decoder}",
+          "plain": "Horizontal: 1 bit per control line — wide but fast; Vertical: encoded fields — compact but needs a decoder, slower.",
+          "whenToUse": "Distinguishing the two microinstruction encoding styles and their trade-offs",
+          "terms": [
+            { "symbol": "\\text{Horizontal}", "means": "Unencoded; each bit directly drives one control line" },
+            { "symbol": "\\text{Vertical}", "means": "Encoded; decoder between microword and control lines" }
+          ],
+          "trap": "Horizontal words are WIDER but generate control signals FASTER (no decoder delay). Vertical words are NARROWER but SLOWER.",
+          "reference": "COA / Processor Design / Microprogramming"
+        },
+        {
+          "formulaId": "con_031-wilkes-sequencer",
+          "name": "Wilkes-style microprogram sequencing",
+          "latex": "\\mu\\text{PC} \\leftarrow \\begin{cases} \\mu\\text{PC}+1 & \\text{sequential} \\\\ \\text{branch addr} & \\text{conditional/unconditional branch} \\end{cases}",
+          "plain": "Next microinstruction address = microPC+1 (sequential) or branch_address (branch micro-op)",
+          "whenToUse": "Tracing execution flow through a microprogram or computing how branching is encoded",
+          "terms": [
+            { "symbol": "\\mu\\text{PC}", "means": "Micro-program counter; addresses control memory" }
+          ],
+          "trap": "The branch-address field in the microword must be wide enough to reach any microinstruction in the control store.",
+          "reference": "COA / Processor Design / Microprogramming"
+        }
+      ]
+    },
+    {
+      "groupId": "alu-basics",
+      "groupTitle": "ALU and Register Operations",
+      "formulas": [
+        {
+          "formulaId": "con_031-alu-operations",
+          "name": "Standard ALU operations",
+          "latex": "\\text{ALU ops: } +,\\; -,\\; \\text{AND},\\; \\text{OR},\\; \\text{XOR},\\; \\text{NOT},\\; \\text{SHL},\\; \\text{SHR},\\; \\text{CMP}",
+          "plain": "ALU operations: ADD, SUB, AND, OR, XOR, NOT, SHL, SHR, CMP (compare sets flags without storing result)",
+          "whenToUse": "Identifying which operations the ALU can perform and which unit handles them",
+          "terms": [
+            { "symbol": "CMP", "means": "Compare — performs subtraction, sets flags, discards result" },
+            { "symbol": "SHL/SHR", "means": "Shift left / Shift right" }
+          ],
+          "trap": "Multiplication and division are typically NOT in the basic ALU; they use separate multiply/divide units or multi-cycle sequences.",
+          "reference": "COA / Processor Design / Data Path"
+        },
+        {
+          "formulaId": "con_031-accumulator-arch",
+          "name": "Accumulator-based vs GPR-based data path",
+          "latex": "\\text{Acc-based: } \\text{ACC} \\leftarrow \\text{ACC} \\oplus M[\\text{addr}] \\qquad \\text{GPR-based: } R_d \\leftarrow R_s \\oplus R_t",
+          "plain": "Accumulator: one implicit operand in ACC; GPR (general-purpose register): all operands in named registers",
+          "whenToUse": "Answering questions about instruction formats and the number of address fields in an instruction",
+          "terms": [
+            { "symbol": "\\text{ACC}", "means": "Accumulator register — implicit source and destination" },
+            { "symbol": "\\text{GPR}", "means": "General-Purpose Register set" }
+          ],
+          "trap": "Accumulator machines have shorter instructions (fewer address fields) but require more memory accesses; GPR machines are more flexible.",
+          "reference": "COA / Processor Design / Data Path"
+        }
+      ]
+    }
+  ]
+}

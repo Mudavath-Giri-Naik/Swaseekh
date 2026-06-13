@@ -1,0 +1,37 @@
+{
+ "_id": "con_078",
+ "conceptId": "con_078",
+ "conceptTitle": "IP Addressing and Fragmentation",
+ "reference": "GATE CS — Computer Networks / Network Layer",
+ "decisionGuide": {
+  "title": "Which result do I use?",
+  "map": [
+   {"condition": "Hosts in a /p subnet", "use": "2^{32-p}-2"},
+   {"condition": "Block / subnet size", "use": "2^{32-p}"},
+   {"condition": "Fragment offset", "use": "\\text{bytes}/8"},
+   {"condition": "# subnets from borrowing k bits", "use": "2^{k}"}
+  ]
+ },
+ "groups": [
+  {
+   "groupId": "addressing",
+   "groupTitle": "IPv4 Addressing & Subnetting",
+   "formulas": [
+    {"formulaId": "con_078-hosts", "name": "Hosts per Subnet", "latex": "H = 2^{\\,32-p} - 2", "plain": "Usable hosts in a /p subnet = 2^(32-p) - 2 (subtract network and broadcast)", "whenToUse": "Counting assignable host addresses in a subnet.", "terms": [{"symbol": "p", "means": "prefix length (mask bits)"}], "trap": "Subtract 2 for network + broadcast addresses (point-to-point /31 is the exception).", "reference": "Subnetting"},
+    {"formulaId": "con_078-block-size", "name": "Block / Subnet Size", "latex": "B = 2^{\\,32-p}", "plain": "Addresses per block = 2^(32-p); network address is the first, broadcast the last", "whenToUse": "Finding subnet boundaries and ranges (CIDR).", "terms": [{"symbol": "B", "means": "addresses in the block"}], "trap": "Network address = (IP AND mask); broadcast = network OR (NOT mask).", "reference": "CIDR"},
+    {"formulaId": "con_078-num-subnets", "name": "Number of Subnets", "latex": "S = 2^{\\,k}", "plain": "Borrowing k host bits gives 2^k subnets", "whenToUse": "FLSM subnetting a classful/CIDR block.", "terms": [{"symbol": "k", "means": "bits borrowed from host portion"}], "trap": "Classic 'subnet-zero' debates aside, modern CIDR allows all 2^k subnets.", "reference": "Subnetting"},
+    {"formulaId": "con_078-cidr-aggregation", "name": "Route Aggregation (Supernetting)", "latex": "\\text{common prefix of contiguous blocks}", "plain": "Aggregate N contiguous equal blocks by shortening the prefix by log2(N) bits", "whenToUse": "Summarising routes into one CIDR entry.", "terms": [{"symbol": "supernet", "means": "shorter-prefix aggregate"}], "trap": "Blocks must be contiguous and aligned on the aggregate boundary.", "reference": "CIDR aggregation"}
+   ]
+  },
+  {
+   "groupId": "fragmentation",
+   "groupTitle": "IP Packet & Fragmentation",
+   "formulas": [
+    {"formulaId": "con_078-frag-offset", "name": "Fragment Offset", "latex": "\\text{offset} = \\frac{\\text{bytes preceding this fragment}}{8}", "plain": "Fragment offset field counts in units of 8 bytes = (data bytes before)/8", "whenToUse": "Computing offset fields when an IP datagram is fragmented.", "terms": [{"symbol": "offset", "means": "13-bit field, units of 8 bytes"}], "trap": "Every fragment except the last must carry a data length that is a multiple of 8 bytes.", "reference": "IP fragmentation"},
+    {"formulaId": "con_078-max-frag-data", "name": "Max Data per Fragment", "latex": "D = 8\\left\\lfloor \\frac{MTU - H}{8} \\right\\rfloor", "plain": "Max payload per fragment = floor((MTU - header)/8) * 8 (multiple of 8)", "whenToUse": "Splitting a datagram across a link with a given MTU.", "terms": [{"symbol": "MTU", "means": "link max transmission unit"}, {"symbol": "H", "means": "IP header bytes (>=20)"}], "trap": "Round the data DOWN to a multiple of 8; only the last fragment may be non-multiple.", "reference": "Fragmentation"},
+    {"formulaId": "con_078-ip-header", "name": "IPv4 Header Size", "latex": "20 \\le H \\le 60 \\text{ bytes}", "plain": "IPv4 header is 20 bytes without options, up to 60 with options; total-length field in bytes", "whenToUse": "Header-overhead and total-length calculations.", "terms": [{"symbol": "IHL", "means": "header length in 32-bit words"}], "trap": "Total Length counts header + data in bytes; IHL counts header in 4-byte words.", "reference": "IPv4 header"},
+    {"formulaId": "con_078-ttl", "name": "TTL Decrement", "latex": "TTL \\leftarrow TTL - 1;\\ \\ TTL=0 \\Rightarrow \\text{drop + ICMP}", "plain": "Each router decrements TTL by 1; at 0 the packet is dropped and ICMP Time Exceeded is sent", "whenToUse": "Reasoning about loop prevention / traceroute.", "terms": [{"symbol": "TTL", "means": "time-to-live hop counter"}], "trap": "TTL counts hops (routers), not seconds, in practice.", "reference": "IP TTL"}
+   ]
+  }
+ ]
+}

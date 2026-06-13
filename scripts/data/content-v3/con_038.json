@@ -1,0 +1,383 @@
+{
+  "_id": "con_038",
+  "conceptId": "con_038",
+  "conceptTitle": "Trees and Binary Heaps",
+  "reference": "GATE CS — Programming and Data Structures / Non-Linear Data Structures",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Height of tree / nodes in smallest AVL tree",
+        "use": "N(h) = N(h-1) + N(h-2) + 1"
+      },
+      {
+        "condition": "Build heap from array in-place",
+        "use": "\\Theta(n)"
+      },
+      {
+        "condition": "Insert / delete one element in heap or BST",
+        "use": "O(\\log n)"
+      },
+      {
+        "condition": "Reconstruct tree from two traversals",
+        "use": "\\text{Inorder + Preorder (or Postorder) } \\Rightarrow \\text{ unique tree}"
+      },
+      {
+        "condition": "Leaves vs full nodes in binary tree",
+        "use": "L = F + 1"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "binary-tree-properties",
+      "groupTitle": "Binary Tree Properties",
+      "formulas": [
+        {
+          "formulaId": "con_038-leaves-full-nodes",
+          "name": "Leaves vs Full Nodes",
+          "latex": "L = F + 1",
+          "plain": "L = F + 1",
+          "whenToUse": "Relating the number of leaves L to full (2-child) nodes F in any binary tree.",
+          "terms": [
+            { "symbol": "L", "means": "number of leaf nodes (degree 0)" },
+            { "symbol": "F", "means": "number of full nodes (exactly 2 children)" }
+          ],
+          "trap": "This holds for ANY binary tree, not just complete or full binary trees. Nodes with exactly 1 child do not appear in the formula.",
+          "reference": "Programming and Data Structures / Binary Tree"
+        },
+        {
+          "formulaId": "con_038-max-nodes-height",
+          "name": "Maximum Nodes at Height h",
+          "latex": "\\text{Max nodes} = 2^{h+1} - 1 \\quad (\\text{height } h, \\text{ root at } h=0)",
+          "plain": "Max nodes = 2^(h+1) - 1  (height h, root at h=0)",
+          "whenToUse": "Upper-bounding the total nodes in a binary tree of height h.",
+          "terms": [
+            { "symbol": "h", "means": "height of the tree (root = 0, leaf level = h)" }
+          ],
+          "trap": "Height convention varies: some sources use h=1 for root, giving max nodes = 2^h - 1. GATE typically uses h=0 for root.",
+          "reference": "Programming and Data Structures / Binary Tree"
+        },
+        {
+          "formulaId": "con_038-max-nodes-level",
+          "name": "Maximum Nodes at Level i",
+          "latex": "\\text{Max nodes at level } i = 2^i",
+          "plain": "Max nodes at level i = 2^i  (root at level 0)",
+          "whenToUse": "Finding the maximum number of nodes possible at a given level.",
+          "terms": [
+            { "symbol": "i", "means": "level number (root = 0)" }
+          ],
+          "trap": "Confusing level with height. Level counts from root down; height counts edges from root to deepest leaf.",
+          "reference": "Programming and Data Structures / Binary Tree"
+        },
+        {
+          "formulaId": "con_038-traversal-uniqueness",
+          "name": "Traversal Reconstruction Rule",
+          "latex": "\\text{Inorder} + \\text{Preorder (or Postorder)} \\Rightarrow \\text{unique binary tree}",
+          "plain": "Inorder + Preorder (or Postorder) => unique binary tree; Preorder + Postorder alone does NOT guarantee uniqueness.",
+          "whenToUse": "Deciding whether two given traversal sequences uniquely determine a binary tree.",
+          "terms": [
+            { "symbol": "Inorder", "means": "Left, Root, Right" },
+            { "symbol": "Preorder", "means": "Root, Left, Right" },
+            { "symbol": "Postorder", "means": "Left, Right, Root" }
+          ],
+          "trap": "Pre-order + Post-order alone does NOT uniquely determine a binary tree (multiple trees can share both). A common GATE trap is stating they do.",
+          "reference": "Programming and Data Structures / Binary Tree"
+        },
+        {
+          "formulaId": "con_038-complete-bt-nodes",
+          "name": "Complete Binary Tree — Node-Height Relation",
+          "latex": "\\lfloor \\log_2 n \\rfloor = h \\quad \\text{(height of complete BT with } n \\text{ nodes)}",
+          "plain": "h = floor(log2(n))  for a complete binary tree with n nodes",
+          "whenToUse": "Finding the height (and thus worst-case path length) of a complete binary tree.",
+          "terms": [
+            { "symbol": "n", "means": "total number of nodes" },
+            { "symbol": "h", "means": "height of the tree" }
+          ],
+          "trap": "This formula is for a COMPLETE binary tree. Arbitrary binary trees can have h up to n-1.",
+          "reference": "Programming and Data Structures / Binary Tree"
+        },
+        {
+          "formulaId": "con_038-internal-external-nodes",
+          "name": "Internal vs External Nodes (Full Binary Tree)",
+          "latex": "n_{\\text{internal}} = n_{\\text{leaves}} - 1 \\quad \\Leftrightarrow \\quad n_{\\text{leaves}} = n_{\\text{internal}} + 1",
+          "plain": "In a full binary tree (every node has 0 or 2 children): leaves = internal + 1",
+          "whenToUse": "Problems about strictly binary (full) trees where every non-leaf has exactly 2 children.",
+          "terms": [
+            { "symbol": "n_{\\text{internal}}", "means": "number of internal (non-leaf) nodes" },
+            { "symbol": "n_{\\text{leaves}}", "means": "number of leaf nodes" }
+          ],
+          "trap": "Same as L = F + 1 but phrased differently. Only applies when EVERY internal node has exactly 2 children.",
+          "reference": "Programming and Data Structures / Binary Tree"
+        }
+      ]
+    },
+    {
+      "groupId": "bst-properties",
+      "groupTitle": "Binary Search Tree (BST)",
+      "formulas": [
+        {
+          "formulaId": "con_038-bst-property",
+          "name": "BST Ordering Property",
+          "latex": "\\text{For every node } x: \\quad \\text{left subtree keys} < x.\\text{key} \\leq \\text{right subtree keys}",
+          "plain": "BST property: all keys in left subtree < node key <= all keys in right subtree",
+          "whenToUse": "Validating a BST or tracing a search/insert path in GATE probe-sequence questions.",
+          "terms": [
+            { "symbol": "x.\\text{key}", "means": "key stored at node x" }
+          ],
+          "trap": "Equal keys — GATE problems may place duplicates on the right (>=). Always check the problem's convention. An illegal probe sequence will violate this ordering at some step.",
+          "reference": "Programming and Data Structures / Binary Search Tree"
+        },
+        {
+          "formulaId": "con_038-bst-search-complexity",
+          "name": "BST Search / Insert / Delete Complexity",
+          "latex": "\\text{Average: } O(\\log n), \\quad \\text{Worst (skewed): } O(n)",
+          "plain": "BST search/insert/delete: O(log n) average, O(n) worst case (skewed tree)",
+          "whenToUse": "Comparing BST complexity with balanced BST (AVL) or heap operations.",
+          "terms": [
+            { "symbol": "n", "means": "number of nodes in the BST" }
+          ],
+          "trap": "Inserting sorted data into a BST produces a skewed (degenerate) tree with O(n) height. AVL trees guarantee O(log n) worst case.",
+          "reference": "Programming and Data Structures / Binary Search Tree"
+        },
+        {
+          "formulaId": "con_038-bst-inorder",
+          "name": "BST Inorder Traversal Gives Sorted Output",
+          "latex": "\\text{Inorder(BST)} \\Rightarrow \\text{keys in non-decreasing order}",
+          "plain": "Inorder traversal of a BST produces keys in sorted (non-decreasing) order.",
+          "whenToUse": "Identifying valid preorder/postorder sequences of BST keys.",
+          "terms": [],
+          "trap": "Pre-order and post-order of a BST do NOT directly yield sorted order. Only in-order does.",
+          "reference": "Programming and Data Structures / Binary Search Tree"
+        },
+        {
+          "formulaId": "con_038-number-of-bsts",
+          "name": "Number of Distinct BSTs with n Keys",
+          "latex": "C_n = \\frac{1}{n+1}\\binom{2n}{n} \\quad (\\text{Catalan number})",
+          "plain": "Number of distinct BSTs with n keys = C_n = (1/(n+1)) * C(2n, n)  [nth Catalan number]",
+          "whenToUse": "Counting the number of structurally distinct BSTs (or binary trees) for n nodes.",
+          "terms": [
+            { "symbol": "C_n", "means": "nth Catalan number" },
+            { "symbol": "n", "means": "number of distinct keys" }
+          ],
+          "trap": "This counts distinct BST shapes given n keys. If keys are labeled, the number of distinct BSTs equals C_n (each shape corresponds to one BST for a given sorted key set).",
+          "reference": "Programming and Data Structures / Binary Search Tree"
+        }
+      ]
+    },
+    {
+      "groupId": "avl-tree",
+      "groupTitle": "AVL Tree",
+      "formulas": [
+        {
+          "formulaId": "con_038-avl-balance-factor",
+          "name": "Balance Factor Definition",
+          "latex": "\\text{BF}(x) = h(\\text{left}(x)) - h(\\text{right}(x)) \\in \\{-1, 0, 1\\}",
+          "plain": "BF(x) = height(left subtree) - height(right subtree); must be in {-1, 0, 1} for AVL property.",
+          "whenToUse": "Computing balance factors and checking/maintaining the AVL height-balance property.",
+          "terms": [
+            { "symbol": "h(\\cdot)", "means": "height of the subtree (number of edges to deepest leaf)" },
+            { "symbol": "\\text{BF}(x)", "means": "balance factor of node x" }
+          ],
+          "trap": "Height of an empty subtree is -1 (by convention). Using 0 instead causes wrong balance factors at leaf nodes.",
+          "reference": "Programming and Data Structures / AVL Tree"
+        },
+        {
+          "formulaId": "con_038-avl-min-nodes",
+          "name": "Minimum Nodes in AVL Tree of Height h",
+          "latex": "N(h) = N(h-1) + N(h-2) + 1, \\quad N(0)=1, \\quad N(1)=2",
+          "plain": "N(h) = N(h-1) + N(h-2) + 1,  N(0)=1, N(1)=2  (Fibonacci-like recurrence)",
+          "whenToUse": "Finding the minimum/smallest AVL tree for a given height, or inverting to find the maximum height for n nodes.",
+          "terms": [
+            { "symbol": "N(h)", "means": "minimum number of nodes in an AVL tree of height h" },
+            { "symbol": "h", "means": "height of the AVL tree" }
+          ],
+          "trap": "Confusing N(h) (min nodes for height h) with max nodes (= 2^(h+1) - 1). GATE asks for minimum; the recurrence is Fibonacci-like.",
+          "reference": "Programming and Data Structures / AVL Tree"
+        },
+        {
+          "formulaId": "con_038-avl-height-complexity",
+          "name": "AVL Tree Height Bound",
+          "latex": "h \\leq 1.44 \\log_2(n+2) - 1 \\approx O(\\log n)",
+          "plain": "AVL height <= 1.44 * log2(n+2) - 1, so all operations are O(log n) worst case.",
+          "whenToUse": "Justifying O(log n) worst-case complexity for AVL search, insert, delete.",
+          "terms": [
+            { "symbol": "h", "means": "height of AVL tree" },
+            { "symbol": "n", "means": "number of nodes" }
+          ],
+          "trap": "The constant 1.44 is often omitted. Remember AVL height is strictly bounded; a plain BST has no such bound.",
+          "reference": "Programming and Data Structures / AVL Tree"
+        },
+        {
+          "formulaId": "con_038-avl-rotations",
+          "name": "AVL Rotation Cases",
+          "latex": "\\text{LL} \\to \\text{Right Rotate}, \\quad \\text{RR} \\to \\text{Left Rotate}, \\quad \\text{LR} \\to \\text{Left-Right}, \\quad \\text{RL} \\to \\text{Right-Left}",
+          "plain": "LL => single right rotate; RR => single left rotate; LR => left rotate child then right rotate; RL => right rotate child then left rotate.",
+          "whenToUse": "Restoring AVL balance after an insertion or deletion that causes |BF| > 1.",
+          "terms": [
+            { "symbol": "\\text{LL}", "means": "imbalance in left child's left subtree" },
+            { "symbol": "\\text{RR}", "means": "imbalance in right child's right subtree" },
+            { "symbol": "\\text{LR}", "means": "imbalance in left child's right subtree" },
+            { "symbol": "\\text{RL}", "means": "imbalance in right child's left subtree" }
+          ],
+          "trap": "LR and RL each require TWO rotations (double rotation). Applying only one rotation leaves the tree still unbalanced.",
+          "reference": "Programming and Data Structures / AVL Tree"
+        }
+      ]
+    },
+    {
+      "groupId": "binary-heap",
+      "groupTitle": "Binary Heap",
+      "formulas": [
+        {
+          "formulaId": "con_038-heap-property",
+          "name": "Max-Heap / Min-Heap Property",
+          "latex": "\\text{Max-Heap: } A[\\lfloor i/2 \\rfloor] \\geq A[i] \\quad \\text{(parent} \\geq \\text{child)}",
+          "plain": "Max-Heap: parent >= both children  (A[floor(i/2)] >= A[i]). Min-Heap: parent <= both children.",
+          "whenToUse": "Verifying a heap or tracing heapify operations. Array index i, parent at floor(i/2) (1-indexed).",
+          "terms": [
+            { "symbol": "A[i]", "means": "element at position i (1-indexed array)" },
+            { "symbol": "\\lfloor i/2 \\rfloor", "means": "index of parent of node i" }
+          ],
+          "trap": "0-indexed arrays: parent of i is floor((i-1)/2). 1-indexed: parent of i is floor(i/2). GATE questions usually use 1-indexed. Mixing conventions causes wrong answers.",
+          "reference": "Programming and Data Structures / Binary Heap"
+        },
+        {
+          "formulaId": "con_038-heap-children-index",
+          "name": "Heap Children Index Formula",
+          "latex": "\\text{Left child of } i = 2i, \\quad \\text{Right child of } i = 2i+1 \\quad (1\\text{-indexed})",
+          "plain": "Left child of i = 2i,  Right child of i = 2i+1  (1-indexed). For 0-indexed: left = 2i+1, right = 2i+2.",
+          "whenToUse": "Navigating a heap stored as an array (finding children or parent during heapify).",
+          "terms": [
+            { "symbol": "i", "means": "index of current node (1-indexed)" }
+          ],
+          "trap": "The 0-indexed vs 1-indexed shift of +1 is a frequent off-by-one error in GATE MCQs asking for a specific child's index.",
+          "reference": "Programming and Data Structures / Binary Heap"
+        },
+        {
+          "formulaId": "con_038-heapify-complexity",
+          "name": "Heapify (Sift-Down) Complexity",
+          "latex": "T_{\\text{heapify}} = O(\\log n)",
+          "plain": "Heapify (sift-down one element) = O(log n)",
+          "whenToUse": "Complexity of a single insert or delete-min/delete-max in a binary heap.",
+          "terms": [
+            { "symbol": "n", "means": "number of elements in the heap" }
+          ],
+          "trap": "Single heapify is O(log n). Build-heap is O(n) (not O(n log n)) due to the summation argument.",
+          "reference": "Programming and Data Structures / Binary Heap"
+        },
+        {
+          "formulaId": "con_038-build-heap",
+          "name": "Build-Heap (Heapify All Internal Nodes)",
+          "latex": "T_{\\text{build-heap}} = O(n) = \\Theta(n)",
+          "plain": "Building a heap from an unordered array of n elements costs Theta(n).",
+          "whenToUse": "Heap construction from scratch — the linear-time algorithm that sifts down from floor(n/2) down to 1.",
+          "terms": [
+            { "symbol": "n", "means": "number of elements" }
+          ],
+          "trap": "Naively inserting n elements one-by-one costs O(n log n). The bottom-up build-heap achieves O(n). GATE often matches complexities and this O(n) result is a standard pairing.",
+          "reference": "Programming and Data Structures / Binary Heap"
+        },
+        {
+          "formulaId": "con_038-heap-sort",
+          "name": "Heap Sort Complexity",
+          "latex": "T_{\\text{heap-sort}} = O(n \\log n) \\quad (\\text{in-place, not stable})",
+          "plain": "Heap sort: O(n log n) time, O(1) extra space, NOT stable.",
+          "whenToUse": "Comparing heap sort with merge sort or quick sort on time/space/stability.",
+          "terms": [
+            { "symbol": "n", "means": "number of elements to sort" }
+          ],
+          "trap": "Heap sort is NOT stable. Merge sort is stable and also O(n log n) but needs O(n) extra space.",
+          "reference": "Programming and Data Structures / Binary Heap"
+        },
+        {
+          "formulaId": "con_038-heap-internal-nodes",
+          "name": "Number of Internal Nodes in a Heap",
+          "latex": "\\text{Internal nodes} = \\lfloor n/2 \\rfloor",
+          "plain": "A complete binary tree (heap) with n nodes has floor(n/2) internal (non-leaf) nodes and ceil(n/2) leaves.",
+          "whenToUse": "Build-heap starts sifting from floor(n/2). Counting leaves vs internal nodes in heap problems.",
+          "terms": [
+            { "symbol": "n", "means": "total number of nodes" }
+          ],
+          "trap": "Leaf count is ceil(n/2), not floor(n/2). These differ for odd n.",
+          "reference": "Programming and Data Structures / Binary Heap"
+        }
+      ]
+    },
+    {
+      "groupId": "priority-queue",
+      "groupTitle": "Priority Queue",
+      "formulas": [
+        {
+          "formulaId": "con_038-priority-queue-ops",
+          "name": "Priority Queue Operation Complexities",
+          "latex": "\\text{Insert: } O(\\log n), \\quad \\text{Extract-Min/Max: } O(\\log n), \\quad \\text{Peek: } O(1)",
+          "plain": "Priority Queue (binary heap): Insert O(log n), Extract-Min/Max O(log n), Peek (find min/max) O(1).",
+          "whenToUse": "Analyzing algorithms that use a priority queue (e.g., Dijkstra, Prim, Huffman coding).",
+          "terms": [
+            { "symbol": "n", "means": "number of elements in the priority queue" }
+          ],
+          "trap": "Peek (just reading min/max at root) is O(1) but extracting (removing) is O(log n) because it triggers heapify.",
+          "reference": "Programming and Data Structures / Priority Queue"
+        },
+        {
+          "formulaId": "con_038-decrease-key",
+          "name": "Decrease-Key in Binary Heap",
+          "latex": "\\text{Decrease-Key: } O(\\log n) \\quad (\\text{sift-up after decreasing a key})",
+          "plain": "Decrease-Key in a min-heap costs O(log n) — decrease the key then sift up to restore heap property.",
+          "whenToUse": "Used in Dijkstra's and Prim's algorithms; important for their overall complexity analysis.",
+          "terms": [
+            { "symbol": "n", "means": "number of elements in the heap" }
+          ],
+          "trap": "Decrease-Key requires knowing the position of the element (requires an index map). Without it, finding the element is O(n).",
+          "reference": "Programming and Data Structures / Priority Queue"
+        }
+      ]
+    },
+    {
+      "groupId": "general-tree-properties",
+      "groupTitle": "General Tree Properties",
+      "formulas": [
+        {
+          "formulaId": "con_038-tree-edges-nodes",
+          "name": "Tree Edges and Nodes",
+          "latex": "\\text{A tree with } n \\text{ nodes has exactly } n - 1 \\text{ edges}",
+          "plain": "A tree with n nodes has exactly n - 1 edges.",
+          "whenToUse": "Any problem verifying a tree structure or counting edges from node count.",
+          "terms": [
+            { "symbol": "n", "means": "number of nodes (vertices) in the tree" }
+          ],
+          "trap": "Adding one more edge creates a cycle (no longer a tree). Removing one edge disconnects the tree.",
+          "reference": "Programming and Data Structures / Tree"
+        },
+        {
+          "formulaId": "con_038-tree-degree-sum",
+          "name": "Sum of Degrees in a Tree",
+          "latex": "\\sum_{v} \\deg(v) = 2(n-1)",
+          "plain": "Sum of all node degrees in a tree = 2*(n-1)  (each of the n-1 edges contributes 2 to the degree sum).",
+          "whenToUse": "Deriving number of nodes/edges from degree information in tree problems.",
+          "terms": [
+            { "symbol": "\\deg(v)", "means": "degree (number of edges incident) to node v" },
+            { "symbol": "n", "means": "number of nodes" }
+          ],
+          "trap": "In a rooted tree, degree of root = number of children; degree of other nodes = number of children + 1 (for parent edge).",
+          "reference": "Programming and Data Structures / Tree"
+        },
+        {
+          "formulaId": "con_038-k-ary-tree-leaves",
+          "name": "k-ary Tree: Leaves vs Internal Nodes",
+          "latex": "L = (k-1) \\cdot I + 1 \\quad (\\text{full } k\\text{-ary tree})",
+          "plain": "In a full k-ary tree (every internal node has exactly k children): L = (k-1)*I + 1",
+          "whenToUse": "Generalizing the binary tree leaf/full-node relationship to k-ary trees.",
+          "terms": [
+            { "symbol": "L", "means": "number of leaf nodes" },
+            { "symbol": "I", "means": "number of internal nodes (each with exactly k children)" },
+            { "symbol": "k", "means": "branching factor (k=2 gives binary: L = I + 1)" }
+          ],
+          "trap": "For k=2 this reduces to L = I + 1 (the standard formula). For k=3, L = 2I + 1. Apply carefully for ternary/quaternary trees.",
+          "reference": "Programming and Data Structures / Tree"
+        }
+      ]
+    }
+  ]
+}

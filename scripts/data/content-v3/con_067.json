@@ -1,0 +1,320 @@
+{
+  "_id": "con_067",
+  "conceptId": "con_067",
+  "conceptTitle": "ER Model",
+  "reference": "GATE CS — Databases / Data Models",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      { "condition": "Counting minimum tables from ER schema", "use": "\\text{Tables} = \\text{strong entities} + \\text{weak entities} + \\text{M:N relationships}" },
+      { "condition": "Deciding if a relationship attribute moves to an entity", "use": "\\text{M:N} \\Rightarrow \\text{attribute stays in relation table;} \\quad 1:\\text{N} \\Rightarrow \\text{attribute moves to N-side}" },
+      { "condition": "Converting 1:N binary relationship to tables", "use": "\\text{FK added to N-side entity table (no separate relation table needed)}" },
+      { "condition": "Checking physical vs logical data independence", "use": "\\text{Physical independence} > \\text{Logical independence (physical is easier)}" },
+      { "condition": "Participation constraint: every entity must participate", "use": "\\text{Total participation} \\Leftrightarrow \\text{double line in ER diagram}" }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "entity-types",
+      "groupTitle": "Entity Types & Attributes",
+      "formulas": [
+        {
+          "formulaId": "con_067-strong-entity",
+          "name": "Strong Entity",
+          "latex": "\\text{Strong Entity: has its own primary key (PK)}",
+          "plain": "Strong Entity: exists independently; has its own primary key",
+          "whenToUse": "When an entity can be uniquely identified by its own attributes alone",
+          "terms": [
+            { "symbol": "PK", "means": "primary key — unique identifier for entity instances" }
+          ],
+          "trap": "Confusing a strong entity with a weak entity when the key attribute is inherited from the parent",
+          "reference": "Databases / ER Model"
+        },
+        {
+          "formulaId": "con_067-weak-entity",
+          "name": "Weak Entity",
+          "latex": "\\text{Weak Entity: identified by PK of owner} + \\text{partial key (discriminator)}",
+          "plain": "Weak Entity: no full PK of its own; identified via owner entity PK + discriminator",
+          "whenToUse": "When an entity cannot be uniquely identified without referring to another (owner) entity",
+          "terms": [
+            { "symbol": "discriminator", "means": "partial key — distinguishes weak entity instances among those with same owner" }
+          ],
+          "trap": "Weak entity always has TOTAL participation in its identifying relationship — forgetting this in diagrams",
+          "reference": "Databases / ER Model"
+        },
+        {
+          "formulaId": "con_067-attribute-types",
+          "name": "Attribute Classification",
+          "latex": "\\text{Attributes: Simple | Composite | Multi-valued | Derived}",
+          "plain": "Attributes: Simple (atomic), Composite (parts), Multi-valued (set), Derived (computed)",
+          "whenToUse": "When determining how to represent attributes in ER notation or map them to tables",
+          "terms": [
+            { "symbol": "Multi-valued", "means": "attribute can hold multiple values; shown with double ellipse" },
+            { "symbol": "Derived", "means": "computed from other attributes; shown with dashed ellipse" }
+          ],
+          "trap": "Multi-valued attributes require a separate table in relational mapping; not a column in the entity table",
+          "reference": "Databases / ER Model"
+        },
+        {
+          "formulaId": "con_067-key-attribute",
+          "name": "Key Attribute",
+          "latex": "\\text{Key attribute: uniquely identifies entity instance} \\Rightarrow \\underline{\\text{underlined in ER diagram}}",
+          "plain": "Key attribute: underlined in ER diagram; uniquely identifies entity instances",
+          "whenToUse": "When identifying the primary key of an entity in ER notation",
+          "terms": [
+            { "symbol": "composite key", "means": "combination of attributes that together form the key" }
+          ],
+          "trap": "A composite key in ER does not mean multiple single-attribute keys; all parts together form one key",
+          "reference": "Databases / ER Model"
+        }
+      ]
+    },
+    {
+      "groupId": "relationship-cardinality",
+      "groupTitle": "Relationship Types & Cardinality",
+      "formulas": [
+        {
+          "formulaId": "con_067-one-to-one",
+          "name": "1:1 (One-to-One) Relationship",
+          "latex": "1:1 \\Rightarrow \\text{FK in either entity table (or merge both)}",
+          "plain": "1:1: one entity in A relates to at most one in B; FK can go on either side",
+          "whenToUse": "When each entity instance on both sides relates to at most one on the other side",
+          "terms": [
+            { "symbol": "FK", "means": "foreign key added to one entity table" }
+          ],
+          "trap": "For 1:1 with total participation on one side, always put FK on the total-participation side to avoid NULLs",
+          "reference": "Databases / ER Model"
+        },
+        {
+          "formulaId": "con_067-one-to-many",
+          "name": "1:N (One-to-Many) Relationship",
+          "latex": "1:N \\Rightarrow \\text{FK added to N-side entity table}",
+          "plain": "1:N: FK (referencing 1-side PK) is placed in the N-side entity's table; no separate relation table needed",
+          "whenToUse": "When one entity on the 1-side relates to many entities on the N-side",
+          "terms": [
+            { "symbol": "1-side", "means": "entity whose PK becomes the FK in N-side" },
+            { "symbol": "N-side", "means": "entity that holds the FK column" }
+          ],
+          "trap": "Attributes of the relationship move to the N-side table, NOT a separate relationship table",
+          "reference": "Databases / ER Model"
+        },
+        {
+          "formulaId": "con_067-many-to-many",
+          "name": "M:N (Many-to-Many) Relationship",
+          "latex": "M:N \\Rightarrow \\text{Separate relation table with PKs of both entities as FKs}",
+          "plain": "M:N: requires its own relation table; PKs of both participating entities become FKs (and together form the PK of the relation table)",
+          "whenToUse": "When entity instances on both sides can relate to many on the other side",
+          "terms": [
+            { "symbol": "relation table PK", "means": "composite key: (PK_E1, PK_E2) plus any relationship attributes" }
+          ],
+          "trap": "Relationship attributes of an M:N relationship stay in the relation table, not in either entity table",
+          "reference": "Databases / ER Model"
+        },
+        {
+          "formulaId": "con_067-ternary-relationship",
+          "name": "Ternary Relationship",
+          "latex": "\\text{Ternary (3-way) relationship} \\Rightarrow \\text{relation table with 3 FKs}",
+          "plain": "Ternary relationship: involves three entity sets; mapped to one relation table containing FKs of all three entities",
+          "whenToUse": "When a relationship inherently involves three entity sets simultaneously",
+          "terms": [
+            { "symbol": "ternary", "means": "degree-3 relationship — cannot always be decomposed into binary ones without loss" }
+          ],
+          "trap": "A ternary relationship is NOT always equivalent to three binary relationships; decomposition may lose information",
+          "reference": "Databases / ER Model"
+        }
+      ]
+    },
+    {
+      "groupId": "participation-constraints",
+      "groupTitle": "Participation & Structural Constraints",
+      "formulas": [
+        {
+          "formulaId": "con_067-total-participation",
+          "name": "Total Participation (Existence Dependency)",
+          "latex": "\\text{Total participation} \\Leftrightarrow \\text{double line in ER; every entity must participate}",
+          "plain": "Total participation: every instance of the entity MUST participate in the relationship (double line in ER)",
+          "whenToUse": "When every entity instance is required to have at least one association in the relationship",
+          "terms": [
+            { "symbol": "double line", "means": "ER notation for total participation constraint" }
+          ],
+          "trap": "Weak entities always have total participation in their identifying relationship — often tested",
+          "reference": "Databases / ER Model"
+        },
+        {
+          "formulaId": "con_067-partial-participation",
+          "name": "Partial Participation",
+          "latex": "\\text{Partial participation} \\Leftrightarrow \\text{single line in ER; entity may or may not participate}",
+          "plain": "Partial participation: entity instances may optionally participate in the relationship (single line in ER)",
+          "whenToUse": "When it is optional for an entity to have an association in the relationship",
+          "terms": [
+            { "symbol": "single line", "means": "ER notation for partial (optional) participation" }
+          ],
+          "trap": "Partial participation maps to nullable FK or optional rows; do not confuse with cardinality notation",
+          "reference": "Databases / ER Model"
+        },
+        {
+          "formulaId": "con_067-min-max-notation",
+          "name": "Min-Max (Structural) Constraint",
+          "latex": "(\\min, \\max) \\text{ on each entity side: e.g. } (1,1),(0,N)",
+          "plain": "(min, max): min = minimum participation, max = maximum participation; (1,1) means total + at most one; (0,N) means optional + many",
+          "whenToUse": "When expressing both lower and upper bounds on participation in a relationship",
+          "terms": [
+            { "symbol": "min=0", "means": "partial participation (optional)" },
+            { "symbol": "min=1", "means": "total participation (mandatory)" },
+            { "symbol": "max=1", "means": "at most one (one-side)" },
+            { "symbol": "max=N", "means": "many (many-side)" }
+          ],
+          "trap": "In (min,max) notation the cardinality direction is sometimes reversed compared to crow's-foot; read from entity toward relationship",
+          "reference": "Databases / ER Model"
+        }
+      ]
+    },
+    {
+      "groupId": "er-to-relational-mapping",
+      "groupTitle": "ER-to-Relational Mapping Rules",
+      "formulas": [
+        {
+          "formulaId": "con_067-table-count",
+          "name": "Minimum Table Count from ER Schema",
+          "latex": "T_{\\min} = |E_{\\text{strong}}| + |E_{\\text{weak}}| + |R_{M:N}|",
+          "plain": "Minimum tables = (number of strong entities) + (number of weak entities) + (number of M:N relationships)",
+          "whenToUse": "When GATE asks how many tables are needed to represent an ER schema in the relational model",
+          "terms": [
+            { "symbol": "|E_strong|", "means": "count of strong entity sets" },
+            { "symbol": "|E_weak|", "means": "count of weak entity sets" },
+            { "symbol": "|R_{M:N}|", "means": "count of many-to-many relationship sets" }
+          ],
+          "trap": "1:1 and 1:N relationships do NOT add extra tables (FK is merged into entity tables); only M:N adds a table",
+          "reference": "Databases / ER Model"
+        },
+        {
+          "formulaId": "con_067-weak-entity-mapping",
+          "name": "Weak Entity Table Mapping",
+          "latex": "\\text{Weak entity table PK} = \\text{PK}_{\\text{owner}} + \\text{discriminator}",
+          "plain": "Weak entity table: PK = (owner PK columns) + (discriminator attribute); always includes owner PK as FK",
+          "whenToUse": "When converting a weak entity and its identifying relationship to a relational table",
+          "terms": [
+            { "symbol": "owner PK", "means": "primary key columns of the strong (owner) entity" },
+            { "symbol": "discriminator", "means": "partial key of the weak entity" }
+          ],
+          "trap": "The identifying relationship itself does NOT produce a separate table; it is absorbed into the weak entity table",
+          "reference": "Databases / ER Model"
+        },
+        {
+          "formulaId": "con_067-multivalued-attribute-mapping",
+          "name": "Multi-valued Attribute Mapping",
+          "latex": "\\text{Multi-valued attribute} \\Rightarrow \\text{separate table: (entity PK, attribute value)}",
+          "plain": "Multi-valued attribute maps to a separate table with columns: (entity PK as FK, attribute value); PK = both columns",
+          "whenToUse": "When an entity has a multi-valued attribute (e.g., phone numbers, hobbies)",
+          "terms": [
+            { "symbol": "entity PK", "means": "primary key of the owning entity (becomes FK in new table)" }
+          ],
+          "trap": "Storing multi-valued attributes as a comma-separated column violates 1NF; a separate table is required",
+          "reference": "Databases / ER Model"
+        },
+        {
+          "formulaId": "con_067-relationship-attribute-placement",
+          "name": "Relationship Attribute Placement",
+          "latex": "1:N \\Rightarrow \\text{attr} \\to N\\text{-side table}; \\quad M:N \\Rightarrow \\text{attr stays in relation table}",
+          "plain": "1:N relationship attributes move to N-side entity table. M:N relationship attributes stay in the separate relation table.",
+          "whenToUse": "When deciding where to place attributes that belong to a relationship",
+          "terms": [
+            { "symbol": "relationship attribute", "means": "attribute describing the association, not a single entity" }
+          ],
+          "trap": "For 1:1 with total participation, relationship attributes should go with the total-participation side entity",
+          "reference": "Databases / ER Model"
+        }
+      ]
+    },
+    {
+      "groupId": "specialisation-generalisation",
+      "groupTitle": "Specialisation, Generalisation & Aggregation",
+      "formulas": [
+        {
+          "formulaId": "con_067-specialisation",
+          "name": "Specialisation (Top-Down)",
+          "latex": "\\text{Superclass} \\xrightarrow{\\text{ISA}} \\text{Subclass}_1, \\text{Subclass}_2, \\ldots",
+          "plain": "Specialisation: top-down; superclass is refined into subclasses sharing common attributes. ISA hierarchy.",
+          "whenToUse": "When a high-level entity is broken down into more specific sub-entities",
+          "terms": [
+            { "symbol": "ISA", "means": "is-a relationship between subclass and superclass" },
+            { "symbol": "superclass", "means": "generalised entity at the top" }
+          ],
+          "trap": "Disjoint vs. overlapping: in disjoint, an instance belongs to at most one subclass; in overlapping, it may belong to multiple",
+          "reference": "Databases / ER Model"
+        },
+        {
+          "formulaId": "con_067-generalisation",
+          "name": "Generalisation (Bottom-Up)",
+          "latex": "\\text{Subclass}_1, \\text{Subclass}_2 \\xrightarrow{\\text{generalise}} \\text{Superclass}",
+          "plain": "Generalisation: bottom-up; common attributes of subclasses are factored into a new superclass",
+          "whenToUse": "When multiple entity sets share attributes and are abstracted into a common superclass",
+          "terms": [
+            { "symbol": "generalisation", "means": "reverse of specialisation — unifying entities upward" }
+          ],
+          "trap": "Generalisation and specialisation produce the same ER structure; the difference is only in the design direction",
+          "reference": "Databases / ER Model"
+        },
+        {
+          "formulaId": "con_067-aggregation",
+          "name": "Aggregation",
+          "latex": "\\text{Aggregation: treat a relationship as an entity to form a higher-level relationship}",
+          "plain": "Aggregation: groups an entity + relationship into a composite 'super-entity' so it can participate in another relationship; used when a relationship itself needs to relate to another entity",
+          "whenToUse": "When a relationship set must participate in another relationship set (relationship of relationships)",
+          "terms": [
+            { "symbol": "aggregated relationship", "means": "a relationship treated as an abstract entity" }
+          ],
+          "trap": "Aggregation is used to avoid ternary relationships when the higher-level relationship only involves one of the original entities and the aggregate",
+          "reference": "Databases / ER Model"
+        }
+      ]
+    },
+    {
+      "groupId": "database-design-independence",
+      "groupTitle": "Database Design & Data Independence",
+      "formulas": [
+        {
+          "formulaId": "con_067-data-independence",
+          "name": "Data Independence (Physical vs Logical)",
+          "latex": "\\text{Physical independence} > \\text{Logical independence} \\;(\\text{physical is easier to achieve})",
+          "plain": "Physical data independence (changing storage/access methods) is easier to achieve than logical data independence (changing schema without affecting applications)",
+          "whenToUse": "When answering True/False questions about which type of data independence is easier",
+          "terms": [
+            { "symbol": "physical independence", "means": "ability to change physical storage without changing logical schema" },
+            { "symbol": "logical independence", "means": "ability to change logical schema without changing application programs" }
+          ],
+          "trap": "GATE classic: 'Logical data independence is easier than physical' is FALSE; physical is easier",
+          "reference": "Databases / Data Models"
+        },
+        {
+          "formulaId": "con_067-three-schema",
+          "name": "Three-Schema Architecture (ANSI/SPARC)",
+          "latex": "\\text{External} \\leftrightarrow \\text{Conceptual} \\leftrightarrow \\text{Internal (Physical)}",
+          "plain": "Three levels: External (user views), Conceptual (logical structure / ER model), Internal (physical storage). Mappings between levels enable data independence.",
+          "whenToUse": "When asked about DBMS architecture, levels of abstraction, or data independence mechanisms",
+          "terms": [
+            { "symbol": "External", "means": "user views / subschemas" },
+            { "symbol": "Conceptual", "means": "community view; ER or relational schema" },
+            { "symbol": "Internal", "means": "physical storage schema" }
+          ],
+          "trap": "The ER model sits at the Conceptual level, not the External level",
+          "reference": "Databases / Data Models"
+        },
+        {
+          "formulaId": "con_067-er-diagram-notation",
+          "name": "ER Diagram Notation Summary",
+          "latex": "\\text{Rectangle=Entity} \\;|\\; \\text{Diamond=Relationship} \\;|\\; \\text{Ellipse=Attribute} \\;|\\; \\text{Double rect=Weak entity}",
+          "plain": "Rectangle: entity. Double rectangle: weak entity. Diamond: relationship. Double diamond: identifying relationship. Ellipse: attribute. Double ellipse: multi-valued. Dashed ellipse: derived. Underline: key attribute.",
+          "whenToUse": "When interpreting or drawing an ER diagram in GATE questions",
+          "terms": [
+            { "symbol": "double rectangle", "means": "weak entity set" },
+            { "symbol": "double diamond", "means": "identifying (weak) relationship" },
+            { "symbol": "double ellipse", "means": "multi-valued attribute" }
+          ],
+          "trap": "The identifying relationship (double diamond) is always between the weak entity and its owner — not any other relationship",
+          "reference": "Databases / ER Model"
+        }
+      ]
+    }
+  ]
+}

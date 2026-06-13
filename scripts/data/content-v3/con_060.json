@@ -1,0 +1,289 @@
+{
+  "_id": "con_060",
+  "conceptId": "con_060",
+  "conceptTitle": "Data Flow Analyses",
+  "reference": "GATE CS — Compiler Design / Optimization",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Finding variables live at entry/exit of a block",
+        "use": "\\text{IN}[B] = \\text{USE}[B] \\cup (\\text{OUT}[B] - \\text{DEF}[B])"
+      },
+      {
+        "condition": "Propagating liveness backward from successors",
+        "use": "\\text{OUT}[B] = \\bigcup_{S \\in \\text{succ}(B)} \\text{IN}[S]"
+      },
+      {
+        "condition": "Checking if variable x is live at statement S_i",
+        "use": "\\exists S_j : x \\in \\text{USE}(S_j),\\ \\text{path}(S_i \\to S_j),\\ \\nexists \\text{def}(x) \\text{ between } S_i, S_j"
+      },
+      {
+        "condition": "Counting variables needed after SSA conversion",
+        "use": "\\text{SSA vars} = \\text{original vars} + \\text{number of redefinitions}"
+      },
+      {
+        "condition": "Merging SSA definitions at a join point",
+        "use": "x_k = \\phi(x_i,\\ x_j)"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "live-variable-definition",
+      "groupTitle": "Live Variable Analysis — Definitions",
+      "formulas": [
+        {
+          "formulaId": "con_060-liveness-definition",
+          "name": "Definition of a Live Variable",
+          "latex": "x \\text{ is live at } S_i \\iff \\exists\\, S_j: (1)\\; x \\in \\text{USE}(S_j),\\; (2)\\; \\text{path}(S_i \\to S_j) \\text{ exists},\\; (3)\\; x \\notin \\text{DEF on path}",
+          "plain": "x is live at S_i iff there exists S_j that uses x, a path from S_i to S_j exists, and x is not redefined on that path.",
+          "whenToUse": "Determining whether a variable still holds a useful value at any program point.",
+          "terms": [
+            { "symbol": "S_i", "means": "statement where liveness is checked" },
+            { "symbol": "S_j", "means": "a later statement that uses x" },
+            { "symbol": "USE(S_j)", "means": "set of variables read by statement S_j" },
+            { "symbol": "DEF", "means": "set of variables defined/overwritten on the path" }
+          ],
+          "trap": "ALL three conditions must hold simultaneously; a single counterexample (e.g., x is redefined before S_j) makes x dead.",
+          "reference": "Compiler Design / Data Flow Analysis"
+        },
+        {
+          "formulaId": "con_060-use-def-sets",
+          "name": "USE and DEF Sets of a Basic Block",
+          "latex": "\\text{USE}[B] = \\text{variables read before any def in } B;\\quad \\text{DEF}[B] = \\text{variables defined in } B",
+          "plain": "USE[B] = variables used in B before being defined in B; DEF[B] = variables defined (written) anywhere in B.",
+          "whenToUse": "Building the per-block USE/DEF sets needed to run liveness equations.",
+          "terms": [
+            { "symbol": "USE[B]", "means": "upward-exposed uses in block B" },
+            { "symbol": "DEF[B]", "means": "definitions in block B" }
+          ],
+          "trap": "A variable that is defined then used in B belongs to DEF[B] but NOT to USE[B]; order of statements inside B matters.",
+          "reference": "Compiler Design / Data Flow Analysis"
+        }
+      ]
+    },
+    {
+      "groupId": "live-variable-equations",
+      "groupTitle": "Live Variable Analysis — Data Flow Equations",
+      "formulas": [
+        {
+          "formulaId": "con_060-in-equation",
+          "name": "IN[B] — Liveness at Block Entry",
+          "latex": "\\text{IN}[B] = \\text{USE}[B] \\cup (\\text{OUT}[B] - \\text{DEF}[B])",
+          "plain": "IN[B] = USE[B] union (OUT[B] minus DEF[B])",
+          "whenToUse": "Computing which variables are live as control enters block B.",
+          "terms": [
+            { "symbol": "IN[B]", "means": "live variables at entry of B" },
+            { "symbol": "USE[B]", "means": "variables used in B before any def" },
+            { "symbol": "OUT[B]", "means": "live variables at exit of B" },
+            { "symbol": "DEF[B]", "means": "variables defined in B" }
+          ],
+          "trap": "Subtraction (OUT minus DEF) must be computed before the union; do not add variables from OUT that are killed in B.",
+          "reference": "Compiler Design / Data Flow Analysis"
+        },
+        {
+          "formulaId": "con_060-out-equation",
+          "name": "OUT[B] — Liveness at Block Exit",
+          "latex": "\\text{OUT}[B] = \\bigcup_{S \\in \\text{succ}(B)} \\text{IN}[S]",
+          "plain": "OUT[B] = union of IN[S] for all successor blocks S of B",
+          "whenToUse": "A variable is live at B's exit if it is live at entry of any successor.",
+          "terms": [
+            { "symbol": "OUT[B]", "means": "live variables at exit of B" },
+            { "symbol": "succ(B)", "means": "set of immediate successors of B in the CFG" },
+            { "symbol": "IN[S]", "means": "live-entry set of successor S" }
+          ],
+          "trap": "Liveness is a BACKWARD analysis; iterate from exit blocks backward to entry, not forward.",
+          "reference": "Compiler Design / Data Flow Analysis"
+        },
+        {
+          "formulaId": "con_060-boundary-condition",
+          "name": "Boundary Condition for Liveness",
+          "latex": "\\text{OUT}[B_{\\text{exit}}] = \\emptyset",
+          "plain": "OUT[exit block] = empty set (no variable is live after the program exits).",
+          "whenToUse": "Initializing the iterative data-flow algorithm for liveness.",
+          "terms": [
+            { "symbol": "B_{exit}", "means": "the exit (last) block of the control flow graph" }
+          ],
+          "trap": "If there is no explicit exit block, treat every return statement's block as an exit block with OUT = {}.",
+          "reference": "Compiler Design / Data Flow Analysis"
+        },
+        {
+          "formulaId": "con_060-iterative-algorithm",
+          "name": "Iterative Liveness Algorithm",
+          "latex": "\\text{Repeat until stable:}\\; \\text{IN}[B] = \\text{USE}[B] \\cup (\\text{OUT}[B]-\\text{DEF}[B]),\\; \\text{OUT}[B] = \\bigcup_{S}\\text{IN}[S]",
+          "plain": "Repeat (compute OUT then IN for every block in reverse postorder) until no set changes.",
+          "whenToUse": "Running the backward iterative fixed-point algorithm to compute liveness for all blocks.",
+          "terms": [
+            { "symbol": "stable", "means": "no IN or OUT set changed in the last iteration" }
+          ],
+          "trap": "Always process blocks in REVERSE postorder (exit-to-entry) for faster convergence; random order is correct but slow.",
+          "reference": "Compiler Design / Data Flow Analysis"
+        }
+      ]
+    },
+    {
+      "groupId": "liveness-properties",
+      "groupTitle": "Live Variable Analysis — Properties & Applications",
+      "formulas": [
+        {
+          "formulaId": "con_060-dead-code-elimination",
+          "name": "Dead Assignment Elimination",
+          "latex": "x = e \\text{ is dead (eliminable) if } x \\notin \\text{OUT}[S]",
+          "plain": "An assignment x = e can be removed if x is not in OUT[S], i.e., x is not live after the statement.",
+          "whenToUse": "Applying liveness results to eliminate dead assignments in optimization.",
+          "terms": [
+            { "symbol": "OUT[S]", "means": "set of variables live immediately after statement S" }
+          ],
+          "trap": "Even if x is dead, the expression e may have side effects; in practice only pure assignments are removed.",
+          "reference": "Compiler Design / Optimization"
+        },
+        {
+          "formulaId": "con_060-register-allocation-hint",
+          "name": "Liveness and Register Allocation",
+          "latex": "\\text{Two vars } x, y \\text{ interfere if } x \\in \\text{OUT}[S] \\text{ and } y \\in \\text{OUT}[S] \\text{ simultaneously}",
+          "plain": "Variables that are live at the same time interfere and cannot share a register.",
+          "whenToUse": "Building the interference graph for graph-coloring register allocation.",
+          "terms": [
+            { "symbol": "OUT[S]", "means": "set of live variables after statement S" }
+          ],
+          "trap": "Variables live at program start (entry) do not interfere with variables live only at program end.",
+          "reference": "Compiler Design / Optimization"
+        }
+      ]
+    },
+    {
+      "groupId": "ssa-definition",
+      "groupTitle": "Static Single Assignment (SSA) — Core Rules",
+      "formulas": [
+        {
+          "formulaId": "con_060-ssa-definition",
+          "name": "SSA Definition",
+          "latex": "\\text{In SSA form, every variable is defined (assigned) exactly once in the program text}",
+          "plain": "Each variable has exactly one static definition site; every redefinition creates a new versioned name.",
+          "whenToUse": "Understanding the fundamental invariant that SSA enforces.",
+          "terms": [
+            { "symbol": "definition", "means": "a write/assignment to a variable" },
+            { "symbol": "static", "means": "textual; the same definition may execute multiple times at runtime" }
+          ],
+          "trap": "SSA is a STATIC (textual) property, not a dynamic one; a definition inside a loop still counts as one definition.",
+          "reference": "Compiler Design / SSA"
+        },
+        {
+          "formulaId": "con_060-ssa-versioning",
+          "name": "Variable Versioning (Renaming)",
+          "latex": "x_1, x_2, \\ldots, x_k \\text{ are created for variable } x \\text{ with } k \\text{ definition sites}",
+          "plain": "For each original variable x with k definitions, create k subscripted versions x_1, x_2, ..., x_k.",
+          "whenToUse": "Counting how many total SSA variables are needed, or converting code to SSA.",
+          "terms": [
+            { "symbol": "k", "means": "number of distinct definition sites for variable x" },
+            { "symbol": "x_i", "means": "the i-th version of variable x in SSA" }
+          ],
+          "trap": "The FIRST definition of a variable in the original code also gets a subscript (e.g., x_1), so even a single-definition variable gets renamed.",
+          "reference": "Compiler Design / SSA"
+        },
+        {
+          "formulaId": "con_060-ssa-variable-count",
+          "name": "Total SSA Variable Count",
+          "latex": "\\text{SSA variables} = \\sum_{x} (\\text{number of definitions of } x \\text{ in the original code})",
+          "plain": "Total SSA variables = sum over each original variable of its definition count (including phi-function outputs).",
+          "whenToUse": "Answering GATE questions that ask for the minimum number of variables in SSA form.",
+          "terms": [
+            { "symbol": "definition", "means": "each assignment statement that writes to the variable" }
+          ],
+          "trap": "Phi-function outputs count as additional definitions; also count the variables introduced by phi-functions at join points.",
+          "reference": "Compiler Design / SSA"
+        }
+      ]
+    },
+    {
+      "groupId": "ssa-phi-functions",
+      "groupTitle": "SSA — Phi-Functions at Join Points",
+      "formulas": [
+        {
+          "formulaId": "con_060-phi-function",
+          "name": "Phi-Function Definition",
+          "latex": "x_k = \\phi(x_i,\\; x_j)",
+          "plain": "x_k = phi(x_i, x_j): selects x_i or x_j depending on which predecessor basic block was taken at runtime.",
+          "whenToUse": "Any time two different SSA versions of the same variable merge at a control-flow join point.",
+          "terms": [
+            { "symbol": "x_i", "means": "SSA version coming from one predecessor block" },
+            { "symbol": "x_j", "means": "SSA version coming from the other predecessor block" },
+            { "symbol": "x_k", "means": "new SSA version produced at the join point" }
+          ],
+          "trap": "Phi-functions are only placed at join points (where multiple control paths meet); do not add them on straight-line code.",
+          "reference": "Compiler Design / SSA"
+        },
+        {
+          "formulaId": "con_060-phi-placement",
+          "name": "Phi-Placement Rule",
+          "latex": "\\phi\\text{-function for } x \\text{ at block } B \\iff B \\text{ is in } \\text{DF}(D) \\text{ for some definition block } D \\text{ of } x",
+          "plain": "Place a phi-function for x at block B if B is in the dominance frontier of any block that defines x.",
+          "whenToUse": "Determining exactly which join points need phi-functions for a given variable.",
+          "terms": [
+            { "symbol": "DF(D)", "means": "dominance frontier of block D" },
+            { "symbol": "D", "means": "a block containing a definition of x" }
+          ],
+          "trap": "Phi-functions may themselves introduce new definitions, requiring further phi-functions (iterated dominance frontier).",
+          "reference": "Compiler Design / SSA"
+        },
+        {
+          "formulaId": "con_060-ssa-conversion-example",
+          "name": "SSA Conversion: Counting Renamed Variables",
+          "latex": "p = a-b;\\; q=p*c;\\; p=u*v;\\; q=p+q \\;\\Rightarrow\\; p_1,q_1,p_2,q_2 \\Rightarrow 4 \\text{ vars (2 per original)}",
+          "plain": "Original p and q each have 2 definitions, so SSA produces p1, p2 for p and q1, q2 for q = 4 total SSA variables.",
+          "whenToUse": "Template for GATE questions asking the minimum number of SSA variables for a given code segment.",
+          "terms": [
+            { "symbol": "p_1, p_2", "means": "two SSA versions of p" },
+            { "symbol": "q_1, q_2", "means": "two SSA versions of q" }
+          ],
+          "trap": "Do NOT count read-only variables (a, b, c, u, v) if they are never redefined; they stay as a single SSA version.",
+          "reference": "Compiler Design / SSA"
+        }
+      ]
+    },
+    {
+      "groupId": "ssa-properties",
+      "groupTitle": "SSA — Properties & Benefits",
+      "formulas": [
+        {
+          "formulaId": "con_060-ssa-use-def-chain",
+          "name": "Immediate Use-Def Chains in SSA",
+          "latex": "\\text{In SSA, every use of } x_i \\text{ has exactly one reaching definition: the unique assignment to } x_i",
+          "plain": "Each use of an SSA variable has exactly one definition, so use-def chains are trivially O(1) to compute.",
+          "whenToUse": "Explaining why SSA simplifies many optimizations (constant propagation, dead-code elimination).",
+          "terms": [
+            { "symbol": "reaching definition", "means": "the definition that may supply the value at a use point" }
+          ],
+          "trap": "Phi-functions create multiple reaching definitions for one name in the original code; SSA resolves this by versioning.",
+          "reference": "Compiler Design / SSA"
+        },
+        {
+          "formulaId": "con_060-ssa-common-subexpression",
+          "name": "CSE / Value Numbering in SSA",
+          "latex": "a + b*c + b*c + a \\Rightarrow t_1=b*c,\\; t_2=t_1+a,\\; t_3=t_2+t_1 \\quad (\\text{2 temps instead of 4})",
+          "plain": "Common subexpressions like b*c and a need only one SSA temp each; value numbering in SSA detects them directly.",
+          "whenToUse": "GATE questions asking for the minimum temporaries in SSA form for an arithmetic expression.",
+          "terms": [
+            { "symbol": "t_i", "means": "SSA temporary variable for a subexpression" },
+            { "symbol": "CSE", "means": "Common Subexpression Elimination" }
+          ],
+          "trap": "Count distinct VALUE computations, not distinct syntactic occurrences; b*c appears twice but is ONE value in SSA.",
+          "reference": "Compiler Design / SSA"
+        },
+        {
+          "formulaId": "con_060-ssa-out-of-ssa",
+          "name": "Leaving SSA (Deconstruction)",
+          "latex": "x_k = \\phi(x_i, x_j) \\Rightarrow \\text{insert copy: } x_k = x_i \\text{ (or } x_j\\text{) in corresponding predecessor}",
+          "plain": "To remove SSA, replace each phi-function with copy instructions inserted at the end of the corresponding predecessor blocks.",
+          "whenToUse": "Code generation phase where SSA must be lowered to machine instructions that do not support phi-functions.",
+          "terms": [
+            { "symbol": "copy", "means": "a simple assignment used to implement the phi-function selection" }
+          ],
+          "trap": "The lost-copy and swap problems can arise when two phi-functions interfere; use the correct sequencing of copies.",
+          "reference": "Compiler Design / SSA"
+        }
+      ]
+    }
+  ]
+}

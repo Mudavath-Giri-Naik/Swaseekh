@@ -1,0 +1,421 @@
+{
+  "_id": "con_039",
+  "conceptId": "con_039",
+  "conceptTitle": "Graphs",
+  "reference": "GATE CS — Programming and Data Structures / Non-Linear Data Structures",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Counting edges / degree sum",
+        "use": "\\sum_{v} \\deg(v) = 2|E|"
+      },
+      {
+        "condition": "Shortest path in unweighted graph",
+        "use": "\\text{BFS gives shortest path in } O(V+E)"
+      },
+      {
+        "condition": "Shortest path in weighted graph (non-negative weights)",
+        "use": "\\text{Dijkstra: } O((V+E)\\log V) \\text{ with binary heap}"
+      },
+      {
+        "condition": "Minimum spanning tree",
+        "use": "\\text{Kruskal / Prim: } O(E \\log V)"
+      },
+      {
+        "condition": "Checking bipartiteness / cycle detection",
+        "use": "\\text{BFS/DFS: } O(V+E); \\text{ bipartite } \\Leftrightarrow \\text{ no odd cycle}"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "basic-graph-properties",
+      "groupTitle": "Basic Graph Properties",
+      "formulas": [
+        {
+          "formulaId": "con_039-handshaking-lemma",
+          "name": "Handshaking Lemma",
+          "latex": "\\sum_{v \\in V} \\deg(v) = 2|E|",
+          "plain": "Sum of all degrees = 2 * |E|",
+          "whenToUse": "Count edges from degree sequence or verify a graph exists",
+          "terms": [
+            { "symbol": "\\deg(v)", "means": "degree of vertex v" },
+            { "symbol": "|E|", "means": "number of edges" }
+          ],
+          "trap": "In a directed graph, \\sum \\deg^+(v) = \\sum \\deg^-(v) = |E|, not 2|E|",
+          "reference": "Programming and Data Structures / Graphs"
+        },
+        {
+          "formulaId": "con_039-complete-graph-edges",
+          "name": "Edges in Complete Graph K_n",
+          "latex": "|E(K_n)| = \\frac{n(n-1)}{2}",
+          "plain": "|E(K_n)| = n*(n-1)/2",
+          "whenToUse": "Maximum possible edges in a simple undirected graph on n vertices",
+          "terms": [
+            { "symbol": "n", "means": "number of vertices" }
+          ],
+          "trap": "For directed K_n the count is n(n-1) (each edge becomes two arcs)",
+          "reference": "Programming and Data Structures / Graphs"
+        },
+        {
+          "formulaId": "con_039-tree-edge-count",
+          "name": "Tree / Forest Edge Count",
+          "latex": "\\text{A tree on } n \\text{ vertices has exactly } n-1 \\text{ edges}",
+          "plain": "Tree on n vertices => n-1 edges",
+          "whenToUse": "Verify tree property or count spanning tree edges",
+          "terms": [
+            { "symbol": "n", "means": "number of vertices" }
+          ],
+          "trap": "A forest with k trees on n vertices has n-k edges (not n-1)",
+          "reference": "Programming and Data Structures / Graphs"
+        },
+        {
+          "formulaId": "con_039-euler-formula-planar",
+          "name": "Euler's Formula for Planar Graphs",
+          "latex": "V - E + F = 2",
+          "plain": "V - E + F = 2  (connected planar graph)",
+          "whenToUse": "Prove a graph is non-planar or count faces in a planar embedding",
+          "terms": [
+            { "symbol": "V", "means": "vertices" },
+            { "symbol": "E", "means": "edges" },
+            { "symbol": "F", "means": "faces (including outer infinite face)" }
+          ],
+          "trap": "For a disconnected planar graph: V - E + F = 1 + C where C is the number of connected components",
+          "reference": "Programming and Data Structures / Graphs"
+        },
+        {
+          "formulaId": "con_039-planar-edge-bound",
+          "name": "Planar Graph Edge Bound",
+          "latex": "E \\leq 3V - 6 \\quad (V \\geq 3)",
+          "plain": "E <= 3V - 6 for simple planar graphs (V >= 3)",
+          "whenToUse": "Quickly prove a dense graph (e.g. K_5) is non-planar",
+          "terms": [
+            { "symbol": "E", "means": "edges" },
+            { "symbol": "V", "means": "vertices" }
+          ],
+          "trap": "Triangle-free planar graphs satisfy E <= 2V - 4 (tighter bound)",
+          "reference": "Programming and Data Structures / Graphs"
+        },
+        {
+          "formulaId": "con_039-chromatic-bound",
+          "name": "Chromatic Number Bounds",
+          "latex": "\\omega(G) \\leq \\chi(G) \\leq \\Delta(G) + 1",
+          "plain": "clique_number <= chromatic_number <= max_degree + 1",
+          "whenToUse": "Bound or determine the minimum colours needed to colour a graph",
+          "terms": [
+            { "symbol": "\\omega(G)", "means": "clique number (size of largest clique)" },
+            { "symbol": "\\chi(G)", "means": "chromatic number" },
+            { "symbol": "\\Delta(G)", "means": "maximum degree" }
+          ],
+          "trap": "Bipartite graphs (with at least one edge) always have chi(G) = 2, not Delta+1",
+          "reference": "Programming and Data Structures / Graphs"
+        }
+      ]
+    },
+    {
+      "groupId": "graph-traversals",
+      "groupTitle": "Graph Traversals (BFS & DFS)",
+      "formulas": [
+        {
+          "formulaId": "con_039-bfs-dfs-complexity",
+          "name": "BFS / DFS Time Complexity",
+          "latex": "T_{\\text{BFS}} = T_{\\text{DFS}} = O(V + E) \\text{ (adjacency list)}",
+          "plain": "BFS = DFS = O(V + E) with adjacency list; O(V^2) with adjacency matrix",
+          "whenToUse": "Analyse traversal cost; BFS for shortest path (unweighted), DFS for cycle/topo",
+          "terms": [
+            { "symbol": "V", "means": "number of vertices" },
+            { "symbol": "E", "means": "number of edges" }
+          ],
+          "trap": "With an adjacency matrix the cost is O(V^2) regardless of the number of edges",
+          "reference": "Programming and Data Structures / Graphs"
+        },
+        {
+          "formulaId": "con_039-bfs-shortest-path",
+          "name": "BFS Shortest-Path (Unweighted)",
+          "latex": "d(s, v) = \\text{level of } v \\text{ in BFS tree from } s",
+          "plain": "BFS level of v from s = shortest hop-count distance d(s,v)",
+          "whenToUse": "Find shortest (hop-count) path in an unweighted graph",
+          "terms": [
+            { "symbol": "s", "means": "source vertex" },
+            { "symbol": "d(s,v)", "means": "shortest-path distance from s to v" }
+          ],
+          "trap": "BFS gives shortest path only for equal-weight (or unweighted) graphs; use Dijkstra for weights",
+          "reference": "Programming and Data Structures / Graphs"
+        },
+        {
+          "formulaId": "con_039-dfs-back-edge",
+          "name": "DFS Back Edge & Cycle Detection",
+          "latex": "\\text{Undirected graph has cycle} \\Leftrightarrow \\text{DFS produces a back edge}",
+          "plain": "Cycle in undirected graph <=> DFS back edge exists",
+          "whenToUse": "Determine if an undirected graph is acyclic (is a forest)",
+          "terms": [
+            { "symbol": "\\text{back edge}", "means": "DFS edge connecting a vertex to an ancestor" }
+          ],
+          "trap": "In directed graphs you also need to check for cross edges to detect cycles; back edges alone suffice for undirected graphs",
+          "reference": "Programming and Data Structures / Graphs"
+        },
+        {
+          "formulaId": "con_039-topological-sort",
+          "name": "Topological Sort (DAG)",
+          "latex": "\\text{Topological order exists} \\Leftrightarrow G \\text{ is a DAG}",
+          "plain": "Topological sort exists iff G is a DAG (directed acyclic graph); DFS-based in O(V+E)",
+          "whenToUse": "Schedule tasks with prerequisites or linearise a DAG",
+          "terms": [
+            { "symbol": "\\text{DAG}", "means": "Directed Acyclic Graph" }
+          ],
+          "trap": "Topological order is not unique unless the graph is a Hamiltonian path (each vertex has in-degree 1 or is the source)",
+          "reference": "Programming and Data Structures / Graphs"
+        }
+      ]
+    },
+    {
+      "groupId": "shortest-paths",
+      "groupTitle": "Shortest Path Algorithms",
+      "formulas": [
+        {
+          "formulaId": "con_039-dijkstra-complexity",
+          "name": "Dijkstra's Algorithm Complexity",
+          "latex": "O\\!\\left((V + E)\\log V\\right) \\text{ with binary heap}",
+          "plain": "Dijkstra: O((V+E) log V) with binary heap; O(V^2) with simple array",
+          "whenToUse": "Single-source shortest path with non-negative edge weights",
+          "terms": [
+            { "symbol": "V", "means": "vertices" },
+            { "symbol": "E", "means": "edges" }
+          ],
+          "trap": "Dijkstra FAILS with negative-weight edges; use Bellman-Ford instead",
+          "reference": "Programming and Data Structures / Graphs"
+        },
+        {
+          "formulaId": "con_039-bellman-ford-complexity",
+          "name": "Bellman-Ford Algorithm",
+          "latex": "T = O(VE); \\text{ detects negative cycle if after } V-1 \\text{ rounds relaxation still possible}",
+          "plain": "Bellman-Ford: O(V*E); V-1 relaxation rounds; detects negative-weight cycles",
+          "whenToUse": "Single-source shortest path allowing negative edges or detecting negative cycles",
+          "terms": [
+            { "symbol": "V", "means": "vertices" },
+            { "symbol": "E", "means": "edges" }
+          ],
+          "trap": "Cannot use Dijkstra as a replacement when any edge weight is negative",
+          "reference": "Programming and Data Structures / Graphs"
+        },
+        {
+          "formulaId": "con_039-floyd-warshall",
+          "name": "Floyd-Warshall (All-Pairs Shortest Path)",
+          "latex": "d^{(k)}[i][j] = \\min\\!\\left(d^{(k-1)}[i][j],\\; d^{(k-1)}[i][k] + d^{(k-1)}[k][j]\\right)",
+          "plain": "d[i][j] = min(d[i][j], d[i][k]+d[k][j]);  O(V^3) time, O(V^2) space",
+          "whenToUse": "All-pairs shortest path; dense graphs; negative edges (no negative cycles)",
+          "terms": [
+            { "symbol": "d^{(k)}[i][j]", "means": "shortest path from i to j using only vertices 1..k as intermediates" }
+          ],
+          "trap": "Floyd-Warshall runs in O(V^3) even for sparse graphs; prefer Dijkstra per source for sparse graphs",
+          "reference": "Programming and Data Structures / Graphs"
+        }
+      ]
+    },
+    {
+      "groupId": "spanning-trees",
+      "groupTitle": "Minimum Spanning Trees",
+      "formulas": [
+        {
+          "formulaId": "con_039-kruskal-complexity",
+          "name": "Kruskal's Algorithm",
+          "latex": "T = O(E \\log E) = O(E \\log V) \\text{ (sort edges + Union-Find)}",
+          "plain": "Kruskal: sort edges O(E log E), then Union-Find; total O(E log V)",
+          "whenToUse": "MST on sparse graphs; edge list is easier to sort",
+          "terms": [
+            { "symbol": "E", "means": "edges" },
+            { "symbol": "V", "means": "vertices" }
+          ],
+          "trap": "Kruskal adds edges in sorted order and skips any edge that creates a cycle — it does NOT always add adjacent edges to the existing tree",
+          "reference": "Programming and Data Structures / Graphs"
+        },
+        {
+          "formulaId": "con_039-prim-complexity",
+          "name": "Prim's Algorithm",
+          "latex": "T = O(E \\log V) \\text{ with binary heap (adjacency list)}",
+          "plain": "Prim: O(E log V) with binary heap; O(V^2) with adjacency matrix (good for dense graphs)",
+          "whenToUse": "MST on dense graphs or when starting from a specific vertex",
+          "terms": [
+            { "symbol": "E", "means": "edges" },
+            { "symbol": "V", "means": "vertices" }
+          ],
+          "trap": "Prim's with adjacency matrix is O(V^2), which beats Kruskal on dense (E = O(V^2)) graphs",
+          "reference": "Programming and Data Structures / Graphs"
+        },
+        {
+          "formulaId": "con_039-mst-weight-property",
+          "name": "MST Cut Property",
+          "latex": "\\text{The minimum-weight edge crossing any cut belongs to some MST}",
+          "plain": "For any partition (S, V\\S), the lightest crossing edge is in every MST (if weights distinct)",
+          "whenToUse": "Prove an edge must or cannot be in the MST",
+          "terms": [
+            { "symbol": "\\text{cut}", "means": "partition of V into two non-empty sets S and V\\\\S" }
+          ],
+          "trap": "If the minimum crossing edge is NOT unique, there may be multiple MSTs that include different choices among those tied edges",
+          "reference": "Programming and Data Structures / Graphs"
+        },
+        {
+          "formulaId": "con_039-mst-count-spanning-trees",
+          "name": "Number of Spanning Trees (Kirchhoff's Theorem)",
+          "latex": "\\tau(G) = \\det(L_k) \\quad \\text{(any cofactor of Laplacian } L = D - A\\text{)}",
+          "plain": "Number of spanning trees = any cofactor of the Laplacian matrix L = D - A",
+          "whenToUse": "Count distinct spanning trees of a graph",
+          "terms": [
+            { "symbol": "D", "means": "degree matrix (diagonal)" },
+            { "symbol": "A", "means": "adjacency matrix" },
+            { "symbol": "L_k", "means": "Laplacian with row k and column k deleted" }
+          ],
+          "trap": "For K_n the number of spanning trees is n^{n-2} (Cayley's formula), not the Kirchhoff computation (though they agree)",
+          "reference": "Programming and Data Structures / Graphs"
+        }
+      ]
+    },
+    {
+      "groupId": "connectivity-and-components",
+      "groupTitle": "Connectivity & Components",
+      "formulas": [
+        {
+          "formulaId": "con_039-connected-components-dfs",
+          "name": "Connected Components via DFS/BFS",
+          "latex": "\\text{# connected components} = \\text{# DFS/BFS calls on fresh vertices}",
+          "plain": "Run BFS/DFS; each new start = new component; O(V+E) total",
+          "whenToUse": "Count or identify connected components in an undirected graph",
+          "terms": [
+            { "symbol": "V", "means": "vertices" },
+            { "symbol": "E", "means": "edges" }
+          ],
+          "trap": "For directed graphs you need Strongly Connected Components (Kosaraju / Tarjan), not a simple DFS count",
+          "reference": "Programming and Data Structures / Graphs"
+        },
+        {
+          "formulaId": "con_039-scc-kosaraju",
+          "name": "Strongly Connected Components — Kosaraju's",
+          "latex": "T = O(V + E): \\text{ DFS on } G \\text{ (finish order)} \\rightarrow \\text{DFS on } G^T",
+          "plain": "Kosaraju: 2 DFS passes (original then transpose graph); O(V+E)",
+          "whenToUse": "Find all SCCs in a directed graph",
+          "terms": [
+            { "symbol": "G^T", "means": "transpose graph (all edge directions reversed)" }
+          ],
+          "trap": "The second DFS must process vertices in REVERSE finish order from the first DFS",
+          "reference": "Programming and Data Structures / Graphs"
+        },
+        {
+          "formulaId": "con_039-bipartite-condition",
+          "name": "Bipartite Graph Condition",
+          "latex": "G \\text{ is bipartite} \\Leftrightarrow G \\text{ has no odd-length cycle} \\Leftrightarrow \\chi(G) \\leq 2",
+          "plain": "Bipartite <=> no odd cycle <=> 2-colourable; BFS 2-colouring check in O(V+E)",
+          "whenToUse": "Check if a graph can be 2-coloured or partitioned into two independent sets",
+          "terms": [
+            { "symbol": "\\chi(G)", "means": "chromatic number" }
+          ],
+          "trap": "An empty graph (no edges) is bipartite but has chi(G)=1, not 2",
+          "reference": "Programming and Data Structures / Graphs"
+        }
+      ]
+    },
+    {
+      "groupId": "euler-hamilton",
+      "groupTitle": "Euler & Hamiltonian Paths/Circuits",
+      "formulas": [
+        {
+          "formulaId": "con_039-euler-circuit-condition",
+          "name": "Euler Circuit Condition",
+          "latex": "\\text{Euler circuit exists} \\Leftrightarrow G \\text{ is connected and every vertex has even degree}",
+          "plain": "Euler circuit: connected + all degrees even",
+          "whenToUse": "Determine if a graph can be traversed along every edge exactly once (returning to start)",
+          "terms": [
+            { "symbol": "\\text{degree}", "means": "number of edges incident to a vertex" }
+          ],
+          "trap": "For directed graphs: Euler circuit requires in-degree = out-degree for every vertex AND the graph is strongly connected",
+          "reference": "Programming and Data Structures / Graphs"
+        },
+        {
+          "formulaId": "con_039-euler-path-condition",
+          "name": "Euler Path (Trail) Condition",
+          "latex": "\\text{Euler path exists} \\Leftrightarrow G \\text{ connected, exactly 2 vertices of odd degree}",
+          "plain": "Euler path (not circuit): connected + exactly 2 odd-degree vertices (start and end)",
+          "whenToUse": "Determine if every edge can be traversed exactly once without returning to the start",
+          "terms": [
+            { "symbol": "\\text{odd-degree vertex}", "means": "vertex with an odd number of incident edges" }
+          ],
+          "trap": "Zero odd-degree vertices => Euler circuit (stronger condition), not just Euler path",
+          "reference": "Programming and Data Structures / Graphs"
+        },
+        {
+          "formulaId": "con_039-hamiltonian-np",
+          "name": "Hamiltonian Path / Cycle — NP-Complete",
+          "latex": "\\text{Hamiltonian Cycle} \\in \\text{NP-complete} \\quad \\text{(no known poly-time algorithm)}",
+          "plain": "Hamiltonian cycle/path is NP-complete; no efficient general algorithm exists",
+          "whenToUse": "Recognise that visiting every VERTEX exactly once is computationally hard",
+          "terms": [
+            { "symbol": "\\text{NP-complete}", "means": "no polynomial-time algorithm known unless P=NP" }
+          ],
+          "trap": "Euler (every EDGE once) is solvable in O(E); Hamiltonian (every VERTEX once) is NP-complete — do not confuse them",
+          "reference": "Programming and Data Structures / Graphs"
+        }
+      ]
+    },
+    {
+      "groupId": "graph-representations",
+      "groupTitle": "Graph Representations & Complexity",
+      "formulas": [
+        {
+          "formulaId": "con_039-adjacency-matrix-space",
+          "name": "Adjacency Matrix Space & Query",
+          "latex": "\\text{Space: } O(V^2); \\quad \\text{Edge query: } O(1)",
+          "plain": "Adjacency matrix: O(V^2) space; O(1) edge existence query",
+          "whenToUse": "Dense graphs or when fast edge-existence lookup is needed",
+          "terms": [
+            { "symbol": "V", "means": "number of vertices" }
+          ],
+          "trap": "Adjacency matrix traversal (e.g. BFS) costs O(V^2) even if E << V^2",
+          "reference": "Programming and Data Structures / Graphs"
+        },
+        {
+          "formulaId": "con_039-adjacency-list-space",
+          "name": "Adjacency List Space & Query",
+          "latex": "\\text{Space: } O(V + E); \\quad \\text{Edge query: } O(\\deg(v))",
+          "plain": "Adjacency list: O(V+E) space; edge query O(degree(v))",
+          "whenToUse": "Sparse graphs; standard representation for BFS/DFS",
+          "terms": [
+            { "symbol": "\\deg(v)", "means": "degree of vertex v" },
+            { "symbol": "E", "means": "edges" }
+          ],
+          "trap": "Edge existence check in an adjacency list is O(deg(v)), not O(1) like in a matrix",
+          "reference": "Programming and Data Structures / Graphs"
+        }
+      ]
+    },
+    {
+      "groupId": "key-results-definitions",
+      "groupTitle": "Key Results & Definitions",
+      "formulas": [
+        {
+          "formulaId": "con_039-graph-types",
+          "name": "Graph Type Definitions",
+          "latex": "\\text{Simple} \\subset \\text{Multigraph} \\subset \\text{Pseudograph}; \\quad \\text{DAG}: \\text{directed + acyclic}",
+          "plain": "Simple graph: no self-loops, no multi-edges. Multigraph: allows multi-edges. Pseudograph: allows self-loops. DAG: directed acyclic graph.",
+          "whenToUse": "Identify the class of graph in a problem statement",
+          "terms": [
+            { "symbol": "\\text{DAG}", "means": "Directed Acyclic Graph" }
+          ],
+          "trap": "A tree is a connected acyclic undirected graph; it is also a DAG if edges are directed consistently",
+          "reference": "Programming and Data Structures / Graphs"
+        },
+        {
+          "formulaId": "con_039-degree-sequence",
+          "name": "Degree Sequence Realizability (Erdos-Gallai)",
+          "latex": "\\sum_{i=1}^{n} d_i \\text{ must be even; check Erdos-Gallai conditions for simple graph}",
+          "plain": "A sequence d1>=d2>=...>=dn is graphical iff sum is even and Erdos-Gallai inequalities hold",
+          "whenToUse": "Determine whether a given degree sequence corresponds to a valid simple graph",
+          "terms": [
+            { "symbol": "d_i", "means": "degrees in non-increasing order" }
+          ],
+          "trap": "Even sum is necessary but not sufficient; e.g. (3,3,3,1) sums to 10 but fails Erdos-Gallai",
+          "reference": "Programming and Data Structures / Graphs"
+        }
+      ]
+    }
+  ]
+}

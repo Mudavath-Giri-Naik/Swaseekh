@@ -1,0 +1,323 @@
+{
+  "_id": "con_071",
+  "conceptId": "con_071",
+  "conceptTitle": "File Organization and Indexing",
+  "reference": "GATE CS — Databases / Storage and Indexing",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Height / search cost of B+ tree with n leaves",
+        "use": "h = \\lceil \\log_d(n) \\rceil"
+      },
+      {
+        "condition": "Max keys in internal node of order d (2d definition)",
+        "use": "2d"
+      },
+      {
+        "condition": "Number of index blocks needed for ISAM index",
+        "use": "\\lceil N / B_I \\rceil"
+      },
+      {
+        "condition": "Disk blocks required to hold all data records",
+        "use": "\\lceil N / B_F \\rceil"
+      },
+      {
+        "condition": "Blocking factor given record and block sizes",
+        "use": "B_F = \\lfloor \\text{block size} / \\text{record size} \\rfloor"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "b-plus-tree-structure",
+      "groupTitle": "B+ Tree Structure & Order",
+      "formulas": [
+        {
+          "formulaId": "con_071-order-def",
+          "name": "B+ Tree Order (2d definition)",
+          "latex": "\\text{Each internal node: } d \\le \\text{keys} \\le 2d \\quad (\\text{root: } 1 \\le \\text{keys} \\le 2d)",
+          "plain": "Internal node holds between d and 2d keys; root holds 1 to 2d keys.",
+          "whenToUse": "When the order is given as d and you need key/pointer bounds per node.",
+          "terms": [
+            { "symbol": "d", "means": "order of the B+ tree (minimum occupancy)" }
+          ],
+          "trap": "GATE sometimes defines order as the maximum number of pointers (= 2d+1), so read the problem statement carefully.",
+          "reference": "Databases / Storage and Indexing"
+        },
+        {
+          "formulaId": "con_071-pointers-per-node",
+          "name": "Pointers per Internal Node",
+          "latex": "\\text{Each internal node: } d+1 \\le \\text{pointers} \\le 2d+1",
+          "plain": "Internal node has between d+1 and 2d+1 child pointers.",
+          "whenToUse": "When counting children/fan-out of internal nodes.",
+          "terms": [
+            { "symbol": "d", "means": "order of the B+ tree" }
+          ],
+          "trap": "Number of pointers = number of keys + 1 for internal nodes only; leaf nodes point to data records.",
+          "reference": "Databases / Storage and Indexing"
+        },
+        {
+          "formulaId": "con_071-leaf-fill",
+          "name": "Leaf Node Key Fill",
+          "latex": "\\lceil d \\rceil \\le \\text{leaf keys} \\le 2d",
+          "plain": "Each leaf holds between ceil(d) and 2d keys (data pointers).",
+          "whenToUse": "When computing minimum/maximum records stored in leaf nodes.",
+          "terms": [
+            { "symbol": "d", "means": "order of the B+ tree" }
+          ],
+          "trap": "Leaves do NOT have a right-pointing child pointer counted as a key; the last pointer links to the next leaf.",
+          "reference": "Databases / Storage and Indexing"
+        },
+        {
+          "formulaId": "con_071-height",
+          "name": "B+ Tree Height (Search Complexity)",
+          "latex": "h \\le \\lceil \\log_{d+1}(n) \\rceil + 1 \\quad \\Rightarrow O(\\log_d n) \\text{ I/Os}",
+          "plain": "Height <= ceil(log_{d+1}(n)) + 1; search needs O(log_d n) I/Os.",
+          "whenToUse": "When asked how many node accesses (disk I/Os) are needed to find a record.",
+          "terms": [
+            { "symbol": "n", "means": "number of leaf nodes" },
+            { "symbol": "d", "means": "minimum occupancy (order)" }
+          ],
+          "trap": "Use d+1 as the fan-out base, NOT d. Root may hold fewer than d keys, so actual height can be one less.",
+          "reference": "Databases / Storage and Indexing"
+        },
+        {
+          "formulaId": "con_071-min-keys-tree",
+          "name": "Minimum Keys in a B+ Tree of Height h",
+          "latex": "K_{\\min} = 1 + 2 \\cdot \\lceil d/2 \\rceil \\cdot \\sum_{i=0}^{h-2}(\\lceil d/2 \\rceil + 1)^i",
+          "plain": "Minimum keys = 1 (root) + 2 * (ceil(d/2)) * sum of branching factors over remaining levels.",
+          "whenToUse": "When asked the minimum number of keys a B+ tree of given height can hold.",
+          "terms": [
+            { "symbol": "h", "means": "height of the tree (root = level 1)" },
+            { "symbol": "d", "means": "order" }
+          ],
+          "trap": "This is rarely computed directly; GATE usually asks for node accesses or insertion/deletion steps.",
+          "reference": "Databases / Storage and Indexing"
+        },
+        {
+          "formulaId": "con_071-max-leaf-nodes",
+          "name": "Max Leaf Nodes for Height h",
+          "latex": "L_{\\max} = (2d+1)^{h-1}",
+          "plain": "Max leaves = (2d+1)^(h-1).",
+          "whenToUse": "Bounding how many records a tree of height h can index.",
+          "terms": [
+            { "symbol": "h", "means": "tree height (root at level 1, leaves at level h)" },
+            { "symbol": "d", "means": "order" }
+          ],
+          "trap": "Apply (2d+1) fan-out, not 2d; the +1 comes from pointers = keys + 1.",
+          "reference": "Databases / Storage and Indexing"
+        }
+      ]
+    },
+    {
+      "groupId": "b-plus-tree-operations",
+      "groupTitle": "B+ Tree Insert & Delete Rules",
+      "formulas": [
+        {
+          "formulaId": "con_071-insert-split",
+          "name": "Leaf Split on Insertion",
+          "latex": "\\text{If leaf overflows (}> 2d\\text{ keys): split into } \\lceil (2d+1)/2 \\rceil \\text{ and } \\lfloor (2d+1)/2 \\rfloor",
+          "plain": "On overflow push ceil((2d+1)/2) keys to left child and floor((2d+1)/2) to right; copy up the middle key to parent.",
+          "whenToUse": "Tracing an insertion that causes a leaf overflow.",
+          "terms": [
+            { "symbol": "d", "means": "order" }
+          ],
+          "trap": "In B+ trees the split key is COPIED UP (not pushed up) to the parent; the key stays in the leaf. In B-trees it is PUSHED up.",
+          "reference": "Databases / Storage and Indexing"
+        },
+        {
+          "formulaId": "con_071-internal-split",
+          "name": "Internal Node Split on Overflow",
+          "latex": "\\text{Internal overflow (}> 2d\\text{ keys): push up middle key, left gets } d \\text{ keys, right gets } d \\text{ keys}",
+          "plain": "On internal overflow: middle key is pushed up; left and right children each get d keys.",
+          "whenToUse": "Tracing a cascading split that reaches an internal node.",
+          "terms": [
+            { "symbol": "d", "means": "order" }
+          ],
+          "trap": "The middle key is PUSHED (removed) from the internal node before going to parent; unlike the leaf split where it is copied.",
+          "reference": "Databases / Storage and Indexing"
+        },
+        {
+          "formulaId": "con_071-delete-merge",
+          "name": "Deletion: Underflow & Merge",
+          "latex": "\\text{Underflow if keys} < d; \\quad \\text{borrow from sibling or merge + delete parent separator}",
+          "plain": "Underflow when keys < d. First try to borrow from a sibling; if not possible, merge two siblings and remove separator from parent.",
+          "whenToUse": "Tracing a deletion that leaves a node with fewer than d keys.",
+          "terms": [
+            { "symbol": "d", "means": "minimum keys per node" }
+          ],
+          "trap": "After merging two leaves into one, the parent loses a pointer; this can cascade upward.",
+          "reference": "Databases / Storage and Indexing"
+        }
+      ]
+    },
+    {
+      "groupId": "indexing-types",
+      "groupTitle": "Indexing Types & Properties",
+      "formulas": [
+        {
+          "formulaId": "con_071-dense-vs-sparse",
+          "name": "Dense vs Sparse Index",
+          "latex": "\\text{Dense: one entry per record} \\quad \\text{Sparse: one entry per block}",
+          "plain": "Dense index: one index entry per data record. Sparse index: one entry per data block (requires sorted file).",
+          "whenToUse": "When asked which index type is used or how many index entries exist.",
+          "terms": [
+            { "symbol": "N", "means": "total number of records" },
+            { "symbol": "B", "means": "total number of data blocks" }
+          ],
+          "trap": "Sparse index requires the data file to be sorted on the search key; dense index does not.",
+          "reference": "Databases / Storage and Indexing"
+        },
+        {
+          "formulaId": "con_071-primary-vs-secondary",
+          "name": "Primary vs Secondary Index",
+          "latex": "\\text{Primary: index on ordering key} \\quad \\text{Secondary: index on non-ordering field}",
+          "plain": "Primary (clustered) index built on the field that defines physical order. Secondary index on any other field — must be dense.",
+          "whenToUse": "Identifying which index type fits the query scenario.",
+          "terms": [
+            { "symbol": "—", "means": "—" }
+          ],
+          "trap": "A primary index need NOT be on the primary key; it is on the ordering field. Secondary index is always dense.",
+          "reference": "Databases / Storage and Indexing"
+        },
+        {
+          "formulaId": "con_071-multilevel-index",
+          "name": "Multi-level Index Access Cost",
+          "latex": "\\text{Levels} = \\lceil \\log_{B_F}(N) \\rceil \\quad \\Rightarrow \\text{access cost} = \\lceil \\log_{B_F}(N) \\rceil + 1",
+          "plain": "Levels = ceil(log_{BF}(N)); total I/Os = levels + 1 (one for data block).",
+          "whenToUse": "Computing number of disk accesses in a multi-level (ISAM) index structure.",
+          "terms": [
+            { "symbol": "B_F", "means": "blocking factor of index (index entries per block)" },
+            { "symbol": "N", "means": "number of index entries at lowest level" }
+          ],
+          "trap": "Add 1 for the final data-block fetch; do not stop at the last index level.",
+          "reference": "Databases / Storage and Indexing"
+        },
+        {
+          "formulaId": "con_071-isam-index-blocks",
+          "name": "ISAM: Number of Index Blocks",
+          "latex": "I = \\left\\lceil \\frac{N}{B_I} \\right\\rceil",
+          "plain": "Index blocks I = ceil(N / B_I), where N = total records and B_I = index entries per block.",
+          "whenToUse": "Finding how many index blocks an ISAM index needs.",
+          "terms": [
+            { "symbol": "N", "means": "total number of records" },
+            { "symbol": "B_I", "means": "number of index entries that fit in one block" }
+          ],
+          "trap": "Index entry size = key size + block-pointer size; do not confuse with record size.",
+          "reference": "Databases / Storage and Indexing"
+        },
+        {
+          "formulaId": "con_071-blocking-factor",
+          "name": "Blocking Factor",
+          "latex": "B_F = \\left\\lfloor \\frac{\\text{Block Size}}{\\text{Record Size}} \\right\\rfloor",
+          "plain": "BF = floor(Block Size / Record Size).",
+          "whenToUse": "First step in any disk-storage computation — how many records fit in one block.",
+          "terms": [
+            { "symbol": "B_F", "means": "number of records per block" }
+          ],
+          "trap": "Use floor (not ceil) because a partial record cannot be split across blocks (fixed-length records assumed).",
+          "reference": "Databases / Storage and Indexing"
+        },
+        {
+          "formulaId": "con_071-data-blocks",
+          "name": "Number of Data Blocks",
+          "latex": "D = \\left\\lceil \\frac{N}{B_F} \\right\\rceil",
+          "plain": "Data blocks D = ceil(N / BF).",
+          "whenToUse": "Calculating how many physical blocks store all N records.",
+          "terms": [
+            { "symbol": "N", "means": "number of records" },
+            { "symbol": "B_F", "means": "blocking factor" }
+          ],
+          "trap": "Use ceil here (some blocks may be partially full); contrast with floor used in BF calculation.",
+          "reference": "Databases / Storage and Indexing"
+        }
+      ]
+    },
+    {
+      "groupId": "file-organization",
+      "groupTitle": "File Organization Types",
+      "formulas": [
+        {
+          "formulaId": "con_071-heap-search",
+          "name": "Heap File Search Cost",
+          "latex": "\\text{Search cost (unsorted)} = O(N)",
+          "plain": "Average search in unsorted heap file = O(N) block accesses.",
+          "whenToUse": "Baseline comparison when evaluating index benefit.",
+          "terms": [
+            { "symbol": "N", "means": "number of data blocks" }
+          ],
+          "trap": "Heap file is best for bulk inserts and full scans; terrible for point queries without an index.",
+          "reference": "Databases / Storage and Indexing"
+        },
+        {
+          "formulaId": "con_071-sorted-binary-search",
+          "name": "Sorted File Binary Search",
+          "latex": "\\text{Search cost (sorted)} = O(\\log_2 N)",
+          "plain": "Binary search on sorted file needs O(log2 N) block I/Os.",
+          "whenToUse": "When the file is sorted on search key and no index exists.",
+          "terms": [
+            { "symbol": "N", "means": "number of data blocks" }
+          ],
+          "trap": "Inserts into sorted file are expensive (O(N)); ISAM or B+ tree preferred for mixed workloads.",
+          "reference": "Databases / Storage and Indexing"
+        },
+        {
+          "formulaId": "con_071-isam-structure",
+          "name": "ISAM (Indexed Sequential) Structure",
+          "latex": "\\text{ISAM: static B-tree-like structure; overflow chains degrade performance over time}",
+          "plain": "ISAM uses a fixed tree-like index; new records go into overflow chains, which grow and slow searches.",
+          "whenToUse": "When a question describes an ISAM or indexed-sequential file and asks about overflow or reorganization.",
+          "terms": [
+            { "symbol": "—", "means": "—" }
+          ],
+          "trap": "Unlike B+ tree, ISAM does NOT rebalance; long overflow chains require periodic file reorganization.",
+          "reference": "Databases / Storage and Indexing"
+        },
+        {
+          "formulaId": "con_071-inverted-index",
+          "name": "Inverted File / Index",
+          "latex": "\\text{Inverted index: maps attribute value } \\to \\text{list of record IDs (best for secondary key search)}",
+          "plain": "Inverted index maps each non-key value to the list of record addresses; optimal for secondary-attribute queries.",
+          "whenToUse": "When the question asks which file organization suits secondary-key or multi-attribute queries.",
+          "terms": [
+            { "symbol": "—", "means": "—" }
+          ],
+          "trap": "Inverted index does not require the data file to be sorted; it stores posting lists per attribute value.",
+          "reference": "Databases / Storage and Indexing"
+        }
+      ]
+    },
+    {
+      "groupId": "b-tree-vs-b-plus-tree",
+      "groupTitle": "B-Tree vs B+ Tree Differences",
+      "formulas": [
+        {
+          "formulaId": "con_071-b-tree-key-storage",
+          "name": "B-Tree: Keys in All Nodes",
+          "latex": "\\text{B-Tree: data pointers stored at internal nodes AND leaves}",
+          "plain": "B-tree stores data pointers at both internal and leaf nodes; key may be found before reaching a leaf.",
+          "whenToUse": "When comparing B-tree and B+ tree search cost or structure.",
+          "terms": [
+            { "symbol": "—", "means": "—" }
+          ],
+          "trap": "B-tree internal nodes hold both key+data pointers, reducing fan-out; so B-tree is usually taller than B+ tree with same data.",
+          "reference": "Databases / Storage and Indexing"
+        },
+        {
+          "formulaId": "con_071-bplus-leaf-linked",
+          "name": "B+ Tree: Leaf Linked List",
+          "latex": "\\text{B+ Tree leaves form a sorted linked list} \\Rightarrow \\text{range queries cost } O(\\log_d n + k)",
+          "plain": "B+ tree leaves are linked; range query cost = O(log_d n) to find start + O(k) to scan k results.",
+          "whenToUse": "Range queries, order-by queries, full-table scans using the index.",
+          "terms": [
+            { "symbol": "k", "means": "number of matching records" },
+            { "symbol": "n", "means": "number of leaf nodes" }
+          ],
+          "trap": "B-trees do NOT have leaf-level linked lists, making range queries more expensive (need to backtrack).",
+          "reference": "Databases / Storage and Indexing"
+        }
+      ]
+    }
+  ]
+}

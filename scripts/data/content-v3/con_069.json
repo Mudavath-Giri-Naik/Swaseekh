@@ -1,0 +1,217 @@
+{
+  "_id": "con_069",
+  "conceptId": "con_069",
+  "conceptTitle": "Integrity Constraints",
+  "reference": "GATE CS — Databases / Constraints and Normalization",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Counting all supersets of a key (superkeys) when key size is k in n-attribute relation",
+        "use": "\\text{Superkeys} = 2^{n-k}"
+      },
+      {
+        "condition": "Deciding if a set of attributes is a candidate key",
+        "use": "K \\text{ is a candidate key} \\iff K^+ = R \\text{ and } \\nexists K' \\subsetneq K : K'^+ = R"
+      },
+      {
+        "condition": "Checking referential integrity: can an INSERT violate it?",
+        "use": "\\text{INSERT into referencing } R_1 \\text{ may violate; INSERT into referenced } R_2 \\text{ never violates}"
+      },
+      {
+        "condition": "Cascade delete: tuple deleted from referenced table",
+        "use": "\\text{DELETE from } R_2 \\Rightarrow \\text{all tuples in } R_1 \\text{ with matching FK also deleted}"
+      },
+      {
+        "condition": "Foreign key value in referencing table must exist in referenced table",
+        "use": "\\forall t_1 \\in r_1,\\; t_1[FK] \\neq \\text{NULL} \\Rightarrow \\exists t_2 \\in r_2 : t_2[PK] = t_1[FK]"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "superkey-candidate-key",
+      "groupTitle": "Superkey & Candidate Key",
+      "formulas": [
+        {
+          "formulaId": "con_069-superkey-definition",
+          "name": "Superkey Definition",
+          "latex": "K \\text{ is a superkey of } R \\iff K^+ = R",
+          "plain": "K is a superkey if the closure of K includes all attributes of R",
+          "whenToUse": "Determining whether a set of attributes can uniquely identify every tuple",
+          "terms": [
+            { "symbol": "K", "means": "set of attributes" },
+            { "symbol": "K^+", "means": "attribute closure of K under the given FDs" },
+            { "symbol": "R", "means": "set of all attributes in the relation" }
+          ],
+          "trap": "Any superset of a superkey is also a superkey; GATE often tests whether you inflate the count by confusing superkeys with candidate keys",
+          "reference": "Databases / Constraints and Normalization"
+        },
+        {
+          "formulaId": "con_069-candidate-key-definition",
+          "name": "Candidate Key Definition",
+          "latex": "K \\text{ is a candidate key} \\iff K^+ = R \\;\\wedge\\; \\nexists K' \\subsetneq K : K'^{+} = R",
+          "plain": "K is a candidate key if K is a superkey and no proper subset of K is also a superkey (minimality)",
+          "whenToUse": "Identifying minimal sets of attributes that uniquely identify tuples",
+          "terms": [
+            { "symbol": "K'", "means": "any proper subset of K" },
+            { "symbol": "K'^+", "means": "closure of the proper subset" }
+          ],
+          "trap": "Distinct values in a column in ONE instance only proves it CAN be a key for that instance, not that it IS a key for all possible instances — GATE frequently exploits this distinction",
+          "reference": "Databases / Constraints and Normalization"
+        },
+        {
+          "formulaId": "con_069-instance-vs-schema-key",
+          "name": "Instance Evidence vs. Schema Key",
+          "latex": "\\text{distinct values in current instance} \\not\\Rightarrow \\text{candidate key of schema}",
+          "plain": "Distinct values in the current instance do NOT guarantee the attribute is a candidate key of the schema",
+          "whenToUse": "When asked whether observed distinct values in one snapshot prove a key exists",
+          "terms": [
+            { "symbol": "\\text{instance}", "means": "one particular set of rows at one point in time" },
+            { "symbol": "\\text{schema}", "means": "the structural definition, applies to all valid instances" }
+          ],
+          "trap": "A counter-example is easy: future tuples can repeat the value, so the schema may not enforce uniqueness",
+          "reference": "Databases / Constraints and Normalization"
+        },
+        {
+          "formulaId": "con_069-count-superkeys",
+          "name": "Counting Superkeys Given a Candidate Key",
+          "latex": "\\text{If } K \\text{ (size } k\\text{) is the only candidate key of } R \\text{ (}n\\text{ attributes)},\\quad|\\text{superkeys}| = 2^{n-k}",
+          "plain": "Number of superkeys = 2^(n - k), where k = size of candidate key and n = total attributes",
+          "whenToUse": "GATE numerical problems asking for the maximum or exact number of superkeys",
+          "terms": [
+            { "symbol": "n", "means": "total number of attributes in R" },
+            { "symbol": "k", "means": "number of attributes in the candidate key" },
+            { "symbol": "2^{n-k}", "means": "all possible supersets of the candidate key formed from the remaining (n-k) attributes" }
+          ],
+          "trap": "When there are multiple candidate keys, subsets may overlap; the formula 2^(n-k) applies only when there is exactly one candidate key of size k",
+          "reference": "Databases / Constraints and Normalization"
+        },
+        {
+          "formulaId": "con_069-primary-key-vs-candidate-key",
+          "name": "Primary Key vs. Candidate Key",
+          "latex": "\\text{Primary Key} \\subseteq \\text{Candidate Keys},\\quad \\text{one CK chosen as PK}",
+          "plain": "Primary key is one selected candidate key; a relation can have multiple candidate keys but exactly one primary key",
+          "whenToUse": "Distinguishing PK, CK, and alternate keys in schema design questions",
+          "terms": [
+            { "symbol": "\\text{CK}", "means": "candidate key — any minimal superkey" },
+            { "symbol": "\\text{PK}", "means": "primary key — the one CK selected by the designer" },
+            { "symbol": "\\text{AK}", "means": "alternate key — CKs not chosen as PK" }
+          ],
+          "trap": "GATE questions may list unique attributes and ask which sets qualify as candidate keys — all minimal superkeys qualify, not just the one designated as PK",
+          "reference": "Databases / Constraints and Normalization"
+        },
+        {
+          "formulaId": "con_069-multi-attribute-ck",
+          "name": "Composite Candidate Key",
+          "latex": "\\text{If no single attribute is a superkey, the CK is composite: }|CK| \\geq 2",
+          "plain": "If no single attribute uniquely identifies rows, the candidate key contains 2 or more attributes",
+          "whenToUse": "Schema with no single-attribute key — must find minimal multi-attribute superkeys",
+          "terms": [
+            { "symbol": "|CK|", "means": "number of attributes in the candidate key" }
+          ],
+          "trap": "Check ALL subsets of a proposed composite key; if any subset is already a superkey, the original set is not minimal and hence not a CK",
+          "reference": "Databases / Constraints and Normalization"
+        }
+      ]
+    },
+    {
+      "groupId": "referential-integrity",
+      "groupTitle": "Referential Integrity (Foreign Key)",
+      "formulas": [
+        {
+          "formulaId": "con_069-referential-integrity-rule",
+          "name": "Referential Integrity Constraint",
+          "latex": "\\forall t_1 \\in r_1,\\; t_1[FK] \\neq \\text{NULL} \\Rightarrow \\exists\\, t_2 \\in r_2 : t_2[PK] = t_1[FK]",
+          "plain": "Every non-NULL foreign key value in the referencing relation must match a primary key value in the referenced relation",
+          "whenToUse": "Any question about whether a state of two tables satisfies referential integrity",
+          "terms": [
+            { "symbol": "r_1", "means": "referencing relation (contains the foreign key)" },
+            { "symbol": "r_2", "means": "referenced relation (contains the primary key)" },
+            { "symbol": "FK", "means": "foreign key attribute(s) in r_1" },
+            { "symbol": "PK", "means": "primary key attribute(s) in r_2" }
+          ],
+          "trap": "NULL values in the FK column are allowed — they do NOT violate referential integrity; only non-NULL FK values must match",
+          "reference": "Databases / Constraints and Normalization"
+        },
+        {
+          "formulaId": "con_069-operations-violation",
+          "name": "Operations That Can Violate Referential Integrity",
+          "latex": "\\begin{array}{ll} \\text{INSERT into } r_1 & \\text{may violate (new FK may not match any PK)} \\\\ \\text{DELETE from } r_2 & \\text{may violate (PK removed, FK still exists)} \\\\ \\text{INSERT into } r_2 & \\text{never violates} \\\\ \\text{DELETE from } r_1 & \\text{never violates} \\end{array}",
+          "plain": "INSERT into referencing table or DELETE from referenced table can violate RI. INSERT into referenced or DELETE from referencing never violates RI.",
+          "whenToUse": "Questions listing database operations and asking which can potentially violate referential integrity",
+          "terms": [
+            { "symbol": "r_1", "means": "referencing relation (has FK)" },
+            { "symbol": "r_2", "means": "referenced relation (has PK)" }
+          ],
+          "trap": "UPDATE is not listed separately but is equivalent to DELETE + INSERT; UPDATE of FK in r_1 or UPDATE of PK in r_2 can also violate RI",
+          "reference": "Databases / Constraints and Normalization"
+        },
+        {
+          "formulaId": "con_069-cascade-delete",
+          "name": "ON DELETE CASCADE",
+          "latex": "\\text{DELETE } t_2 \\text{ from } r_2 \\Rightarrow \\text{auto-DELETE all } t_1 \\in r_1 \\text{ where } t_1[FK] = t_2[PK]",
+          "plain": "When a referenced tuple is deleted, all referencing tuples with matching FK values are automatically deleted (cascades)",
+          "whenToUse": "Problems with ON DELETE CASCADE where you must track which rows survive after deletions propagate",
+          "terms": [
+            { "symbol": "t_2", "means": "tuple deleted from referenced relation r_2" },
+            { "symbol": "t_1", "means": "tuple in referencing relation r_1 that gets auto-deleted" }
+          ],
+          "trap": "Cascade can be recursive/chain if FK references the same table's PK (self-referential); deletions can propagate multiple levels",
+          "reference": "Databases / Constraints and Normalization"
+        },
+        {
+          "formulaId": "con_069-cascade-self-referential",
+          "name": "Self-Referential Foreign Key with Cascade",
+          "latex": "R(A,C),\\; C \\xrightarrow{FK} A \\Rightarrow \\text{deleting a row may cascade to rows whose C equals the deleted A}",
+          "plain": "If FK and PK are in the same table, deleting a row cascades to delete all rows where the FK column equals the deleted PK value",
+          "whenToUse": "GATE problems with a single-table foreign key (C references A in the same table R) and ON DELETE CASCADE",
+          "terms": [
+            { "symbol": "A", "means": "primary key column in R" },
+            { "symbol": "C", "means": "foreign key column referencing A in the same table R" }
+          ],
+          "trap": "The cascade chain can continue: if deleted rows themselves had other rows pointing to them, those are deleted too — trace step by step",
+          "reference": "Databases / Constraints and Normalization"
+        },
+        {
+          "formulaId": "con_069-on-delete-set-null",
+          "name": "ON DELETE SET NULL",
+          "latex": "\\text{DELETE } t_2 \\text{ from } r_2 \\Rightarrow t_1[FK] \\leftarrow \\text{NULL for all matching } t_1 \\in r_1",
+          "plain": "When a referenced tuple is deleted, matching FK values in the referencing table are set to NULL instead of deleting the row",
+          "whenToUse": "When the schema specifies ON DELETE SET NULL and you must determine the resulting table state",
+          "terms": [
+            { "symbol": "\\text{NULL}", "means": "indicates absence of a value; a NULL FK does not violate referential integrity" }
+          ],
+          "trap": "If FK is also part of the primary key of r_1 it cannot be NULL; SET NULL would then fail and the operation is rejected",
+          "reference": "Databases / Constraints and Normalization"
+        },
+        {
+          "formulaId": "con_069-ri-subset-condition",
+          "name": "Referential Integrity as Subset Condition",
+          "latex": "\\pi_{FK}(r_1) - \\{\\text{NULL}\\} \\subseteq \\pi_{PK}(r_2)",
+          "plain": "The set of non-NULL FK values in r1 must be a subset of the PK values in r2",
+          "whenToUse": "Formally verifying whether two given table instances satisfy referential integrity",
+          "terms": [
+            { "symbol": "\\pi_{FK}(r_1)", "means": "projection of r_1 onto foreign key column(s)" },
+            { "symbol": "\\pi_{PK}(r_2)", "means": "projection of r_2 onto primary key column(s)" }
+          ],
+          "trap": "Projection must match on the exact attribute domain; if FK maps to a non-primary unique key in r_2, standard RI requires it to reference the primary key",
+          "reference": "Databases / Constraints and Normalization"
+        },
+        {
+          "formulaId": "con_069-entity-integrity",
+          "name": "Entity Integrity Constraint",
+          "latex": "\\text{Primary key attributes must be } \\textbf{NOT NULL} \\text{ and } \\textbf{UNIQUE}",
+          "plain": "No primary key column may contain NULL, and the PK value must be unique across all tuples",
+          "whenToUse": "Checking whether a schema or instance violates the entity integrity rule (not just referential integrity)",
+          "terms": [
+            { "symbol": "\\text{NOT NULL}", "means": "PK column cannot hold a null value" },
+            { "symbol": "\\text{UNIQUE}", "means": "no two tuples can have the same PK value" }
+          ],
+          "trap": "Referential integrity and entity integrity are separate constraints; GATE may ask about both in the same question — do not conflate them",
+          "reference": "Databases / Constraints and Normalization"
+        }
+      ]
+    }
+  ]
+}

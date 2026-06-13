@@ -1,0 +1,298 @@
+{
+  "_id": "con_062",
+  "conceptId": "con_062",
+  "conceptTitle": "IPC, Concurrency and Synchronization",
+  "reference": "GATE CS — Operating System / Processes and Threads",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Computing final semaphore value after P and V ops",
+        "use": "S_{\\text{final}} = S_{\\text{init}} - \\#P + \\#V"
+      },
+      {
+        "condition": "Checking if parbegin/parend can express a precedence graph",
+        "use": "\\text{Series-parallel graph} \\Leftrightarrow \\text{expressible by parbegin/parend}"
+      },
+      {
+        "condition": "Maximum processes in critical section simultaneously (binary semaphore)",
+        "use": "\\text{At most } 1 \\text{ process in CS at any time}"
+      },
+      {
+        "condition": "Counting semaphore initialized to N — max concurrent access",
+        "use": "\\text{Up to } N \\text{ processes may proceed concurrently}"
+      },
+      {
+        "condition": "Peterson's algorithm — mutual exclusion requirement",
+        "use": "\\text{flag}[i]=\\text{true},\\ \\text{turn}=j \\Rightarrow P_i \\text{ waits until } P_j \\text{ exits CS}"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "semaphore-basics",
+      "groupTitle": "Semaphore Operations",
+      "formulas": [
+        {
+          "formulaId": "con_062-semaphore-value",
+          "name": "Semaphore Final Value",
+          "latex": "S_{\\text{final}} = S_{\\text{init}} - \\#P + \\#V",
+          "plain": "S_final = S_init - (number of P ops) + (number of V ops)",
+          "whenToUse": "After a series of P (wait/down) and V (signal/up) operations on a semaphore, compute the resulting value.",
+          "terms": [
+            { "symbol": "S_{\\text{init}}", "means": "initial semaphore value" },
+            { "symbol": "\\#P", "means": "total number of P (wait/down) operations performed" },
+            { "symbol": "\\#V", "means": "total number of V (signal/up) operations performed" }
+          ],
+          "trap": "Do not confuse P with signal and V with wait — P decrements (wait/down), V increments (signal/up). A common GATE MCQ swaps these.",
+          "reference": "OS / Semaphore"
+        },
+        {
+          "formulaId": "con_062-binary-semaphore",
+          "name": "Binary Semaphore Range",
+          "latex": "S \\in \\{0,\\, 1\\}",
+          "plain": "S is always 0 or 1 (mutex semaphore)",
+          "whenToUse": "When the semaphore is used purely for mutual exclusion (one process at a time in CS).",
+          "terms": [
+            { "symbol": "S=1", "means": "CS is free; a process may enter" },
+            { "symbol": "S=0", "means": "CS is occupied; arriving processes block" }
+          ],
+          "trap": "A binary semaphore does NOT automatically prevent priority inversion or deadlock — it only guarantees at most one process in CS.",
+          "reference": "OS / Semaphore"
+        },
+        {
+          "formulaId": "con_062-counting-semaphore",
+          "name": "Counting Semaphore — Concurrent Access",
+          "latex": "S_{\\text{init}} = N \\Rightarrow \\text{at most } N \\text{ processes may be inside the guarded section}",
+          "plain": "Counting semaphore initialized to N allows up to N concurrent processes inside the section",
+          "whenToUse": "When limiting access to a resource pool of size N (e.g., N database connections).",
+          "terms": [
+            { "symbol": "N", "means": "number of identical resource instances" }
+          ],
+          "trap": "The semaphore value can go negative if processes block — |negative value| = number of blocked processes.",
+          "reference": "OS / Semaphore"
+        },
+        {
+          "formulaId": "con_062-semaphore-atomicity",
+          "name": "Atomicity of P and V",
+          "latex": "\\text{P}(S):\\; S \\leftarrow S-1;\\ \\text{if } S < 0 \\text{ then block} \\qquad \\text{V}(S):\\; S \\leftarrow S+1;\\ \\text{if } S \\le 0 \\text{ then wakeup}",
+          "plain": "P(S): decrement S; if S < 0 block. V(S): increment S; if S <= 0 wake one waiting process. Both are atomic (indivisible).",
+          "whenToUse": "When justifying why semaphore operations prevent race conditions by themselves.",
+          "terms": [
+            { "symbol": "\\text{block}", "means": "process is suspended and placed in the semaphore's wait queue" },
+            { "symbol": "\\text{wakeup}", "means": "one blocked process is moved to ready queue" }
+          ],
+          "trap": "Semaphore operations are atomic because they are implemented as OS kernel services (not user-space busy-wait by default).",
+          "reference": "OS / Semaphore"
+        }
+      ]
+    },
+    {
+      "groupId": "critical-section-requirements",
+      "groupTitle": "Critical Section Properties",
+      "formulas": [
+        {
+          "formulaId": "con_062-cs-three-conditions",
+          "name": "Three Conditions for Valid CS Solution",
+          "latex": "\\text{1. Mutual Exclusion} \\quad \\text{2. Progress} \\quad \\text{3. Bounded Waiting}",
+          "plain": "Any correct critical section solution must satisfy: (1) Mutual Exclusion, (2) Progress, (3) Bounded Waiting",
+          "whenToUse": "When evaluating whether a proposed synchronization scheme is correct (very frequent GATE pattern).",
+          "terms": [
+            { "symbol": "\\text{Mutual Exclusion}", "means": "at most one process in CS at any time" },
+            { "symbol": "\\text{Progress}", "means": "if no process is in CS, a waiting process must eventually enter" },
+            { "symbol": "\\text{Bounded Waiting}", "means": "a process waiting to enter CS is not starved indefinitely" }
+          ],
+          "trap": "A solution that only provides Mutual Exclusion but not Progress (e.g., strict alternation when one process never wants to enter) fails.",
+          "reference": "OS / Process Synchronization"
+        },
+        {
+          "formulaId": "con_062-critical-region-def",
+          "name": "Critical Region Definition",
+          "latex": "\\text{Critical Region} = \\text{segment of code accessing shared data that must not be executed simultaneously by} \\ge 2 \\text{ processes}",
+          "plain": "A critical region is a code segment accessing shared resources that must be executed by at most one process at a time.",
+          "whenToUse": "When identifying or defining what constitutes a critical section in a concurrent program.",
+          "terms": [
+            { "symbol": "\\text{shared data}", "means": "variables, files, or hardware shared among concurrent processes" }
+          ],
+          "trap": "A critical region is NOT defined by causing crashes or bugs — it is defined by shared resource access. Any shared-variable access is potentially a critical region even if it seems harmless.",
+          "reference": "OS / Process Synchronization"
+        },
+        {
+          "formulaId": "con_062-peterson-algorithm",
+          "name": "Peterson's Two-Process Algorithm",
+          "latex": "\\text{flag}[i] = \\text{true};\\; \\text{turn} = j;\\; \\textbf{while}\\;(\\text{flag}[j] \\land \\text{turn}=j)\\;\\text{wait};\\; \\text{CS};\\; \\text{flag}[i]=\\text{false}",
+          "plain": "Process i sets flag[i]=true, turn=j, then waits while flag[j] is true and turn==j. After CS, sets flag[i]=false.",
+          "whenToUse": "Software solution for two-process mutual exclusion without hardware support.",
+          "terms": [
+            { "symbol": "\\text{flag}[i]", "means": "true when process i wants to enter CS" },
+            { "symbol": "\\text{turn}", "means": "whose turn it is to enter CS when both want to" }
+          ],
+          "trap": "Peterson's algorithm satisfies all three conditions (ME, Progress, Bounded Waiting) for exactly 2 processes. It does NOT generalize directly to N processes.",
+          "reference": "OS / Process Synchronization"
+        },
+        {
+          "formulaId": "con_062-readers-writers",
+          "name": "Readers-Writers Problem — Shared Variables",
+          "latex": "\\text{read\\_count} = 0,\\; \\text{mutex} = 1,\\; \\text{writing} = 1",
+          "plain": "Classic shared state: read_count tracks active readers; mutex protects read_count updates; writing is a binary semaphore for writer exclusion.",
+          "whenToUse": "When analyzing or writing reader-writer synchronization code with semaphores.",
+          "terms": [
+            { "symbol": "\\text{read\\_count}", "means": "number of processes currently reading" },
+            { "symbol": "\\text{mutex}", "means": "semaphore protecting read_count (initialized to 1)" },
+            { "symbol": "\\text{writing}", "means": "semaphore ensuring writer exclusion (initialized to 1)" }
+          ],
+          "trap": "In the readers-priority version, writers can starve. In the writers-priority version, readers can starve. GATE questions test which version is in use.",
+          "reference": "OS / Process Synchronization"
+        },
+        {
+          "formulaId": "con_062-producer-consumer",
+          "name": "Producer-Consumer (Bounded Buffer) Semaphores",
+          "latex": "\\text{mutex}=1,\\; \\text{empty}=N,\\; \\text{full}=0",
+          "plain": "mutex=1 (mutual exclusion on buffer), empty=N (free slots), full=0 (filled slots). Producer does P(empty),P(mutex),...,V(mutex),V(full). Consumer does P(full),P(mutex),...,V(mutex),V(empty).",
+          "whenToUse": "When analyzing the classic bounded-buffer producer-consumer synchronization.",
+          "terms": [
+            { "symbol": "N", "means": "total buffer capacity (number of slots)" },
+            { "symbol": "\\text{empty}", "means": "semaphore counting available empty slots" },
+            { "symbol": "\\text{full}", "means": "semaphore counting filled slots" }
+          ],
+          "trap": "Swapping P(mutex) and P(empty) in the producer (or P(mutex) and P(full) in the consumer) causes deadlock.",
+          "reference": "OS / Process Synchronization"
+        }
+      ]
+    },
+    {
+      "groupId": "precedence-graphs",
+      "groupTitle": "Precedence Graphs & Parbegin/Parend",
+      "formulas": [
+        {
+          "formulaId": "con_062-precedence-graph-def",
+          "name": "Precedence Graph Definition",
+          "latex": "P_i \\rightarrow P_j \\Rightarrow P_i \\text{ must complete before } P_j \\text{ starts}",
+          "plain": "A directed edge from P_i to P_j means P_i must finish before P_j begins. The graph must be a DAG.",
+          "whenToUse": "When reading or drawing a precedence (task dependency) graph to determine valid execution orderings.",
+          "terms": [
+            { "symbol": "P_i \\rightarrow P_j", "means": "P_i is a predecessor of P_j" },
+            { "symbol": "\\text{DAG}", "means": "Directed Acyclic Graph — no cycles allowed" }
+          ],
+          "trap": "A cycle in the precedence graph implies a deadlock — no valid execution order exists.",
+          "reference": "OS / Precedence Graph"
+        },
+        {
+          "formulaId": "con_062-series-parallel-graph",
+          "name": "Series-Parallel Graph — Parbegin/Parend Equivalence",
+          "latex": "\\text{Precedence graph expressible by parbegin/parend} \\iff \\text{graph is series-parallel}",
+          "plain": "A set of processes can be implemented using only parbegin/parend if and only if its precedence graph is a series-parallel graph.",
+          "whenToUse": "When asked which type of graph can be represented by nested parbegin/parend constructs.",
+          "terms": [
+            { "symbol": "\\text{series-parallel}", "means": "graph built by sequential and parallel composition of smaller series-parallel graphs" },
+            { "symbol": "\\text{parbegin/parend}", "means": "language construct that starts a group of parallel processes and waits for all to finish" }
+          ],
+          "trap": "A general DAG (tree included only if it is series-parallel) may NOT be expressible with parbegin/parend — GATE 1990 classic asks this; answer is series-parallel, NOT just any DAG or tree.",
+          "reference": "OS / Precedence Graph"
+        },
+        {
+          "formulaId": "con_062-topological-order",
+          "name": "Valid Execution Order — Topological Sort",
+          "latex": "\\text{Valid execution order} \\Leftrightarrow \\text{topological sort of the precedence DAG}",
+          "plain": "Any topological ordering of the precedence DAG is a valid sequential execution order consistent with all dependencies.",
+          "whenToUse": "When listing all valid orderings of concurrent processes with precedence constraints.",
+          "terms": [
+            { "symbol": "\\text{topological sort}", "means": "linear ordering where P_i appears before P_j whenever P_i -> P_j" }
+          ],
+          "trap": "The number of valid orderings can be large; GATE usually asks whether a SPECIFIC ordering is valid, which is checked by verifying each edge is respected.",
+          "reference": "OS / Precedence Graph"
+        }
+      ]
+    },
+    {
+      "groupId": "ipc-mechanisms",
+      "groupTitle": "Inter-Process Communication (IPC)",
+      "formulas": [
+        {
+          "formulaId": "con_062-ipc-mechanisms",
+          "name": "IPC Mechanisms — Key Types",
+          "latex": "\\text{IPC} \\in \\{\\text{Shared Memory},\\; \\text{Message Passing},\\; \\text{Pipes},\\; \\text{Sockets},\\; \\text{Signals}\\}",
+          "plain": "IPC mechanisms include: Shared Memory, Message Passing, Pipes, Sockets, Signals",
+          "whenToUse": "When classifying or selecting an IPC method for a given scenario.",
+          "terms": [
+            { "symbol": "\\text{Shared Memory}", "means": "processes share a region of memory; fastest IPC" },
+            { "symbol": "\\text{Message Passing}", "means": "processes exchange messages via send/receive primitives" },
+            { "symbol": "\\text{Pipe}", "means": "unidirectional byte-stream channel between related processes" }
+          ],
+          "trap": "I/O redirection (< and >) changes stdin/stdout file descriptors; a pipe (|) connects stdout of one program to stdin of another — they are related but distinct concepts.",
+          "reference": "OS / Inter Process Communication"
+        },
+        {
+          "formulaId": "con_062-pipe-properties",
+          "name": "Pipe Properties",
+          "latex": "\\text{Pipe: unidirectional, FIFO, between related processes (parent-child or siblings)}",
+          "plain": "A pipe is unidirectional (data flows one way), operates as a FIFO queue, and is typically between a parent process and its child (or siblings).",
+          "whenToUse": "When distinguishing pipes from other IPC methods or when I/O redirection vs. pipe is tested.",
+          "terms": [
+            { "symbol": "\\text{FIFO}", "means": "First-In First-Out — data read in the order written" },
+            { "symbol": "\\text{unidirectional}", "means": "a single pipe allows data to flow in only one direction" }
+          ],
+          "trap": "A pipe connects two programs (one writes, one reads); I/O redirection connects a program to a FILE. A pipe is NOT the same as I/O redirection.",
+          "reference": "OS / Inter Process Communication"
+        }
+      ]
+    },
+    {
+      "groupId": "classical-synchronization-problems",
+      "groupTitle": "Classical Synchronization Problems & Patterns",
+      "formulas": [
+        {
+          "formulaId": "con_062-dining-philosophers",
+          "name": "Dining Philosophers — Deadlock Condition",
+          "latex": "\\text{Deadlock if all } N \\text{ philosophers hold left fork and wait for right fork}",
+          "plain": "Deadlock occurs when every philosopher picks up exactly one fork (left) and waits for the other — circular wait with N=5 philosophers.",
+          "whenToUse": "When analyzing deadlock in resource-sharing scenarios with circular dependencies.",
+          "terms": [
+            { "symbol": "N", "means": "number of philosophers (= number of forks)" }
+          ],
+          "trap": "Allowing at most N-1 philosophers to sit simultaneously, or using an asymmetric rule (odd picks left first, even picks right first), breaks circular wait.",
+          "reference": "OS / Process Synchronization"
+        },
+        {
+          "formulaId": "con_062-monitor-definition",
+          "name": "Monitor — High-Level Synchronization",
+          "latex": "\\text{Monitor} = \\{\\text{shared data} + \\text{procedures} + \\text{condition variables}\\},\\; \\text{at most 1 process active inside at any time}",
+          "plain": "A monitor encapsulates shared data and procedures; only one process may be executing inside a monitor at any time. Condition variables allow wait() and signal().",
+          "whenToUse": "When the question asks about high-level synchronization constructs vs. semaphores.",
+          "terms": [
+            { "symbol": "\\text{condition variable}", "means": "allows a process inside a monitor to wait (releasing the monitor) and be signaled later" },
+            { "symbol": "\\text{wait()}", "means": "releases monitor lock and suspends the calling process" },
+            { "symbol": "\\text{signal()}", "means": "wakes one waiting process; if none, has no effect (unlike V on semaphore)" }
+          ],
+          "trap": "Monitor signal() with no waiting process has NO effect (unlike semaphore V which increments the counter). This is a frequent GATE distinction.",
+          "reference": "OS / Process Synchronization"
+        },
+        {
+          "formulaId": "con_062-race-condition",
+          "name": "Race Condition Definition",
+          "latex": "\\text{Race condition: outcome depends on relative scheduling/interleaving of concurrent processes}",
+          "plain": "A race condition exists when multiple processes access shared data concurrently and the final result depends on the order of execution.",
+          "whenToUse": "When identifying whether a given concurrent program has a correctness issue due to unsynchronized shared access.",
+          "terms": [
+            { "symbol": "\\text{interleaving}", "means": "the specific order in which concurrent instructions are executed" }
+          ],
+          "trap": "Race conditions are eliminated by synchronization (mutual exclusion over the critical section), NOT by making processes run faster.",
+          "reference": "OS / Process Synchronization"
+        },
+        {
+          "formulaId": "con_062-spinlock-busy-wait",
+          "name": "Busy-Wait (Spinlock) vs. Block",
+          "latex": "\\text{Busy-wait: } \\textbf{while}\\;(S \\le 0)\\;\\text{do nothing} \\quad \\text{Block: OS suspends process until } S > 0",
+          "plain": "Busy-wait keeps CPU spinning until semaphore is available (wastes CPU). Blocking suspends the process (efficient for long waits).",
+          "whenToUse": "When comparing spinlock and blocking semaphore implementations.",
+          "terms": [
+            { "symbol": "\\text{spinlock}", "means": "loop that continuously checks the semaphore — CPU is not released" },
+            { "symbol": "\\text{block}", "means": "process is placed in a wait queue; CPU is freed for other work" }
+          ],
+          "trap": "Busy-wait is preferred for VERY SHORT critical sections on multi-core systems (avoids context-switch overhead). For long waits, blocking is always better.",
+          "reference": "OS / Process Synchronization"
+        }
+      ]
+    }
+  ]
+}

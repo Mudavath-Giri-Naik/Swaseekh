@@ -1,0 +1,371 @@
+{
+  "_id": "con_027",
+  "conceptId": "con_027",
+  "conceptTitle": "Sequential Circuits",
+  "reference": "GATE CS — Digital Logic / Circuits",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Need to count up to N distinct states with flip-flops",
+        "use": "n = \\lceil \\log_2 N \\rceil"
+      },
+      {
+        "condition": "Ripple counter frequency / propagation delay",
+        "use": "t_{pd,total} = n \\times t_{pd}"
+      },
+      {
+        "condition": "Memory capacity from address and data lines",
+        "use": "\\text{Capacity} = 2^k \\times w \\text{ bits}"
+      },
+      {
+        "condition": "Number of chips required for a given memory size",
+        "use": "\\text{chips} = \\frac{\\text{Total size}}{\\text{Chip size}}"
+      },
+      {
+        "condition": "DRAM refresh overhead percentage",
+        "use": "\\% = \\frac{r \\times t_r}{T} \\times 100"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "flip-flop-fundamentals",
+      "groupTitle": "Flip-Flop Fundamentals",
+      "formulas": [
+        {
+          "formulaId": "con_027-sr-nand-forbidden",
+          "name": "SR Latch (NAND) — Forbidden / Oscillation Condition",
+          "latex": "S = 0,\\; R = 0 \\Rightarrow Q = Q' = 1 \\text{ (both HIGH — forbidden/indeterminate)}",
+          "plain": "S=0, R=0 in NAND SR latch => Q = Q' = 1 (forbidden state, may oscillate on return to 11)",
+          "whenToUse": "When analysing NAND-based SR latch truth table and identifying the forbidden input pair",
+          "terms": [
+            { "symbol": "S", "means": "Set input" },
+            { "symbol": "R", "means": "Reset input" },
+            { "symbol": "Q", "means": "Latch output" }
+          ],
+          "trap": "For NAND SR, S=R=0 is forbidden (not S=R=1 as in NOR SR). Oscillation occurs if both go to 00 then simultaneously to 11.",
+          "reference": "Digital Logic / Flip-Flops"
+        },
+        {
+          "formulaId": "con_027-sr-nor-forbidden",
+          "name": "SR Latch (NOR) — Forbidden Condition",
+          "latex": "S = 1,\\; R = 1 \\Rightarrow Q = Q' = 0 \\text{ (forbidden state)}",
+          "plain": "S=1, R=1 in NOR SR latch => Q = Q' = 0 (forbidden state)",
+          "whenToUse": "When analysing NOR-based SR latch and identifying which input pair causes indeterminate state",
+          "terms": [
+            { "symbol": "S", "means": "Set input" },
+            { "symbol": "R", "means": "Reset input" }
+          ],
+          "trap": "NOR and NAND SR latches have opposite forbidden pairs; do not confuse them.",
+          "reference": "Digital Logic / Flip-Flops"
+        },
+        {
+          "formulaId": "con_027-jk-characteristic",
+          "name": "JK Flip-Flop Characteristic Equation",
+          "latex": "Q_{n+1} = J\\overline{Q_n} + \\overline{K}Q_n",
+          "plain": "Q(next) = J*NOT(Q) + NOT(K)*Q",
+          "whenToUse": "To find the next state of a JK flip-flop given current state and inputs J, K",
+          "terms": [
+            { "symbol": "J", "means": "J input" },
+            { "symbol": "K", "means": "K input" },
+            { "symbol": "Q_n", "means": "Current state" },
+            { "symbol": "Q_{n+1}", "means": "Next state" }
+          ],
+          "trap": "When J=K=1, the flip-flop toggles (Q_{n+1} = NOT Q_n); this is the Toggle mode used in counters.",
+          "reference": "Digital Logic / Flip-Flops"
+        },
+        {
+          "formulaId": "con_027-t-flipflop",
+          "name": "T (Toggle) Flip-Flop — JK Configured as T",
+          "latex": "Q_{n+1} = T \\oplus Q_n \\quad (\\text{i.e., } J = K = T)",
+          "plain": "Q(next) = T XOR Q(current); achieved by tying J=K together",
+          "whenToUse": "When a JK flip-flop has J=K=Q (feedback), confirming it acts as a T flip-flop toggling on every clock",
+          "terms": [
+            { "symbol": "T", "means": "Toggle input (= J = K)" },
+            { "symbol": "\\oplus", "means": "XOR" }
+          ],
+          "trap": "The output frequency of a single T flip-flop is f_clk / 2 (divides by 2 each stage).",
+          "reference": "Digital Logic / Flip-Flops"
+        },
+        {
+          "formulaId": "con_027-d-flipflop",
+          "name": "D Flip-Flop Characteristic Equation",
+          "latex": "Q_{n+1} = D",
+          "plain": "Q(next) = D",
+          "whenToUse": "When analysing D-type flip-flops; output simply follows D on active clock edge",
+          "terms": [
+            { "symbol": "D", "means": "Data input" }
+          ],
+          "trap": "D flip-flop eliminates the forbidden SR state; commonly used in shift registers and pipeline stages.",
+          "reference": "Digital Logic / Flip-Flops"
+        }
+      ]
+    },
+    {
+      "groupId": "counters",
+      "groupTitle": "Counters",
+      "formulas": [
+        {
+          "formulaId": "con_027-ff-count",
+          "name": "Flip-Flops Required for N-State Counter",
+          "latex": "n = \\lceil \\log_2 N \\rceil",
+          "plain": "n = ceil(log2(N))",
+          "whenToUse": "To determine the minimum number of flip-flops needed to count N distinct states",
+          "terms": [
+            { "symbol": "N", "means": "Number of states (modulus of the counter)" },
+            { "symbol": "n", "means": "Number of flip-flops needed" }
+          ],
+          "trap": "A 3-bit counter can count up to 8 states max (0–7); a mod-5 counter still needs 3 flip-flops even though it only uses 5 of 8 states.",
+          "reference": "Digital Logic / Counters"
+        },
+        {
+          "formulaId": "con_027-counter-modulus",
+          "name": "Counter Modulus (Count Sequence Length)",
+          "latex": "\\text{Modulus} = \\text{number of distinct states in the counting sequence}",
+          "plain": "Modulus = number of unique states the counter cycles through",
+          "whenToUse": "When asked to determine the 'mod-N' nature of a given counter from its state table or timing diagram",
+          "terms": [
+            { "symbol": "\\text{Modulus}", "means": "Total number of states before the counter repeats" }
+          ],
+          "trap": "Always verify the actual sequence from the truth table; reset/skip logic can make modulus less than 2^n.",
+          "reference": "Digital Logic / Counters"
+        },
+        {
+          "formulaId": "con_027-ripple-delay",
+          "name": "Ripple Counter Total Propagation Delay",
+          "latex": "t_{pd,total} = n \\times t_{pd}",
+          "plain": "Total_delay = n * t_pd_per_flip_flop",
+          "whenToUse": "When computing the maximum propagation delay of an asynchronous (ripple) counter with n stages",
+          "terms": [
+            { "symbol": "n", "means": "Number of flip-flop stages" },
+            { "symbol": "t_{pd}", "means": "Propagation delay of a single flip-flop" }
+          ],
+          "trap": "In a synchronous counter all flip-flops are clocked together, so delay does NOT multiply with stages — only in ripple (asynchronous) counters.",
+          "reference": "Digital Logic / Counters"
+        },
+        {
+          "formulaId": "con_027-output-frequency",
+          "name": "Output Frequency after n Toggle Stages",
+          "latex": "f_{out} = \\frac{f_{clk}}{2^n}",
+          "plain": "f_out = f_clk / 2^n",
+          "whenToUse": "When n T flip-flops (or JK with J=K=1) are cascaded to form a frequency divider or ripple counter",
+          "terms": [
+            { "symbol": "f_{clk}", "means": "Input clock frequency" },
+            { "symbol": "n", "means": "Number of cascaded T/JK flip-flop stages" },
+            { "symbol": "f_{out}", "means": "Output frequency at the last stage" }
+          ],
+          "trap": "Each stage divides by 2; for a mod-N counter the output period is N clock cycles, giving f_out = f_clk / N.",
+          "reference": "Digital Logic / Counters"
+        },
+        {
+          "formulaId": "con_027-mod3-dfa-states",
+          "name": "Mod-3 Counter / DFA State Count",
+          "latex": "\\text{Minimum states for mod-}k\\text{ counter DFA} = k",
+          "plain": "Minimum DFA states for a mod-k counter = k",
+          "whenToUse": "When asked for the minimum states in a DFA/FSM that counts 1s modulo k",
+          "terms": [
+            { "symbol": "k", "means": "The modulus (e.g., 3 for mod-3)" }
+          ],
+          "trap": "Each state represents a residue class {0,1,...,k-1}. For mod-3, exactly 3 states suffice.",
+          "reference": "Digital Logic / Counters"
+        }
+      ]
+    },
+    {
+      "groupId": "finite-state-machines",
+      "groupTitle": "Finite State Machines",
+      "formulas": [
+        {
+          "formulaId": "con_027-fsm-mealy-moore",
+          "name": "Mealy vs Moore Machine — Output Dependency",
+          "latex": "\\text{Mealy: } \\lambda(q,x) \\quad \\text{Moore: } \\lambda(q)",
+          "plain": "Mealy output depends on (state, input); Moore output depends on state only",
+          "whenToUse": "When classifying a sequential machine or comparing the number of states between Mealy and Moore implementations",
+          "terms": [
+            { "symbol": "\\lambda", "means": "Output function" },
+            { "symbol": "q", "means": "Current state" },
+            { "symbol": "x", "means": "Current input" }
+          ],
+          "trap": "A Mealy machine typically needs fewer states than an equivalent Moore machine. Moore output changes only on state transition, not immediately on input.",
+          "reference": "Digital Logic / Finite State Machines"
+        },
+        {
+          "formulaId": "con_027-fsm-state-minimization",
+          "name": "State Minimization — Distinguishability",
+          "latex": "\\text{States } p, q \\text{ are equivalent iff } \\forall\\, x:\\; \\lambda(p,x) = \\lambda(q,x) \\;\\wedge\\; \\delta(p,x) \\equiv \\delta(q,x)",
+          "plain": "Two states are equivalent if for every input they produce the same output AND transition to equivalent next-states",
+          "whenToUse": "When minimizing an FSM's state table using the table-filling (implication chart) method",
+          "terms": [
+            { "symbol": "\\delta", "means": "Next-state (transition) function" },
+            { "symbol": "\\lambda", "means": "Output function" }
+          ],
+          "trap": "Start by separating states with different outputs; then iteratively check if next-state pairs are equivalent.",
+          "reference": "Digital Logic / Finite State Machines"
+        },
+        {
+          "formulaId": "con_027-fsm-arbitrary-length",
+          "name": "FSM Can Process Arbitrary-Length Sequences",
+          "latex": "\\text{FSM can add integers of arbitrary length } (\\text{digit-by-digit, carry as state})",
+          "plain": "An FSM can add two integers of any length by processing one digit at a time and encoding carry in a state",
+          "whenToUse": "When asked if an FSM can handle unbounded / arbitrary-length arithmetic operations",
+          "terms": [
+            { "symbol": "\\text{carry}", "means": "Stored as a finite state (0 or 1 for binary addition)" }
+          ],
+          "trap": "The carry for binary addition has only 2 values, so it fits in a finite number of states — FSM CAN do it. This is TRUE.",
+          "reference": "Digital Logic / Finite State Machines"
+        }
+      ]
+    },
+    {
+      "groupId": "shift-registers",
+      "groupTitle": "Shift Registers",
+      "formulas": [
+        {
+          "formulaId": "con_027-siso-delay",
+          "name": "Serial-In Serial-Out (SISO) Shift Register Delay",
+          "latex": "\\text{Delay} = n \\text{ clock cycles for } n\\text{-bit SISO register}",
+          "plain": "An n-bit SISO register introduces a delay of n clock cycles",
+          "whenToUse": "When computing the delay introduced by a SISO shift register used as a pipeline stage or delay element",
+          "terms": [
+            { "symbol": "n", "means": "Number of flip-flop stages in the register" }
+          ],
+          "trap": "Do not confuse with SIPO (serial-in parallel-out) where all n bits are available simultaneously after n clock cycles.",
+          "reference": "Digital Logic / Shift Registers"
+        },
+        {
+          "formulaId": "con_027-ring-counter-states",
+          "name": "Ring Counter — Number of States",
+          "latex": "\\text{Ring counter with } n \\text{ flip-flops has } n \\text{ valid states}",
+          "plain": "Ring counter valid states = n (not 2^n)",
+          "whenToUse": "When asked how many states a ring (circulating) counter produces vs a Johnson counter",
+          "terms": [
+            { "symbol": "n", "means": "Number of flip-flop stages" }
+          ],
+          "trap": "Ring counter has n states; Johnson (twisted-ring) counter has 2n states. Both have far fewer than 2^n.",
+          "reference": "Digital Logic / Shift Registers"
+        },
+        {
+          "formulaId": "con_027-johnson-counter-states",
+          "name": "Johnson Counter — Number of States",
+          "latex": "\\text{Johnson counter with } n \\text{ flip-flops has } 2n \\text{ valid states}",
+          "plain": "Johnson counter valid states = 2n",
+          "whenToUse": "When computing the modulus of a Johnson (switch-tail ring) counter",
+          "terms": [
+            { "symbol": "n", "means": "Number of flip-flop stages" }
+          ],
+          "trap": "The Johnson counter produces a Gray-code-like sequence; it has self-correcting and non-self-correcting variants.",
+          "reference": "Digital Logic / Shift Registers"
+        }
+      ]
+    },
+    {
+      "groupId": "synchronous-asynchronous",
+      "groupTitle": "Synchronous vs Asynchronous Circuits",
+      "formulas": [
+        {
+          "formulaId": "con_027-sync-vs-async",
+          "name": "Synchronous vs Asynchronous Counter — Key Properties",
+          "latex": "\\text{Sync: all FFs clocked together} \\Rightarrow \\text{no cumulative delay}\\\\\\text{Async (ripple): FFs chained} \\Rightarrow t_{total} = n \\times t_{pd}",
+          "plain": "Synchronous: all flip-flops share one clock, no cumulative delay. Asynchronous/ripple: each FF clocks the next, delay = n*t_pd",
+          "whenToUse": "When comparing counter types for speed, glitch-susceptibility, or delay analysis",
+          "terms": [
+            { "symbol": "n", "means": "Number of stages" },
+            { "symbol": "t_{pd}", "means": "Single flip-flop propagation delay" }
+          ],
+          "trap": "Ripple counters are slower and may show glitches between states; synchronous counters are faster but require more complex combinational logic.",
+          "reference": "Digital Logic / Synchronous and Asynchronous Circuits"
+        },
+        {
+          "formulaId": "con_027-max-clock-freq",
+          "name": "Maximum Clock Frequency of a Synchronous Circuit",
+          "latex": "f_{max} = \\frac{1}{t_{setup} + t_{pd,combo} + t_{clk\\text{-}Q}}",
+          "plain": "f_max = 1 / (t_setup + t_pd_combinational + t_clk-to-Q)",
+          "whenToUse": "When computing the maximum operating frequency of a synchronous sequential circuit (critical path timing)",
+          "terms": [
+            { "symbol": "t_{setup}", "means": "Flip-flop setup time" },
+            { "symbol": "t_{pd,combo}", "means": "Combinational logic propagation delay on critical path" },
+            { "symbol": "t_{clk\\text{-}Q}", "means": "Clock-to-Q delay of the flip-flop" }
+          ],
+          "trap": "Increase in combinational depth directly reduces f_max; pipelining reduces t_pd_combo per stage.",
+          "reference": "Digital Logic / Synchronous Circuits"
+        }
+      ]
+    },
+    {
+      "groupId": "memory-interfacing",
+      "groupTitle": "Memory Interfacing",
+      "formulas": [
+        {
+          "formulaId": "con_027-address-data-lines",
+          "name": "Address and Data Lines from Memory Specification",
+          "latex": "\\text{Memory } 2^k \\times w:\\; k \\text{ address lines},\\; w \\text{ data lines}",
+          "plain": "Memory of 2^k x w: k address lines, w data lines",
+          "whenToUse": "When asked how many address/data lines are needed for a memory of given capacity (e.g., 4K x 16)",
+          "terms": [
+            { "symbol": "k", "means": "Number of address lines (address bits)" },
+            { "symbol": "w", "means": "Word width = number of data lines" },
+            { "symbol": "2^k", "means": "Number of addressable locations" }
+          ],
+          "trap": "4K = 4 x 1024 = 2^12, so 12 address lines are needed for 4K x 16 (not 10 or 11).",
+          "reference": "Digital Logic / Memory Interfacing"
+        },
+        {
+          "formulaId": "con_027-chips-needed",
+          "name": "Number of Chips Needed to Build Target Memory",
+          "latex": "\\text{Chips} = \\frac{\\text{Target capacity}}{\\text{Single chip capacity}}",
+          "plain": "Chips = Target_capacity / Chip_capacity (address expansion * word expansion)",
+          "whenToUse": "When computing how many RAM/ROM chips are required to build a memory of a given size",
+          "terms": [
+            { "symbol": "\\text{Target capacity}", "means": "Total memory size required (in bits or bytes)" },
+            { "symbol": "\\text{Chip capacity}", "means": "Size of each individual chip (in same units)" }
+          ],
+          "trap": "First convert all sizes to the same unit (bits or bytes). For 4M bytes using 32K x 1 chips: 4M x 8 bits total / (32K x 1 bit per chip) = 1024 chips — check address expansion AND word expansion separately.",
+          "reference": "Digital Logic / Memory Interfacing"
+        },
+        {
+          "formulaId": "con_027-chips-word-address-expansion",
+          "name": "Chip Count — Address and Word Expansion",
+          "latex": "\\text{Chips} = \\underbrace{\\frac{\\text{Target words}}{\\text{Chip words}}}_{\\text{address expansion}} \\times \\underbrace{\\frac{\\text{Target word width}}{\\text{Chip word width}}}_{\\text{word expansion}}",
+          "plain": "Chips = (Target_words / Chip_words) * (Target_width / Chip_width)",
+          "whenToUse": "For precise chip calculation when both address and word-width expansions are needed",
+          "terms": [
+            { "symbol": "\\text{Target words}", "means": "Number of addressable locations in the desired memory" },
+            { "symbol": "\\text{Chip words}", "means": "Number of addressable locations per chip" },
+            { "symbol": "\\text{Target word width}", "means": "Desired data bus width (bits)" },
+            { "symbol": "\\text{Chip word width}", "means": "Data width of each chip (bits)" }
+          ],
+          "trap": "For 32K x 1 chips to build 4M x 8: address expansion = 4M/32K = 128, word expansion = 8/1 = 8, total = 128 x 8 = 1024 chips.",
+          "reference": "Digital Logic / Memory Interfacing"
+        },
+        {
+          "formulaId": "con_027-dram-refresh-overhead",
+          "name": "DRAM Refresh Overhead Percentage",
+          "latex": "\\% \\text{ overhead} = \\frac{r \\times t_r}{T} \\times 100",
+          "plain": "% overhead = (refresh_rate * refresh_cycle_time / total_observation_period) * 100",
+          "whenToUse": "When computing what fraction of memory cycle time or observation period is consumed by DRAM refresh operations",
+          "terms": [
+            { "symbol": "r", "means": "Number of refreshes per unit time (refresh rate)" },
+            { "symbol": "t_r", "means": "Time taken for each refresh cycle" },
+            { "symbol": "T", "means": "Total observation period (same units as r * t_r)" }
+          ],
+          "trap": "Units must be consistent. E.g., 100 refreshes/ms x 100 ns each = 10000 ns = 10 µs per ms = 1% overhead — not 6.4% or 10%.",
+          "reference": "Digital Logic / Memory Interfacing"
+        },
+        {
+          "formulaId": "con_027-memory-capacity",
+          "name": "Memory Capacity Formula",
+          "latex": "\\text{Capacity} = 2^k \\times w \\text{ (bits)}",
+          "plain": "Capacity (bits) = 2^k * w, where k = address bits, w = word width",
+          "whenToUse": "To compute the total storage capacity given address bus and data bus widths",
+          "terms": [
+            { "symbol": "k", "means": "Number of address lines" },
+            { "symbol": "w", "means": "Word width in bits (data bus width)" }
+          ],
+          "trap": "Divide by 8 to convert bits to bytes. A 12-bit address x 16-bit data bus = 2^12 x 16 = 65536 bytes = 64 KB (after /8 per word and x4096 words).",
+          "reference": "Digital Logic / Memory Interfacing"
+        }
+      ]
+    }
+  ]
+}

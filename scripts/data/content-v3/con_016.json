@@ -1,0 +1,303 @@
+{
+  "_id": "con_016",
+  "conceptId": "con_016",
+  "conceptTitle": "LU Decomposition",
+  "reference": "GATE CS — Linear Algebra / Matrices and Systems",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Decompose A into lower and upper triangular factors",
+        "use": "A = LU"
+      },
+      {
+        "condition": "Solve Ax = b after LU factorisation",
+        "use": "Ly = b,\\; Ux = y"
+      },
+      {
+        "condition": "Account for row swaps during Gaussian elimination",
+        "use": "PA = LU"
+      },
+      {
+        "condition": "Compute det(A) using LU factors",
+        "use": "\\det(A) = \\det(L) \\cdot \\det(U) = \\prod_{i} u_{ii}"
+      },
+      {
+        "condition": "Count multiplications for solving n×n system with LU",
+        "use": "O\\!\\left(\\tfrac{n^3}{3}\\right) \\text{ factorisation} + O(n^2) \\text{ solves}"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "lu-core-factorisation",
+      "groupTitle": "Core LU Factorisation",
+      "formulas": [
+        {
+          "formulaId": "con_016-lu-basic",
+          "name": "LU Factorisation (no pivoting)",
+          "latex": "A = LU,\\quad L \\text{ unit lower triangular},\\; U \\text{ upper triangular}",
+          "plain": "A = L * U, where L is unit lower-triangular (1s on diagonal) and U is upper-triangular",
+          "whenToUse": "When A is square and Gaussian elimination succeeds without row exchanges",
+          "terms": [
+            { "symbol": "A", "means": "n×n coefficient matrix" },
+            { "symbol": "L", "means": "lower triangular matrix with 1s on main diagonal" },
+            { "symbol": "U", "means": "upper triangular matrix (result of forward elimination)" }
+          ],
+          "trap": "L has 1s on the diagonal (unit lower triangular), not arbitrary values — forgetting this causes errors when reading off L entries",
+          "reference": "Linear Algebra / LU Decomposition"
+        },
+        {
+          "formulaId": "con_016-palu-pivoting",
+          "name": "LU with Partial Pivoting (PA = LU)",
+          "latex": "PA = LU",
+          "plain": "P*A = L*U, where P is a permutation matrix recording row swaps",
+          "whenToUse": "When row interchanges are needed for numerical stability or when A has a zero pivot",
+          "terms": [
+            { "symbol": "P", "means": "permutation matrix encoding the row swaps" },
+            { "symbol": "L", "means": "unit lower triangular factor after pivoting" },
+            { "symbol": "U", "means": "upper triangular factor after pivoting" }
+          ],
+          "trap": "Without pivoting a zero pivot causes division by zero; PA = LU always exists for any invertible A",
+          "reference": "Linear Algebra / LU Decomposition"
+        },
+        {
+          "formulaId": "con_016-lu-entries",
+          "name": "Doolittle's Formula for L and U Entries",
+          "latex": "u_{ij} = a_{ij} - \\sum_{k=1}^{i-1} l_{ik}\\, u_{kj}, \\quad l_{ij} = \\frac{1}{u_{jj}}\\!\\left(a_{ij} - \\sum_{k=1}^{j-1} l_{ik}\\, u_{kj}\\right)",
+          "plain": "u[i][j] = a[i][j] - sum_{k<i}(l[i][k]*u[k][j]);  l[i][j] = (a[i][j] - sum_{k<j}(l[i][k]*u[k][j])) / u[j][j]",
+          "whenToUse": "Directly computing L and U entries without performing full Gaussian elimination steps",
+          "terms": [
+            { "symbol": "u_{ij}", "means": "entry of U in row i, column j" },
+            { "symbol": "l_{ij}", "means": "entry of L in row i, column j (i > j)" },
+            { "symbol": "a_{ij}", "means": "entry of original matrix A" }
+          ],
+          "trap": "Row index i must satisfy i <= j for U entries; i > j for L entries; diagonal of L is always 1",
+          "reference": "Linear Algebra / LU Decomposition"
+        },
+        {
+          "formulaId": "con_016-multiplier",
+          "name": "Gaussian Elimination Multiplier (fills L)",
+          "latex": "m_{ij} = \\frac{a_{ij}^{(k)}}{a_{kk}^{(k)}}, \\quad i > k",
+          "plain": "m[i][k] = a[i][k] / a[k][k]  (pivot row k, target row i)",
+          "whenToUse": "During forward elimination; these multipliers are stored as the sub-diagonal entries of L",
+          "terms": [
+            { "symbol": "m_{ij}", "means": "multiplier used to eliminate entry in row i using pivot row k" },
+            { "symbol": "a_{kk}^{(k)}", "means": "pivot element at step k" }
+          ],
+          "trap": "Multipliers are stored in L, not subtracted from L; the sign is positive in L even though they appear with minus signs during row reduction",
+          "reference": "Linear Algebra / LU Decomposition"
+        }
+      ]
+    },
+    {
+      "groupId": "lu-solving",
+      "groupTitle": "Solving Linear Systems via LU",
+      "formulas": [
+        {
+          "formulaId": "con_016-forward-sub",
+          "name": "Forward Substitution (Ly = b)",
+          "latex": "y_i = b_i - \\sum_{j=1}^{i-1} l_{ij}\\, y_j, \\quad i = 1, 2, \\ldots, n",
+          "plain": "y[i] = b[i] - sum_{j=1}^{i-1} L[i][j]*y[j]   (solve from top to bottom)",
+          "whenToUse": "First step after LU factorisation: solve Ly = b to find intermediate vector y",
+          "terms": [
+            { "symbol": "y", "means": "intermediate solution vector" },
+            { "symbol": "b", "means": "right-hand side vector" },
+            { "symbol": "l_{ij}", "means": "sub-diagonal entry of L" }
+          ],
+          "trap": "Since L is unit lower triangular (diagonal = 1), no division by diagonal is needed in forward substitution",
+          "reference": "Linear Algebra / LU Decomposition"
+        },
+        {
+          "formulaId": "con_016-back-sub",
+          "name": "Back Substitution (Ux = y)",
+          "latex": "x_i = \\frac{1}{u_{ii}}\\!\\left(y_i - \\sum_{j=i+1}^{n} u_{ij}\\, x_j\\right), \\quad i = n, n{-}1, \\ldots, 1",
+          "plain": "x[i] = (y[i] - sum_{j=i+1}^{n} U[i][j]*x[j]) / U[i][i]   (solve from bottom to top)",
+          "whenToUse": "Second step after forward substitution: solve Ux = y to find the actual solution x",
+          "terms": [
+            { "symbol": "x", "means": "solution vector" },
+            { "symbol": "u_{ii}", "means": "diagonal entry of U (must be non-zero)" }
+          ],
+          "trap": "If any u_{ii} = 0 the system is singular; back-substitution fails — check determinant first",
+          "reference": "Linear Algebra / LU Decomposition"
+        },
+        {
+          "formulaId": "con_016-multiple-rhs",
+          "name": "Efficiency for Multiple Right-Hand Sides",
+          "latex": "\\underbrace{O\\!\\left(\\tfrac{n^3}{3}\\right)}_{\\text{LU once}} + \\underbrace{k \\cdot O(n^2)}_{\\text{k solves}}",
+          "plain": "LU factorisation costs O(n^3/3) once; each subsequent solve costs O(n^2)",
+          "whenToUse": "Solving Ax = b_1, Ax = b_2, ... Ax = b_k with the same A; reuse L and U",
+          "terms": [
+            { "symbol": "k", "means": "number of distinct right-hand side vectors" },
+            { "symbol": "n", "means": "dimension of the system" }
+          ],
+          "trap": "Naive repeated Gaussian elimination costs O(k*n^3/3); LU makes it O(n^3/3 + k*n^2) — a huge saving for large k",
+          "reference": "Linear Algebra / LU Decomposition"
+        }
+      ]
+    },
+    {
+      "groupId": "lu-determinant-inverse",
+      "groupTitle": "Determinant and Inverse via LU",
+      "formulas": [
+        {
+          "formulaId": "con_016-det-lu",
+          "name": "Determinant from LU Factors",
+          "latex": "\\det(A) = \\det(L)\\cdot\\det(U) = \\prod_{i=1}^{n} u_{ii}",
+          "plain": "det(A) = product of diagonal entries of U  (since det(L)=1 for unit lower triangular L)",
+          "whenToUse": "Computing det(A) efficiently using the LU factorisation",
+          "terms": [
+            { "symbol": "u_{ii}", "means": "i-th diagonal entry of U" },
+            { "symbol": "\\det(L)", "means": "equals 1 because L is unit lower triangular" }
+          ],
+          "trap": "With partial pivoting (PA = LU), det(A) = (-1)^s * prod(u_ii) where s = number of row swaps; missing the sign is a common error",
+          "reference": "Linear Algebra / LU Decomposition"
+        },
+        {
+          "formulaId": "con_016-det-pivoting",
+          "name": "Determinant with Pivoting Sign",
+          "latex": "\\det(A) = (-1)^s \\prod_{i=1}^{n} u_{ii},\\quad s = \\text{number of row swaps}",
+          "plain": "det(A) = (-1)^(number_of_row_swaps) * product of diagonal entries of U",
+          "whenToUse": "When partial pivoting is used in PA = LU; the permutation P contributes a sign",
+          "terms": [
+            { "symbol": "s", "means": "number of row interchanges during pivoting" },
+            { "symbol": "(-1)^s", "means": "sign from the permutation matrix P" }
+          ],
+          "trap": "An even number of swaps keeps the sign positive; odd swaps flip the sign — always count swaps carefully",
+          "reference": "Linear Algebra / LU Decomposition"
+        },
+        {
+          "formulaId": "con_016-inverse-lu",
+          "name": "Matrix Inverse via LU",
+          "latex": "A^{-1}[:,j] = U^{-1}L^{-1}e_j \\quad\\Leftrightarrow\\quad \\text{solve } Ax_j = e_j \\text{ for } j=1,\\ldots,n",
+          "plain": "Each column of A^-1 is found by solving A*x_j = e_j using LU; do n forward+back substitutions",
+          "whenToUse": "Computing the full inverse of A by applying LU solve n times (once per standard basis vector e_j)",
+          "terms": [
+            { "symbol": "e_j", "means": "j-th standard basis vector (column of identity matrix)" },
+            { "symbol": "x_j", "means": "j-th column of A^{-1}" }
+          ],
+          "trap": "Computing the inverse costs O(n^3) total; avoid computing A^{-1} just to solve a single Ax = b — direct LU solve is cheaper",
+          "reference": "Linear Algebra / LU Decomposition"
+        }
+      ]
+    },
+    {
+      "groupId": "lu-existence-uniqueness",
+      "groupTitle": "Existence, Uniqueness & Conditions",
+      "formulas": [
+        {
+          "formulaId": "con_016-existence-condition",
+          "name": "Existence Condition for LU (no pivoting)",
+          "latex": "\\text{LU exists (without pivoting)} \\iff \\text{all leading principal minors of } A \\text{ are non-zero}",
+          "plain": "LU decomposition (without pivoting) exists if and only if all leading principal minors det(A_k) != 0 for k=1,...,n",
+          "whenToUse": "Checking whether A can be factored as LU without any row exchanges",
+          "terms": [
+            { "symbol": "A_k", "means": "k×k leading principal submatrix of A" },
+            { "symbol": "\\det(A_k)", "means": "determinant of the k×k top-left submatrix" }
+          ],
+          "trap": "Invertibility (det(A)≠0) is necessary but NOT sufficient for LU without pivoting; a non-singular matrix may still need row swaps",
+          "reference": "Linear Algebra / LU Decomposition"
+        },
+        {
+          "formulaId": "con_016-palu-existence",
+          "name": "PA = LU Always Exists for Invertible A",
+          "latex": "\\forall\\, A \\in \\mathbb{R}^{n\\times n},\\; \\det(A)\\neq 0 \\implies \\exists\\, P,L,U : PA = LU",
+          "plain": "For every invertible square matrix A, there exist permutation P, unit lower-triangular L, upper-triangular U such that PA = LU",
+          "whenToUse": "When a problem states A is invertible and asks whether LU (with pivoting) exists",
+          "terms": [
+            { "symbol": "P", "means": "permutation matrix (product of elementary row-swap matrices)" }
+          ],
+          "trap": "PA = LU holds for all invertible A; the decomposition without P (bare LU) may fail even for invertible A",
+          "reference": "Linear Algebra / LU Decomposition"
+        },
+        {
+          "formulaId": "con_016-uniqueness",
+          "name": "Uniqueness of LU (Doolittle convention)",
+          "latex": "L \\text{ unit lower triangular (}l_{ii}=1\\text{)} \\implies LU \\text{ factorisation is unique if it exists}",
+          "plain": "Fixing the diagonal of L to be all 1s (Doolittle) makes the LU factorisation unique",
+          "whenToUse": "When asked whether LU is unique — it is, under the Doolittle (or Crout) convention",
+          "terms": [
+            { "symbol": "l_{ii} = 1", "means": "Doolittle convention: L has unit diagonal" }
+          ],
+          "trap": "Without the convention of fixing L's diagonal (or U's), infinitely many LU pairs exist; in GATE problems Doolittle is assumed",
+          "reference": "Linear Algebra / LU Decomposition"
+        }
+      ]
+    },
+    {
+      "groupId": "lu-special-matrices",
+      "groupTitle": "LU for Special Matrix Types",
+      "formulas": [
+        {
+          "formulaId": "con_016-cholesky",
+          "name": "Cholesky Decomposition (SPD matrices)",
+          "latex": "A = LL^T,\\quad A \\text{ symmetric positive definite}",
+          "plain": "A = L * L^T  (Cholesky), where L is lower triangular; valid only when A is symmetric positive definite",
+          "whenToUse": "When A is symmetric and positive definite; Cholesky is twice as efficient as full LU",
+          "terms": [
+            { "symbol": "L", "means": "lower triangular matrix with positive diagonal entries" },
+            { "symbol": "L^T", "means": "transpose of L, serves as the upper triangular factor" }
+          ],
+          "trap": "Cholesky fails if A is not positive definite; encountering a negative square root during computation indicates A is not SPD",
+          "reference": "Linear Algebra / LU Decomposition"
+        },
+        {
+          "formulaId": "con_016-tridiagonal",
+          "name": "LU of Tridiagonal Matrix (Thomas Algorithm)",
+          "latex": "\\text{Tridiagonal } A \\xrightarrow{\\text{LU}} O(n) \\text{ operations (Thomas algorithm)}",
+          "plain": "LU factorisation of a tridiagonal n×n matrix costs O(n) instead of O(n^3)",
+          "whenToUse": "When A is tridiagonal (e.g. arising from finite difference discretisation of PDEs)",
+          "terms": [
+            { "symbol": "O(n)", "means": "linear cost exploiting the band structure" }
+          ],
+          "trap": "Do not apply general O(n^3) LU to tridiagonal systems; recognise band structure and use Thomas algorithm",
+          "reference": "Linear Algebra / LU Decomposition"
+        },
+        {
+          "formulaId": "con_016-ldlt",
+          "name": "LDL^T Decomposition",
+          "latex": "A = LDL^T,\\quad D = \\mathrm{diag}(d_1,\\ldots,d_n),\\; l_{ii}=1",
+          "plain": "A = L * D * L^T, where D is diagonal and L is unit lower triangular",
+          "whenToUse": "Symmetric (not necessarily SPD) matrices; avoids square roots unlike Cholesky",
+          "terms": [
+            { "symbol": "D", "means": "diagonal matrix of pivots" },
+            { "symbol": "L", "means": "unit lower triangular matrix" }
+          ],
+          "trap": "LDL^T is distinct from Cholesky; D may have negative entries for indefinite symmetric A, unlike Cholesky which requires SPD",
+          "reference": "Linear Algebra / LU Decomposition"
+        }
+      ]
+    },
+    {
+      "groupId": "lu-complexity",
+      "groupTitle": "Computational Complexity",
+      "formulas": [
+        {
+          "formulaId": "con_016-flops-lu",
+          "name": "Flop Count for LU Factorisation",
+          "latex": "\\text{Flops}_{LU} = \\frac{2n^3}{3} + O(n^2) \\approx \\frac{2n^3}{3}",
+          "plain": "LU factorisation of n×n dense matrix costs approximately 2n^3/3 floating point operations",
+          "whenToUse": "Comparing cost of LU vs other methods; approximating computation time",
+          "terms": [
+            { "symbol": "n", "means": "matrix dimension" },
+            { "symbol": "2n^3/3", "means": "dominant term for large n" }
+          ],
+          "trap": "Some sources quote n^3/3 multiplications only (ignoring additions); total operations (multiply + add) is 2n^3/3",
+          "reference": "Linear Algebra / LU Decomposition"
+        },
+        {
+          "formulaId": "con_016-flops-solve",
+          "name": "Flop Count for Forward/Back Substitution",
+          "latex": "\\text{Flops}_{\\text{solve}} = O(n^2) \\approx n^2 \\text{ multiplications}",
+          "plain": "Each forward or back substitution (solving triangular system) costs O(n^2) flops",
+          "whenToUse": "Estimating cost of solving Ly = b or Ux = y after factorisation is done",
+          "terms": [
+            { "symbol": "n^2", "means": "dominant cost for each triangular solve" }
+          ],
+          "trap": "Factorisation (O(n^3)) dominates solve (O(n^2)); for many right-hand sides the O(n^3) cost is paid once",
+          "reference": "Linear Algebra / LU Decomposition"
+        }
+      ]
+    }
+  ]
+}

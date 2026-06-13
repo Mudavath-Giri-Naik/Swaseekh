@@ -1,0 +1,375 @@
+{
+  "_id": "con_022",
+  "conceptId": "con_022",
+  "conceptTitle": "Probability Distributions",
+  "reference": "GATE CS — Probability and Statistics / Probability",
+  "decisionGuide": {
+    "title": "Which distribution do I use?",
+    "map": [
+      {
+        "condition": "Fixed n trials, each success prob p, count successes",
+        "use": "X \\sim B(n,p),\\quad P(X=k)=\\binom{n}{k}p^k(1-p)^{n-k}"
+      },
+      {
+        "condition": "Count events in fixed time/space, rate \\lambda",
+        "use": "X \\sim \\text{Poisson}(\\lambda),\\quad P(X=k)=\\frac{e^{-\\lambda}\\lambda^k}{k!}"
+      },
+      {
+        "condition": "Waiting for first success, geometric trials",
+        "use": "X \\sim \\text{Geom}(p),\\quad P(X=k)=p(1-p)^{k-1}"
+      },
+      {
+        "condition": "Continuous, symmetric bell curve",
+        "use": "X \\sim N(\\mu,\\sigma^2),\\quad f(x)=\\frac{1}{\\sigma\\sqrt{2\\pi}}e^{-\\frac{(x-\\mu)^2}{2\\sigma^2}}"
+      },
+      {
+        "condition": "Equally likely outcomes in [a, b]",
+        "use": "X \\sim U(a,b),\\quad f(x)=\\frac{1}{b-a}"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "discrete-distributions",
+      "groupTitle": "Discrete Distributions",
+      "formulas": [
+        {
+          "formulaId": "con_022-binomial-pmf",
+          "name": "Binomial Distribution — PMF",
+          "latex": "P(X=k)=\\binom{n}{k}p^k(1-p)^{n-k},\\quad k=0,1,\\ldots,n",
+          "plain": "P(X=k) = C(n,k) * p^k * (1-p)^(n-k)",
+          "whenToUse": "n independent Bernoulli trials, each with success probability p; count total successes",
+          "terms": [
+            { "symbol": "n", "means": "number of trials" },
+            { "symbol": "k", "means": "number of successes" },
+            { "symbol": "p", "means": "success probability per trial" }
+          ],
+          "trap": "Trials must be independent and p must be constant; without replacement changes it to Hypergeometric",
+          "reference": "Probability and Statistics / Binomial Distribution"
+        },
+        {
+          "formulaId": "con_022-binomial-mean-var",
+          "name": "Binomial — Mean and Variance",
+          "latex": "\\mu = np,\\quad \\sigma^2 = np(1-p)",
+          "plain": "Mean = n*p, Variance = n*p*(1-p)",
+          "whenToUse": "Computing expected successes or spread in n Bernoulli trials",
+          "terms": [
+            { "symbol": "n", "means": "number of trials" },
+            { "symbol": "p", "means": "success probability" }
+          ],
+          "trap": "Standard deviation is sqrt(np(1-p)), not np(1-p); confusing variance and std-dev loses marks",
+          "reference": "Probability and Statistics / Binomial Distribution"
+        },
+        {
+          "formulaId": "con_022-poisson-pmf",
+          "name": "Poisson Distribution — PMF",
+          "latex": "P(X=k)=\\frac{e^{-\\lambda}\\lambda^k}{k!},\\quad k=0,1,2,\\ldots",
+          "plain": "P(X=k) = (e^(-lambda) * lambda^k) / k!",
+          "whenToUse": "Counting rare events in a fixed interval when the average rate lambda is known",
+          "terms": [
+            { "symbol": "\\lambda", "means": "average number of events per interval (rate)" },
+            { "symbol": "k", "means": "observed number of events" }
+          ],
+          "trap": "Poisson approximates Binomial when n is large and p is small with lambda = np; do not use Binomial formula in that setting",
+          "reference": "Probability and Statistics / Poisson Distribution"
+        },
+        {
+          "formulaId": "con_022-poisson-mean-var",
+          "name": "Poisson — Mean and Variance",
+          "latex": "\\mu = \\lambda,\\quad \\sigma^2 = \\lambda",
+          "plain": "Mean = lambda, Variance = lambda",
+          "whenToUse": "Both mean and variance equal the rate parameter — a distinctive property",
+          "terms": [
+            { "symbol": "\\lambda", "means": "rate parameter" }
+          ],
+          "trap": "Mean equals variance only for Poisson; if a question states mean != variance the distribution is NOT Poisson",
+          "reference": "Probability and Statistics / Poisson Distribution"
+        },
+        {
+          "formulaId": "con_022-geometric-pmf",
+          "name": "Geometric Distribution — PMF",
+          "latex": "P(X=k)=p(1-p)^{k-1},\\quad k=1,2,3,\\ldots",
+          "plain": "P(X=k) = p * (1-p)^(k-1)",
+          "whenToUse": "Number of trials until (and including) the first success in independent Bernoulli trials",
+          "terms": [
+            { "symbol": "k", "means": "trial on which first success occurs" },
+            { "symbol": "p", "means": "probability of success on each trial" }
+          ],
+          "trap": "Two conventions: X = trial of first success (starts at 1) vs. X = failures before first success (starts at 0); mean is 1/p in the first, (1-p)/p in the second",
+          "reference": "Probability and Statistics / Geometric Distribution"
+        },
+        {
+          "formulaId": "con_022-geometric-mean-var",
+          "name": "Geometric — Mean and Variance",
+          "latex": "\\mu = \\frac{1}{p},\\quad \\sigma^2 = \\frac{1-p}{p^2}",
+          "plain": "Mean = 1/p, Variance = (1-p)/p^2",
+          "whenToUse": "Expected number of trials for first success",
+          "terms": [
+            { "symbol": "p", "means": "success probability per trial" }
+          ],
+          "trap": "If p=0.5, mean is 2 trials, not 1; students often confuse the reciprocal",
+          "reference": "Probability and Statistics / Geometric Distribution"
+        },
+        {
+          "formulaId": "con_022-geometric-memoryless",
+          "name": "Memoryless Property of Geometric Distribution",
+          "latex": "P(X > m+n \\mid X > m) = P(X > n)",
+          "plain": "P(X > m+n | X > m) = P(X > n)",
+          "whenToUse": "Past failures do not affect future trial probabilities — only discrete distribution with this property",
+          "terms": [
+            { "symbol": "m,n", "means": "non-negative integers" }
+          ],
+          "trap": "This property belongs to Geometric (discrete) and Exponential (continuous); Binomial and Poisson do NOT have it",
+          "reference": "Probability and Statistics / Geometric Distribution"
+        },
+        {
+          "formulaId": "con_022-hypergeometric-pmf",
+          "name": "Hypergeometric Distribution — PMF",
+          "latex": "P(X=k)=\\frac{\\binom{K}{k}\\binom{N-K}{n-k}}{\\binom{N}{n}}",
+          "plain": "P(X=k) = C(K,k)*C(N-K,n-k) / C(N,n)",
+          "whenToUse": "Sampling n items WITHOUT replacement from a finite population of N containing K successes",
+          "terms": [
+            { "symbol": "N", "means": "population size" },
+            { "symbol": "K", "means": "number of success states in population" },
+            { "symbol": "n", "means": "sample size drawn" },
+            { "symbol": "k", "means": "observed successes in sample" }
+          ],
+          "trap": "Use Binomial when sampling WITH replacement; use Hypergeometric when sampling WITHOUT replacement",
+          "reference": "Probability and Statistics / Hypergeometric Distribution"
+        },
+        {
+          "formulaId": "con_022-bernoulli-mean-var",
+          "name": "Bernoulli Distribution — Mean and Variance",
+          "latex": "P(X=1)=p,\\;P(X=0)=1-p;\\quad \\mu=p,\\;\\sigma^2=p(1-p)",
+          "plain": "P(X=1)=p, P(X=0)=1-p; Mean=p, Variance=p*(1-p)",
+          "whenToUse": "Single trial with two outcomes; building block for Binomial",
+          "terms": [
+            { "symbol": "p", "means": "probability of success (X=1)" }
+          ],
+          "trap": "Variance p(1-p) is maximized at p=0.5, giving 0.25; students sometimes forget (1-p) factor",
+          "reference": "Probability and Statistics / Bernoulli"
+        }
+      ]
+    },
+    {
+      "groupId": "continuous-distributions",
+      "groupTitle": "Continuous Distributions",
+      "formulas": [
+        {
+          "formulaId": "con_022-uniform-pdf-cdf",
+          "name": "Uniform Distribution — PDF and CDF",
+          "latex": "f(x)=\\frac{1}{b-a},\\;a\\le x\\le b;\\quad F(x)=\\frac{x-a}{b-a}",
+          "plain": "f(x) = 1/(b-a) for a<=x<=b; CDF F(x)=(x-a)/(b-a)",
+          "whenToUse": "All outcomes in [a,b] equally likely; e.g. random arrival in a time window",
+          "terms": [
+            { "symbol": "a,b", "means": "lower and upper bounds of the interval" }
+          ],
+          "trap": "Mean is (a+b)/2 not the midpoint of [0,1]; always substitute actual a and b",
+          "reference": "Probability and Statistics / Uniform Distribution"
+        },
+        {
+          "formulaId": "con_022-uniform-mean-var",
+          "name": "Uniform — Mean and Variance",
+          "latex": "\\mu=\\frac{a+b}{2},\\quad \\sigma^2=\\frac{(b-a)^2}{12}",
+          "plain": "Mean = (a+b)/2, Variance = (b-a)^2 / 12",
+          "whenToUse": "Computing expected value or spread of a uniform random variable",
+          "terms": [
+            { "symbol": "a,b", "means": "interval endpoints" }
+          ],
+          "trap": "Variance denominator is 12, not 2 or 4; a common arithmetic error in GATE",
+          "reference": "Probability and Statistics / Uniform Distribution"
+        },
+        {
+          "formulaId": "con_022-normal-pdf",
+          "name": "Normal Distribution — PDF",
+          "latex": "f(x)=\\frac{1}{\\sigma\\sqrt{2\\pi}}\\exp\\!\\left(-\\frac{(x-\\mu)^2}{2\\sigma^2}\\right)",
+          "plain": "f(x) = (1/(sigma*sqrt(2*pi))) * exp(-(x-mu)^2 / (2*sigma^2))",
+          "whenToUse": "Continuous data that is symmetric and bell-shaped around the mean",
+          "terms": [
+            { "symbol": "\\mu", "means": "mean (center of distribution)" },
+            { "symbol": "\\sigma", "means": "standard deviation" },
+            { "symbol": "\\sigma^2", "means": "variance" }
+          ],
+          "trap": "The parameter in N(mu, sigma^2) is variance sigma^2, not sigma; misidentifying leads to wrong standardization",
+          "reference": "Probability and Statistics / Normal Distribution"
+        },
+        {
+          "formulaId": "con_022-standard-normal",
+          "name": "Standardization (Z-score)",
+          "latex": "Z=\\frac{X-\\mu}{\\sigma},\\quad Z\\sim N(0,1)",
+          "plain": "Z = (X - mu) / sigma",
+          "whenToUse": "Converting any normal variable to standard normal to use Z-tables or compare distributions",
+          "terms": [
+            { "symbol": "Z", "means": "standard normal variable" },
+            { "symbol": "\\mu", "means": "mean of X" },
+            { "symbol": "\\sigma", "means": "std deviation of X" }
+          ],
+          "trap": "Divide by sigma (std dev), NOT sigma^2 (variance); this is the most frequent algebraic error",
+          "reference": "Probability and Statistics / Normal Distribution"
+        },
+        {
+          "formulaId": "con_022-normal-68-95-99",
+          "name": "Normal Distribution — Empirical Rule",
+          "latex": "P(\\mu-\\sigma<X<\\mu+\\sigma)\\approx 0.683,\\quad P(\\mu-2\\sigma<X<\\mu+2\\sigma)\\approx 0.954,\\quad P(\\mu-3\\sigma<X<\\mu+3\\sigma)\\approx 0.997",
+          "plain": "68% within 1 sigma, 95% within 2 sigma, 99.7% within 3 sigma",
+          "whenToUse": "Quick probability estimates for normal distributions without a Z-table",
+          "terms": [
+            { "symbol": "\\sigma", "means": "standard deviation" }
+          ],
+          "trap": "These are approximate values; GATE may expect exact values from Z-tables for precise answers",
+          "reference": "Probability and Statistics / Normal Distribution"
+        },
+        {
+          "formulaId": "con_022-exponential-pdf-cdf",
+          "name": "Exponential Distribution — PDF and CDF",
+          "latex": "f(x)=\\lambda e^{-\\lambda x},\\;x\\ge 0;\\quad F(x)=1-e^{-\\lambda x}",
+          "plain": "f(x) = lambda * e^(-lambda*x), CDF F(x) = 1 - e^(-lambda*x)",
+          "whenToUse": "Modeling time between events in a Poisson process; waiting time",
+          "terms": [
+            { "symbol": "\\lambda", "means": "rate parameter (events per unit time)" }
+          ],
+          "trap": "Mean = 1/lambda, not lambda; students flip rate and mean",
+          "reference": "Probability and Statistics / Exponential Distribution"
+        },
+        {
+          "formulaId": "con_022-exponential-mean-var",
+          "name": "Exponential — Mean and Variance",
+          "latex": "\\mu=\\frac{1}{\\lambda},\\quad \\sigma^2=\\frac{1}{\\lambda^2}",
+          "plain": "Mean = 1/lambda, Variance = 1/lambda^2",
+          "whenToUse": "Expected waiting time or spread in an exponential model",
+          "terms": [
+            { "symbol": "\\lambda", "means": "rate parameter" }
+          ],
+          "trap": "Standard deviation equals the mean (1/lambda); exponential is the only common distribution with CV = 1",
+          "reference": "Probability and Statistics / Exponential Distribution"
+        },
+        {
+          "formulaId": "con_022-exponential-memoryless",
+          "name": "Memoryless Property of Exponential Distribution",
+          "latex": "P(X > s+t \\mid X > s) = P(X > t)",
+          "plain": "P(X > s+t | X > s) = P(X > t)",
+          "whenToUse": "The remaining wait time does not depend on how long you have already waited",
+          "terms": [
+            { "symbol": "s,t", "means": "non-negative real numbers" }
+          ],
+          "trap": "Exponential is the ONLY continuous distribution with the memoryless property; Geometric is the discrete analogue",
+          "reference": "Probability and Statistics / Exponential Distribution"
+        }
+      ]
+    },
+    {
+      "groupId": "expectation-variance-rules",
+      "groupTitle": "Expectation & Variance Rules",
+      "formulas": [
+        {
+          "formulaId": "con_022-expectation-linearity",
+          "name": "Linearity of Expectation",
+          "latex": "E[aX+bY]=aE[X]+bE[Y]",
+          "plain": "E[aX + bY] = a*E[X] + b*E[Y]",
+          "whenToUse": "Always — holds for any random variables X and Y, independent or not",
+          "terms": [
+            { "symbol": "a,b", "means": "constants" }
+          ],
+          "trap": "E[XY] = E[X]*E[Y] only when X and Y are independent; do NOT apply this to products in general",
+          "reference": "Probability and Statistics / Expectation"
+        },
+        {
+          "formulaId": "con_022-variance-formula",
+          "name": "Variance — Computational Formula",
+          "latex": "\\text{Var}(X)=E[X^2]-(E[X])^2",
+          "plain": "Var(X) = E[X^2] - (E[X])^2",
+          "whenToUse": "Computing variance from the second moment and mean",
+          "terms": [
+            { "symbol": "E[X^2]", "means": "second moment" },
+            { "symbol": "(E[X])^2", "means": "square of the mean" }
+          ],
+          "trap": "E[X^2] != (E[X])^2 unless X is constant; always compute E[X^2] separately",
+          "reference": "Probability and Statistics / Variance"
+        },
+        {
+          "formulaId": "con_022-variance-linear-transform",
+          "name": "Variance of Linear Transformation",
+          "latex": "\\text{Var}(aX+b)=a^2\\,\\text{Var}(X)",
+          "plain": "Var(aX + b) = a^2 * Var(X)",
+          "whenToUse": "Scaling or shifting a random variable; b (constant shift) does not affect variance",
+          "terms": [
+            { "symbol": "a", "means": "scaling constant" },
+            { "symbol": "b", "means": "shift constant (no effect on variance)" }
+          ],
+          "trap": "The b constant disappears; students add b^2 to the variance, which is wrong",
+          "reference": "Probability and Statistics / Variance"
+        },
+        {
+          "formulaId": "con_022-variance-sum-independent",
+          "name": "Variance of Sum of Independent Variables",
+          "latex": "\\text{Var}(X+Y)=\\text{Var}(X)+\\text{Var}(Y)\\quad (X\\perp Y)",
+          "plain": "Var(X+Y) = Var(X) + Var(Y) when X and Y are independent",
+          "whenToUse": "Summing independent random variables; variances add",
+          "terms": [
+            { "symbol": "X\\perp Y", "means": "X and Y are independent" }
+          ],
+          "trap": "If X and Y are not independent, Var(X+Y) = Var(X) + Var(Y) + 2*Cov(X,Y)",
+          "reference": "Probability and Statistics / Variance"
+        },
+        {
+          "formulaId": "con_022-covariance-correlation",
+          "name": "Covariance and Correlation",
+          "latex": "\\text{Cov}(X,Y)=E[XY]-E[X]E[Y],\\quad \\rho=\\frac{\\text{Cov}(X,Y)}{\\sigma_X\\sigma_Y}",
+          "plain": "Cov(X,Y) = E[XY] - E[X]*E[Y], rho = Cov(X,Y)/(sigmaX*sigmaY)",
+          "whenToUse": "Measuring linear relationship between two random variables",
+          "terms": [
+            { "symbol": "\\rho", "means": "Pearson correlation coefficient, in [-1,1]" },
+            { "symbol": "\\sigma_X,\\sigma_Y", "means": "standard deviations of X and Y" }
+          ],
+          "trap": "Independent implies Cov=0, but Cov=0 does NOT imply independence (uncorrelated != independent)",
+          "reference": "Probability and Statistics / Covariance"
+        }
+      ]
+    },
+    {
+      "groupId": "clt-and-limit-theorems",
+      "groupTitle": "Limit Theorems & CLT",
+      "formulas": [
+        {
+          "formulaId": "con_022-clt",
+          "name": "Central Limit Theorem",
+          "latex": "\\bar{X}_n=\\frac{1}{n}\\sum_{i=1}^n X_i\\;\\xrightarrow{d}\\;N\\!\\left(\\mu,\\frac{\\sigma^2}{n}\\right)\\text{ as }n\\to\\infty",
+          "plain": "Sample mean X-bar converges in distribution to N(mu, sigma^2/n) as n -> infinity",
+          "whenToUse": "Approximating distribution of sample mean for large n regardless of original distribution",
+          "terms": [
+            { "symbol": "\\bar{X}_n", "means": "sample mean of n iid observations" },
+            { "symbol": "\\mu,\\sigma^2", "means": "population mean and variance" }
+          ],
+          "trap": "Variance of the sample mean is sigma^2/n not sigma^2; halving n does NOT halve the std error, it multiplies by sqrt(2)",
+          "reference": "Probability and Statistics / Central Limit Theorem"
+        },
+        {
+          "formulaId": "con_022-law-of-large-numbers",
+          "name": "Law of Large Numbers",
+          "latex": "\\bar{X}_n\\xrightarrow{p}\\mu\\text{ as }n\\to\\infty",
+          "plain": "Sample mean converges in probability to population mean mu as n -> infinity",
+          "whenToUse": "Justifying that long-run averages stabilize at the expected value",
+          "terms": [
+            { "symbol": "\\bar{X}_n", "means": "sample mean" },
+            { "symbol": "\\mu", "means": "population mean" }
+          ],
+          "trap": "LLN gives convergence of the mean, not of individual observations; outliers can still occur for any finite n",
+          "reference": "Probability and Statistics / LLN"
+        },
+        {
+          "formulaId": "con_022-markov-chebyshev",
+          "name": "Markov's and Chebyshev's Inequalities",
+          "latex": "P(X\\ge a)\\le\\frac{E[X]}{a};\\qquad P(|X-\\mu|\\ge k\\sigma)\\le\\frac{1}{k^2}",
+          "plain": "Markov: P(X>=a) <= E[X]/a; Chebyshev: P(|X-mu|>=k*sigma) <= 1/k^2",
+          "whenToUse": "Bounding tail probabilities without knowing the exact distribution",
+          "terms": [
+            { "symbol": "a", "means": "positive threshold" },
+            { "symbol": "k", "means": "number of standard deviations from mean" }
+          ],
+          "trap": "Markov requires X >= 0; Chebyshev's bound 1/k^2 is distribution-free but loose — normal distribution is much tighter",
+          "reference": "Probability and Statistics / Inequalities"
+        }
+      ]
+    }
+  ]
+}

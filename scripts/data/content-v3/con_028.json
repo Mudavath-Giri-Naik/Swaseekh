@@ -1,0 +1,319 @@
+{
+  "_id": "con_028",
+  "conceptId": "con_028",
+  "conceptTitle": "Minimization",
+  "reference": "GATE CS — Digital Logic / Number Systems",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Need minimum SOP — group 1s on K-map",
+        "use": "F_{SOP} = \\sum (\\text{cover all 1s with largest power-of-2 groups})"
+      },
+      {
+        "condition": "Need minimum POS — group 0s on K-map",
+        "use": "F_{POS} = \\prod (\\text{cover all 0s with largest power-of-2 groups})"
+      },
+      {
+        "condition": "Identify prime implicants vs essential prime implicants",
+        "use": "\\text{EPI: prime implicant that covers a minterm covered by NO other PI}"
+      },
+      {
+        "condition": "Implement with only NAND/NOR gates",
+        "use": "\\text{SOP} \\rightarrow \\text{NAND-NAND} \\quad \\text{POS} \\rightarrow \\text{NOR-NOR}"
+      },
+      {
+        "condition": "Don't-care terms present",
+        "use": "\\text{Use don't-cares to enlarge groups (SOP) or leave unused (if not helpful)}"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "kmap-basics",
+      "groupTitle": "K-Map Fundamentals",
+      "formulas": [
+        {
+          "formulaId": "con_028-kmap-cell-count",
+          "name": "K-Map Size vs Variables",
+          "latex": "n \\text{ variables} \\Rightarrow 2^n \\text{ cells},\\quad \\text{rows} \\times \\text{cols} = 2^n",
+          "plain": "n variables => 2^n cells; for 4-var: 4x4 = 16 cells",
+          "whenToUse": "Determine the size of the K-map to draw for n input variables.",
+          "terms": [
+            { "symbol": "n", "means": "number of Boolean input variables" },
+            { "symbol": "2^n", "means": "total number of cells / minterms" }
+          ],
+          "trap": "Forgetting that axes use Gray code order (00,01,11,10) — NOT binary order; wrong ordering breaks adjacency.",
+          "reference": "Digital Logic / Minimization"
+        },
+        {
+          "formulaId": "con_028-kmap-group-size",
+          "name": "Valid Group (Implicant) Size",
+          "latex": "\\text{Group size} = 2^k,\\quad k \\in \\{0,1,2,3,\\ldots\\},\\quad \\text{group must be rectangular (torus)}",
+          "plain": "Group size must be a power of 2: 1, 2, 4, 8, 16. Groups wrap around edges.",
+          "whenToUse": "When circling cells on a K-map to form implicants.",
+          "terms": [
+            { "symbol": "2^k", "means": "number of cells in a valid group" }
+          ],
+          "trap": "Groups of 3, 5, 6, or 7 are NOT valid. Also, the map wraps — top-bottom and left-right edges are adjacent.",
+          "reference": "Digital Logic / Minimization"
+        },
+        {
+          "formulaId": "con_028-kmap-literals-eliminated",
+          "name": "Literals Eliminated by Grouping",
+          "latex": "\\text{Group of } 2^k \\text{ cells eliminates } k \\text{ literals from the term}",
+          "plain": "Grouping 2^k cells => the resulting product term has (n - k) literals.",
+          "whenToUse": "To find how many literals remain after forming a group of size 2^k in an n-variable K-map.",
+          "terms": [
+            { "symbol": "k", "means": "exponent such that group size = 2^k" },
+            { "symbol": "n", "means": "total number of variables" },
+            { "symbol": "n-k", "means": "literals remaining in the simplified term" }
+          ],
+          "trap": "A group of 4 (= 2^2) eliminates 2 literals, leaving n-2 literals — students often forget to subtract from n.",
+          "reference": "Digital Logic / Minimization"
+        },
+        {
+          "formulaId": "con_028-entered-variable-kmap",
+          "name": "Entered Variable (Variable-Entered) K-Map",
+          "latex": "\\text{Reduce } n\\text{-var map to } (n-1)\\text{-var map by entering one variable as cell value}",
+          "plain": "One variable is placed as the cell entry (0, 1, A, or A'). Reduces map dimension by 1.",
+          "whenToUse": "When K-map cells contain variable expressions instead of just 0/1 — a GATE-favourite compact representation.",
+          "terms": [
+            { "symbol": "A", "means": "the entered variable appearing in cells" }
+          ],
+          "trap": "Cells containing A and A' can be combined only after expanding back — treat each cell entry as a separate function value, not a constant.",
+          "reference": "Digital Logic / Minimization"
+        }
+      ]
+    },
+    {
+      "groupId": "prime-implicants",
+      "groupTitle": "Prime Implicants & Essential Prime Implicants",
+      "formulas": [
+        {
+          "formulaId": "con_028-implicant-def",
+          "name": "Implicant Definition",
+          "latex": "P \\text{ is an implicant of } f \\iff P=1 \\Rightarrow f=1 \\quad (\\text{all minterms of } P \\subseteq \\text{ON-set of } f)",
+          "plain": "P is an implicant of f if every minterm of P is a minterm of f.",
+          "whenToUse": "To verify whether a given product term or literal is an implicant of a function.",
+          "terms": [
+            { "symbol": "P", "means": "product term (candidate implicant)" },
+            { "symbol": "f", "means": "the Boolean function" }
+          ],
+          "trap": "An implicant need NOT be a prime implicant; any single minterm is trivially an implicant.",
+          "reference": "Digital Logic / Minimization"
+        },
+        {
+          "formulaId": "con_028-prime-implicant-def",
+          "name": "Prime Implicant (PI) Definition",
+          "latex": "\\text{PI: an implicant that cannot be combined with any other implicant to form a larger (fewer-literal) implicant}",
+          "plain": "A prime implicant is a largest possible group on the K-map that cannot be merged with any adjacent group.",
+          "whenToUse": "To identify which groups to consider when writing the minimized expression.",
+          "terms": [
+            { "symbol": "PI", "means": "Prime Implicant" }
+          ],
+          "trap": "A term covered by a larger group is NOT a prime implicant — always try to expand every group as much as possible.",
+          "reference": "Digital Logic / Minimization"
+        },
+        {
+          "formulaId": "con_028-essential-pi",
+          "name": "Essential Prime Implicant (EPI)",
+          "latex": "\\text{EPI: a PI that is the ONLY PI covering at least one minterm}",
+          "plain": "An EPI must appear in every minimal cover because at least one of its minterms is not covered by any other PI.",
+          "whenToUse": "After listing all PIs, to determine which ones are mandatory in the minimum SOP.",
+          "terms": [
+            { "symbol": "EPI", "means": "Essential Prime Implicant" }
+          ],
+          "trap": "If all minterms of a PI are already covered by EPIs, that PI is redundant and should be excluded to minimize gate count.",
+          "reference": "Digital Logic / Minimization"
+        },
+        {
+          "formulaId": "con_028-petrick-method",
+          "name": "Petrick's Method (PI Chart)",
+          "latex": "\\text{Form PI table: columns = minterms, rows = PIs.}\\; P_i = \\text{1 if PI}_i \\text{ covers minterm}\\; j",
+          "plain": "Build a prime implicant chart; select minimum set of rows that covers all columns (set-cover problem).",
+          "whenToUse": "When multiple PIs can cover remaining minterms and you need to select the minimum subset.",
+          "terms": [
+            { "symbol": "PI table", "means": "rows = PIs, columns = minterms; mark coverage" }
+          ],
+          "trap": "Choosing dominated rows/columns first (row domination, column domination) to reduce the table — skipping this step leads to wrong minimum.",
+          "reference": "Digital Logic / Minimization"
+        }
+      ]
+    },
+    {
+      "groupId": "sop-minimization",
+      "groupTitle": "Minimum Sum of Products (SOP)",
+      "formulas": [
+        {
+          "formulaId": "con_028-sop-procedure",
+          "name": "Min SOP Procedure via K-Map",
+          "latex": "F_{SOP} = \\bigcup_{\\text{EPIs}} (\\text{EPI terms}) + \\bigcup_{\\text{selected PIs}} (\\text{cover remaining 1s})",
+          "plain": "Min SOP = (all EPIs) + (minimum extra PIs to cover remaining 1s).",
+          "whenToUse": "Deriving the minimum sum-of-products Boolean expression from a truth table or minterm list.",
+          "terms": [
+            { "symbol": "EPI", "means": "Essential Prime Implicant (mandatory)" },
+            { "symbol": "PI", "means": "Prime Implicant (optional, chosen to minimize literals)" }
+          ],
+          "trap": "Don't-care cells can be included in groups to enlarge them (reducing literals) but must NOT appear as standalone terms in the final expression.",
+          "reference": "Digital Logic / Minimization"
+        },
+        {
+          "formulaId": "con_028-minterm-notation",
+          "name": "Minterm / Sigma Notation",
+          "latex": "F(A,B,C,D) = \\sum m(i_1, i_2, \\ldots) \\quad \\text{each } i_k \\text{ is a row where } F=1",
+          "plain": "F = sum_m(0, 1, 2, ...) lists the minterm indices where the function is 1.",
+          "whenToUse": "Reading or writing a function in standard minterm (canonical SOP) form before minimization.",
+          "terms": [
+            { "symbol": "\\sum m", "means": "sum of minterms notation" },
+            { "symbol": "i_k", "means": "row index (decimal) where function = 1" }
+          ],
+          "trap": "Minterm index is the decimal value of the input pattern; for 4 vars A=MSB, D=LSB unless stated otherwise.",
+          "reference": "Digital Logic / Minimization"
+        },
+        {
+          "formulaId": "con_028-dont-care-sop",
+          "name": "Don't-Care Terms in SOP",
+          "latex": "F = \\sum m(\\text{ON-set}) + \\sum d(\\text{DC-set}); \\quad \\text{DC cells}=X\\text{ on K-map (use or skip freely)}",
+          "plain": "Don't-cares (X) may be included in groups to form larger implicants; they are never required to be covered.",
+          "whenToUse": "When the problem provides both minterms and don't-care conditions.",
+          "terms": [
+            { "symbol": "\\sum d", "means": "don't-care set — output is unspecified" },
+            { "symbol": "X", "means": "don't-care cell on K-map" }
+          ],
+          "trap": "Including a don't-care as part of a group is allowed; using one as a standalone essential term is wrong — the output is undefined there.",
+          "reference": "Digital Logic / Minimization"
+        }
+      ]
+    },
+    {
+      "groupId": "pos-minimization",
+      "groupTitle": "Minimum Product of Sums (POS)",
+      "formulas": [
+        {
+          "formulaId": "con_028-pos-procedure",
+          "name": "Min POS Procedure via K-Map",
+          "latex": "F_{POS}: \\text{group the 0s on K-map} \\Rightarrow \\text{each group gives a sum term (complement variables in group)}",
+          "plain": "To get min POS: group the 0-cells (minterms of F'), derive sum terms (OR of literals), multiply them together.",
+          "whenToUse": "When the problem asks for minimum Product-of-Sums or when 0s are fewer than 1s (easier to group 0s).",
+          "terms": [
+            { "symbol": "F'", "means": "complement of F — 0-cells of F become 1-cells of F'" }
+          ],
+          "trap": "Variables that are 0 in a POS group appear uncomplemented in the sum term; variables that are 1 appear complemented — opposite of SOP convention.",
+          "reference": "Digital Logic / Minimization"
+        },
+        {
+          "formulaId": "con_028-maxterm-notation",
+          "name": "Maxterm / Pi Notation",
+          "latex": "F(A,B,C,D) = \\prod M(j_1, j_2, \\ldots) \\quad \\text{each } j_k \\text{ is a row where } F=0",
+          "plain": "F = prod_M(indices) lists maxterm indices where the function is 0.",
+          "whenToUse": "Reading or writing a function in standard maxterm (canonical POS) form.",
+          "terms": [
+            { "symbol": "\\prod M", "means": "product of maxterms notation" },
+            { "symbol": "j_k", "means": "row index where function = 0" }
+          ],
+          "trap": "Sum of minterms and product of maxterms of the same function use complementary index sets: \\(\\sum m\\) indices + \\(\\prod M\\) indices = all \\(2^n\\) rows.",
+          "reference": "Digital Logic / Minimization"
+        },
+        {
+          "formulaId": "con_028-sop-pos-duality",
+          "name": "SOP–POS Duality via De Morgan",
+          "latex": "F_{POS} = \\overline{\\overline{F}_{SOP}} \\quad \\Leftrightarrow \\quad \\text{minimize } F' \\text{ as SOP, then complement entire expression}",
+          "plain": "Get F' SOP (group 0s), then apply De Morgan to each term to obtain F POS.",
+          "whenToUse": "Quickly converting between SOP and POS forms, or deriving POS from a known SOP.",
+          "terms": [
+            { "symbol": "F'", "means": "Boolean complement of F" }
+          ],
+          "trap": "When complementing an SOP via De Morgan, OR becomes AND and AND becomes OR, AND every literal is complemented — students often forget to complement literals.",
+          "reference": "Digital Logic / Minimization"
+        }
+      ]
+    },
+    {
+      "groupId": "gate-implementation",
+      "groupTitle": "Minimum Gate Implementation",
+      "formulas": [
+        {
+          "formulaId": "con_028-nand-nand",
+          "name": "NAND-NAND = SOP",
+          "latex": "F = \\overline{\\overline{A \\cdot B} \\cdot \\overline{C \\cdot D}} = AB + CD \\quad \\text{(two-level NAND = SOP)}",
+          "plain": "Two levels of NAND gates implement any SOP expression: first NAND = NOT(product), second NAND = NOT(sum of NOT-products) = sum of products.",
+          "whenToUse": "When implementing a minimized Boolean function using only NAND gates.",
+          "terms": [
+            { "symbol": "NAND-NAND", "means": "first level: AND inputs; second level: OR the AND results — equivalent to SOP" }
+          ],
+          "trap": "Single-literal inputs to the second NAND need an inverter (or extra NAND as NOT); forgetting this increases gate count.",
+          "reference": "Digital Logic / Minimization"
+        },
+        {
+          "formulaId": "con_028-nor-nor",
+          "name": "NOR-NOR = POS",
+          "latex": "F = \\overline{\\overline{A + B} + \\overline{C + D}} = (A+B)(C+D) \\quad \\text{(two-level NOR = POS)}",
+          "plain": "Two levels of NOR gates implement any POS expression.",
+          "whenToUse": "When implementing a minimized POS function using only NOR gates.",
+          "terms": [
+            { "symbol": "NOR-NOR", "means": "first level: OR inputs; second level: AND the OR results — equivalent to POS" }
+          ],
+          "trap": "For NOR-NOR, start from the minimum POS form, not SOP — using SOP will give wrong results with NOR gates.",
+          "reference": "Digital Logic / Minimization"
+        },
+        {
+          "formulaId": "con_028-xor-nand-count",
+          "name": "XOR from NAND Gates",
+          "latex": "A \\oplus B = \\overline{A \\cdot \\overline{A \\cdot B}} \\cdot \\overline{B \\cdot \\overline{A \\cdot B}} \\quad \\Rightarrow \\text{minimum 4 NAND gates}",
+          "plain": "A 2-input XOR requires a minimum of 4 NAND gates.",
+          "whenToUse": "When asked minimum NAND gates to implement XOR (a classic GATE question).",
+          "terms": [
+            { "symbol": "A \\oplus B", "means": "2-input XOR function" }
+          ],
+          "trap": "Attempting a naive NAND conversion of A'B + AB' gives 5 gates; the shared NAND(A,B) gate reduces it to 4.",
+          "reference": "Digital Logic / Minimization"
+        },
+        {
+          "formulaId": "con_028-min-gates-bcd",
+          "name": "Minimizing Gates for Restricted Input Sets (BCD)",
+          "latex": "\\text{Treat inputs } 10\\text{–}15 \\text{ as don't-cares for BCD circuits} \\Rightarrow \\text{larger K-map groups possible}",
+          "plain": "For BCD (0-9) circuits, minterms 10-15 are invalid and treated as don't-cares, allowing simpler expressions.",
+          "whenToUse": "Designing minimal combinational circuits for BCD digits (0-9) or other restricted input domains.",
+          "terms": [
+            { "symbol": "BCD", "means": "Binary Coded Decimal — only minterms 0-9 are valid" },
+            { "symbol": "don't-care", "means": "minterms 10-15 for BCD; output can be 0 or 1" }
+          ],
+          "trap": "Using don't-cares only for SOP groups that expand the 1-cells; do not let them expand groups of 0-cells unless you are minimizing POS.",
+          "reference": "Digital Logic / Minimization"
+        }
+      ]
+    },
+    {
+      "groupId": "quine-mccluskey",
+      "groupTitle": "Quine-McCluskey (Tabular) Method",
+      "formulas": [
+        {
+          "formulaId": "con_028-qm-adjacency",
+          "name": "QM Adjacency Condition",
+          "latex": "\\text{Two minterms } m_i, m_j \\text{ are adjacent} \\iff |\\text{ones}(i) - \\text{ones}(j)| = 1 \\text{ AND } i \\oplus j = 2^k",
+          "plain": "Two minterms can be combined if they differ in exactly one bit position (XOR = power of 2) AND have one-counts differing by 1.",
+          "whenToUse": "Applying the Quine-McCluskey tabular method to find prime implicants algorithmically (especially for > 4 variables).",
+          "terms": [
+            { "symbol": "\\text{ones}(i)", "means": "number of 1-bits in binary representation of i" },
+            { "symbol": "i \\oplus j", "means": "XOR of the two minterm indices; must be a power of 2" }
+          ],
+          "trap": "Only minterms from adjacent groups (one-count differs by exactly 1) may be paired; comparing across two group-level differences is invalid.",
+          "reference": "Digital Logic / Minimization"
+        },
+        {
+          "formulaId": "con_028-qm-dash-notation",
+          "name": "Dash (–) Notation in QM Tables",
+          "latex": "m_i \\cup m_j = \\text{term with dash at differing bit position};\\; \\text{two groups combine only if dashes are in same positions}",
+          "plain": "When two minterms combine, the differing bit is replaced by '-'. Groups in the next round must have dashes in identical positions.",
+          "whenToUse": "Tracking combined terms in the QM table during iterative combination rounds.",
+          "terms": [
+            { "symbol": "—", "means": "eliminated variable at that bit position" }
+          ],
+          "trap": "A term with a dash in position 3 can only combine with another term with a dash in position 3 (AND differing in exactly one other bit).",
+          "reference": "Digital Logic / Minimization"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,270 @@
+{
+  "_id": "con_034",
+  "conceptId": "con_034",
+  "conceptTitle": "I/O Interface",
+  "reference": "GATE CS — Computer Organization and Architecture / Memory and I/O",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      { "condition": "CPU time stolen per DMA transfer", "use": "\\text{CPU overhead} = \\frac{N_{cycles}}{f_{CPU}} \\times \\frac{\\text{Transfer rate}}{\\text{Block size}}" },
+      { "condition": "DMA bus cycle-stealing fraction", "use": "\\text{Fraction} = \\frac{\\text{Transfer rate} \\times T_{cycle}}{1}" },
+      { "condition": "Interrupt latency / response time", "use": "T_{response} = T_{save\\_state} + T_{ISR}" },
+      { "condition": "Priority of simultaneous DMA vs interrupt", "use": "\\text{DMA (bus request) has higher priority than interrupt}" },
+      { "condition": "Programmed I/O vs interrupt-driven vs DMA speed", "use": "\\text{Programmed I/O} < \\text{Interrupt-driven} < \\text{DMA}" }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "dma-basics",
+      "groupTitle": "DMA — Basics & Performance",
+      "formulas": [
+        {
+          "formulaId": "con_034-dma-cpu-overhead",
+          "name": "DMA CPU Overhead (cycle stealing)",
+          "latex": "\\text{CPU overhead} = \\left(\\frac{T_{init} + T_{complete}}{T_{CPU\\_cycle}}\\right) \\times \\frac{\\text{Transfer rate}}{\\text{Transfer unit size}}",
+          "plain": "CPU overhead = (T_init + T_complete) / T_CPU_cycle  * (Transfer_rate / Transfer_unit_size)",
+          "whenToUse": "When asked how many clock cycles or what fraction of CPU time is stolen by DMA per second",
+          "terms": [
+            { "symbol": "T_{init}", "means": "clock cycles to initiate a DMA transfer" },
+            { "symbol": "T_{complete}", "means": "clock cycles to complete/acknowledge a DMA transfer" },
+            { "symbol": "T_{CPU\\_cycle}", "means": "CPU clock period (1/f)" },
+            { "symbol": "\\text{Transfer rate}", "means": "bytes per second delivered by the device" },
+            { "symbol": "\\text{Transfer unit size}", "means": "bytes moved per DMA burst" }
+          ],
+          "trap": "Students forget to add BOTH initiate and complete cycles; some questions give cycles, others give time — convert consistently.",
+          "reference": "COA / DMA"
+        },
+        {
+          "formulaId": "con_034-dma-cycle-steal-fraction",
+          "name": "DMA Bus Cycle-Stealing Fraction",
+          "latex": "f_{steal} = \\text{Transfer rate} \\times T_{bus\\_cycle}",
+          "plain": "f_steal = Transfer_rate_bytes_per_sec * bus_cycle_duration_sec",
+          "whenToUse": "When the device transfers one word per bus cycle and you need the fraction of bus bandwidth consumed",
+          "terms": [
+            { "symbol": "f_{steal}", "means": "fraction of bus cycles stolen (0 to 1)" },
+            { "symbol": "T_{bus\\_cycle}", "means": "duration of one memory/bus cycle in seconds" }
+          ],
+          "trap": "Use bus cycle time, not CPU clock period; they may differ especially when the memory bus runs at a different speed.",
+          "reference": "COA / DMA"
+        },
+        {
+          "formulaId": "con_034-dma-transfer-time",
+          "name": "DMA Block Transfer Time",
+          "latex": "T_{DMA} = \\frac{\\text{Block size (bytes)}}{\\text{Transfer rate (bytes/s)}}",
+          "plain": "T_DMA = Block_size / Transfer_rate",
+          "whenToUse": "To find how long a DMA block transfer takes once initiated",
+          "terms": [
+            { "symbol": "\\text{Block size}", "means": "total bytes in the DMA block" },
+            { "symbol": "\\text{Transfer rate}", "means": "I/O device throughput in bytes/s" }
+          ],
+          "trap": "This is the I/O device time, not the CPU compute time — DMA frees the CPU during this window.",
+          "reference": "COA / DMA"
+        },
+        {
+          "formulaId": "con_034-dma-priority",
+          "name": "DMA vs Interrupt Priority Rule",
+          "latex": "\\text{Priority: DMA bus request} > \\text{Interrupt request} > \\text{Normal CPU execution}",
+          "plain": "Priority: DMA bus request > Interrupt request > Normal CPU execution",
+          "whenToUse": "When asked what a CPU does when a DMA bus request and an interrupt arrive simultaneously",
+          "terms": [
+            { "symbol": "\\text{Bus request}", "means": "DMA controller requests the bus to steal a cycle" },
+            { "symbol": "\\text{Interrupt request}", "means": "device signals CPU after completion" }
+          ],
+          "trap": "Students confuse DMA priority with interrupt priority; DMA wins the bus, but the CPU still services the interrupt after the current instruction.",
+          "reference": "COA / DMA"
+        },
+        {
+          "formulaId": "con_034-disk-transfer-rate",
+          "name": "Disk Transfer Rate from Geometry",
+          "latex": "\\text{Transfer rate} = \\text{Bit density} \\times \\pi \\times d \\times \\text{RPM} / 60",
+          "plain": "Transfer_rate = bit_density (bits/cm) * pi * diameter_cm * RPM / 60",
+          "whenToUse": "When disk geometry (diameter, density, RPM) is given and you must find how fast data reaches DMA/memory",
+          "terms": [
+            { "symbol": "d", "means": "track diameter in cm (use innermost for max density track)" },
+            { "symbol": "\\text{Bit density}", "means": "bits per cm (circumferential)" },
+            { "symbol": "\\text{RPM}", "means": "revolutions per minute" }
+          ],
+          "trap": "Use the innermost track diameter for maximum storage density; outermost has lower density in CAV disks.",
+          "reference": "COA / DMA (Disk I/O)"
+        }
+      ]
+    },
+    {
+      "groupId": "io-handling",
+      "groupTitle": "I/O Handling Methods",
+      "formulas": [
+        {
+          "formulaId": "con_034-io-methods-hierarchy",
+          "name": "I/O Method Speed Hierarchy",
+          "latex": "\\text{Programmed I/O} \\;<\\;\\text{Interrupt-driven I/O} \\;<\\;\\text{DMA}",
+          "plain": "Programmed I/O < Interrupt-driven I/O < DMA  (in terms of CPU efficiency / effective throughput)",
+          "whenToUse": "When comparing CPU utilization or data transfer speed across I/O methods",
+          "terms": [
+            { "symbol": "\\text{Programmed I/O}", "means": "CPU polls device in a busy-wait loop (most CPU waste)" },
+            { "symbol": "\\text{Interrupt-driven}", "means": "CPU is interrupted by device when ready" },
+            { "symbol": "\\text{DMA}", "means": "controller moves data directly to memory; CPU minimally involved" }
+          ],
+          "trap": "The question may ask about 'data transfer speed' (DMA wins) vs 'simplicity of implementation' (Programmed I/O wins) — read carefully.",
+          "reference": "COA / IO Handling"
+        },
+        {
+          "formulaId": "con_034-memory-mapped-io",
+          "name": "Memory-Mapped vs I/O-Mapped I/O",
+          "latex": "\\text{Memory-mapped: I/O registers share address space} \\Rightarrow \\text{same instructions as memory}",
+          "plain": "Memory-mapped I/O: same address space; no special IN/OUT instructions needed. I/O-mapped: separate port address space; uses IN/OUT instructions.",
+          "whenToUse": "When asked which scheme is faster, uses more address space, or requires special instructions",
+          "terms": [
+            { "symbol": "\\text{Memory-mapped}", "means": "I/O ports in regular address space; load/store used; NOT necessarily faster for data transfer" },
+            { "symbol": "\\text{I/O-mapped}", "means": "separate port space; special IN/OUT instructions; frees address space" }
+          ],
+          "trap": "Memory-mapped I/O is NOT faster for actual data transfer than I/O-mapped — the statement 'memory-mapped is usually faster' is FALSE.",
+          "reference": "COA / IO Handling"
+        },
+        {
+          "formulaId": "con_034-programmed-io-cpu-waste",
+          "name": "Programmed I/O CPU Waste",
+          "latex": "\\text{CPU busy-waiting fraction} = \\frac{\\text{Polling cycles per transfer}}{\\text{Total CPU cycles per second}}",
+          "plain": "CPU_waste = polling_cycles_per_transfer * transfers_per_second / CPU_freq",
+          "whenToUse": "When computing how much CPU time is wasted polling a slow device in programmed I/O",
+          "terms": [
+            { "symbol": "\\text{Polling cycles}", "means": "CPU cycles spent checking device status per I/O unit" },
+            { "symbol": "\\text{Transfers per second}", "means": "I/O device throughput rate" }
+          ],
+          "trap": "Programmed I/O wastes CPU on every poll even if no data is ready; interrupt-driven I/O only uses CPU when data is truly available.",
+          "reference": "COA / IO Handling"
+        },
+        {
+          "formulaId": "con_034-dma-bus-conflict",
+          "name": "DMA Bus Request Handling",
+          "latex": "\\text{On DMA request: CPU releases bus} \\Rightarrow \\text{DMA transfers word} \\Rightarrow \\text{CPU resumes}",
+          "plain": "DMA bus steal: CPU suspends after current memory operation, DMA uses bus for one cycle (or burst), then returns control to CPU.",
+          "whenToUse": "When asked what happens when DMA requests the bus while CPU is executing",
+          "terms": [
+            { "symbol": "\\text{Cycle steal}", "means": "DMA steals individual bus cycles between CPU accesses" },
+            { "symbol": "\\text{Burst mode}", "means": "DMA holds bus for entire block; CPU halted during transfer" }
+          ],
+          "trap": "In cycle-steal mode the CPU is NOT halted for the whole transfer — only one cycle at a time is stolen.",
+          "reference": "COA / IO Handling"
+        }
+      ]
+    },
+    {
+      "groupId": "interrupts",
+      "groupTitle": "Interrupts — Types & Handling",
+      "formulas": [
+        {
+          "formulaId": "con_034-interrupt-response",
+          "name": "Interrupt Response Sequence",
+          "latex": "\\text{CPU finishes current instruction} \\rightarrow \\text{saves state (PC, flags)} \\rightarrow \\text{jumps to ISR} \\rightarrow \\text{restores state, returns}",
+          "plain": "1. Complete current instruction  2. Save state (PC, PSW/flags)  3. Branch to ISR  4. Restore state  5. Resume",
+          "whenToUse": "When asked what a CPU does upon receiving an interrupt or about the sequence of actions",
+          "terms": [
+            { "symbol": "\\text{ISR}", "means": "Interrupt Service Routine — the handler code" },
+            { "symbol": "\\text{PC}", "means": "Program Counter — saved so execution can resume" },
+            { "symbol": "\\text{PSW}", "means": "Program Status Word / flags register" }
+          ],
+          "trap": "CPU does NOT branch immediately mid-instruction; it waits until the current instruction completes before acknowledging the interrupt.",
+          "reference": "COA / Interrupts"
+        },
+        {
+          "formulaId": "con_034-vectored-interrupt",
+          "name": "Vectored vs Non-Vectored Interrupt",
+          "latex": "\\text{Vectored: device supplies interrupt vector} \\Rightarrow \\text{CPU jumps to ISR directly}\\\\ \\text{Non-vectored: fixed/polled location in memory}",
+          "plain": "Vectored: device puts vector on bus -> CPU uses it as ISR address. Non-vectored: CPU polls or jumps to fixed location.",
+          "whenToUse": "When asked how the CPU finds the ISR address or what 'vectored interrupt' means",
+          "terms": [
+            { "symbol": "\\text{Interrupt vector}", "means": "address (or index into IVT) supplied by the device" },
+            { "symbol": "\\text{IVT}", "means": "Interrupt Vector Table — maps vector number to ISR address" }
+          ],
+          "trap": "In a vectored interrupt the branch address is NOT fixed in memory; the interrupting device provides it dynamically.",
+          "reference": "COA / Interrupts"
+        },
+        {
+          "formulaId": "con_034-interrupt-enable-disable",
+          "name": "Interrupt Enable / Disable (IF Flag)",
+          "latex": "\\text{INTR processed only if Interrupt Enable (IE) flag is set}\\\\ \\text{NMI bypasses IE flag}",
+          "plain": "Maskable interrupt: processed only if IE flag = 1. Non-maskable interrupt (NMI): always processed regardless of IE flag.",
+          "whenToUse": "When asked whether a CPU can be prevented from processing interrupts",
+          "terms": [
+            { "symbol": "\\text{IE}", "means": "Interrupt Enable flag in PSW/flags register" },
+            { "symbol": "\\text{NMI}", "means": "Non-Maskable Interrupt — cannot be disabled by software" },
+            { "symbol": "\\text{INTR}", "means": "Maskable interrupt signal line" }
+          ],
+          "trap": "A CPU CAN be set to not process maskable interrupts (by clearing IE); the statement 'CPU always processes interrupts' is FALSE.",
+          "reference": "COA / Interrupts"
+        },
+        {
+          "formulaId": "con_034-interrupt-check-timing",
+          "name": "When CPU Checks for Interrupts",
+          "latex": "\\text{CPU checks interrupt line at end of each instruction cycle (after completing current instruction)}",
+          "plain": "Interrupt check occurs at end of each instruction fetch-decode-execute cycle, NOT mid-instruction.",
+          "whenToUse": "When asked 'when does the CPU check for interrupts?' or about loop/instruction interruptibility",
+          "terms": [
+            { "symbol": "\\text{Instruction cycle}", "means": "one complete fetch-decode-execute of a single instruction" }
+          ],
+          "trap": "Loop instructions (e.g., REP) CAN be interrupted between iterations — they are not atomic across all repetitions.",
+          "reference": "COA / Interrupts"
+        },
+        {
+          "formulaId": "con_034-interrupt-priority",
+          "name": "Daisy-Chain / Priority Interrupt",
+          "latex": "\\text{Daisy-chain priority: device closest to CPU gets highest priority}\\\\\\text{Software polling: priority determined by poll order in ISR}",
+          "plain": "Daisy-chain: hardware; priority = position in chain (first device = highest). Software poll: ISR checks devices in order; first checked = highest priority.",
+          "whenToUse": "When asked how priority is resolved among multiple simultaneous interrupt requests",
+          "terms": [
+            { "symbol": "\\text{Daisy chain}", "means": "hardware interrupt-acknowledge signal propagates through devices in series" },
+            { "symbol": "\\text{Software polling}", "means": "ISR tests each device status register in sequence" }
+          ],
+          "trap": "In daisy chain, the device closest to CPU wins, not the one with the 'most urgent' request — physical position determines priority.",
+          "reference": "COA / Interrupts"
+        },
+        {
+          "formulaId": "con_034-interrupt-latency",
+          "name": "Interrupt Latency",
+          "latex": "T_{latency} = T_{complete\\_instruction} + T_{save\\_state} + T_{jump\\_ISR}",
+          "plain": "Interrupt latency = time to finish current instruction + time to save CPU state + time to jump to ISR",
+          "whenToUse": "When asked how long it takes from interrupt signal to first ISR instruction executing",
+          "terms": [
+            { "symbol": "T_{complete\\_instruction}", "means": "remaining cycles of the current instruction" },
+            { "symbol": "T_{save\\_state}", "means": "cycles to push PC and PSW onto stack or into dedicated registers" },
+            { "symbol": "T_{jump\\_ISR}", "means": "cycles to load ISR address into PC" }
+          ],
+          "trap": "Interrupt latency includes the current instruction completion time, which can be large for slow multiply/divide instructions.",
+          "reference": "COA / Interrupts"
+        }
+      ]
+    },
+    {
+      "groupId": "io-key-results",
+      "groupTitle": "Key Results & Definitions",
+      "formulas": [
+        {
+          "formulaId": "con_034-dma-vs-interrupt-use",
+          "name": "DMA vs Interrupt-Driven I/O — When to Use",
+          "latex": "\\text{DMA: best for bulk/block data transfer (disk, network)}\\\\ \\text{Interrupt: best for slow/infrequent devices (keyboard, mouse)}",
+          "plain": "DMA: bulk block transfers (disk, NIC). Interrupt-driven: slow/infrequent character devices (keyboard). Programmed I/O: simple embedded / no OS.",
+          "whenToUse": "When a question asks which I/O method is most appropriate for a given device type",
+          "terms": [
+            { "symbol": "\\text{Bulk transfer}", "means": "large contiguous data blocks at high bandwidth" },
+            { "symbol": "\\text{Infrequent device}", "means": "generates I/O events rarely, polling would waste CPU cycles" }
+          ],
+          "trap": "DMA overhead per byte is lower than interrupt-driven only for large blocks; for small/single-byte transfers interrupt-driven is often better.",
+          "reference": "COA / IO Handling"
+        },
+        {
+          "formulaId": "con_034-handshaking",
+          "name": "Handshaking Protocol (Strobe / Ready-Acknowledge)",
+          "latex": "\\text{Strobe method: sender/receiver asserts strobe to signal data valid}\\\\ \\text{Handshake: Ready} \\to \\text{data placed} \\to \\text{Acknowledge}",
+          "plain": "Handshaking: 1. Source asserts Data_Valid (strobe). 2. Destination reads data. 3. Destination asserts Acknowledge. 4. Source de-asserts strobe.",
+          "whenToUse": "When asked about synchronization between CPU/DMA and an I/O device without using interrupts",
+          "terms": [
+            { "symbol": "\\text{Strobe}", "means": "single unidirectional signal indicating data is valid on bus" },
+            { "symbol": "\\text{Handshake}", "means": "bidirectional ready/acknowledge ensures both sides are synchronized" }
+          ],
+          "trap": "Strobe is unidirectional and cannot verify the receiver actually got the data; handshake adds acknowledge for reliability.",
+          "reference": "COA / IO Handling"
+        }
+      ]
+    }
+  ]
+}

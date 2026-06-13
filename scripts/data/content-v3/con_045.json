@@ -1,0 +1,358 @@
+{
+  "_id": "con_045",
+  "conceptId": "con_045",
+  "conceptTitle": "Graph Traversals",
+  "reference": "GATE CS — Algorithms / Graph Algorithms",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Need to classify edges (tree/back/forward/cross) in DFS",
+        "use": "\\text{Back: } d[u] > d[v],\\ \\text{Cross: } d[u] < d[v] \\text{ (undirected has no cross/forward)}"
+      },
+      {
+        "condition": "Find time complexity of BFS or DFS on adjacency list",
+        "use": "O(V + E)"
+      },
+      {
+        "condition": "Find strongly connected components",
+        "use": "\\text{Kosaraju: 2 DFS passes on } G \\text{ and } G^T,\\quad O(V+E)"
+      },
+      {
+        "condition": "Topological ordering of a DAG",
+        "use": "\\text{Topo sort: DFS finish-time order (decreasing), or Kahn's BFS with in-degree queue}"
+      },
+      {
+        "condition": "Count connected components in undirected graph",
+        "use": "\\Theta(m + n) \\text{ using BFS or DFS}"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "bfs-basics",
+      "groupTitle": "Breadth-First Search (BFS)",
+      "formulas": [
+        {
+          "formulaId": "con_045-bfs-time-complexity",
+          "name": "BFS Time Complexity",
+          "latex": "T_{BFS} = O(V + E)",
+          "plain": "T_BFS = O(V + E)",
+          "whenToUse": "When asked for the time complexity of BFS on an adjacency-list representation.",
+          "terms": [
+            { "symbol": "V", "means": "number of vertices" },
+            { "symbol": "E", "means": "number of edges" }
+          ],
+          "trap": "On an adjacency-matrix representation BFS is O(V^2), not O(V+E). Always check the representation.",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_045-bfs-data-structure",
+          "name": "BFS Uses a Queue",
+          "latex": "\\text{BFS} \\xrightarrow{\\text{uses}} \\textbf{Queue (FIFO)}",
+          "plain": "BFS uses a Queue (FIFO)",
+          "whenToUse": "When matching traversal algorithms to their underlying data structures.",
+          "terms": [
+            { "symbol": "FIFO", "means": "First-In First-Out; vertices are processed in the order they are discovered" }
+          ],
+          "trap": "DFS uses a Stack (or recursion). Swapping stack/queue is a classic GATE distractor.",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_045-bfs-shortest-path",
+          "name": "BFS Shortest Path (Unweighted Graph)",
+          "latex": "d[v] = \\text{shortest path (in edges) from source } s \\text{ to } v",
+          "plain": "d[v] = shortest number of edges from source s to v",
+          "whenToUse": "When finding shortest paths in an unweighted (or unit-weight) graph.",
+          "terms": [
+            { "symbol": "d[v]", "means": "BFS-level / shortest-path distance in hops to v" },
+            { "symbol": "s", "means": "source vertex" }
+          ],
+          "trap": "BFS gives shortest EDGE-count paths; it does not give shortest paths in weighted graphs (use Dijkstra there).",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_045-bfs-connected-components",
+          "name": "Connected Components via BFS/DFS",
+          "latex": "\\text{Count SCCs or CCs} \\Rightarrow \\Theta(m + n)",
+          "plain": "Counting connected components using BFS or DFS: Theta(m + n)",
+          "whenToUse": "When asked for the most efficient algorithm to count connected components.",
+          "terms": [
+            { "symbol": "m", "means": "number of edges" },
+            { "symbol": "n", "means": "number of vertices" }
+          ],
+          "trap": "Theta(mn) or Theta(n^2) are incorrect; the correct complexity is Theta(m+n), not just Theta(m) or Theta(n) alone.",
+          "reference": "Algorithms / Graph Algorithms"
+        }
+      ]
+    },
+    {
+      "groupId": "dfs-basics",
+      "groupTitle": "Depth-First Search (DFS)",
+      "formulas": [
+        {
+          "formulaId": "con_045-dfs-time-complexity",
+          "name": "DFS Time Complexity",
+          "latex": "T_{DFS} = O(V + E)",
+          "plain": "T_DFS = O(V + E)",
+          "whenToUse": "When asked for the time complexity of DFS on an adjacency-list representation.",
+          "terms": [
+            { "symbol": "V", "means": "number of vertices" },
+            { "symbol": "E", "means": "number of edges" }
+          ],
+          "trap": "O(V+E) holds only for adjacency-list; adjacency-matrix DFS is O(V^2).",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_045-dfs-data-structure",
+          "name": "DFS Uses a Stack",
+          "latex": "\\text{DFS} \\xrightarrow{\\text{uses}} \\textbf{Stack (LIFO)}",
+          "plain": "DFS uses a Stack (LIFO) — or implicit call stack via recursion",
+          "whenToUse": "When matching traversal algorithms to their underlying data structures.",
+          "terms": [
+            { "symbol": "LIFO", "means": "Last-In First-Out; the most recently discovered unexplored vertex is processed first" }
+          ],
+          "trap": "BFS uses a queue, not a stack. State-space DFS expands nodes in alphabetical/numerical order when specified.",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_045-dfs-timestamps",
+          "name": "DFS Discovery and Finish Timestamps",
+          "latex": "d[v] < f[v], \\quad d[v] < d[u] < f[u] < f[v] \\Rightarrow u \\text{ is a descendant of } v",
+          "plain": "d[v] < f[v]; if d[v] < d[u] < f[u] < f[v] then u is a descendant of v in DFS tree",
+          "whenToUse": "When analyzing DFS tree structure or classifying edges using discovery/finish times.",
+          "terms": [
+            { "symbol": "d[v]", "means": "discovery time of vertex v" },
+            { "symbol": "f[v]", "means": "finish time of vertex v" }
+          ],
+          "trap": "In a directed graph, cross edges go from higher d[u] to lower d[v] (already finished), not the other way around.",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_045-dfs-parenthesis-theorem",
+          "name": "Parenthesis Theorem",
+          "latex": "[d[u], f[u]] \\text{ and } [d[v], f[v]] \\text{ are either disjoint or one contains the other}",
+          "plain": "Intervals [d[u],f[u]] and [d[v],f[v]] are either disjoint or nested (never partially overlapping)",
+          "whenToUse": "When reasoning about ancestor/descendant relationships in DFS.",
+          "terms": [
+            { "symbol": "d[u], f[u]", "means": "discovery and finish times of u" },
+            { "symbol": "d[v], f[v]", "means": "discovery and finish times of v" }
+          ],
+          "trap": "Partial overlap of intervals is impossible in a valid DFS — if you compute one, you made an error tracing the DFS.",
+          "reference": "Algorithms / Graph Algorithms"
+        }
+      ]
+    },
+    {
+      "groupId": "edge-classification",
+      "groupTitle": "DFS Edge Classification",
+      "formulas": [
+        {
+          "formulaId": "con_045-tree-edge",
+          "name": "Tree Edge",
+          "latex": "(u, v) \\text{ is a tree edge if } v \\text{ is first discovered via } u",
+          "plain": "Tree edge (u,v): v is first visited while exploring u",
+          "whenToUse": "When labeling DFS tree edges in both directed and undirected graphs.",
+          "terms": [
+            { "symbol": "u", "means": "parent vertex in DFS tree" },
+            { "symbol": "v", "means": "child vertex, freshly discovered" }
+          ],
+          "trap": "Tree edges form the DFS spanning tree; not all edges of the graph are tree edges.",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_045-back-edge",
+          "name": "Back Edge",
+          "latex": "(u, v): d[v] < d[u] \\text{ and } v \\text{ is an ancestor of } u \\Rightarrow \\text{back edge}",
+          "plain": "Back edge (u,v): v is an ancestor of u in DFS tree; implies a cycle",
+          "whenToUse": "When detecting cycles in directed graphs or classifying DFS edges.",
+          "terms": [
+            { "symbol": "d[v]", "means": "discovery time of ancestor v" },
+            { "symbol": "d[u]", "means": "discovery time of u (greater than d[v])" }
+          ],
+          "trap": "In undirected graphs, there are only tree edges and back edges (no forward or cross edges).",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_045-forward-cross-edge",
+          "name": "Forward and Cross Edges (Directed Graphs Only)",
+          "latex": "\\text{Forward: } (u,v),\\ d[u] < d[v],\\ v \\text{ descendant of } u \\\\ \\text{Cross: } (u,v),\\ f[v] < d[u] \\text{ (v already finished)}",
+          "plain": "Forward edge: (u,v) where v is a descendant but not a child; Cross edge: (u,v) where v is already finished",
+          "whenToUse": "When classifying edges in a directed graph DFS.",
+          "terms": [
+            { "symbol": "f[v]", "means": "finish time of v" },
+            { "symbol": "d[u]", "means": "discovery time of u" }
+          ],
+          "trap": "Cross and forward edges do NOT exist in undirected DFS. GATE often gives undirected graphs and asks for all four types — only tree and back exist.",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_045-cycle-detection",
+          "name": "Cycle Detection via DFS",
+          "latex": "\\text{Directed graph has a cycle} \\Leftrightarrow \\text{DFS finds a back edge}",
+          "plain": "A directed graph has a cycle if and only if DFS discovers a back edge",
+          "whenToUse": "When determining if a directed graph is a DAG (no cycle = no back edge).",
+          "terms": [
+            { "symbol": "back edge", "means": "edge from a vertex to one of its ancestors in the DFS tree" }
+          ],
+          "trap": "In undirected graphs, every non-tree edge is a back edge, so the condition still works but every undirected graph with >= V edges has a cycle.",
+          "reference": "Algorithms / Graph Algorithms"
+        }
+      ]
+    },
+    {
+      "groupId": "strongly-connected-components",
+      "groupTitle": "Strongly Connected Components (SCC)",
+      "formulas": [
+        {
+          "formulaId": "con_045-kosaraju-algorithm",
+          "name": "Kosaraju's SCC Algorithm",
+          "latex": "\\text{Step 1: DFS on } G \\text{ — record finish times} \\\\ \\text{Step 2: DFS on } G^T \\text{ in decreasing finish-time order}",
+          "plain": "Kosaraju: (1) DFS on G to get finish order; (2) DFS on G-transpose in reverse finish-time order; each DFS tree in step 2 is one SCC",
+          "whenToUse": "When finding all SCCs of a directed graph.",
+          "terms": [
+            { "symbol": "G^T", "means": "transpose (reverse) of G: all edge directions flipped" },
+            { "symbol": "SCC", "means": "maximal set of vertices where every vertex is reachable from every other" }
+          ],
+          "trap": "Both DFS passes are needed; skipping the transpose step gives wrong SCCs.",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_045-scc-time-complexity",
+          "name": "SCC Algorithm Time Complexity",
+          "latex": "T_{\\text{SCC}} = O(V + E)",
+          "plain": "SCC (Kosaraju or Tarjan) runs in O(V + E)",
+          "whenToUse": "When asked for the complexity of finding all SCCs.",
+          "terms": [
+            { "symbol": "V", "means": "vertices" },
+            { "symbol": "E", "means": "edges" }
+          ],
+          "trap": "O(VE) or O(V^2) are common wrong answers; correct complexity is O(V+E).",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_045-scc-condensation",
+          "name": "SCC Condensation Graph",
+          "latex": "\\text{Condensation of } G = \\text{DAG of SCCs}",
+          "plain": "Condensing G by collapsing each SCC to a single node yields a DAG",
+          "whenToUse": "When reasoning about the high-level structure of a directed graph after SCC decomposition.",
+          "terms": [
+            { "symbol": "Condensation", "means": "directed graph where nodes are SCCs and edges represent cross-SCC edges in G" }
+          ],
+          "trap": "The condensation is always a DAG; if you get a cycle in the condensation you have merged too few vertices into one SCC.",
+          "reference": "Algorithms / Graph Algorithms"
+        }
+      ]
+    },
+    {
+      "groupId": "topological-sort",
+      "groupTitle": "Topological Sort",
+      "formulas": [
+        {
+          "formulaId": "con_045-topo-sort-definition",
+          "name": "Topological Ordering Condition",
+          "latex": "\\text{For every edge } (u, v) \\in E, \\quad u \\text{ appears before } v \\text{ in the ordering}",
+          "plain": "Topological order: for every directed edge (u,v), u comes before v",
+          "whenToUse": "When verifying whether a given sequence is a valid topological ordering of a DAG.",
+          "terms": [
+            { "symbol": "(u,v)", "means": "directed edge from u to v" }
+          ],
+          "trap": "Topological sort is only defined for DAGs. A graph with a cycle has no valid topological ordering.",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_045-topo-sort-dfs",
+          "name": "DFS-Based Topological Sort",
+          "latex": "\\text{Topo order} = \\text{vertices sorted by decreasing finish time } f[v]",
+          "plain": "Topological sort = vertices in decreasing order of DFS finish time f[v]",
+          "whenToUse": "When performing topological sort using DFS.",
+          "terms": [
+            { "symbol": "f[v]", "means": "DFS finish time of vertex v" }
+          ],
+          "trap": "It is DECREASING finish time, not increasing. Reversing the finish order is the final step.",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_045-kahn-algorithm",
+          "name": "Kahn's Algorithm (BFS Topological Sort)",
+          "latex": "\\text{Enqueue all vertices with in-degree 0; dequeue and reduce in-degrees; repeat}",
+          "plain": "Kahn's: enqueue all in-degree-0 vertices; dequeue u, output u, decrement in-degree of all neighbors; re-enqueue when in-degree hits 0",
+          "whenToUse": "When performing topological sort iteratively or when also checking for cycles (queue empties before all vertices processed => cycle exists).",
+          "terms": [
+            { "symbol": "in-degree", "means": "number of incoming edges to a vertex" }
+          ],
+          "trap": "If the queue empties before all V vertices are output, the graph has a cycle and no topological order exists.",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_045-topo-sort-time-complexity",
+          "name": "Topological Sort Time Complexity",
+          "latex": "T_{\\text{topo}} = O(V + E)",
+          "plain": "Topological sort (DFS or Kahn's) runs in O(V + E)",
+          "whenToUse": "When asked for the complexity of topological sorting.",
+          "terms": [
+            { "symbol": "V", "means": "vertices" },
+            { "symbol": "E", "means": "edges" }
+          ],
+          "trap": "O(V log V) is the comparison-sort lower bound, not the graph topo-sort bound. Topo sort is linear O(V+E).",
+          "reference": "Algorithms / Graph Algorithms"
+        }
+      ]
+    },
+    {
+      "groupId": "graph-properties",
+      "groupTitle": "Graph Properties & Key Results",
+      "formulas": [
+        {
+          "formulaId": "con_045-dag-no-back-edge",
+          "name": "DAG iff No Back Edge in DFS",
+          "latex": "G \\text{ is a DAG} \\Leftrightarrow \\text{DFS finds no back edge}",
+          "plain": "G is a DAG (directed acyclic graph) if and only if DFS finds no back edge",
+          "whenToUse": "When checking whether a given directed graph is a DAG.",
+          "terms": [
+            { "symbol": "DAG", "means": "Directed Acyclic Graph — a directed graph with no directed cycles" }
+          ],
+          "trap": "Forward and cross edges are fine in a DAG; only back edges indicate a cycle.",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_045-undirected-edge-types",
+          "name": "Undirected DFS Edge Types",
+          "latex": "\\text{Undirected DFS: only } \\textbf{Tree edges} \\text{ and } \\textbf{Back edges}",
+          "plain": "In undirected DFS, every edge is either a tree edge or a back edge — no forward or cross edges",
+          "whenToUse": "When classifying edges in undirected graph DFS.",
+          "terms": [
+            { "symbol": "Tree edge", "means": "edge that extends the DFS tree" },
+            { "symbol": "Back edge", "means": "edge to an ancestor in the DFS tree" }
+          ],
+          "trap": "Cross edges exist in directed DFS only. GATE questions sometimes show an undirected graph and ask about all four types — forward and cross cannot occur.",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_045-bfs-not-for-connected-components",
+          "name": "BFS Can Find Connected Components",
+          "latex": "\\text{BFS (and DFS) can both find connected components of an undirected graph in } O(V+E)",
+          "plain": "BFS can find connected components; the claim that BFS cannot find connected components is FALSE",
+          "whenToUse": "When answering true/false questions about BFS vs DFS capabilities.",
+          "terms": [
+            { "symbol": "connected component", "means": "maximal subgraph where every pair of vertices is connected by a path" }
+          ],
+          "trap": "A GATE 2007 question presented 'BFS cannot find connected components' as a choice — this is FALSE. Both BFS and DFS find connected components.",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_045-dfs-spanning-tree",
+          "name": "DFS Spanning Tree",
+          "latex": "\\text{DFS on connected graph } G \\Rightarrow \\text{spanning tree } T \\subseteq G",
+          "plain": "DFS on a connected graph produces a spanning tree T of G",
+          "whenToUse": "When asked about DFS tree properties or about vertices adjacent in the DFS tree.",
+          "terms": [
+            { "symbol": "T", "means": "DFS spanning tree — subgraph containing all vertices, connected by tree edges" }
+          ],
+          "trap": "If v is the first new vertex visited after u in the DFS tree, v is a child of u (not just any neighbor). Being adjacent in G does not mean being adjacent in the DFS tree.",
+          "reference": "Algorithms / Graph Algorithms"
+        }
+      ]
+    }
+  ]
+}

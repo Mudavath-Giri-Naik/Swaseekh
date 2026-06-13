@@ -1,0 +1,386 @@
+{
+  "_id": "con_029",
+  "conceptId": "con_029",
+  "conceptTitle": "Number Representations and Computer Arithmetic",
+  "reference": "GATE CS — Digital Logic / Number Systems",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Converting / ranging a fixed-point n-bit number with f fraction bits",
+        "use": "\\text{Range} = [0,\\; 2^{n-f} - 2^{-f}],\\quad \\text{Resolution} = 2^{-f}"
+      },
+      {
+        "condition": "Decoding an IEEE 754 single-precision float",
+        "use": "(-1)^S \\times 1.\\text{Fraction} \\times 2^{E - 127}"
+      },
+      {
+        "condition": "Finding Booth's recoding of a bit pair",
+        "use": "\\text{Booth digit} = b_i - b_{i+1} \\in \\{-1, 0, +1\\}"
+      },
+      {
+        "condition": "Worst-case Booth performance (most partial products)",
+        "use": "\\text{Pattern } 10101\\ldots01 \\Rightarrow \\text{all non-zero Booth digits}"
+      },
+      {
+        "condition": "Converting a number from base r to base 10",
+        "use": "N = \\sum_{i} d_i \\cdot r^i"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "number-representation-basics",
+      "groupTitle": "Number Representation Basics",
+      "formulas": [
+        {
+          "formulaId": "con_029-positional-value",
+          "name": "Positional (Weighted) Value of a Number",
+          "latex": "N_{10} = \\sum_{i=-f}^{n-1} d_i \\cdot r^i",
+          "plain": "N (base 10) = sum of d_i * r^i for each digit d_i in base r",
+          "whenToUse": "Converting any base-r integer or fraction to decimal",
+          "terms": [
+            { "symbol": "d_i", "means": "digit at position i" },
+            { "symbol": "r", "means": "radix (base) of the number system" },
+            { "symbol": "n", "means": "number of integer digits" },
+            { "symbol": "f", "means": "number of fraction digits" }
+          ],
+          "trap": "Remember that fraction digit positions have negative exponents (e.g., position -1 means r^{-1}); confusing the sign of i is a common error.",
+          "reference": "Digital Logic / Number Systems"
+        },
+        {
+          "formulaId": "con_029-base-range",
+          "name": "Range of an n-bit Unsigned Integer",
+          "latex": "\\text{Range} = [0,\\; 2^n - 1]",
+          "plain": "Range = 0 to 2^n - 1 (total 2^n distinct values)",
+          "whenToUse": "Finding how many values an n-bit unsigned binary integer can represent",
+          "terms": [
+            { "symbol": "n", "means": "total number of bits" }
+          ],
+          "trap": "For signed 2's complement the range is [-2^{n-1}, 2^{n-1}-1]; do not apply the unsigned formula to signed numbers.",
+          "reference": "Digital Logic / Number Systems"
+        },
+        {
+          "formulaId": "con_029-2s-complement",
+          "name": "Two's Complement Representation",
+          "latex": "\\text{2's complement of } X = 2^n - X \\pmod{2^n}",
+          "plain": "2's complement of X = 2^n - X (invert all bits, then add 1)",
+          "whenToUse": "Representing negative integers or computing subtraction via addition",
+          "terms": [
+            { "symbol": "n", "means": "word length (number of bits)" },
+            { "symbol": "X", "means": "positive magnitude" }
+          ],
+          "trap": "The most negative number (-2^{n-1}) has no positive counterpart in n bits; negating it overflows.",
+          "reference": "Digital Logic / Number Systems"
+        },
+        {
+          "formulaId": "con_029-radix-conversion",
+          "name": "Repeated Division / Multiplication for Base Conversion",
+          "latex": "\\text{Integer part: repeated divide by } r \\quad \\text{Fraction part: repeated multiply by } r",
+          "plain": "Integer: divide by r, collect remainders (LSB first). Fraction: multiply by r, collect integer parts (MSB first).",
+          "whenToUse": "Converting a decimal number to any base r",
+          "terms": [
+            { "symbol": "r", "means": "target base" }
+          ],
+          "trap": "Fraction conversion may not terminate; carry enough bits to achieve required precision.",
+          "reference": "Digital Logic / Number Systems"
+        },
+        {
+          "formulaId": "con_029-signed-magnitude",
+          "name": "Signed-Magnitude vs 1's Complement vs 2's Complement Zero",
+          "latex": "\\text{Signed-mag: } +0 \\neq -0 \\quad 1\\text{'s comp: } +0 \\neq -0 \\quad 2\\text{'s comp: unique zero}",
+          "plain": "Signed-magnitude and 1's complement have two representations of zero; 2's complement has exactly one zero.",
+          "whenToUse": "Comparing representation schemes and counting representable values",
+          "terms": [
+            { "symbol": "+0", "means": "positive zero (all bits 0)" },
+            { "symbol": "-0", "means": "negative zero (sign bit 1, rest 0)" }
+          ],
+          "trap": "In an n-bit 1's complement system there are 2^n - 1 distinct values (not 2^n) because of dual zero.",
+          "reference": "Digital Logic / Number Systems"
+        }
+      ]
+    },
+    {
+      "groupId": "fixed-point-representation",
+      "groupTitle": "Fixed-Point Representation",
+      "formulas": [
+        {
+          "formulaId": "con_029-fixed-point-unsigned-range",
+          "name": "Unsigned Fixed-Point Range and Resolution",
+          "latex": "\\text{Range} = [0,\\; 2^i - 2^{-f}], \\quad \\text{Resolution} = 2^{-f}, \\quad i = n - f",
+          "plain": "Range: 0 to (2^i - 2^(-f)), resolution = 2^(-f), where i = integer bits = n - f",
+          "whenToUse": "Finding the range and smallest representable step for an n-bit unsigned fixed-point number with f fraction bits",
+          "terms": [
+            { "symbol": "n", "means": "total bits" },
+            { "symbol": "f", "means": "fraction bits (bits to the right of binary point)" },
+            { "symbol": "i", "means": "integer bits = n - f" }
+          ],
+          "trap": "The maximum value is NOT 2^i; it is 2^i - 2^{-f} (the resolution step is subtracted because you cannot reach 2^i exactly).",
+          "reference": "Digital Logic / Fixed Point"
+        },
+        {
+          "formulaId": "con_029-fixed-point-value",
+          "name": "Decimal Value of a Fixed-Point Binary Pattern",
+          "latex": "V = b_{n-1}\\cdot 2^{i-1} + \\cdots + b_f \\cdot 2^0 + b_{f-1}\\cdot 2^{-1} + \\cdots + b_0 \\cdot 2^{-f}",
+          "plain": "V = sum of each bit times its positional weight; bits left of point have positive powers, bits right have negative powers",
+          "whenToUse": "Reading off the decimal value of a fixed-point binary string given the position of the binary point",
+          "terms": [
+            { "symbol": "b_k", "means": "bit at position k" },
+            { "symbol": "i", "means": "integer part bit count" },
+            { "symbol": "f", "means": "fraction part bit count" }
+          ],
+          "trap": "Always note where the binary point is placed; changing its position changes the value even with the same bit pattern.",
+          "reference": "Digital Logic / Fixed Point"
+        }
+      ]
+    },
+    {
+      "groupId": "floating-point-representation",
+      "groupTitle": "Floating-Point Representation",
+      "formulas": [
+        {
+          "formulaId": "con_029-float-general-form",
+          "name": "General Floating-Point Value Formula",
+          "latex": "V = (-1)^S \\times M \\times \\beta^E",
+          "plain": "V = (-1)^S * M * beta^E, where S is sign, M is mantissa, beta is base, E is exponent",
+          "whenToUse": "Interpreting any floating-point format (binary, hex-based, BCD, etc.)",
+          "terms": [
+            { "symbol": "S", "means": "sign bit (0 = positive, 1 = negative)" },
+            { "symbol": "M", "means": "mantissa (significand)" },
+            { "symbol": "\\beta", "means": "base of the floating-point system (2, 16, 10, etc.)" },
+            { "symbol": "E", "means": "exponent (true value)" }
+          ],
+          "trap": "When the base is 16 (IBM hex float), one bit of precision is lost per leading hex zero in the mantissa — precision is worse than IEEE 754.",
+          "reference": "Digital Logic / Floating Point"
+        },
+        {
+          "formulaId": "con_029-biased-exponent",
+          "name": "Biased (Excess-N) Exponent Encoding",
+          "latex": "E_{\\text{true}} = E_{\\text{stored}} - \\text{bias}, \\quad \\text{bias} = 2^{e-1} - 1",
+          "plain": "True exponent = stored exponent - bias; standard bias = 2^(e-1) - 1 where e is number of exponent bits",
+          "whenToUse": "Decoding the true exponent from a biased stored value (IEEE 754 and similar formats)",
+          "terms": [
+            { "symbol": "e", "means": "number of bits in the exponent field" },
+            { "symbol": "E_{\\text{stored}}", "means": "unsigned integer value of exponent field" },
+            { "symbol": "\\text{bias}", "means": "offset subtracted to get true exponent" }
+          ],
+          "trap": "All-zeros and all-ones exponent fields are reserved (denormals, infinity, NaN in IEEE 754); do not apply the normal formula to them.",
+          "reference": "Digital Logic / Floating Point"
+        },
+        {
+          "formulaId": "con_029-normalized-condition",
+          "name": "Normalization Condition",
+          "latex": "\\frac{1}{\\beta} \\leq M < 1 \\quad (\\text{or } 1 \\leq M < \\beta \\text{ for IEEE hidden-bit style})",
+          "plain": "For base-beta: 1/beta <= M < 1 (fraction form) or 1 <= M < beta (integer form with hidden 1)",
+          "whenToUse": "Checking whether a floating-point number is in normalized form or determining adjustment needed",
+          "terms": [
+            { "symbol": "M", "means": "mantissa / significand" },
+            { "symbol": "\\beta", "means": "floating-point base" }
+          ],
+          "trap": "For base-2 with a hidden bit (IEEE), the leading 1 is implicit — the stored fraction field does NOT include it; forgetting the hidden 1 gives a wrong value.",
+          "reference": "Digital Logic / Floating Point"
+        },
+        {
+          "formulaId": "con_029-float-exponent-range",
+          "name": "Floating-Point Exponent Range (Biased, e bits)",
+          "latex": "E_{\\text{true}} \\in [1 - \\text{bias},\\; (2^e - 2) - \\text{bias}] = [-(2^{e-1}-2),\\; 2^{e-1}-1]",
+          "plain": "True exponent range: -(2^(e-1) - 2) to 2^(e-1) - 1 (stored values 1 to 2^e - 2; 0 and 2^e-1 are reserved)",
+          "whenToUse": "Determining the exponent range for a given number of exponent bits in IEEE-style format",
+          "terms": [
+            { "symbol": "e", "means": "number of exponent bits" },
+            { "symbol": "\\text{bias}", "means": "2^{e-1} - 1" }
+          ],
+          "trap": "The stored exponent range for normal numbers is 1 to 2^e - 2 (not 0 to 2^e - 1), so the true exponent range is asymmetric.",
+          "reference": "Digital Logic / Floating Point"
+        },
+        {
+          "formulaId": "con_029-float-hex-base",
+          "name": "Hex-Based Floating Point Exponent Range",
+          "latex": "V = M \\times 16^E, \\quad E \\in [-64, 63] \\text{ (excess-64 encoding with 7-bit exponent)}",
+          "plain": "Value = M * 16^E; with 7-bit exponent and bias 64, E ranges from -64 to +63",
+          "whenToUse": "IBM-style or base-16 floating point where exponent base is 16 instead of 2",
+          "terms": [
+            { "symbol": "M", "means": "normalized mantissa (0.1 to 0.F in hex)" },
+            { "symbol": "E", "means": "true base-16 exponent" }
+          ],
+          "trap": "Shifting the mantissa by 1 hex digit (4 bits) changes the exponent by 1; up to 3 leading zero bits may appear, wasting mantissa precision.",
+          "reference": "Digital Logic / Floating Point"
+        }
+      ]
+    },
+    {
+      "groupId": "ieee-754-representation",
+      "groupTitle": "IEEE 754 Standard",
+      "formulas": [
+        {
+          "formulaId": "con_029-ieee-single",
+          "name": "IEEE 754 Single-Precision Format (32-bit)",
+          "latex": "(-1)^S \\times 1.F \\times 2^{E-127}, \\quad S(1)\\; E(8)\\; F(23)",
+          "plain": "Value = (-1)^S * 1.fraction * 2^(stored_exponent - 127); 1 sign bit, 8 exponent bits, 23 mantissa bits",
+          "whenToUse": "Encoding or decoding a 32-bit IEEE 754 single-precision float",
+          "terms": [
+            { "symbol": "S", "means": "sign bit" },
+            { "symbol": "E", "means": "8-bit stored (biased) exponent" },
+            { "symbol": "F", "means": "23-bit fractional mantissa (hidden 1 implied)" },
+            { "symbol": "127", "means": "bias = 2^7 - 1" }
+          ],
+          "trap": "The leading 1 before the binary point is implicit (hidden bit) and not stored; forgetting it makes the decoded value half of the correct answer.",
+          "reference": "Digital Logic / IEEE 754"
+        },
+        {
+          "formulaId": "con_029-ieee-double",
+          "name": "IEEE 754 Double-Precision Format (64-bit)",
+          "latex": "(-1)^S \\times 1.F \\times 2^{E-1023}, \\quad S(1)\\; E(11)\\; F(52)",
+          "plain": "Value = (-1)^S * 1.fraction * 2^(stored_exponent - 1023); 1 sign, 11 exponent, 52 mantissa bits",
+          "whenToUse": "Encoding or decoding a 64-bit IEEE 754 double-precision float",
+          "terms": [
+            { "symbol": "E", "means": "11-bit stored exponent" },
+            { "symbol": "F", "means": "52-bit fractional mantissa" },
+            { "symbol": "1023", "means": "bias = 2^{10} - 1" }
+          ],
+          "trap": "Bias is 1023 for double, not 127; mixing up the two biases is a frequent GATE error.",
+          "reference": "Digital Logic / IEEE 754"
+        },
+        {
+          "formulaId": "con_029-ieee-special-values",
+          "name": "IEEE 754 Special Values (Exponent = 0 or All-1s)",
+          "latex": "\\begin{cases} E=0, F=0 & \\Rightarrow \\pm 0 \\\\ E=0, F\\neq 0 & \\Rightarrow \\text{Denormal (subnormal)} \\\\ E=255, F=0 & \\Rightarrow \\pm\\infty \\\\ E=255, F\\neq 0 & \\Rightarrow \\text{NaN} \\end{cases}",
+          "plain": "Exponent=0, Frac=0 -> +/-0; Exponent=0, Frac!=0 -> denormal; Exponent=255, Frac=0 -> +/-inf; Exponent=255, Frac!=0 -> NaN",
+          "whenToUse": "Identifying special IEEE 754 values or checking if a bit pattern represents a normal number",
+          "terms": [
+            { "symbol": "E", "means": "stored 8-bit exponent field (single precision)" },
+            { "symbol": "F", "means": "23-bit fraction field" }
+          ],
+          "trap": "Denormals use 0.F (not 1.F) and exponent -126 (not -127); confusing the two leads to wrong decoded values.",
+          "reference": "Digital Logic / IEEE 754"
+        },
+        {
+          "formulaId": "con_029-ieee-denormal",
+          "name": "Denormal (Subnormal) Number Value",
+          "latex": "V = (-1)^S \\times 0.F \\times 2^{-126} \\quad (\\text{single precision})",
+          "plain": "Denormal value = (-1)^S * 0.fraction * 2^(-126); note: no hidden 1, and exponent fixed at -126",
+          "whenToUse": "Decoding a denormal IEEE 754 single-precision number (stored exponent = 0, fraction != 0)",
+          "terms": [
+            { "symbol": "0.F", "means": "mantissa with no hidden leading 1" },
+            { "symbol": "-126", "means": "effective exponent for denormals (not -127)" }
+          ],
+          "trap": "The effective exponent is -126, not -127; even though stored exponent = 0, the rule is designed to provide a smooth transition from normal to denormal.",
+          "reference": "Digital Logic / IEEE 754"
+        },
+        {
+          "formulaId": "con_029-ieee-machine-epsilon",
+          "name": "Machine Epsilon and Precision",
+          "latex": "\\epsilon_{\\text{machine}} = 2^{-23} \\text{ (single)}, \\quad 2^{-52} \\text{ (double)}",
+          "plain": "Machine epsilon = 2^(-23) for single precision; 2^(-52) for double precision (smallest value such that 1 + eps != 1)",
+          "whenToUse": "Estimating floating-point rounding error or the number of significant decimal digits",
+          "terms": [
+            { "symbol": "\\epsilon", "means": "machine epsilon (unit roundoff)" }
+          ],
+          "trap": "Machine epsilon is NOT the smallest positive float; the smallest normal single is ~1.18e-38 and the smallest denormal is even smaller.",
+          "reference": "Digital Logic / IEEE 754"
+        }
+      ]
+    },
+    {
+      "groupId": "booths-algorithm",
+      "groupTitle": "Booth's Algorithm",
+      "formulas": [
+        {
+          "formulaId": "con_029-booth-recoding",
+          "name": "Booth Recoding Rule (Radix-2)",
+          "latex": "\\text{Booth digit}_i = b_i - b_{i+1} \\in \\{-1, 0, +1\\}",
+          "plain": "Booth digit at position i = b_i minus b_{i+1} where b_{-1} = 0 (appended bit). Result is -1, 0, or +1.",
+          "whenToUse": "Recoding a multiplier in Booth's algorithm to reduce partial products",
+          "terms": [
+            { "symbol": "b_i", "means": "current multiplier bit (LSB=0)" },
+            { "symbol": "b_{i+1}", "means": "next higher multiplier bit (b_{-1}=0 for LSB)" }
+          ],
+          "trap": "Always append a 0 bit below the LSB (b_{-1} = 0); omitting it gives wrong recoding for the least significant pair.",
+          "reference": "Digital Logic / Booth's Algorithm"
+        },
+        {
+          "formulaId": "con_029-booth-operations",
+          "name": "Booth Partial-Product Operations",
+          "latex": "\\text{digit}=+1 \\Rightarrow +\\text{multiplicand}; \\quad \\text{digit}=-1 \\Rightarrow -\\text{multiplicand}; \\quad \\text{digit}=0 \\Rightarrow 0",
+          "plain": "Booth digit +1 -> add multiplicand; -1 -> subtract multiplicand; 0 -> no operation (shift only)",
+          "whenToUse": "Deciding which operation to perform at each step of Booth's multiplication",
+          "terms": [
+            { "symbol": "+1", "means": "add multiplicand to partial product" },
+            { "symbol": "-1", "means": "subtract multiplicand (add 2's complement)" },
+            { "symbol": "0", "means": "no add or subtract, just shift" }
+          ],
+          "trap": "Subtraction means adding the 2's complement of the multiplicand, NOT just flipping bits (must add 1 for 2's complement).",
+          "reference": "Digital Logic / Booth's Algorithm"
+        },
+        {
+          "formulaId": "con_029-booth-worst-case",
+          "name": "Booth's Algorithm Worst-Case Pattern",
+          "latex": "\\text{Worst case: alternating } 1010\\ldots10 \\Rightarrow \\text{all non-zero digits, } \\lceil n/2 \\rceil \\text{ adds/subs}",
+          "plain": "Worst case multiplier pattern is alternating 1010...10 — every Booth digit is non-zero, giving maximum additions/subtractions",
+          "whenToUse": "Determining when Booth's algorithm has worst performance (most partial products to accumulate)",
+          "terms": [
+            { "symbol": "n", "means": "number of bits in multiplier" }
+          ],
+          "trap": "All-1s (0b1111...1) gives only ONE non-zero Booth digit (at the ends), so it is actually the BEST case, not worst — a common trap in GATE MCQs.",
+          "reference": "Digital Logic / Booth's Algorithm"
+        },
+        {
+          "formulaId": "con_029-booth-step-count",
+          "name": "Number of Steps in Booth's Algorithm",
+          "latex": "\\text{Steps} = n \\quad (\\text{one arithmetic-right-shift per multiplier bit})",
+          "plain": "Booth's algorithm for n-bit multiplier requires exactly n steps (one per bit), each with an optional add/subtract followed by arithmetic right shift",
+          "whenToUse": "Counting iterations/steps in a Booth multiplication implementation",
+          "terms": [
+            { "symbol": "n", "means": "number of bits in the multiplier" }
+          ],
+          "trap": "The product of two n-bit numbers is 2n bits wide; the accumulator register must be wide enough to hold 2n bits to avoid overflow.",
+          "reference": "Digital Logic / Booth's Algorithm"
+        }
+      ]
+    },
+    {
+      "groupId": "arithmetic-operations",
+      "groupTitle": "Binary Arithmetic & Overflow",
+      "formulas": [
+        {
+          "formulaId": "con_029-overflow-2s-complement",
+          "name": "Overflow Detection in 2's Complement Addition",
+          "latex": "\\text{Overflow} \\Leftrightarrow C_{n-1} \\oplus C_n = 1",
+          "plain": "Overflow occurs when carry into the sign bit differs from carry out of the sign bit (XOR of the two carries = 1)",
+          "whenToUse": "Detecting overflow after adding two signed 2's complement numbers",
+          "terms": [
+            { "symbol": "C_{n-1}", "means": "carry into the most significant (sign) bit position" },
+            { "symbol": "C_n", "means": "carry out of the most significant bit position" }
+          ],
+          "trap": "Overflow can only occur when both operands have the same sign; it is impossible when adding numbers of opposite signs.",
+          "reference": "Digital Logic / Arithmetic"
+        },
+        {
+          "formulaId": "con_029-bcd-addition",
+          "name": "BCD Addition Correction",
+          "latex": "\\text{If sum} > 9 \\text{ or } C=1: \\quad \\text{sum} \\leftarrow \\text{sum} + 6 \\;(0110_2)",
+          "plain": "BCD addition: if the 4-bit result > 9 or carry out = 1, add 6 (0110) to correct the result to valid BCD",
+          "whenToUse": "Performing BCD (8421) arithmetic addition",
+          "terms": [
+            { "symbol": "C", "means": "carry out of the 4-bit BCD digit" },
+            { "symbol": "6", "means": "correction factor (16 - 10 = 6)" }
+          ],
+          "trap": "The correction is adding 6 (decimal), not just setting a bit; forgetting the carry propagation from the correction into the next digit is also common.",
+          "reference": "Digital Logic / BCD Arithmetic"
+        },
+        {
+          "formulaId": "con_029-float-guard-bits",
+          "name": "Floating-Point Rounding Modes",
+          "latex": "\\text{Round to nearest (even)} \\;|\\; \\text{Round toward 0 (truncate)} \\;|\\; \\text{Round} \\pm\\infty",
+          "plain": "IEEE 754 rounding modes: round-to-nearest-even (default), truncate toward zero, round toward +inf, round toward -inf",
+          "whenToUse": "Analyzing or implementing floating-point arithmetic results subject to rounding",
+          "terms": [
+            { "symbol": "\\text{guard bit}", "means": "extra bit kept during intermediate computation to improve rounding accuracy" }
+          ],
+          "trap": "Default IEEE rounding is round-to-nearest-even (banker's rounding), NOT always round-up; this affects tie-breaking.",
+          "reference": "Digital Logic / Floating Point"
+        }
+      ]
+    }
+  ]
+}

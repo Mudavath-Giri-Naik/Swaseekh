@@ -1,0 +1,320 @@
+{
+  "_id": "con_061",
+  "conceptId": "con_061",
+  "conceptTitle": "System Calls, Processes and Threads",
+  "reference": "GATE CS — Operating System / Processes and Threads",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Count child processes from n fork() calls in a loop",
+        "use": "\\text{children} = 2^n - 1,\\quad \\text{total processes} = 2^n"
+      },
+      {
+        "condition": "Compare mode-switch time vs process context-switch time",
+        "use": "T_{\\text{mode switch}} < T_{\\text{context switch}}"
+      },
+      {
+        "condition": "How system calls are invoked",
+        "use": "\\text{Software Interrupt (Trap Instruction)}"
+      },
+      {
+        "condition": "What threads share vs keep private",
+        "use": "\\text{Shared: code, data, heap, files} \\quad \\text{Private: stack, registers, PC, TID}"
+      },
+      {
+        "condition": "What is saved on a context switch",
+        "use": "\\text{Saved: PC, registers, SP, PCB} \\quad \\text{Not necessarily: TLB}"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "fork-system-call",
+      "groupTitle": "Fork System Call",
+      "formulas": [
+        {
+          "formulaId": "con_061-fork-children-loop",
+          "name": "Children created by n fork()s in a loop",
+          "latex": "\\text{For } i=1 \\text{ to } n: \\text{ fork()} \\Rightarrow \\text{total child processes} = 2^n - 1",
+          "plain": "Loop: for(i=1; i<=n; i++) fork() => new (child) processes = 2^n - 1",
+          "whenToUse": "When fork() is called n times inside a sequential loop (each existing process forks at each iteration).",
+          "terms": [
+            { "symbol": "n", "means": "number of loop iterations (number of fork calls)" },
+            { "symbol": "2^n - 1", "means": "total number of newly created (child) processes" },
+            { "symbol": "2^n", "means": "total number of processes including the original" }
+          ],
+          "trap": "GATE often asks for 'new processes' (2^n - 1) vs 'total processes' (2^n). Don't confuse the two. Also, the loop variable i matters: for(i=0; i<n; i++) also gives 2^n - 1 children.",
+          "reference": "Operating System / Fork System Call"
+        },
+        {
+          "formulaId": "con_061-fork-total-processes",
+          "name": "Total processes after n sequential forks",
+          "latex": "\\text{Total processes} = 2^n",
+          "plain": "Total processes (including original) = 2^n",
+          "whenToUse": "When the question asks for the total number of processes (parent + all descendants) after n fork() calls in a loop.",
+          "terms": [
+            { "symbol": "2^n", "means": "total processes alive after n fork() calls in a loop" }
+          ],
+          "trap": "If forks are placed outside a loop (sequential, not looped), the count differs. Each fork doubles the process count only when every existing process calls fork at each step.",
+          "reference": "Operating System / Fork System Call"
+        },
+        {
+          "formulaId": "con_061-fork-return-value",
+          "name": "fork() Return Value",
+          "latex": "\\text{fork()} = \\begin{cases} 0 & \\text{in child process} \\\\ \\text{child PID} > 0 & \\text{in parent process} \\\\ -1 & \\text{on error} \\end{cases}",
+          "plain": "fork() returns 0 in child, child-PID (>0) in parent, -1 on error",
+          "whenToUse": "When reasoning about which branch (if/else) executes in the child vs parent after a fork() call.",
+          "terms": [
+            { "symbol": "0", "means": "returned to the child process" },
+            { "symbol": ">0", "means": "returned to the parent (value = child's PID)" },
+            { "symbol": "-1", "means": "fork failed (no new process created)" }
+          ],
+          "trap": "if(fork() == 0) runs in the child; the else branch runs in the parent. Both processes continue from the next line after fork() — they do NOT restart from main.",
+          "reference": "Operating System / Fork System Call"
+        },
+        {
+          "formulaId": "con_061-fork-address-space",
+          "name": "Address Space After fork()",
+          "latex": "\\text{Child gets a } \\textit{copy} \\text{ of parent's address space (COW)}",
+          "plain": "Child gets an independent copy (Copy-On-Write) of parent's memory; same virtual addresses but different physical pages after write.",
+          "whenToUse": "When a question asks about shared/separate variables or same memory address (&a) printing same value vs different value after fork().",
+          "terms": [
+            { "symbol": "COW", "means": "Copy-On-Write — physical copy made only on first write" },
+            { "symbol": "&a", "means": "virtual address (same in both parent and child, but different physical location)" }
+          ],
+          "trap": "Same virtual address does NOT mean same physical memory after a write. Parent and child modify their own copies independently.",
+          "reference": "Operating System / Fork System Call"
+        }
+      ]
+    },
+    {
+      "groupId": "context-switch",
+      "groupTitle": "Context Switch",
+      "formulas": [
+        {
+          "formulaId": "con_061-context-switch-saved-state",
+          "name": "State Saved During Context Switch",
+          "latex": "\\text{PCB saves: PC, SP, registers, page table base, process state, open files}",
+          "plain": "PCB (Process Control Block) saves: Program Counter, Stack Pointer, general-purpose registers, page table base register, process state, open file descriptors.",
+          "whenToUse": "When asked what the OS saves/restores when switching from process A to process B.",
+          "terms": [
+            { "symbol": "PCB", "means": "Process Control Block — data structure storing process context" },
+            { "symbol": "PC", "means": "Program Counter — next instruction address" },
+            { "symbol": "SP", "means": "Stack Pointer" }
+          ],
+          "trap": "The TLB (Translation Lookaside Buffer) does NOT need to be saved — it is typically flushed or invalidated (or uses ASIDs) on a context switch, not saved to the PCB.",
+          "reference": "Operating System / Context Switch"
+        },
+        {
+          "formulaId": "con_061-mode-switch-vs-context-switch",
+          "name": "Mode Switch Time vs Context Switch Time",
+          "latex": "T_{\\text{user} \\to \\text{kernel}} < T_{\\text{process A} \\to \\text{process B}}",
+          "plain": "T1 (user-to-kernel mode switch) < T2 (process-to-process context switch)",
+          "whenToUse": "When comparing the overhead of switching CPU mode (user->kernel) vs switching between two user processes.",
+          "terms": [
+            { "symbol": "T_1", "means": "time to switch from user mode to kernel mode (mode switch)" },
+            { "symbol": "T_2", "means": "time to switch context between two processes (context switch)" }
+          ],
+          "trap": "A mode switch only saves a few registers and changes the privilege level. A full context switch additionally saves the entire process state (PCB), swaps address spaces, may flush TLB — so T1 < T2.",
+          "reference": "Operating System / Context Switch"
+        },
+        {
+          "formulaId": "con_061-tlb-context-switch",
+          "name": "TLB and Context Switch",
+          "latex": "\\text{TLB} \\xrightarrow{\\text{context switch}} \\text{flushed (or tagged with ASID)}",
+          "plain": "On context switch: TLB is flushed (invalidated) OR entries are tagged with Address Space Identifiers (ASIDs) to avoid full flush.",
+          "whenToUse": "When asked which items need NOT be saved on a context switch (TLB is the classic answer).",
+          "terms": [
+            { "symbol": "TLB", "means": "Translation Lookaside Buffer — hardware cache for page table entries" },
+            { "symbol": "ASID", "means": "Address Space Identifier — tags TLB entries to avoid full flush" }
+          ],
+          "trap": "TLB contents are NOT saved in the PCB. They are discarded (flushed) on switch. This is different from registers which ARE saved.",
+          "reference": "Operating System / Context Switch"
+        }
+      ]
+    },
+    {
+      "groupId": "system-calls-protection",
+      "groupTitle": "System Calls and OS Protection",
+      "formulas": [
+        {
+          "formulaId": "con_061-syscall-invocation",
+          "name": "System Call Invocation Mechanism",
+          "latex": "\\text{System Call} \\Rightarrow \\text{Software Interrupt (Trap)} \\Rightarrow \\text{User mode} \\to \\text{Kernel mode}",
+          "plain": "System calls are invoked via a software interrupt (trap instruction), which transfers control to the OS kernel.",
+          "whenToUse": "When asked how a user process invokes OS services (system calls).",
+          "terms": [
+            { "symbol": "Trap", "means": "software-generated interrupt that switches CPU to kernel mode" },
+            { "symbol": "Kernel mode", "means": "privileged CPU mode where OS code executes" }
+          ],
+          "trap": "System calls use a software interrupt (trap), NOT a hardware interrupt, NOT polling, NOT an indirect jump. The OS handles the trap and returns to user mode after service.",
+          "reference": "Operating System / System Calls"
+        },
+        {
+          "formulaId": "con_061-privileged-to-non-privileged",
+          "name": "Switching from Privileged to Non-Privileged Mode",
+          "latex": "\\text{Privileged} \\to \\text{Non-Privileged}: \\text{Privileged instruction executed by OS}",
+          "plain": "Switching FROM kernel/privileged mode TO user/non-privileged mode requires a privileged instruction (executed by the OS, e.g., IRET on x86).",
+          "whenToUse": "When asked how the CPU transitions from privileged (kernel) mode back to non-privileged (user) mode.",
+          "terms": [
+            { "symbol": "IRET", "means": "interrupt return instruction (privileged) that restores user mode" }
+          ],
+          "trap": "Going FROM privileged TO non-privileged requires a privileged instruction (not a software interrupt). A software interrupt goes FROM user TO kernel, not the reverse.",
+          "reference": "Operating System / OS Protection"
+        },
+        {
+          "formulaId": "con_061-dual-mode-operation",
+          "name": "Dual-Mode Operation",
+          "latex": "\\text{CPU Mode} = \\begin{cases} \\text{User mode (non-privileged)} & \\text{mode bit} = 1 \\\\ \\text{Kernel mode (privileged)} & \\text{mode bit} = 0 \\end{cases}",
+          "plain": "CPU has a mode bit: 0 = kernel mode, 1 = user mode. Privileged instructions only execute when mode bit = 0.",
+          "whenToUse": "When reasoning about which instructions can execute in which mode, or what the mode bit indicates.",
+          "terms": [
+            { "symbol": "mode bit", "means": "1-bit register in CPU indicating current privilege level" },
+            { "symbol": "privileged instruction", "means": "instruction that can only execute in kernel mode" }
+          ],
+          "trap": "Not all instructions are privileged. I/O instructions, halt, interrupt control, and memory protection setup are privileged. Normal arithmetic/logic are available in both modes.",
+          "reference": "Operating System / OS Protection"
+        },
+        {
+          "formulaId": "con_061-signal-handling",
+          "name": "Signal Handling on Interrupt",
+          "latex": "\\text{Signal} \\to \\text{Kernel delivers to process} \\to \\text{User-level handler (if registered)} \\to \\text{Resume/Terminate}",
+          "plain": "On Ctrl-C: kernel sends SIGINT, process runs user-registered signal handler (if any) in user mode, then terminates or resumes.",
+          "whenToUse": "When asked what happens when a signal (SIGINT from Ctrl-C) is delivered to a process with a custom signal handler.",
+          "terms": [
+            { "symbol": "SIGINT", "means": "signal sent on Ctrl-C input" },
+            { "symbol": "signal handler", "means": "user-defined function registered to handle a specific signal" }
+          ],
+          "trap": "The signal handler runs in user mode, not kernel mode. The kernel only delivers the signal and sets up the handler invocation — the handler code itself is user-level.",
+          "reference": "Operating System / OS Protection"
+        }
+      ]
+    },
+    {
+      "groupId": "process-states",
+      "groupTitle": "Process States and Transitions",
+      "formulas": [
+        {
+          "formulaId": "con_061-process-state-model",
+          "name": "Process State Transition Model",
+          "latex": "\\text{New} \\to \\text{Ready} \\xrightarrow{\\text{dispatch}} \\text{Running} \\xrightarrow{\\text{I/O or event}} \\text{Blocked} \\to \\text{Ready}",
+          "plain": "New -> Ready -> (dispatch) -> Running -> (I/O wait) -> Blocked -> Ready; Running -> (preempt) -> Ready; Running -> (exit) -> Terminated",
+          "whenToUse": "When asked to identify valid/invalid process state transitions or what causes a transition.",
+          "terms": [
+            { "symbol": "dispatch", "means": "scheduler selects process from Ready queue and gives CPU" },
+            { "symbol": "preemption", "means": "OS removes CPU from running process (timer interrupt)" },
+            { "symbol": "Blocked", "means": "process waiting for I/O or an event to complete" }
+          ],
+          "trap": "A process can go from Running -> Ready (preemption) and Running -> Blocked (I/O), but NOT directly from Blocked -> Running. It must go Blocked -> Ready -> Running.",
+          "reference": "Operating System / Process"
+        },
+        {
+          "formulaId": "con_061-process-interrupt-sources",
+          "name": "What Interrupts a Running Process",
+          "latex": "\\text{Interrupts: Timer, I/O device, Power failure, Hardware fault} \\quad \\text{NOT: Scheduler process itself}",
+          "plain": "Timer, I/O device completion, power failure, and hardware faults interrupt a running process. The scheduler (as a separate process) does NOT directly interrupt it — the timer interrupt invokes the scheduler.",
+          "whenToUse": "When asked which events can interrupt or preempt a running process.",
+          "terms": [
+            { "symbol": "Timer interrupt", "means": "hardware clock interrupt that triggers the OS scheduler" },
+            { "symbol": "Scheduler", "means": "OS routine invoked by timer interrupt to decide next process" }
+          ],
+          "trap": "The 'scheduler process' does NOT interrupt a running process on its own — the timer hardware interrupt does, which then causes the OS to run the scheduler. The scheduler is not an external interrupter.",
+          "reference": "Operating System / Process"
+        }
+      ]
+    },
+    {
+      "groupId": "threads",
+      "groupTitle": "Threads",
+      "formulas": [
+        {
+          "formulaId": "con_061-thread-shared-private",
+          "name": "Thread: Shared vs Private Resources",
+          "latex": "\\text{Shared (per process): code, data, heap, open files, signals} \\quad \\text{Private (per thread): stack, registers, PC, TID}",
+          "plain": "Threads within a process share: code segment, data segment, heap, open file descriptors, signal handlers. Each thread has its own: stack, register set, program counter, thread ID.",
+          "whenToUse": "When asked what is shared among threads of a process vs what each thread maintains privately.",
+          "terms": [
+            { "symbol": "TID", "means": "Thread ID — unique identifier for each thread" },
+            { "symbol": "stack", "means": "private per thread — stores local variables and function call frames" },
+            { "symbol": "heap", "means": "shared among all threads of a process" }
+          ],
+          "trap": "Stack is PRIVATE per thread (not shared). Heap is shared. This is a frequent GATE trap — do not confuse stack with heap.",
+          "reference": "Operating System / Threads"
+        },
+        {
+          "formulaId": "con_061-user-vs-kernel-threads",
+          "name": "User-Level vs Kernel-Level Threads",
+          "latex": "\\text{ULT: managed in user space (thread library)} \\quad \\text{KLT: managed by OS kernel}",
+          "plain": "User-Level Threads (ULT): managed by user-space library, kernel unaware, fast switching but blocks whole process on I/O. Kernel-Level Threads (KLT): kernel manages, true parallelism, slower creation/switch.",
+          "whenToUse": "When asked about thread management, blocking behavior, or parallelism in multi-core systems.",
+          "terms": [
+            { "symbol": "ULT", "means": "User-Level Thread — kernel sees one process, thread library does scheduling" },
+            { "symbol": "KLT", "means": "Kernel-Level Thread — kernel manages each thread, can schedule on separate CPUs" }
+          ],
+          "trap": "With ULTs, if one thread makes a blocking system call, the entire process blocks (kernel doesn't know about other threads). KLTs avoid this but have higher overhead.",
+          "reference": "Operating System / Threads"
+        },
+        {
+          "formulaId": "con_061-thread-models",
+          "name": "Thread Models (Many-to-One, One-to-One, Many-to-Many)",
+          "latex": "\\text{M:1 (ULT)} \\quad \\text{1:1 (KLT)} \\quad \\text{M:N (hybrid)}",
+          "plain": "Many-to-One: multiple user threads -> one kernel thread. One-to-One: each user thread -> one kernel thread. Many-to-Many: M user threads -> N kernel threads (M >= N).",
+          "whenToUse": "When asked about threading models and their trade-offs (concurrency, blocking, parallelism).",
+          "terms": [
+            { "symbol": "M:1", "means": "Many user threads to one kernel thread — no true parallelism" },
+            { "symbol": "1:1", "means": "Each user thread has a kernel thread — true parallelism, higher overhead" },
+            { "symbol": "M:N", "means": "M user threads multiplexed onto N kernel threads — balanced" }
+          ],
+          "trap": "M:1 model cannot use multiple CPU cores simultaneously. 1:1 model has overhead from kernel thread creation for each user thread.",
+          "reference": "Operating System / Threads"
+        },
+        {
+          "formulaId": "con_061-thread-vs-process",
+          "name": "Thread vs Process Creation Overhead",
+          "latex": "T_{\\text{thread creation}} \\ll T_{\\text{process creation}} \\quad (\\text{no address space copy for threads})",
+          "plain": "Thread creation is much faster than process creation because threads share the process address space (no copy needed). Context switch between threads is also faster than between processes.",
+          "whenToUse": "When asked why threads are called 'lightweight processes' or comparing thread vs process overhead.",
+          "terms": [
+            { "symbol": "lightweight process", "means": "thread — shares address space, faster to create and switch" }
+          ],
+          "trap": "Threads are NOT independent — a bug in one thread (e.g., corrupting heap) can crash all threads in the same process. Processes are better isolated.",
+          "reference": "Operating System / Threads"
+        },
+        {
+          "formulaId": "con_061-thread-synchronization-need",
+          "name": "Thread Synchronization Requirement",
+          "latex": "\\text{Shared data} + \\text{concurrent threads} \\Rightarrow \\text{race condition} \\Rightarrow \\text{synchronization needed}",
+          "plain": "When multiple threads access shared data concurrently with at least one write, a race condition can occur. Synchronization (mutex, semaphore) is required to ensure correctness.",
+          "whenToUse": "When asked why threads need synchronization primitives or about race conditions in multithreaded programs.",
+          "terms": [
+            { "symbol": "race condition", "means": "outcome depends on interleaving order of thread execution" },
+            { "symbol": "mutex", "means": "mutual exclusion lock to protect critical sections" }
+          ],
+          "trap": "Read-only shared access by multiple threads is safe without synchronization. Race conditions only arise when at least one thread writes to shared data.",
+          "reference": "Operating System / Threads"
+        }
+      ]
+    },
+    {
+      "groupId": "process-memory",
+      "groupTitle": "Process Memory Layout",
+      "formulas": [
+        {
+          "formulaId": "con_061-process-memory-segments",
+          "name": "Process Memory Segments",
+          "latex": "\\text{Process address space: } [\\text{Text} | \\text{Data} | \\text{Heap} \\uparrow \\cdots \\downarrow \\text{Stack}]",
+          "plain": "Process memory: Text (code, read-only) | Initialized Data | BSS (uninitialized data) | Heap (grows up) | ... | Stack (grows down)",
+          "whenToUse": "When asked about process address space layout or where variables (global, local, dynamic) are stored.",
+          "terms": [
+            { "symbol": "Text", "means": "code segment — read-only, shared among threads" },
+            { "symbol": "Heap", "means": "dynamic allocation (malloc/new), shared by all threads, grows upward" },
+            { "symbol": "Stack", "means": "local variables, function frames, private per thread, grows downward" }
+          ],
+          "trap": "Global/static variables are in the Data/BSS segment, NOT the heap. Local variables are on the stack. Dynamically allocated memory is on the heap.",
+          "reference": "Operating System / Process"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+ "_id": "con_080",
+ "conceptId": "con_080",
+ "conceptTitle": "Flow Control and Congestion Control",
+ "reference": "GATE CS — Computer Networks / Transport & Data Link",
+ "decisionGuide": {
+  "title": "Which result do I use?",
+  "map": [
+   {"condition": "Stop-and-wait efficiency", "use": "\\tfrac{1}{1+2a}"},
+   {"condition": "Sliding-window efficiency", "use": "\\min(1,\\tfrac{W}{1+2a})"},
+   {"condition": "GBN vs SR window", "use": "2^m-1 \\text{ vs } 2^{m-1}"},
+   {"condition": "Token bucket burst", "use": "S=\\tfrac{C}{M-\\rho}"}
+  ]
+ },
+ "groups": [
+  {
+   "groupId": "flow-control",
+   "groupTitle": "Flow Control Efficiency",
+   "formulas": [
+    {"formulaId": "con_080-stop-wait", "name": "Stop-and-Wait Efficiency", "latex": "\\eta = \\frac{1}{1 + 2a}, \\quad a = \\frac{T_p}{T_t}", "plain": "Stop-and-wait efficiency = 1/(1+2a); a = propagation/transmission time", "whenToUse": "Throughput of stop-and-wait ARQ.", "terms": [{"symbol": "T_p", "means": "one-way propagation delay"}, {"symbol": "T_t", "means": "frame transmission time"}], "trap": "Throughput = efficiency x bandwidth. Ignoring ACK time assumes ACK is tiny.", "reference": "ARQ"},
+    {"formulaId": "con_080-sliding-window", "name": "Sliding-Window Efficiency", "latex": "\\eta = \\min\\!\\left(1, \\frac{W}{1 + 2a}\\right)", "plain": "Sliding-window efficiency = min(1, W/(1+2a)); full link when W >= 1+2a", "whenToUse": "Throughput of GBN/SR with window size W.", "terms": [{"symbol": "W", "means": "sender window size (frames)"}], "trap": "Window needed for 100% utilization is W = 1 + 2a (round up).", "reference": "Sliding window"},
+    {"formulaId": "con_080-window-sizes", "name": "GBN vs Selective-Repeat Window", "latex": "W_{GBN} \\le 2^{m}-1, \\quad W_{SR} \\le 2^{m-1}", "plain": "With m-bit sequence numbers: Go-Back-N window <= 2^m - 1, Selective Repeat window <= 2^(m-1)", "whenToUse": "Choosing max window for a given sequence-number field.", "terms": [{"symbol": "m", "means": "sequence-number bits"}], "trap": "Exceeding these limits causes the receiver to mistake retransmissions for new frames.", "reference": "ARQ windows"}
+   ]
+  },
+  {
+   "groupId": "congestion",
+   "groupTitle": "Congestion Control",
+   "formulas": [
+    {"formulaId": "con_080-aimd", "name": "TCP AIMD", "latex": "\\text{ACK: } cwnd \\mathrel{+}= 1;\\quad \\text{loss: } cwnd \\mathrel{/}= 2", "plain": "TCP congestion avoidance: additive increase (+1 MSS/RTT), multiplicative decrease (halve on loss)", "whenToUse": "Tracing TCP congestion window evolution.", "terms": [{"symbol": "cwnd", "means": "congestion window"}, {"symbol": "ssthresh", "means": "slow-start threshold"}], "trap": "Slow start grows cwnd exponentially (doubles per RTT) until ssthresh, then AIMD linear.", "reference": "TCP congestion"},
+    {"formulaId": "con_080-token-bucket", "name": "Token Bucket Burst Time", "latex": "S = \\frac{C}{M - \\rho}", "plain": "Max burst duration S = C/(M - rho), where C=bucket capacity, M=max output rate, rho=token rate", "whenToUse": "Traffic shaping / policing burst calculations.", "terms": [{"symbol": "C", "means": "bucket capacity (bytes)"}, {"symbol": "M", "means": "peak send rate"}, {"symbol": "\\rho", "means": "token arrival rate"}], "trap": "Max bytes sent in burst of length S = C + rho*S; valid only while M > rho.", "reference": "Token bucket"}
+   ]
+  }
+ ]
+}

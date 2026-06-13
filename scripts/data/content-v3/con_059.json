@@ -1,0 +1,306 @@
+{
+  "_id": "con_059",
+  "conceptId": "con_059",
+  "conceptTitle": "Local Optimization",
+  "reference": "GATE CS — Compiler Design / Optimization",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Counting basic blocks in a 3-address code sequence",
+        "use": "\\text{Basic block starts at: (1) first instruction, (2) target of a jump, (3) instruction after a jump}"
+      },
+      {
+        "condition": "Eliminating recomputed subexpressions within a block",
+        "use": "\\text{CSE: if } e \\text{ was computed and operands unchanged, reuse the earlier temp}"
+      },
+      {
+        "condition": "Moving code out of a loop that does not change across iterations",
+        "use": "\\text{Loop-invariant code motion: hoist statement } s \\text{ if all operands of } s \\text{ are loop-invariant}"
+      },
+      {
+        "condition": "Minimum registers needed to evaluate expression tree without spilling",
+        "use": "r(T) = \\max(r(T_L), r(T_R), r(T_L)+1 \\text{ or } r(T_R)+1)"
+      },
+      {
+        "condition": "Register allocation by graph coloring — minimum colors (registers) needed",
+        "use": "\\text{Min registers} = \\chi(G) \\text{ where } G \\text{ is the interference graph}"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "basic-blocks",
+      "groupTitle": "Basic Blocks & Flow Graphs",
+      "formulas": [
+        {
+          "formulaId": "con_059-leader-instructions",
+          "name": "Leader Identification Rule",
+          "latex": "\\text{Leaders: } \\begin{cases} (1) & \\text{First instruction of the program} \\\\ (2) & \\text{Target of any conditional/unconditional jump} \\\\ (3) & \\text{Instruction immediately following a jump} \\end{cases}",
+          "plain": "Leaders: (1) first instruction, (2) target of any jump, (3) instruction after any jump",
+          "whenToUse": "Partitioning a 3-address code sequence into basic blocks",
+          "terms": [
+            { "symbol": "leader", "means": "first instruction of a basic block" }
+          ],
+          "trap": "An instruction that is both a jump target AND follows a jump is still only ONE leader — don't double-count it as two blocks.",
+          "reference": "Compiler Design / Basic Blocks"
+        },
+        {
+          "formulaId": "con_059-basic-block-count",
+          "name": "Basic Block Count Formula",
+          "latex": "\\#\\text{Basic Blocks} = \\#\\text{Leaders}",
+          "plain": "#BasicBlocks = #Leaders",
+          "whenToUse": "After identifying all leader instructions, the count of leaders equals the count of blocks",
+          "terms": [
+            { "symbol": "#Leaders", "means": "number of identified leader instructions" }
+          ],
+          "trap": "The last instruction being a jump does NOT create a new block after it unless another instruction follows.",
+          "reference": "Compiler Design / Basic Blocks"
+        },
+        {
+          "formulaId": "con_059-dag-basic-block",
+          "name": "DAG for a Basic Block",
+          "latex": "\\text{DAG nodes: one per distinct } (\\text{operator, left-child, right-child}) \\text{ triple}",
+          "plain": "DAG: merge nodes with same operator and operands; leaves = input values/variables",
+          "whenToUse": "Building a DAG to detect common subexpressions and dead code inside one basic block",
+          "terms": [
+            { "symbol": "DAG", "means": "Directed Acyclic Graph representing computations in a block" },
+            { "symbol": "node", "means": "one distinct computed value" }
+          ],
+          "trap": "A variable that is reassigned gets a NEW leaf node in the DAG; the old node is no longer labeled with that variable.",
+          "reference": "Compiler Design / Basic Blocks"
+        }
+      ]
+    },
+    {
+      "groupId": "local-optimizations",
+      "groupTitle": "Local Optimization Techniques",
+      "formulas": [
+        {
+          "formulaId": "con_059-cse",
+          "name": "Common Subexpression Elimination (CSE)",
+          "latex": "\\text{If } t_1 = a \\oplus b \\text{ computed earlier and } a,b \\text{ unchanged} \\Rightarrow \\text{replace recomputation by } t_1",
+          "plain": "CSE: if t1 = a op b was computed before and a,b not redefined since, reuse t1 instead of recomputing",
+          "whenToUse": "When the same expression appears multiple times in a basic block with no intervening redefinitions",
+          "terms": [
+            { "symbol": "a, b", "means": "operands of the expression" },
+            { "symbol": "t1", "means": "temporary holding the earlier computed value" }
+          ],
+          "trap": "If ANY operand is reassigned between the two computations, CSE cannot be applied — even if the new value happens to be the same.",
+          "reference": "Compiler Design / Code Optimization"
+        },
+        {
+          "formulaId": "con_059-constant-folding",
+          "name": "Constant Folding",
+          "latex": "\\text{If } x = c_1 \\oplus c_2 \\text{ where } c_1, c_2 \\in \\mathbb{Z} \\Rightarrow \\text{replace by } x = c_1 \\oplus c_2 \\text{ (evaluated at compile time)}",
+          "plain": "Constant Folding: evaluate constant expressions at compile time (e.g. 4*5 -> 20)",
+          "whenToUse": "Operands are both compile-time constants; avoids runtime arithmetic",
+          "terms": [
+            { "symbol": "c1, c2", "means": "compile-time integer constants" }
+          ],
+          "trap": "Floating-point constant folding may change semantics due to rounding — GATE questions usually stay with integers.",
+          "reference": "Compiler Design / Code Optimization"
+        },
+        {
+          "formulaId": "con_059-constant-propagation",
+          "name": "Constant Propagation",
+          "latex": "\\text{If } x = c \\text{ and } x \\text{ not redefined, replace later uses of } x \\text{ by } c",
+          "plain": "Constant Propagation: substitute the known constant value of x wherever x is used later",
+          "whenToUse": "After an assignment x = constant, propagate c into subsequent uses of x in the same block",
+          "terms": [
+            { "symbol": "c", "means": "the constant value assigned to x" }
+          ],
+          "trap": "Propagation stops at any point where x is assigned a new value — even another constant.",
+          "reference": "Compiler Design / Code Optimization"
+        },
+        {
+          "formulaId": "con_059-copy-propagation",
+          "name": "Copy Propagation",
+          "latex": "\\text{If } x = y \\text{ and } y \\text{ unchanged, replace uses of } x \\text{ by } y",
+          "plain": "Copy Propagation: after x = y, substitute y for x in later uses (enabling dead code elimination)",
+          "whenToUse": "When a variable is simply copied from another; often enables subsequent dead-code elimination",
+          "terms": [
+            { "symbol": "x", "means": "copy target (left-hand side)" },
+            { "symbol": "y", "means": "copy source (right-hand side)" }
+          ],
+          "trap": "Both x AND y must be unmodified for the substitution to be valid at a given use point.",
+          "reference": "Compiler Design / Code Optimization"
+        },
+        {
+          "formulaId": "con_059-dead-code-elim",
+          "name": "Dead Code Elimination",
+          "latex": "\\text{Remove statement } x = e \\text{ if } x \\text{ is never used after this point (dead variable)}",
+          "plain": "Dead Code Elimination: delete any assignment whose LHS variable is never subsequently read",
+          "whenToUse": "After other optimizations (CSE, copy propagation) create assignments that are no longer referenced",
+          "terms": [
+            { "symbol": "x", "means": "variable assigned but never used afterward" }
+          ],
+          "trap": "An assignment is dead only if x is not live at that point — check all paths, not just the sequential next line.",
+          "reference": "Compiler Design / Code Optimization"
+        },
+        {
+          "formulaId": "con_059-strength-reduction",
+          "name": "Strength Reduction",
+          "latex": "x^2 \\to x \\times x, \\quad 2x \\to x + x, \\quad x \\times 2^k \\to x \\ll k",
+          "plain": "Strength Reduction: replace expensive ops with cheaper ones (e.g. multiply by power-of-2 -> left shift)",
+          "whenToUse": "Loop induction variable expressions with multiplication/division by constants",
+          "terms": [
+            { "symbol": "k", "means": "integer exponent (shift amount)" },
+            { "symbol": "x", "means": "induction or loop variable" }
+          ],
+          "trap": "4*j in a loop should be tracked as an induction variable incremented by 4 each iteration — do not apply strength reduction only once.",
+          "reference": "Compiler Design / Code Optimization"
+        }
+      ]
+    },
+    {
+      "groupId": "loop-optimizations",
+      "groupTitle": "Loop Optimization",
+      "formulas": [
+        {
+          "formulaId": "con_059-loop-invariant",
+          "name": "Loop-Invariant Code Motion (LICM)",
+          "latex": "s: x = f(v_1, \\ldots, v_k) \\text{ is loop-invariant if all } v_i \\text{ are loop-invariant or defined outside loop}",
+          "plain": "LICM: a statement is loop-invariant if all its operands are defined outside the loop or are themselves loop-invariant; hoist it to the pre-header",
+          "whenToUse": "Identifying computations that produce the same value on every iteration of a loop",
+          "terms": [
+            { "symbol": "v_i", "means": "operands of the statement" },
+            { "symbol": "pre-header", "means": "new block inserted before the loop header to hold hoisted code" }
+          ],
+          "trap": "A variable defined inside the loop is NOT loop-invariant even if its assigned value happens to be a constant — you must trace definitions, not values.",
+          "reference": "Compiler Design / Code Optimization"
+        },
+        {
+          "formulaId": "con_059-induction-variable",
+          "name": "Induction Variable Recognition",
+          "latex": "i \\text{ is a basic IV if } i \\mathrel{+}= c \\text{ (constant) each iteration.} \\quad j \\text{ is a derived IV if } j = c_1 \\cdot i + c_2",
+          "plain": "Basic IV: incremented by a constant each loop iteration. Derived IV: linear function of a basic IV (j = c1*i + c2)",
+          "whenToUse": "Strength reduction in loops: replace j = c1*i+c2 by incrementing j by c1*step each iteration",
+          "terms": [
+            { "symbol": "i", "means": "basic induction variable" },
+            { "symbol": "c1, c2", "means": "integer constants" },
+            { "symbol": "step", "means": "increment of i per loop iteration" }
+          ],
+          "trap": "5*i is a derived IV of i; after strength reduction, it becomes a new IV incremented by 5 — do NOT recompute 5*i each time.",
+          "reference": "Compiler Design / Code Optimization"
+        }
+      ]
+    },
+    {
+      "groupId": "register-allocation",
+      "groupTitle": "Register Allocation",
+      "formulas": [
+        {
+          "formulaId": "con_059-sethi-ullman",
+          "name": "Sethi-Ullman Register Number",
+          "latex": "r(n) = \\begin{cases} 1 & n \\text{ is a leaf} \\\\ \\max(r(l), r(r)) & r(l) \\neq r(r) \\\\ r(l) + 1 & r(l) = r(r) \\end{cases}",
+          "plain": "r(n): registers needed at node n. Leaf=1. If children need different counts: max(r(left),r(right)). If equal: r(left)+1.",
+          "whenToUse": "Finding minimum registers to evaluate an expression tree with a single accumulator (Ershov / Sethi-Ullman algorithm)",
+          "terms": [
+            { "symbol": "r(n)", "means": "minimum registers needed to evaluate subtree rooted at n" },
+            { "symbol": "l, r", "means": "left and right children of node n" }
+          ],
+          "trap": "For NON-commutative ops (like subtraction), the evaluation order matters — swapping children may give wrong code. Must check which child needs more registers first.",
+          "reference": "Compiler Design / Register Allocation"
+        },
+        {
+          "formulaId": "con_059-interference-graph",
+          "name": "Interference Graph & Graph Coloring",
+          "latex": "\\text{Variables } x, y \\text{ interfere iff they are simultaneously live.} \\quad \\text{Min registers} = \\chi(G)",
+          "plain": "Two variables interfere if both are live at some program point. Min registers = chromatic number of interference graph.",
+          "whenToUse": "Global register allocation: model conflicts as a graph and color it with k colors (k = #registers)",
+          "terms": [
+            { "symbol": "G", "means": "interference graph (nodes=variables, edges=interferences)" },
+            { "symbol": "chi(G)", "means": "chromatic number (min colors needed)" },
+            { "symbol": "k", "means": "number of available physical registers" }
+          ],
+          "trap": "If chi(G) > k, spilling is required. GATE questions often ask whether a given code needs exactly k registers — check max clique size as a lower bound.",
+          "reference": "Compiler Design / Register Allocation"
+        },
+        {
+          "formulaId": "con_059-liveness",
+          "name": "Live Variable at a Point",
+          "latex": "x \\text{ is live at point } p \\iff \\exists \\text{ a path } p \\to q \\text{ with use of } x \\text{ at } q \\text{ and no def of } x \\text{ before } q",
+          "plain": "x is live at point p if there is a path from p to a use of x with no redefinition of x along that path",
+          "whenToUse": "Liveness analysis for dead code elimination and interference graph construction",
+          "terms": [
+            { "symbol": "p", "means": "program point being analyzed" },
+            { "symbol": "q", "means": "later point where x is used" },
+            { "symbol": "def", "means": "assignment to x" }
+          ],
+          "trap": "Liveness is a BACKWARDS data-flow problem: propagate USE and DEF sets from program exit toward entry.",
+          "reference": "Compiler Design / Register Allocation"
+        },
+        {
+          "formulaId": "con_059-liveness-equations",
+          "name": "Liveness Data-Flow Equations",
+          "latex": "\\text{OUT}[B] = \\bigcup_{S \\in \\text{succ}(B)} \\text{IN}[S], \\quad \\text{IN}[B] = \\text{USE}[B] \\cup (\\text{OUT}[B] \\setminus \\text{DEF}[B])",
+          "plain": "OUT[B] = union of IN[S] for all successors S. IN[B] = USE[B] union (OUT[B] minus DEF[B]).",
+          "whenToUse": "Computing live variables at each basic block boundary in a control-flow graph",
+          "terms": [
+            { "symbol": "USE[B]", "means": "variables used before any definition in block B" },
+            { "symbol": "DEF[B]", "means": "variables definitely defined in block B before any use" },
+            { "symbol": "IN[B], OUT[B]", "means": "live variables at entry/exit of block B" }
+          ],
+          "trap": "Iterate until a fixed point is reached (IN/OUT sets stop changing). Starting with OUT[exit]=empty and iterating backwards is standard.",
+          "reference": "Compiler Design / Register Allocation"
+        },
+        {
+          "formulaId": "con_059-spill-cost",
+          "name": "Register Spilling",
+          "latex": "\\text{Spill variable } x \\text{ with lowest spill cost: } \\text{cost}(x) = \\frac{\\text{uses/defs of } x}{\\text{degree of } x \\text{ in interference graph}}",
+          "plain": "Spill cost heuristic: spill the variable with lowest (uses+defs)/degree ratio — most savings per color freed",
+          "whenToUse": "When interference graph chromatic number exceeds available registers; choose which variable to store in memory",
+          "terms": [
+            { "symbol": "degree", "means": "number of edges (interferences) of the node in the interference graph" }
+          ],
+          "trap": "After spilling x, the interference graph changes (x's edges removed) — may enable coloring of remaining nodes without further spills.",
+          "reference": "Compiler Design / Register Allocation"
+        }
+      ]
+    },
+    {
+      "groupId": "code-gen-optimization",
+      "groupTitle": "Code Generation & Peephole Optimization",
+      "formulas": [
+        {
+          "formulaId": "con_059-peephole-window",
+          "name": "Peephole Optimization Window",
+          "latex": "\\text{Slide a small window over generated code; apply local rewrite rules within window}",
+          "plain": "Peephole: inspect a small window (2-5 instructions) of generated code and replace with shorter/faster equivalent sequences",
+          "whenToUse": "Post-code-generation local improvement: eliminate redundant loads/stores, dead instructions, algebraic simplifications",
+          "terms": [
+            { "symbol": "window", "means": "small contiguous set of machine instructions examined at once" }
+          ],
+          "trap": "Peephole works on MACHINE code (or close to it), not on intermediate code — it is the last step, not the first.",
+          "reference": "Compiler Design / Code Optimization"
+        },
+        {
+          "formulaId": "con_059-redundant-load-store",
+          "name": "Redundant Load/Store Elimination",
+          "latex": "\\text{STORE } R \\to M[x] \\text{ followed by LOAD } M[x] \\to R \\Rightarrow \\text{delete the LOAD}",
+          "plain": "If a value is stored to memory then immediately loaded back into the same register, delete the load",
+          "whenToUse": "Peephole window contains a store immediately followed by a load of the same memory location into the same register",
+          "terms": [
+            { "symbol": "R", "means": "CPU register" },
+            { "symbol": "M[x]", "means": "memory location for variable x" }
+          ],
+          "trap": "The memory location must NOT be aliased — if another pointer could reference M[x], the load may be necessary.",
+          "reference": "Compiler Design / Code Optimization"
+        },
+        {
+          "formulaId": "con_059-aliasing",
+          "name": "Aliasing and Optimization Safety",
+          "latex": "\\text{If } a[j] \\text{ may alias } a[i+2] \\text{, then CSE/copy-prop across array accesses is UNSAFE}",
+          "plain": "Aliasing: two pointer/array expressions refer to the same memory. Any optimization that reorders or eliminates memory accesses is unsafe in the presence of aliasing.",
+          "whenToUse": "Deciding whether inter-statement optimizations (CSE, copy propagation) are valid across pointer/array writes",
+          "terms": [
+            { "symbol": "alias", "means": "two different expressions denoting the same memory location" }
+          ],
+          "trap": "In the classic GATE question, work2 stores a[j] before re-reading a[i+2] — if i+2==j, the read sees the updated value, so CSE of a[i+2] is incorrect.",
+          "reference": "Compiler Design / Code Optimization"
+        }
+      ]
+    }
+  ]
+}

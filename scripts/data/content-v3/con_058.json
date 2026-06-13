@@ -1,0 +1,252 @@
+{
+  "_id": "con_058",
+  "conceptId": "con_058",
+  "conceptTitle": "Intermediate Code Generation",
+  "reference": "GATE CS — Compiler Design / Backend Phases",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Question about ILC / symbol table pass in assembler",
+        "use": "\\text{Pass 1: ILC tracks } \\text{address}; \\text{ Pass 2: generates object code}"
+      },
+      {
+        "condition": "Converting expression to three-address code or quadruple",
+        "use": "\\text{TAC: } (op,\\; arg_1,\\; arg_2,\\; result)"
+      },
+      {
+        "condition": "Minimising temporaries / common sub-expressions via DAG",
+        "use": "\\text{DAG nodes} = \\text{unique sub-expressions (shared leaves/interior nodes)}"
+      },
+      {
+        "condition": "Jump targets unknown at first pass — use backpatching",
+        "use": "\\text{truelist / falselist} \\xrightarrow{\\text{backpatch}} \\text{filled at merge}"
+      },
+      {
+        "condition": "Resolving external symbols across object modules",
+        "use": "\\text{Linker: relocation} + \\text{symbol-table resolution at link time}"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "assembler-passes",
+      "groupTitle": "Assembler — Two-Pass Structure",
+      "formulas": [
+        {
+          "formulaId": "con_058-assembler-pass1-activities",
+          "name": "Pass 1 Activities of a Two-Pass Assembler",
+          "latex": "\\text{Pass 1: } \\begin{cases} \\text{Build symbol table (labels} \\to \\text{addresses)} \\\\ \\text{Add literals to literal table} \\\\ \\text{Advance ILC for each instruction/directive} \\end{cases}",
+          "plain": "Pass 1: build symbol table, add literals, advance ILC (Instruction Location Counter).",
+          "whenToUse": "When asked which assembler activities happen in Pass 1 vs Pass 2.",
+          "terms": [
+            { "symbol": "ILC", "means": "Instruction Location Counter — tracks current address being assembled" },
+            { "symbol": "Symbol table", "means": "Maps label names to their memory addresses" }
+          ],
+          "trap": "Listing is printed in Pass 2 (not Pass 1) because object code is not yet available in Pass 1.",
+          "reference": "Compiler Design / Assembler"
+        },
+        {
+          "formulaId": "con_058-assembler-pass2-activities",
+          "name": "Pass 2 Activities of a Two-Pass Assembler",
+          "latex": "\\text{Pass 2: } \\begin{cases} \\text{Object code generation} \\\\ \\text{Listing printed} \\\\ \\text{Literal values assigned/output} \\end{cases}",
+          "plain": "Pass 2: generate object code, print listing, assign and output literal values.",
+          "whenToUse": "When identifying which activities are deferred to Pass 2.",
+          "terms": [
+            { "symbol": "Object code", "means": "Machine/binary instructions output by the assembler" }
+          ],
+          "trap": "Address resolution of local symbols happens in Pass 1 (via ILC); object code is generated in Pass 2.",
+          "reference": "Compiler Design / Assembler"
+        },
+        {
+          "formulaId": "con_058-ilc-purpose",
+          "name": "Instruction Location Counter (ILC)",
+          "latex": "\\text{ILC}_{\\text{new}} = \\text{ILC}_{\\text{old}} + \\text{size}(\\text{current instruction/directive})",
+          "plain": "ILC_new = ILC_old + size(current instruction/directive)",
+          "whenToUse": "Whenever asked about the purpose or update rule of the ILC in an assembler.",
+          "terms": [
+            { "symbol": "ILC", "means": "Instruction Location Counter — address of the next instruction to be assigned" },
+            { "symbol": "size(I)", "means": "Number of bytes occupied by instruction/directive I" }
+          ],
+          "trap": "ILC is NOT the program counter at runtime; it is a compile-time counter used during assembly.",
+          "reference": "Compiler Design / Assembler"
+        },
+        {
+          "formulaId": "con_058-macro-expansion-infinite-loop",
+          "name": "Macro Expansion and Infinite Loop Condition",
+          "latex": "\\text{Infinite loop iff macro } M \\text{ expands to a call of } M \\text{ (directly or indirectly) with a non-terminating argument sequence}",
+          "plain": "A macro causes an infinite loop if its expansion calls itself (or another macro that calls it back) without a base case that terminates.",
+          "whenToUse": "When analyzing whether a macro definition leads to non-terminating expansion.",
+          "terms": [
+            { "symbol": "M1, M2", "means": "Macro names in a mutual or self-recursive expansion" },
+            { "symbol": ".IF EQ / .IF NE", "means": "Conditional assembly directives that may or may not halt recursion" }
+          ],
+          "trap": "The loop occurs at assembly time (macro expansion), not at runtime.",
+          "reference": "Compiler Design / Assembler"
+        }
+      ]
+    },
+    {
+      "groupId": "intermediate-code-forms",
+      "groupTitle": "Intermediate Code Representations",
+      "formulas": [
+        {
+          "formulaId": "con_058-tac-quadruple",
+          "name": "Three-Address Code — Quadruple Form",
+          "latex": "(\\,op,\\; arg_1,\\; arg_2,\\; result\\,)",
+          "plain": "(op, arg1, arg2, result)  — four fields per instruction",
+          "whenToUse": "When writing intermediate code for arithmetic/boolean expressions as quadruples.",
+          "terms": [
+            { "symbol": "op", "means": "Operator (e.g., +, -, *, goto, if)" },
+            { "symbol": "arg1, arg2", "means": "Source operands (may be empty for unary ops or goto)" },
+            { "symbol": "result", "means": "Destination temporary or label" }
+          ],
+          "trap": "In a quadruple, the result field holds the destination; in a triple, the instruction index is the implicit result — don't confuse them.",
+          "reference": "Compiler Design / Intermediate Code"
+        },
+        {
+          "formulaId": "con_058-tac-triple",
+          "name": "Three-Address Code — Triple Form",
+          "latex": "(i):\\; (\\,op,\\; arg_1,\\; arg_2\\,) \\quad \\text{result is implicitly statement } i",
+          "plain": "(i): (op, arg1, arg2)  — result referenced by instruction index i",
+          "whenToUse": "When the question uses triple notation and asks about referencing intermediate results.",
+          "terms": [
+            { "symbol": "i", "means": "Statement/instruction number used as implicit result reference" }
+          ],
+          "trap": "Triples cannot be easily reordered (optimisation) because references are by position; indirect triples solve this.",
+          "reference": "Compiler Design / Intermediate Code"
+        },
+        {
+          "formulaId": "con_058-dag-construction",
+          "name": "DAG Construction for Basic Blocks",
+          "latex": "\\text{DAG node count} = |\\{\\text{unique sub-expressions}\\}| + |\\{\\text{unique leaves (variables/constants)}\\}|",
+          "plain": "DAG nodes = unique sub-expressions + unique leaf nodes; shared common sub-expressions collapse to one node.",
+          "whenToUse": "When counting DAG nodes for a set of quadruples / expressions.",
+          "terms": [
+            { "symbol": "DAG", "means": "Directed Acyclic Graph — nodes shared for common sub-expressions" },
+            { "symbol": "leaf", "means": "Node representing a variable or constant (no children)" },
+            { "symbol": "interior node", "means": "Node representing an operation; shared if CSE exists" }
+          ],
+          "trap": "If A+B appears twice, there is ONE interior node for it (shared), not two. Count unique sub-expressions carefully.",
+          "reference": "Compiler Design / Intermediate Code"
+        },
+        {
+          "formulaId": "con_058-if-then-else-template",
+          "name": "Code Template for if-then-else",
+          "latex": "\\begin{array}{l} \\text{code for } E \\\\ \\texttt{if } E \\texttt{ goto } L_1 \\\\ \\text{code for } S_2 \\quad (\\text{else branch}) \\\\ \\texttt{goto } L_2 \\\\ L_1\\text{: code for } S_1 \\quad (\\text{then branch}) \\\\ L_2\\text{: } \\ldots \\end{array}",
+          "plain": "Evaluate E; if true goto L1 (then-branch); fall through to else-branch; goto L2; L1: then-branch code; L2: ...",
+          "whenToUse": "When generating or verifying TAC/quadruples for if-then-else constructs.",
+          "terms": [
+            { "symbol": "L1", "means": "Label for start of then-branch" },
+            { "symbol": "L2", "means": "Label for end of if-then-else (continuation)" }
+          ],
+          "trap": "A common error is jumping to the then-branch and falling through to the else-branch, reversing the logic — check which branch is the fall-through.",
+          "reference": "Compiler Design / Intermediate Code"
+        },
+        {
+          "formulaId": "con_058-boolean-expr-tac",
+          "name": "Boolean Expression TAC (No Short-Circuit)",
+          "latex": "\\text{Each operand evaluated fully; result stored; then conditional jump:} \\quad \\texttt{if } t \\texttt{ goto } L_T \\texttt{ else goto } L_F",
+          "plain": "Without short-circuit: evaluate all sub-expressions fully, store in temporaries, then perform conditional jump.",
+          "whenToUse": "When asked to generate TAC for a boolean expression without partial (short-circuit) evaluation.",
+          "terms": [
+            { "symbol": "t", "means": "Temporary holding the boolean result" },
+            { "symbol": "L_T, L_F", "means": "True and False jump targets" }
+          ],
+          "trap": "If the problem says 'partial evaluation not permitted', you must NOT use short-circuit jumps; evaluate every sub-expression.",
+          "reference": "Compiler Design / Intermediate Code"
+        }
+      ]
+    },
+    {
+      "groupId": "backpatching",
+      "groupTitle": "Backpatching",
+      "formulas": [
+        {
+          "formulaId": "con_058-backpatching-definition",
+          "name": "Backpatching — Core Idea",
+          "latex": "\\text{truelist}(E) = \\{i \\mid \\text{instruction } i \\text{ is an unresolved jump for true outcome of } E\\}",
+          "plain": "truelist(E) = list of quadruple indices with unfilled jump targets for the true outcome; backpatch fills them once target is known.",
+          "whenToUse": "When questions ask about one-pass intermediate code generation for boolean/control-flow expressions.",
+          "terms": [
+            { "symbol": "truelist", "means": "List of quadruples with goto __ that should jump when expression is true" },
+            { "symbol": "falselist", "means": "List of quadruples with goto __ that should jump when expression is false" },
+            { "symbol": "backpatch(list, target)", "means": "Fill all unresolved jumps in list with target label" }
+          ],
+          "trap": "Backpatching allows one-pass code generation for boolean expressions AND control-flow statements — both statements I and II in GATE questions are typically TRUE.",
+          "reference": "Compiler Design / Backpatching"
+        },
+        {
+          "formulaId": "con_058-backpatch-merge",
+          "name": "Merging Backlists (Boolean Connectives)",
+          "latex": "\\begin{aligned} E \\to E_1 \\;\\texttt{or}\\; E_2 &:\\; \\text{truelist} = \\text{truelist}(E_1) \\cup \\text{truelist}(E_2) \\\\ &\\;\\text{falselist} = \\text{falselist}(E_2) \\end{aligned}",
+          "plain": "For E1 OR E2: truelist = truelist(E1) union truelist(E2); falselist = falselist(E2). For E1 AND E2: falselist = falselist(E1) union falselist(E2); truelist = truelist(E2).",
+          "whenToUse": "When combining backpatch lists for compound boolean expressions with AND/OR.",
+          "terms": [
+            { "symbol": "union", "means": "Concatenation / union of jump-instruction index lists" }
+          ],
+          "trap": "For OR: falselist(E1) is backpatched to the start of E2 (not to the final false target) — the merge only applies to the outer result lists.",
+          "reference": "Compiler Design / Backpatching"
+        }
+      ]
+    },
+    {
+      "groupId": "linker-loader",
+      "groupTitle": "Linker & Loader",
+      "formulas": [
+        {
+          "formulaId": "con_058-linker-tasks",
+          "name": "Key Tasks of a Linker (Link Editor)",
+          "latex": "\\text{Linker: } \\begin{cases} \\text{1. Symbol resolution — match external refs to definitions} \\\\ \\text{2. Relocation — adjust addresses of object modules} \\\\ \\text{3. Combine object modules} \\to \\text{executable} \\end{cases}",
+          "plain": "Linker: (1) resolve external symbol references across modules, (2) relocate addresses, (3) combine object modules into an executable.",
+          "whenToUse": "When asked what a linker/link editor does or what happens at link time.",
+          "terms": [
+            { "symbol": "External reference", "means": "Symbol used in one module but defined in another" },
+            { "symbol": "Relocation", "means": "Adjusting address values in code/data when modules are placed at runtime addresses" }
+          ],
+          "trap": "Macro parameter matching is done by the macro assembler (not the linker). A linker does NOT interpret macro calls.",
+          "reference": "Compiler Design / Linker"
+        },
+        {
+          "formulaId": "con_058-link-time-vs-compile-time",
+          "name": "Reference Resolution Time for Cross-Module Calls",
+          "latex": "M_1 \\xrightarrow{\\text{ref}} \\text{fn in } M_2 \\implies \\text{resolved at } \\textbf{Link time}",
+          "plain": "If module M1 references a function defined in M2, the reference is resolved at link time (not compile time, not run time).",
+          "whenToUse": "When asked at what stage an inter-module function reference is resolved.",
+          "terms": [
+            { "symbol": "Link time", "means": "The stage at which the linker combines object files and resolves cross-module symbols" }
+          ],
+          "trap": "Do not confuse with dynamic linking: for shared/dynamic libraries the resolution can be deferred to load time or even run time.",
+          "reference": "Compiler Design / Linker"
+        },
+        {
+          "formulaId": "con_058-static-vs-dynamic-linking",
+          "name": "Static vs Dynamic (Shared) Linking",
+          "latex": "\\text{Dynamic linking advantages: } \\begin{cases} \\text{Smaller executable size} \\\\ \\text{Library updates without relinking} \\\\ \\text{Shared pages} \\Rightarrow \\text{less memory} \\end{cases}",
+          "plain": "Dynamic linking: smaller executables, shared library pages, easy library updates. Disadvantage: does NOT guarantee lesser page faults (may increase them if shared library is not in memory).",
+          "whenToUse": "When comparing static and dynamic/shared linking in terms of executable size, memory, and page faults.",
+          "terms": [
+            { "symbol": "Static linking", "means": "Library code is copied into the executable at link time" },
+            { "symbol": "Dynamic linking", "means": "Library code is loaded at run time; multiple processes share one copy" }
+          ],
+          "trap": "Lesser overall page fault rate is NOT guaranteed by dynamic linking — this is a common GATE trap answer listed as an 'advantage'.",
+          "reference": "Compiler Design / Linker"
+        },
+        {
+          "formulaId": "con_058-loader-relocation",
+          "name": "Loader — Relocation",
+          "latex": "\\text{Effective address} = \\text{base address (load address)} + \\text{relative offset in object module}",
+          "plain": "Effective address = base/load address + relative offset. The loader patches all relocatable addresses using the relocation table.",
+          "whenToUse": "When asked about how a loader adjusts addresses when placing a program in memory.",
+          "terms": [
+            { "symbol": "Base address", "means": "Starting address where the program/module is loaded in memory" },
+            { "symbol": "Relative offset", "means": "Offset within the module as recorded in the object file" },
+            { "symbol": "Relocation table", "means": "Table in object file identifying all addresses that need adjustment" }
+          ],
+          "trap": "Relocation is needed even for programs compiled with absolute addressing if they are loaded at a different address than assumed.",
+          "reference": "Compiler Design / Linker"
+        }
+      ]
+    }
+  ]
+}

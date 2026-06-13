@@ -1,0 +1,299 @@
+{
+  "_id": "con_043",
+  "conceptId": "con_043",
+  "conceptTitle": "Dynamic Programming",
+  "reference": "GATE CS — Algorithms / Design Techniques",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Longest Common Subsequence of two strings of length m, n",
+        "use": "\\text{LCS}[i][j] = \\begin{cases} \\text{LCS}[i-1][j-1]+1 & x_i=y_j \\\\ \\max(\\text{LCS}[i-1][j],\\,\\text{LCS}[i][j-1]) & x_i \\neq y_j \\end{cases}"
+      },
+      {
+        "condition": "Subset-sum / 0-1 Knapsack feasibility with n items, capacity W",
+        "use": "\\text{dp}[i][w] = \\text{dp}[i-1][w] \\lor \\text{dp}[i-1][w-s_i], \\quad \\text{table size } O(nW)"
+      },
+      {
+        "condition": "Optimal parenthesisation cost of n matrices",
+        "use": "m[i][j] = \\min_{i \\le k < j}\\{m[i][k]+m[k+1][j]+p_{i-1}\\,p_k\\,p_j\\}"
+      },
+      {
+        "condition": "All-pairs shortest paths in weighted graph",
+        "use": "d^{(k)}[i][j] = \\min\\!\\left(d^{(k-1)}[i][j],\\; d^{(k-1)}[i][k]+d^{(k-1)}[k][j]\\right)"
+      },
+      {
+        "condition": "Number of distinct ways to make change for amount A with coin denominations",
+        "use": "\\text{dp}[a] = \\sum_{c\\,:\\,c \\le a} \\text{dp}[a-c], \\quad \\text{dp}[0]=1"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "dp-foundations",
+      "groupTitle": "DP Foundations",
+      "formulas": [
+        {
+          "formulaId": "con_043-optimal-substructure",
+          "name": "Optimal Substructure Property",
+          "latex": "\\text{OPT}(\\text{problem}) = f\\!\\left(\\text{OPT}(\\text{subproblem}_1),\\ldots,\\text{OPT}(\\text{subproblem}_k)\\right)",
+          "plain": "OPT(problem) = f(OPT(sub1), ..., OPT(subk))",
+          "whenToUse": "Verify DP applicability: optimal solution of the problem is built from optimal solutions of smaller subproblems.",
+          "terms": [
+            { "symbol": "\\text{OPT}", "means": "optimal value of a (sub)problem instance" },
+            { "symbol": "f", "means": "combining function (min, max, sum, etc.)" }
+          ],
+          "trap": "Greedy also needs optimal substructure; DP additionally requires overlapping subproblems. Confusing the two criteria is a common GATE MCQ trap.",
+          "reference": "Algorithms / Design Techniques"
+        },
+        {
+          "formulaId": "con_043-overlapping-subproblems",
+          "name": "Overlapping Subproblems",
+          "latex": "T_{\\text{memo}}(n) = O(\\text{distinct subproblems}) \\times O(\\text{work per subproblem})",
+          "plain": "T_memo(n) = O(distinct subproblems) x O(work per subproblem)",
+          "whenToUse": "Estimate DP time complexity: multiply the number of unique states by the cost of computing each state (excluding recursive calls).",
+          "terms": [
+            { "symbol": "T_{\\text{memo}}(n)", "means": "time with memoisation / tabulation" }
+          ],
+          "trap": "For subset-sum the subproblem count is O(nW), which is pseudo-polynomial (exponential in input bit-length); do not call it polynomial.",
+          "reference": "Algorithms / Design Techniques"
+        },
+        {
+          "formulaId": "con_043-dp-table-dimensions",
+          "name": "DP Table Dimensions (general rule)",
+          "latex": "\\text{State space size} = \\prod_{\\text{each parameter}} (\\text{range of parameter})",
+          "plain": "State space = product of ranges of all parameters",
+          "whenToUse": "Determine table size and memory complexity before implementing.",
+          "terms": [
+            { "symbol": "\\text{State space}", "means": "total number of distinct subproblems = table entries" }
+          ],
+          "trap": "For 2-D DP (e.g. LCS with m x n table, subset-sum with n x W table), students often confuse rows and columns leading to wrong sizes.",
+          "reference": "Algorithms / Design Techniques"
+        }
+      ]
+    },
+    {
+      "groupId": "subset-sum-knapsack",
+      "groupTitle": "Subset-Sum & Knapsack",
+      "formulas": [
+        {
+          "formulaId": "con_043-subset-sum-recurrence",
+          "name": "Subset-Sum DP Recurrence",
+          "latex": "\\text{S}[i][w] = \\text{S}[i-1][w] \\lor \\text{S}[i-1][w-s_i], \\quad 1 \\le i \\le n,\\; 0 \\le w \\le W",
+          "plain": "S[i][w] = S[i-1][w] OR S[i-1][w - s_i]",
+          "whenToUse": "Decide if a subset of the first i elements sums to exactly w.",
+          "terms": [
+            { "symbol": "s_i", "means": "value of i-th element" },
+            { "symbol": "W", "means": "target sum" },
+            { "symbol": "\\text{S}[i][w]", "means": "true if some subset of first i elements sums to w" }
+          ],
+          "trap": "The table is boolean (true/false), not an integer count. Also, S[i][0] = true for all i (empty subset sums to 0).",
+          "reference": "Algorithms / Design Techniques"
+        },
+        {
+          "formulaId": "con_043-subset-sum-complexity",
+          "name": "Subset-Sum Time & Space Complexity",
+          "latex": "\\text{Time} = O(nW), \\quad \\text{Space} = O(nW) \\text{ (or } O(W) \\text{ with rolling array)}",
+          "plain": "Time = O(n*W),  Space = O(n*W) or O(W)",
+          "whenToUse": "Analyse the efficiency of a subset-sum / 0-1 knapsack DP.",
+          "terms": [
+            { "symbol": "n", "means": "number of elements in set S" },
+            { "symbol": "W", "means": "target sum (or knapsack capacity)" }
+          ],
+          "trap": "O(nW) is pseudo-polynomial, not polynomial, because W can be exponential in the number of bits used to encode it.",
+          "reference": "Algorithms / Design Techniques"
+        },
+        {
+          "formulaId": "con_043-01-knapsack-recurrence",
+          "name": "0-1 Knapsack DP Recurrence",
+          "latex": "K[i][w] = \\max\\!\\left(K[i-1][w],\\; v_i + K[i-1][w-w_i]\\right), \\quad w_i \\le w",
+          "plain": "K[i][w] = max(K[i-1][w], v_i + K[i-1][w - w_i])  when w_i <= w",
+          "whenToUse": "Maximise total value of items packed into a knapsack of capacity W.",
+          "terms": [
+            { "symbol": "v_i", "means": "value of item i" },
+            { "symbol": "w_i", "means": "weight of item i" },
+            { "symbol": "w", "means": "current capacity being considered" }
+          ],
+          "trap": "Each item can be included at most once (0-1). For unbounded knapsack use K[i][w-w_i] (not K[i-1][w-w_i]).",
+          "reference": "Algorithms / Design Techniques"
+        }
+      ]
+    },
+    {
+      "groupId": "lcs",
+      "groupTitle": "Longest Common Subsequence (LCS)",
+      "formulas": [
+        {
+          "formulaId": "con_043-lcs-recurrence",
+          "name": "LCS Recurrence",
+          "latex": "c[i][j] = \\begin{cases} 0 & i=0 \\text{ or } j=0 \\\\ c[i-1][j-1]+1 & x_i = y_j \\\\ \\max(c[i-1][j],\\, c[i][j-1]) & x_i \\neq y_j \\end{cases}",
+          "plain": "c[i][j] = 0 if i=0 or j=0; c[i-1][j-1]+1 if x_i==y_j; max(c[i-1][j], c[i][j-1]) otherwise",
+          "whenToUse": "Find the length of the longest common subsequence of sequences X[1..m] and Y[1..n].",
+          "terms": [
+            { "symbol": "c[i][j]", "means": "LCS length of X[1..i] and Y[1..j]" },
+            { "symbol": "x_i, y_j", "means": "i-th and j-th characters of X and Y" }
+          ],
+          "trap": "LCS is a subsequence (not subarray). Elements need not be contiguous. Longest Common Substring requires a different recurrence (reset to 0 on mismatch).",
+          "reference": "Algorithms / Design Techniques"
+        },
+        {
+          "formulaId": "con_043-lcs-complexity",
+          "name": "LCS Time & Space Complexity",
+          "latex": "\\text{Time} = O(mn), \\quad \\text{Space} = O(mn) \\text{ (or } O(\\min(m,n)) \\text{ with two-row trick)}",
+          "plain": "Time = O(m*n),  Space = O(m*n) or O(min(m,n))",
+          "whenToUse": "Assess the cost of LCS computation on sequences of length m and n.",
+          "terms": [
+            { "symbol": "m, n", "means": "lengths of the two input sequences" }
+          ],
+          "trap": "The 2-D table requires O(mn) space; if asked for the actual LCS string (not just length), you need the full table (or use Hirschberg's algorithm).",
+          "reference": "Algorithms / Design Techniques"
+        }
+      ]
+    },
+    {
+      "groupId": "matrix-chain-ordering",
+      "groupTitle": "Matrix Chain Multiplication (MCM)",
+      "formulas": [
+        {
+          "formulaId": "con_043-mcm-recurrence",
+          "name": "MCM DP Recurrence",
+          "latex": "m[i][j] = \\min_{i \\le k < j}\\left\\{m[i][k] + m[k+1][j] + p_{i-1}\\,p_k\\,p_j\\right\\}, \\quad m[i][i]=0",
+          "plain": "m[i][j] = min over k in [i,j-1] of { m[i][k] + m[k+1][j] + p_(i-1)*p_k*p_j },  m[i][i] = 0",
+          "whenToUse": "Find the minimum scalar multiplications to compute the product of matrices A_i ... A_j where A_i has dimensions p_(i-1) x p_i.",
+          "terms": [
+            { "symbol": "m[i][j]", "means": "minimum cost to multiply matrices A_i through A_j" },
+            { "symbol": "p_{i-1}, p_k, p_j", "means": "dimensions: A_i has p_(i-1) rows, split matrix has p_k cols, A_j has p_j cols" },
+            { "symbol": "k", "means": "split point: (A_i...A_k)(A_(k+1)...A_j)" }
+          ],
+          "trap": "The split cost p_(i-1)*p_k*p_j uses THREE dimension values. Forgetting the outer dimension p_(i-1) (or p_j) is the classic GATE error.",
+          "reference": "Algorithms / Design Techniques"
+        },
+        {
+          "formulaId": "con_043-mcm-complexity",
+          "name": "MCM Time & Space Complexity",
+          "latex": "\\text{Time} = O(n^3), \\quad \\text{Space} = O(n^2), \\quad n = \\text{number of matrices}",
+          "plain": "Time = O(n^3),  Space = O(n^2),  n = number of matrices",
+          "whenToUse": "State the complexity of the DP algorithm for n matrices.",
+          "terms": [
+            { "symbol": "n", "means": "number of matrices in the chain" }
+          ],
+          "trap": "There are n-1 multiplication operations between n matrices. Confusing n (matrices) with n-1 (products) causes off-by-one in dimension arrays.",
+          "reference": "Algorithms / Design Techniques"
+        },
+        {
+          "formulaId": "con_043-mcm-catalan",
+          "name": "Number of Parenthesisations (Catalan Number)",
+          "latex": "P(n) = C_{n-1} = \\frac{1}{n}\\binom{2(n-1)}{n-1} = \\Omega\\!\\left(4^n / n^{3/2}\\right)",
+          "plain": "P(n) = C_(n-1) = (1/n)*C(2(n-1), n-1),  grows as Omega(4^n / n^(3/2))",
+          "whenToUse": "Explain why brute-force enumeration of parenthesisations is exponential, motivating DP.",
+          "terms": [
+            { "symbol": "C_{n-1}", "means": "(n-1)-th Catalan number" },
+            { "symbol": "n", "means": "number of matrices" }
+          ],
+          "trap": "P(n) grows exponentially; naive brute-force is infeasible for large n, but DP reduces it to O(n^3).",
+          "reference": "Algorithms / Design Techniques"
+        },
+        {
+          "formulaId": "con_043-mcm-cost-single-split",
+          "name": "Cost of Multiplying Two Sub-chains",
+          "latex": "(p \\times q) \\cdot (q \\times r) \\text{ costs } p \\cdot q \\cdot r \\text{ scalar multiplications}",
+          "plain": "Multiplying a (p x q) matrix with a (q x r) matrix costs p*q*r scalar multiplications",
+          "whenToUse": "Evaluate the cost of one specific parenthesisation split — used when manually computing m[i][k] + m[k+1][j] + p_(i-1)*p_k*p_j.",
+          "terms": [
+            { "symbol": "p, q, r", "means": "row, shared, and column dimensions" }
+          ],
+          "trap": "The result matrix is p x r (not p x q or q x r). Dimensions must be compatible: inner dimensions must match.",
+          "reference": "Algorithms / Design Techniques"
+        }
+      ]
+    },
+    {
+      "groupId": "all-pairs-sp",
+      "groupTitle": "Floyd-Warshall (All-Pairs Shortest Paths)",
+      "formulas": [
+        {
+          "formulaId": "con_043-floyd-warshall-recurrence",
+          "name": "Floyd-Warshall Recurrence",
+          "latex": "d^{(k)}_{ij} = \\min\\!\\left(d^{(k-1)}_{ij},\\; d^{(k-1)}_{ik} + d^{(k-1)}_{kj}\\right)",
+          "plain": "d[k][i][j] = min(d[k-1][i][j], d[k-1][i][k] + d[k-1][k][j])",
+          "whenToUse": "Compute shortest paths between all pairs of vertices using intermediate vertex k.",
+          "terms": [
+            { "symbol": "d^{(k)}_{ij}", "means": "shortest path from i to j using only vertices {1,...,k} as intermediates" },
+            { "symbol": "k", "means": "index of the intermediate vertex being considered" }
+          ],
+          "trap": "Floyd-Warshall works with negative edge weights but NOT negative cycles. Detect negative cycles by checking if d[i][i] < 0 after running.",
+          "reference": "Algorithms / Design Techniques"
+        },
+        {
+          "formulaId": "con_043-floyd-warshall-complexity",
+          "name": "Floyd-Warshall Complexity",
+          "latex": "\\text{Time} = O(V^3), \\quad \\text{Space} = O(V^2)",
+          "plain": "Time = O(V^3),  Space = O(V^2)",
+          "whenToUse": "State complexity of all-pairs shortest path via DP on a graph with V vertices.",
+          "terms": [
+            { "symbol": "V", "means": "number of vertices in the graph" }
+          ],
+          "trap": "Running Dijkstra from each vertex gives O(V(E + V log V)), which is better for sparse graphs. Floyd-Warshall is better or simpler for dense graphs.",
+          "reference": "Algorithms / Design Techniques"
+        }
+      ]
+    },
+    {
+      "groupId": "other-classic-dp",
+      "groupTitle": "Other Classic DP Problems",
+      "formulas": [
+        {
+          "formulaId": "con_043-lis-recurrence",
+          "name": "Longest Increasing Subsequence (LIS)",
+          "latex": "L[i] = 1 + \\max_{j < i,\\; a_j < a_i} L[j], \\quad \\text{LIS} = \\max_i L[i]",
+          "plain": "L[i] = 1 + max{ L[j] : j < i and a[j] < a[i] },  LIS = max(L[i])",
+          "whenToUse": "Find the length of the longest strictly increasing subsequence of array a[1..n].",
+          "terms": [
+            { "symbol": "L[i]", "means": "length of LIS ending at index i" },
+            { "symbol": "a_i", "means": "i-th element of the array" }
+          ],
+          "trap": "Naive DP is O(n^2); the patience-sort / binary-search approach is O(n log n). GATE questions sometimes ask which is faster.",
+          "reference": "Algorithms / Design Techniques"
+        },
+        {
+          "formulaId": "con_043-coin-change-recurrence",
+          "name": "Coin Change (Minimum Coins)",
+          "latex": "\\text{dp}[a] = 1 + \\min_{c \\in C,\\; c \\le a} \\text{dp}[a - c], \\quad \\text{dp}[0]=0",
+          "plain": "dp[a] = 1 + min{ dp[a - c] : c in C, c <= a },  dp[0] = 0",
+          "whenToUse": "Find minimum number of coins from set C to make amount a.",
+          "terms": [
+            { "symbol": "a", "means": "target amount" },
+            { "symbol": "C", "means": "set of coin denominations" },
+            { "symbol": "\\text{dp}[a]", "means": "minimum coins needed for amount a" }
+          ],
+          "trap": "Greedy (always pick largest coin) does NOT always give the optimal answer for arbitrary denominations — DP is required.",
+          "reference": "Algorithms / Design Techniques"
+        },
+        {
+          "formulaId": "con_043-edit-distance-recurrence",
+          "name": "Edit Distance (Levenshtein) Recurrence",
+          "latex": "e[i][j] = \\begin{cases} i & j=0 \\\\ j & i=0 \\\\ e[i-1][j-1] & x_i=y_j \\\\ 1+\\min(e[i-1][j],\\, e[i][j-1],\\, e[i-1][j-1]) & x_i \\neq y_j \\end{cases}",
+          "plain": "e[i][j] = i if j=0; j if i=0; e[i-1][j-1] if x_i==y_j; 1 + min(e[i-1][j], e[i][j-1], e[i-1][j-1]) otherwise",
+          "whenToUse": "Find minimum insert/delete/replace operations to convert string X[1..m] to Y[1..n].",
+          "terms": [
+            { "symbol": "e[i][j]", "means": "edit distance between X[1..i] and Y[1..j]" }
+          ],
+          "trap": "Three operations (insert, delete, replace) correspond to three recurrence terms. Omitting any one gives wrong answers.",
+          "reference": "Algorithms / Design Techniques"
+        },
+        {
+          "formulaId": "con_043-dp-vs-greedy",
+          "name": "DP vs Greedy: When to Use Which",
+          "latex": "\\text{Greedy: locally optimal} \\Rightarrow \\text{globally optimal (exchange argument)} \\quad \\text{DP: overlapping subproblems + optimal substructure}",
+          "plain": "Greedy: local choice => global optimum (exchange argument).  DP: overlapping subproblems + optimal substructure needed.",
+          "whenToUse": "Decide whether a problem should be solved with greedy or DP.",
+          "terms": [
+            { "symbol": "\\text{exchange argument}", "means": "proof technique showing no swap of choices can improve greedy solution" }
+          ],
+          "trap": "Coin change, 0-1 knapsack, and subset-sum all require DP. Activity selection and fractional knapsack are greedy. Mixing them is a classic GATE trap.",
+          "reference": "Algorithms / Design Techniques"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,320 @@
+{
+  "_id": "con_055",
+  "conceptId": "con_055",
+  "conceptTitle": "Parsing",
+  "reference": "GATE CS — Compiler Design / Frontend Phases",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Need FIRST set of a string or production body",
+        "use": "\\text{FIRST}(\\alpha) = \\{a \\mid \\alpha \\Rightarrow^* a\\beta\\} \\cup (\\{\\varepsilon\\} \\text{ if } \\alpha \\Rightarrow^* \\varepsilon)"
+      },
+      {
+        "condition": "Need FOLLOW set of a non-terminal",
+        "use": "\\text{FOLLOW}(A): \\$ \\in \\text{FOLLOW}(S);\\; \\text{if } B \\to \\alpha A \\beta,\\; \\text{FIRST}(\\beta)\\setminus\\{\\varepsilon\\} \\subseteq \\text{FOLLOW}(A)"
+      },
+      {
+        "condition": "Checking if grammar is LL(1)",
+        "use": "\\text{LL(1): no ambiguity, no left recursion, no common prefix; } |\\text{SELECT}(A\\to\\alpha) \\cap \\text{SELECT}(A\\to\\beta)| = 0"
+      },
+      {
+        "condition": "Comparing LR parser power",
+        "use": "\\text{LR(0)} \\subset \\text{SLR(1)} \\subset \\text{LALR(1)} \\subset \\text{CLR(1)} \\subset \\text{CFG}"
+      },
+      {
+        "condition": "Resolving operator precedence / associativity in shift-reduce conflict",
+        "use": "\\text{Higher precedence} \\Rightarrow \\text{shift};\\quad \\text{same prec + left-assoc} \\Rightarrow \\text{reduce}"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "first-follow-sets",
+      "groupTitle": "FIRST & FOLLOW Sets",
+      "formulas": [
+        {
+          "formulaId": "con_055-first-set-def",
+          "name": "FIRST Set Definition",
+          "latex": "\\text{FIRST}(\\alpha) = \\{ a \\in T \\mid \\alpha \\Rightarrow^* a\\beta \\} \\cup \\begin{cases} \\{\\varepsilon\\} & \\text{if } \\alpha \\Rightarrow^* \\varepsilon \\\\ \\emptyset & \\text{otherwise} \\end{cases}",
+          "plain": "FIRST(alpha) = set of terminals that can begin a string derived from alpha; include epsilon if alpha can derive epsilon",
+          "whenToUse": "Building LL(1) parse table entries and SELECT sets",
+          "terms": [
+            { "symbol": "\\alpha", "means": "grammar string (terminal or non-terminal sequence)" },
+            { "symbol": "T", "means": "set of terminals" },
+            { "symbol": "\\varepsilon", "means": "empty string" }
+          ],
+          "trap": "FIRST of a non-terminal A is NOT the same as FIRST of every production of A — you must union FIRST of all RHS bodies",
+          "reference": "Compiler Design / Frontend Phases"
+        },
+        {
+          "formulaId": "con_055-first-set-rules",
+          "name": "FIRST Computation Rules",
+          "latex": "\\begin{aligned} &\\text{1. } a \\in T \\Rightarrow \\text{FIRST}(a) = \\{a\\} \\\\ &\\text{2. } A \\to \\varepsilon \\Rightarrow \\varepsilon \\in \\text{FIRST}(A) \\\\ &\\text{3. } A \\to X_1 X_2 \\ldots X_k:\\; \\text{add FIRST}(X_i)\\setminus\\{\\varepsilon\\} \\text{ while } \\varepsilon \\in \\text{FIRST}(X_1)\\ldots\\text{FIRST}(X_{i-1}) \\end{aligned}",
+          "plain": "Rule 1: FIRST(terminal) = {terminal}. Rule 2: epsilon-production adds epsilon. Rule 3: for A -> X1 X2 ... Xk, add FIRST(Xi) - {epsilon} as long as all previous Xi can derive epsilon",
+          "whenToUse": "Computing FIRST sets step-by-step for any grammar",
+          "terms": [
+            { "symbol": "X_i", "means": "i-th symbol in production body" },
+            { "symbol": "k", "means": "length of production body" }
+          ],
+          "trap": "Stop propagating when you hit a symbol that cannot derive epsilon; beginners forget to remove epsilon from intermediate FIRST sets",
+          "reference": "Compiler Design / Frontend Phases"
+        },
+        {
+          "formulaId": "con_055-follow-set-def",
+          "name": "FOLLOW Set Definition & Rules",
+          "latex": "\\begin{aligned} &\\text{1. } \\$ \\in \\text{FOLLOW}(S) \\quad (S = \\text{start symbol}) \\\\ &\\text{2. } B \\to \\alpha A \\beta :\\; \\text{FIRST}(\\beta)\\setminus\\{\\varepsilon\\} \\subseteq \\text{FOLLOW}(A) \\\\ &\\text{3. } B \\to \\alpha A \\text{ or } (B \\to \\alpha A \\beta,\\, \\varepsilon \\in \\text{FIRST}(\\beta)):\\; \\text{FOLLOW}(B) \\subseteq \\text{FOLLOW}(A) \\end{aligned}",
+          "plain": "FOLLOW(A): 1) $ in FOLLOW(start). 2) If B -> alpha A beta, add FIRST(beta)-{epsilon} to FOLLOW(A). 3) If beta can derive epsilon (or absent), add FOLLOW(B) to FOLLOW(A)",
+          "whenToUse": "Computing FOLLOW sets; deciding where to put epsilon-production rows in LL(1) table",
+          "terms": [
+            { "symbol": "S", "means": "start symbol" },
+            { "symbol": "\\$", "means": "end-of-input marker" },
+            { "symbol": "\\beta", "means": "string following A in production body" }
+          ],
+          "trap": "Never include epsilon in a FOLLOW set; FOLLOW sets contain only terminals and $",
+          "reference": "Compiler Design / Frontend Phases"
+        },
+        {
+          "formulaId": "con_055-select-set",
+          "name": "SELECT (Predict) Set",
+          "latex": "\\text{SELECT}(A \\to \\alpha) = \\begin{cases} (\\text{FIRST}(\\alpha)\\setminus\\{\\varepsilon\\}) \\cup \\text{FOLLOW}(A) & \\text{if } \\varepsilon \\in \\text{FIRST}(\\alpha) \\\\ \\text{FIRST}(\\alpha) & \\text{otherwise} \\end{cases}",
+          "plain": "SELECT(A -> alpha) = FIRST(alpha) - {epsilon} union FOLLOW(A) when alpha can derive epsilon; else just FIRST(alpha)",
+          "whenToUse": "Building LL(1) parse table: entry M[A, a] gets production A->alpha whenever a in SELECT(A->alpha)",
+          "terms": [
+            { "symbol": "A", "means": "non-terminal on LHS" },
+            { "symbol": "\\alpha", "means": "production body" }
+          ],
+          "trap": "Confusing SELECT with FIRST; they differ exactly when alpha can derive epsilon",
+          "reference": "Compiler Design / Frontend Phases"
+        }
+      ]
+    },
+    {
+      "groupId": "grammar-properties",
+      "groupTitle": "Grammar Properties & LL(1)",
+      "formulas": [
+        {
+          "formulaId": "con_055-ll1-condition",
+          "name": "LL(1) Grammar Condition",
+          "latex": "\\text{Grammar is LL(1) iff for every two distinct productions } A \\to \\alpha \\mid \\beta:\\\\[4pt] \\text{SELECT}(A\\to\\alpha) \\cap \\text{SELECT}(A\\to\\beta) = \\emptyset",
+          "plain": "Grammar is LL(1) iff for any two alternatives A -> alpha | beta, their SELECT sets are disjoint",
+          "whenToUse": "Deciding if a grammar admits a deterministic top-down parser without backtracking",
+          "terms": [
+            { "symbol": "\\alpha, \\beta", "means": "two distinct alternative bodies for non-terminal A" }
+          ],
+          "trap": "An unambiguous grammar without left recursion or common prefix is NECESSARY but not SUFFICIENT — you must still verify SELECT sets",
+          "reference": "Compiler Design / Frontend Phases"
+        },
+        {
+          "formulaId": "con_055-left-recursion-elimination",
+          "name": "Left Recursion Elimination",
+          "latex": "A \\to A\\alpha \\mid \\beta \\;\\Longrightarrow\\; A \\to \\beta A',\\quad A' \\to \\alpha A' \\mid \\varepsilon",
+          "plain": "A -> A alpha | beta  becomes  A -> beta A'  and  A' -> alpha A' | epsilon",
+          "whenToUse": "Making a grammar suitable for top-down (LL) parsing by removing immediate left recursion",
+          "terms": [
+            { "symbol": "A'", "means": "new auxiliary non-terminal introduced" },
+            { "symbol": "\\alpha", "means": "rest of recursive production after A" },
+            { "symbol": "\\beta", "means": "non-left-recursive alternative" }
+          ],
+          "trap": "Indirect left recursion (A -> B alpha, B -> A beta) must be handled by ordering and substitution first",
+          "reference": "Compiler Design / Frontend Phases"
+        },
+        {
+          "formulaId": "con_055-ambiguity-definition",
+          "name": "Ambiguous Grammar Definition",
+          "latex": "\\text{A grammar } G \\text{ is ambiguous if } \\exists\\, w \\in L(G) \\text{ with two distinct leftmost derivations (or parse trees)}",
+          "plain": "Grammar G is ambiguous if some string has more than one leftmost derivation (equivalently, more than one parse tree)",
+          "whenToUse": "Identifying ambiguity — construct two different parse trees for the same sentence",
+          "terms": [
+            { "symbol": "L(G)", "means": "language generated by grammar G" },
+            { "symbol": "w", "means": "witness string that has two parse trees" }
+          ],
+          "trap": "Ambiguity is a property of the grammar, NOT the language; the same CFL may have an unambiguous grammar",
+          "reference": "Compiler Design / Frontend Phases"
+        },
+        {
+          "formulaId": "con_055-dangling-else",
+          "name": "Dangling Else — Classic Ambiguity",
+          "latex": "S \\to \\textbf{if}\\; e\\; \\textbf{then}\\; S \\mid \\textbf{if}\\; e\\; \\textbf{then}\\; S\\; \\textbf{else}\\; S \\mid \\text{other}",
+          "plain": "S -> if e then S | if e then S else S | other  -- the 'else' can match the nearest or farthest 'if', making the grammar ambiguous",
+          "whenToUse": "Recognizing the dangling-else grammar as a canonical ambiguous grammar example",
+          "terms": [
+            { "symbol": "e", "means": "boolean expression" }
+          ],
+          "trap": "Resolution rule 'else matches nearest unmatched if' is a semantic convention — the grammar itself remains ambiguous",
+          "reference": "Compiler Design / Frontend Phases"
+        }
+      ]
+    },
+    {
+      "groupId": "lr-parsing-theory",
+      "groupTitle": "LR Parsing — Items & Conflicts",
+      "formulas": [
+        {
+          "formulaId": "con_055-lr-parser-hierarchy",
+          "name": "LR Parser Power Hierarchy",
+          "latex": "\\text{LR(0)} \\subsetneq \\text{SLR(1)} \\subsetneq \\text{LALR(1)} \\subsetneq \\text{CLR(1) (Canonical LR)} \\subsetneq \\text{CFG}",
+          "plain": "LR(0) < SLR(1) < LALR(1) < CLR(1)  (strictly increasing parsing power; all are subsets of all CFLs)",
+          "whenToUse": "Comparing parser strengths; a grammar rejected by SLR may still be LALR(1) or CLR(1)",
+          "terms": [
+            { "symbol": "\\subsetneq", "means": "strictly subset — more grammars accepted as we go right" }
+          ],
+          "trap": "SLR, LALR and CLR(1) all have the SAME NUMBER of states for the same grammar — only the lookahead sets differ",
+          "reference": "Compiler Design / Frontend Phases"
+        },
+        {
+          "formulaId": "con_055-lr0-item",
+          "name": "LR(0) Item",
+          "latex": "[A \\to \\alpha \\bullet \\beta] \\quad (\\text{dot marks how much of production has been recognized})",
+          "plain": "[A -> alpha . beta]  where dot shows the current parse position; alpha on stack, beta still to read",
+          "whenToUse": "Building the LR(0) automaton (canonical collection of sets of LR(0) items)",
+          "terms": [
+            { "symbol": "\\alpha", "means": "portion already on stack" },
+            { "symbol": "\\beta", "means": "portion still to be parsed" },
+            { "symbol": "\\bullet", "means": "dot — current position marker" }
+          ],
+          "trap": "[A -> alpha .] is a REDUCE item; any non-dot position is a SHIFT item — do not confuse the two",
+          "reference": "Compiler Design / Frontend Phases"
+        },
+        {
+          "formulaId": "con_055-slr1-reduce-rule",
+          "name": "SLR(1) Reduce Rule",
+          "latex": "\\text{SLR(1) reduce } [A \\to \\alpha \\bullet] \\text{ on lookahead } a \\iff a \\in \\text{FOLLOW}(A)",
+          "plain": "In SLR(1): reduce by A -> alpha when the next input token 'a' is in FOLLOW(A)",
+          "whenToUse": "Filling the action table for an SLR(1) parser; resolving shift-reduce conflicts",
+          "terms": [
+            { "symbol": "a", "means": "current lookahead terminal" },
+            { "symbol": "\\text{FOLLOW}(A)", "means": "set of terminals that can follow A in any sentential form" }
+          ],
+          "trap": "SLR(1) uses global FOLLOW sets; conflicts arise when FOLLOW(A) overlaps FIRST(beta) for another item in the same state",
+          "reference": "Compiler Design / Frontend Phases"
+        },
+        {
+          "formulaId": "con_055-lalr1-vs-clr1",
+          "name": "LALR(1) vs CLR(1) Items",
+          "latex": "\\begin{aligned} &\\text{CLR(1) item: } [A \\to \\alpha \\bullet \\beta,\\; a] \\quad (a = \\text{lookahead terminal}) \\\\ &\\text{LALR(1): merge CLR(1) states with same core}\\; (\\text{same LR(0) items, different lookaheads}) \\end{aligned}",
+          "plain": "CLR(1) keeps full lookahead per item. LALR(1) merges states that share the same LR(0) core, unioning their lookaheads. Same number of states as LR(0)/SLR(1).",
+          "whenToUse": "Understanding why LALR(1) can have reduce-reduce conflicts not present in CLR(1) after merging",
+          "terms": [
+            { "symbol": "a", "means": "lookahead terminal in LR(1) item" },
+            { "symbol": "\\text{core}", "means": "LR(0) item ignoring lookahead" }
+          ],
+          "trap": "Merging LALR(1) states can introduce reduce-reduce conflicts; it NEVER introduces shift-reduce conflicts that were not already in CLR(1)",
+          "reference": "Compiler Design / Frontend Phases"
+        },
+        {
+          "formulaId": "con_055-shift-reduce-conflict",
+          "name": "Shift-Reduce & Reduce-Reduce Conflicts",
+          "latex": "\\begin{aligned} &\\text{Shift-Reduce (S/R): state has both } [A \\to \\alpha \\bullet a \\beta] \\text{ and } [B \\to \\gamma \\bullet] \\text{ for same lookahead } a \\\\ &\\text{Reduce-Reduce (R/R): state has two complete items } [A \\to \\alpha \\bullet] \\text{ and } [B \\to \\beta \\bullet] \\text{ with overlapping lookaheads} \\end{aligned}",
+          "plain": "Shift-Reduce: can either shift 'a' or reduce B->gamma. Reduce-Reduce: two different reductions applicable on same lookahead — always a grammar defect",
+          "whenToUse": "Diagnosing parse table conflicts; R/R conflicts are more serious than S/R",
+          "terms": [
+            { "symbol": "a", "means": "conflicting lookahead terminal" }
+          ],
+          "trap": "LR(0) grammar has NO conflicts at all; SLR(1) resolves some but not all S/R conflicts that LR(0) cannot",
+          "reference": "Compiler Design / Frontend Phases"
+        },
+        {
+          "formulaId": "con_055-goto-action-tables",
+          "name": "ACTION and GOTO Table Structure",
+          "latex": "\\begin{aligned} &\\text{ACTION}[s, a] \\in \\{\\text{shift}\\; s',\\; \\text{reduce}\\; A\\to\\alpha,\\; \\text{accept},\\; \\text{error}\\} \\\\ &\\text{GOTO}[s, A] = s'' \\quad (A \\in N,\\; s'' = \\text{state after reducing to } A) \\end{aligned}",
+          "plain": "ACTION table: indexed by (state, terminal). GOTO table: indexed by (state, non-terminal). GOTO is identical across SLR(1), LALR(1), and CLR(1) for the same grammar.",
+          "whenToUse": "Constructing or reading LR parse tables; GOTO part is never source of ambiguity",
+          "terms": [
+            { "symbol": "s, s', s''", "means": "parser states" },
+            { "symbol": "N", "means": "set of non-terminals" }
+          ],
+          "trap": "The GOTO tables of SLR(1) and LALR(1) are identical; only ACTION entries may differ",
+          "reference": "Compiler Design / Frontend Phases"
+        }
+      ]
+    },
+    {
+      "groupId": "operator-precedence",
+      "groupTitle": "Operator Precedence Parsing",
+      "formulas": [
+        {
+          "formulaId": "con_055-op-prec-relations",
+          "name": "Operator Precedence Relations",
+          "latex": "\\begin{aligned} &a \\lessdot b :\\; a \\text{ yields precedence to } b \\;(\\text{shift } b) \\\\ &a \\doteq b :\\; a \\text{ and } b \\text{ have equal precedence} \\\\ &a \\gtrdot b :\\; a \\text{ takes precedence over } b \\;(\\text{reduce before shifting } b) \\end{aligned}",
+          "plain": "a <. b : shift b (b has higher precedence). a =. b : same precedence. a >. b : reduce a before shifting b (a has higher precedence or left-associative at same level)",
+          "whenToUse": "Building an operator-precedence parsing table for expression grammars",
+          "terms": [
+            { "symbol": "\\lessdot", "means": "yields precedence (left side has lower precedence)" },
+            { "symbol": "\\doteq", "means": "equal precedence" },
+            { "symbol": "\\gtrdot", "means": "takes precedence (left side has higher or equal with left-assoc)" }
+          ],
+          "trap": "Operator-precedence parsing does NOT build a standard parse tree; it handles only operator grammars (no two adjacent non-terminals)",
+          "reference": "Compiler Design / Frontend Phases"
+        },
+        {
+          "formulaId": "con_055-prec-from-grammar",
+          "name": "Precedence from Grammar Structure",
+          "latex": "E \\to E * F \\mid F + E \\mid F \\implies * \\text{ has higher precedence than } +",
+          "plain": "In expression grammars, an operator appearing deeper in the grammar (i.e., closer to the leaves/atoms) has higher precedence. * is deeper than + so * binds tighter.",
+          "whenToUse": "Reading precedence and associativity directly from a given expression grammar without a precedence table",
+          "terms": [
+            { "symbol": "E, F", "means": "non-terminals at different levels of the grammar hierarchy" }
+          ],
+          "trap": "Associativity is encoded by recursion direction: E -> E op F is left-associative, E -> F op E is right-associative",
+          "reference": "Compiler Design / Frontend Phases"
+        }
+      ]
+    },
+    {
+      "groupId": "parsing-general",
+      "groupTitle": "General Parsing Concepts",
+      "formulas": [
+        {
+          "formulaId": "con_055-top-down-vs-bottom-up",
+          "name": "Top-Down vs Bottom-Up Parsing",
+          "latex": "\\begin{aligned} &\\text{Top-Down (LL): leftmost derivation, expands non-terminals} \\\\ &\\text{Bottom-Up (LR): rightmost derivation in reverse, reduces terminals to non-terminals} \\end{aligned}",
+          "plain": "LL parsers build parse tree from root to leaves (top-down, leftmost). LR parsers build from leaves to root (bottom-up, reverse rightmost derivation).",
+          "whenToUse": "Classifying parsing strategies; LL(k) uses k tokens of lookahead top-down, LR(k) uses k tokens bottom-up",
+          "terms": [
+            { "symbol": "k", "means": "number of lookahead tokens" }
+          ],
+          "trap": "LL parsers cannot handle left recursion; LR parsers can handle more grammars but are harder to build by hand",
+          "reference": "Compiler Design / Frontend Phases"
+        },
+        {
+          "formulaId": "con_055-handle-definition",
+          "name": "Handle in Bottom-Up Parsing",
+          "latex": "\\text{A handle of a right-sentential form } \\gamma \\text{ is a production } A \\to \\beta \\text{ and position in } \\gamma \\text{ such that } \\gamma = \\alpha \\beta w \\text{ and } S \\Rightarrow^*_{rm} \\alpha A w",
+          "plain": "Handle = the substring beta to be reduced next (matching some production A -> beta) such that reducing it continues a valid rightmost derivation in reverse",
+          "whenToUse": "Formalizing what a shift-reduce parser reduces at each step",
+          "terms": [
+            { "symbol": "\\gamma", "means": "current right-sentential form on stack + remaining input" },
+            { "symbol": "\\Rightarrow^*_{rm}", "means": "rightmost derivation steps" }
+          ],
+          "trap": "Handles are always found at the TOP of the stack; never in the remaining input portion",
+          "reference": "Compiler Design / Frontend Phases"
+        },
+        {
+          "formulaId": "con_055-ll1-parse-table-entry",
+          "name": "LL(1) Parse Table Construction",
+          "latex": "M[A, a] \\gets A \\to \\alpha \\quad \\text{for each } a \\in \\text{SELECT}(A \\to \\alpha)",
+          "plain": "Add production A -> alpha to table cell M[A, a] for every terminal a in SELECT(A -> alpha). If any cell gets two productions, grammar is not LL(1).",
+          "whenToUse": "Constructing the LL(1) parsing table from SELECT sets",
+          "terms": [
+            { "symbol": "M[A,a]", "means": "parse table cell for non-terminal A and lookahead terminal a" }
+          ],
+          "trap": "An epsilon-production A -> epsilon is added in row A for all a in FOLLOW(A), not FIRST(epsilon)",
+          "reference": "Compiler Design / Frontend Phases"
+        },
+        {
+          "formulaId": "con_055-viable-prefix",
+          "name": "Viable Prefix",
+          "latex": "\\text{A viable prefix is a prefix of a right-sentential form that does not extend past the rightmost handle}",
+          "plain": "Viable prefix = any stack content that can appear during a valid LR parse; the LR automaton recognizes exactly the set of viable prefixes",
+          "whenToUse": "Understanding what LR(0) items/automaton recognizes; every state in the LR automaton is a set of viable-prefix items",
+          "terms": [
+            { "symbol": "\\text{handle}", "means": "rightmost reducible substring in current sentential form" }
+          ],
+          "trap": "Not every prefix of a right-sentential form is a viable prefix — it must not go past the handle",
+          "reference": "Compiler Design / Frontend Phases"
+        }
+      ]
+    }
+  ]
+}

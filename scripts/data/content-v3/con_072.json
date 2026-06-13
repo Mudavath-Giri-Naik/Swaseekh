@@ -1,0 +1,350 @@
+{
+  "_id": "con_072",
+  "conceptId": "con_072",
+  "conceptTitle": "Transactions and Concurrency Control",
+  "reference": "GATE CS — Databases / Transactions",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Need to check if a schedule is conflict serializable",
+        "use": "\\text{Build precedence graph; conflict serializable} \\iff \\text{graph is acyclic}"
+      },
+      {
+        "condition": "Checking if two operations conflict",
+        "use": "\\text{Conflict: same data item, different transactions, at least one write}"
+      },
+      {
+        "condition": "Need to check recoverability",
+        "use": "T_j \\text{ reads from } T_i \\Rightarrow T_i \\text{ must commit before } T_j \\text{ commits}"
+      },
+      {
+        "condition": "Checking if schedule is view serializable",
+        "use": "\\text{View serializable} \\supseteq \\text{Conflict serializable}"
+      },
+      {
+        "condition": "2PL guarantees conflict serializability",
+        "use": "\\text{2PL: grow phase then shrink phase} \\Rightarrow \\text{conflict serializable}"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "acid-properties",
+      "groupTitle": "ACID Properties",
+      "formulas": [
+        {
+          "formulaId": "con_072-acid-atomicity",
+          "name": "Atomicity",
+          "latex": "\\text{Atomicity: transaction executes completely or not at all (all-or-nothing)}",
+          "plain": "Atomicity: transaction executes completely or not at all (all-or-nothing)",
+          "whenToUse": "When a transaction fails midway — all changes must be rolled back",
+          "terms": [
+            { "symbol": "transaction", "means": "a logical unit of work" }
+          ],
+          "trap": "Partial commits are NOT allowed; even a single operation failure requires full rollback",
+          "reference": "Databases / Transactions"
+        },
+        {
+          "formulaId": "con_072-acid-consistency",
+          "name": "Consistency",
+          "latex": "\\text{Consistency: DB moves from one valid state to another valid state}",
+          "plain": "Consistency: DB moves from one valid state to another valid state",
+          "whenToUse": "Integrity constraints must hold before and after a transaction",
+          "terms": [
+            { "symbol": "valid state", "means": "state satisfying all integrity constraints" }
+          ],
+          "trap": "Consistency is a property the application (not the DBMS) must enforce in most cases",
+          "reference": "Databases / Transactions"
+        },
+        {
+          "formulaId": "con_072-acid-isolation",
+          "name": "Isolation",
+          "latex": "\\text{Isolation: concurrent transactions appear as if executed serially}",
+          "plain": "Isolation: concurrent transactions appear as if executed serially",
+          "whenToUse": "Ensuring intermediate states of a transaction are invisible to others",
+          "terms": [
+            { "symbol": "serial execution", "means": "transactions execute one after another with no interleaving" }
+          ],
+          "trap": "Isolation does NOT mean transactions actually run serially; it means the result is equivalent",
+          "reference": "Databases / Transactions"
+        },
+        {
+          "formulaId": "con_072-acid-durability",
+          "name": "Durability",
+          "latex": "\\text{Durability: committed transactions persist despite system failures}",
+          "plain": "Durability: committed transactions persist despite system failures",
+          "whenToUse": "After a transaction commits, its effects are permanent even after crash",
+          "terms": [
+            { "symbol": "commit", "means": "permanent acknowledgment of transaction success" }
+          ],
+          "trap": "Durability is maintained by logs/write-ahead logging (WAL), not just memory",
+          "reference": "Databases / Transactions"
+        }
+      ]
+    },
+    {
+      "groupId": "conflict-serializability",
+      "groupTitle": "Conflict Serializability",
+      "formulas": [
+        {
+          "formulaId": "con_072-conflict-definition",
+          "name": "Conflicting Operations",
+          "latex": "O_i, O_j \\text{ conflict} \\iff \\text{same data item} \\wedge \\text{different transactions} \\wedge \\text{at least one is a write}",
+          "plain": "Operations Oi, Oj conflict iff: same data item AND different transactions AND at least one is a write",
+          "whenToUse": "Determining if swapping two adjacent operations changes the schedule outcome",
+          "terms": [
+            { "symbol": "O_i", "means": "operation from transaction T_i" },
+            { "symbol": "O_j", "means": "operation from transaction T_j" }
+          ],
+          "trap": "Two reads on the same item do NOT conflict; only W-W, R-W, or W-R pairs conflict",
+          "reference": "Databases / Transactions"
+        },
+        {
+          "formulaId": "con_072-precedence-graph",
+          "name": "Precedence (Serialization) Graph",
+          "latex": "T_i \\rightarrow T_j \\text{ in PG} \\iff \\exists \\text{ conflicting ops where } T_i\\text{'s op precedes } T_j\\text{'s op}",
+          "plain": "Ti -> Tj in precedence graph iff Ti's conflicting op precedes Tj's conflicting op",
+          "whenToUse": "Testing conflict serializability by building the directed precedence graph",
+          "terms": [
+            { "symbol": "PG", "means": "precedence (serialization) graph" },
+            { "symbol": "T_i \\rightarrow T_j", "means": "T_i must precede T_j in any serial order" }
+          ],
+          "trap": "Add an edge only for CONFLICTING pairs; non-conflicting operations do not create edges",
+          "reference": "Databases / Transactions"
+        },
+        {
+          "formulaId": "con_072-conflict-serial-test",
+          "name": "Conflict Serializability Test",
+          "latex": "\\text{Schedule } S \\text{ is conflict serializable} \\iff \\text{its precedence graph is acyclic (DAG)}",
+          "plain": "Schedule S is conflict serializable iff its precedence graph is a DAG (no cycles)",
+          "whenToUse": "Final verdict after building the precedence graph",
+          "terms": [
+            { "symbol": "DAG", "means": "directed acyclic graph" }
+          ],
+          "trap": "A cycle of even length is still a cycle — the schedule is NOT conflict serializable",
+          "reference": "Databases / Transactions"
+        },
+        {
+          "formulaId": "con_072-serial-order",
+          "name": "Equivalent Serial Order",
+          "latex": "\\text{Topological sort of acyclic PG gives the equivalent serial schedule}",
+          "plain": "Topological sort of acyclic precedence graph gives equivalent serial schedule",
+          "whenToUse": "Identifying which serial schedules a conflict-serializable schedule is equivalent to",
+          "terms": [
+            { "symbol": "topological sort", "means": "linear ordering consistent with all directed edges" }
+          ],
+          "trap": "Multiple valid topological orders may exist — each is a valid equivalent serial schedule",
+          "reference": "Databases / Transactions"
+        }
+      ]
+    },
+    {
+      "groupId": "view-serializability",
+      "groupTitle": "View Serializability",
+      "formulas": [
+        {
+          "formulaId": "con_072-view-serial-conditions",
+          "name": "View Equivalence Conditions",
+          "latex": "S \\equiv_v S' \\iff \\begin{cases} \\text{(1) Same initial reads} \\\\ \\text{(2) Same reads-from relation} \\\\ \\text{(3) Same final writes} \\end{cases}",
+          "plain": "S view-equivalent to S' iff: (1) same initial reads, (2) same reads-from pairs, (3) same final writes",
+          "whenToUse": "Checking if a non-conflict-serializable schedule is still view serializable",
+          "terms": [
+            { "symbol": "reads-from", "means": "T_j reads value written by T_i" },
+            { "symbol": "final write", "means": "last write to an item in the schedule" }
+          ],
+          "trap": "View serializability is NP-complete to check; conflict serializability is polynomial",
+          "reference": "Databases / Transactions"
+        },
+        {
+          "formulaId": "con_072-view-vs-conflict",
+          "name": "Serializability Containment",
+          "latex": "\\text{Conflict serializable} \\subsetneq \\text{View serializable} \\subsetneq \\text{All schedules}",
+          "plain": "Conflict serializable (subset) View serializable (subset) All schedules",
+          "whenToUse": "Comparing the two notions of serializability",
+          "terms": [
+            { "symbol": "\\subsetneq", "means": "proper subset — view serializable is strictly larger" }
+          ],
+          "trap": "Every conflict-serializable schedule is view serializable, but not vice versa",
+          "reference": "Databases / Transactions"
+        }
+      ]
+    },
+    {
+      "groupId": "recoverability",
+      "groupTitle": "Recoverability & Schedule Types",
+      "formulas": [
+        {
+          "formulaId": "con_072-recoverable-schedule",
+          "name": "Recoverable Schedule",
+          "latex": "T_j \\text{ reads from } T_i \\Rightarrow T_i \\text{ must commit before } T_j \\text{ commits}",
+          "plain": "If Tj reads from Ti, then Ti must commit before Tj commits",
+          "whenToUse": "Checking whether a schedule allows correct rollback after failure",
+          "terms": [
+            { "symbol": "reads from", "means": "T_j reads a value last written by T_i" }
+          ],
+          "trap": "If Tj commits before Ti commits and Ti later aborts, the committed data of Tj is wrong — irrecoverable",
+          "reference": "Databases / Transactions"
+        },
+        {
+          "formulaId": "con_072-cascadeless-schedule",
+          "name": "Cascadeless (ACA) Schedule",
+          "latex": "T_j \\text{ reads } X \\text{ from } T_i \\Rightarrow T_i \\text{ must commit before } T_j \\text{ reads } X",
+          "plain": "If Tj reads X written by Ti, then Ti must have committed before Tj reads X",
+          "whenToUse": "Avoiding cascading aborts — once Ti aborts, Tj need not abort too",
+          "terms": [
+            { "symbol": "ACA", "means": "Avoids Cascading Aborts" }
+          ],
+          "trap": "Cascadeless is stricter than recoverable; cascadeless implies recoverable but not vice versa",
+          "reference": "Databases / Transactions"
+        },
+        {
+          "formulaId": "con_072-strict-schedule",
+          "name": "Strict Schedule",
+          "latex": "T_j \\text{ reads/writes } X \\text{ written by } T_i \\Rightarrow T_i \\text{ must commit or abort before } T_j \\text{ reads/writes } X",
+          "plain": "Tj can read or write X only after Ti (which last wrote X) has committed or aborted",
+          "whenToUse": "Simplifying recovery — no need to look at transaction history for undo",
+          "terms": [
+            { "symbol": "strict", "means": "strongest recoverability class" }
+          ],
+          "trap": "Strict implies cascadeless implies recoverable — all three are nested classes",
+          "reference": "Databases / Transactions"
+        },
+        {
+          "formulaId": "con_072-recoverability-hierarchy",
+          "name": "Recoverability Hierarchy",
+          "latex": "\\text{Strict} \\subsetneq \\text{Cascadeless (ACA)} \\subsetneq \\text{Recoverable} \\subsetneq \\text{All schedules}",
+          "plain": "Strict (subset) Cascadeless (subset) Recoverable (subset) All schedules",
+          "whenToUse": "Classifying a given schedule into its recoverability category",
+          "terms": [],
+          "trap": "An irrecoverable schedule is NOT in any of the three safe classes — DBMS must prevent these",
+          "reference": "Databases / Transactions"
+        }
+      ]
+    },
+    {
+      "groupId": "locking-protocols",
+      "groupTitle": "Locking Protocols",
+      "formulas": [
+        {
+          "formulaId": "con_072-2pl-rule",
+          "name": "Two-Phase Locking (2PL)",
+          "latex": "\\text{2PL: Growing phase (acquire locks)} \\rightarrow \\text{Lock point} \\rightarrow \\text{Shrinking phase (release locks)}",
+          "plain": "2PL: Growing phase (only acquire) -> Lock point -> Shrinking phase (only release)",
+          "whenToUse": "Guaranteeing conflict serializability in concurrent execution",
+          "terms": [
+            { "symbol": "\\text{Lock point}", "means": "moment when last lock is acquired" }
+          ],
+          "trap": "2PL prevents non-serializable schedules but does NOT prevent deadlock",
+          "reference": "Databases / Transactions"
+        },
+        {
+          "formulaId": "con_072-strict-2pl",
+          "name": "Strict 2PL",
+          "latex": "\\text{Strict 2PL: all exclusive (write) locks held until } \\textit{commit/abort}",
+          "plain": "Strict 2PL: hold all exclusive locks until transaction commits or aborts",
+          "whenToUse": "When both serializability AND strict recoverability are needed",
+          "terms": [
+            { "symbol": "\\text{exclusive lock}", "means": "write lock; no other transaction may read or write" }
+          ],
+          "trap": "Strict 2PL produces strict schedules; basic 2PL can still produce cascading aborts",
+          "reference": "Databases / Transactions"
+        },
+        {
+          "formulaId": "con_072-lock-compatibility",
+          "name": "Lock Compatibility Matrix",
+          "latex": "\\begin{array}{c|cc} & S & X \\\\ \\hline S & \\checkmark & \\times \\\\ X & \\times & \\times \\end{array}",
+          "plain": "Shared(S) and Shared(S): compatible. Shared+Exclusive or Exclusive+Exclusive: incompatible.",
+          "whenToUse": "Deciding whether a lock request can be granted immediately",
+          "terms": [
+            { "symbol": "S", "means": "shared (read) lock" },
+            { "symbol": "X", "means": "exclusive (write) lock" }
+          ],
+          "trap": "Two reads (S+S) are compatible; mixing any exclusive lock causes a wait",
+          "reference": "Databases / Transactions"
+        }
+      ]
+    },
+    {
+      "groupId": "deadlock-and-timestamps",
+      "groupTitle": "Deadlock & Timestamp Protocols",
+      "formulas": [
+        {
+          "formulaId": "con_072-deadlock-conditions",
+          "name": "Deadlock Conditions",
+          "latex": "\\text{Deadlock: mutual wait cycle } T_1 \\rightarrow T_2 \\rightarrow \\cdots \\rightarrow T_1",
+          "plain": "Deadlock: circular wait — T1 waits for T2, T2 waits for ... , Tn waits for T1",
+          "whenToUse": "Identifying or preventing deadlock in concurrent locking scenarios",
+          "terms": [
+            { "symbol": "\\rightarrow", "means": "waits for" }
+          ],
+          "trap": "Deadlock detection uses a wait-for graph; a cycle in the wait-for graph signals deadlock",
+          "reference": "Databases / Transactions"
+        },
+        {
+          "formulaId": "con_072-timestamp-ordering",
+          "name": "Timestamp Ordering (TO) Protocol",
+          "latex": "\\text{If } TS(T_i) < TS(T_j): \\; T_i\\text{'s ops must precede }T_j\\text{'s conflicting ops}",
+          "plain": "Timestamp ordering: older transaction (smaller TS) must logically precede newer one",
+          "whenToUse": "Lock-free concurrency control using transaction timestamps",
+          "terms": [
+            { "symbol": "TS(T)", "means": "timestamp assigned to transaction T at start" }
+          ],
+          "trap": "A transaction is rolled back and restarted (with a NEW timestamp) when the rule is violated — not simply delayed",
+          "reference": "Databases / Transactions"
+        },
+        {
+          "formulaId": "con_072-wound-wait-wait-die",
+          "name": "Wound-Wait vs Wait-Die (Deadlock Prevention)",
+          "latex": "\\text{Wait-Die: older waits, younger dies (aborts)}\\quad\\text{Wound-Wait: older wounds (aborts) younger, younger waits}",
+          "plain": "Wait-Die: older transaction waits, younger is aborted. Wound-Wait: older wounds (aborts) younger, younger waits for older.",
+          "whenToUse": "Preventing deadlock by aborting one transaction when a conflict arises",
+          "terms": [
+            { "symbol": "\\text{older}", "means": "transaction with smaller (earlier) timestamp" }
+          ],
+          "trap": "Both schemes always abort the YOUNGER transaction; they differ in which role (requester or holder) it plays",
+          "reference": "Databases / Transactions"
+        }
+      ]
+    },
+    {
+      "groupId": "anomalies",
+      "groupTitle": "Concurrency Anomalies",
+      "formulas": [
+        {
+          "formulaId": "con_072-dirty-read",
+          "name": "Dirty Read (WR Conflict Anomaly)",
+          "latex": "T_1 \\xrightarrow{W(X)} T_2 \\xrightarrow{R(X)} \\text{ then } T_1 \\text{ aborts} \\Rightarrow \\text{dirty read}",
+          "plain": "T1 writes X, T2 reads X, then T1 aborts -> T2 read a dirty (uncommitted) value",
+          "whenToUse": "Identifying irrecoverable or non-cascadeless schedule scenarios",
+          "terms": [
+            { "symbol": "W(X)", "means": "write on data item X" },
+            { "symbol": "R(X)", "means": "read on data item X" }
+          ],
+          "trap": "Dirty read creates an irrecoverable schedule if T2 commits before T1's abort is known",
+          "reference": "Databases / Transactions"
+        },
+        {
+          "formulaId": "con_072-lost-update",
+          "name": "Lost Update (WW Conflict Anomaly)",
+          "latex": "T_1: W(X) \\;\\|\\; T_2: W(X) \\Rightarrow \\text{one write is overwritten (lost)}",
+          "plain": "T1 and T2 both write X; one write is lost because the other overwrites it",
+          "whenToUse": "Detecting the lost-update problem in concurrent write scenarios",
+          "terms": [],
+          "trap": "Lost update is a W-W conflict; prevented by exclusive locking before any write",
+          "reference": "Databases / Transactions"
+        },
+        {
+          "formulaId": "con_072-unrepeatable-read",
+          "name": "Unrepeatable Read (RW Conflict Anomaly)",
+          "latex": "T_1: R(X), \\; T_2: W(X),\\text{commit}, \\; T_1: R(X) \\Rightarrow \\text{different values}",
+          "plain": "T1 reads X, T2 writes and commits X, T1 reads X again and sees a different value",
+          "whenToUse": "Detecting inconsistent reads within the same transaction",
+          "terms": [],
+          "trap": "Prevented by holding shared locks on X until T1 commits (2PL rule for reads)",
+          "reference": "Databases / Transactions"
+        }
+      ]
+    }
+  ]
+}
