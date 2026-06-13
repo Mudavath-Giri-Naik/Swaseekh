@@ -1,7 +1,6 @@
 import mongoose, { Schema, Document, Model } from 'mongoose'
 
 export interface IAptitudeMeta extends Document {
-  _id: string
   lastQuestionNumber: number
   lastFormulaNumber: number
   lastModelNumber: number
@@ -11,7 +10,6 @@ export interface IAptitudeMeta extends Document {
 
 const AptitudeMetaSchema = new Schema<IAptitudeMeta>(
   {
-    _id: { type: String },
     lastQuestionNumber: { type: Number, default: 0 },
     lastFormulaNumber: { type: Number, default: 0 },
     lastModelNumber: { type: Number, default: 0 },
