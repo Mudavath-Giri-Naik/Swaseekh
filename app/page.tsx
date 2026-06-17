@@ -192,11 +192,13 @@ export default function HomePage() {
                 placeholder="Enter your email" 
                 className="w-full bg-white rounded-full h-[56px] pl-6 pr-36 outline-none text-[#1A1A2E] shadow-sm border border-[#EBE5DE]"
               />
-              <button className="absolute right-1.5 top-1.5 bottom-1.5 bg-[#FFF5F0] border border-[#F26419]/30 text-[#1A1A2E] rounded-full px-4 flex items-center gap-2 hover:bg-[#FFF0E5] transition-colors font-semibold text-sm">
-                <div className="w-8 h-8 rounded-full bg-[#F26419] text-white flex items-center justify-center">
+              <button className="group absolute right-1.5 top-1.5 bottom-1.5 w-[130px] bg-[#FFF5F0] border border-[#F26419]/30 text-[#1A1A2E] rounded-full flex items-center px-1.5 hover:bg-[#FFF0E5] transition-colors font-semibold text-sm overflow-hidden">
+                <div className="w-8 h-8 rounded-full bg-[#F26419] group-hover:bg-[#1A1A2E] text-white flex items-center justify-center transition-all duration-500 ease-in-out group-hover:translate-x-[86px] relative z-10 shrink-0">
                   <ChevronsRight size={18} strokeWidth={3} />
                 </div>
-                Subscribe
+                <span className="absolute left-[44px] transition-all duration-500 ease-in-out group-hover:-translate-x-[32px] whitespace-nowrap">
+                  Subscribe
+                </span>
               </button>
             </div>
           </div>
@@ -204,10 +206,10 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="relative w-full bg-[#17171F] text-white pt-20 pb-12 overflow-hidden mt-auto">
-        <div className="relative z-10 w-full max-w-[1200px] mx-auto px-4 md:px-8 grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8 mb-20">
+      <footer className="relative w-full bg-[#17171F] text-white pt-20 pb-16 overflow-hidden mt-auto">
+        <div className="relative z-10 w-full max-w-[1200px] mx-auto px-4 md:px-8 grid grid-cols-2 md:grid-cols-12 gap-y-10 gap-x-6 md:gap-8 mb-16 md:mb-20">
           {/* Col 1 */}
-          <div className="md:col-span-4 flex flex-col">
+          <div className="col-span-2 md:col-span-4 flex flex-col">
             <Link href="/" className="flex items-center gap-2 mb-6">
               <div className="flex items-center justify-center text-[#F26419]">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -220,15 +222,15 @@ export default function HomePage() {
             <p className="text-[#A0A0A0] text-[15px] leading-[1.6] mb-8 max-w-[300px]">
               Transform your teaching with our AI-driven Learning Management System. Effortlessly manage courses and engage learners.
             </p>
-            <p className="text-[#A0A0A0] text-sm mt-auto">
-              © Copyrights 2025 Swaseekh. All rights reserved.
+            <p className="text-[#A0A0A0] text-sm mt-auto hidden md:block">
+              © Copyrights 2026 Swaseekh. All rights reserved.
             </p>
           </div>
 
-          <div className="md:col-span-1"></div>
+          <div className="hidden md:block md:col-span-1"></div>
 
           {/* Col 2 */}
-          <div className="md:col-span-2">
+          <div className="col-span-1 md:col-span-2">
             <h4 className="text-white font-bold mb-6 text-[15px]">Useful Links</h4>
             <ul className="flex flex-col gap-4 text-[15px] text-[#A0A0A0]">
               <li><Link href="#" className="text-[#F26419] font-medium hover:underline">Home</Link></li>
@@ -239,7 +241,7 @@ export default function HomePage() {
           </div>
 
           {/* Col 3 */}
-          <div className="md:col-span-2">
+          <div className="col-span-1 md:col-span-2">
             <h4 className="text-white font-bold mb-6 text-[15px]">Quick Links</h4>
             <ul className="flex flex-col gap-4 text-[15px] text-[#A0A0A0]">
               <li><Link href="#" className="hover:text-white transition-colors">Contact Us</Link></li>
@@ -251,7 +253,7 @@ export default function HomePage() {
           </div>
 
           {/* Col 4 */}
-          <div className="md:col-span-3">
+          <div className="col-span-2 md:col-span-3">
             <h4 className="text-white font-bold mb-6 text-[15px]">Let's Connect</h4>
             <ul className="flex flex-col gap-4 text-[15px] text-[#A0A0A0]">
               <li>
@@ -290,11 +292,17 @@ export default function HomePage() {
               </li>
             </ul>
           </div>
+          
+          <div className="col-span-2 block md:hidden mt-4">
+            <p className="text-[#A0A0A0] text-sm text-center">
+              © Copyrights 2026 Swaseekh. All rights reserved.
+            </p>
+          </div>
         </div>
 
         {/* Big Background Text */}
-        <div className="absolute bottom-[-8%] left-1/2 -translate-x-1/2 w-full overflow-hidden flex justify-center pointer-events-none select-none z-0">
-          <span className="text-[22vw] md:text-[20vw] font-black text-white/[0.03] leading-[0.8] tracking-tighter whitespace-nowrap">
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full overflow-hidden flex justify-center pointer-events-none select-none z-0">
+          <span className="text-[13vw] md:text-[20vw] font-black text-white/[0.03] leading-[0.75] tracking-tighter whitespace-nowrap">
             SWASEEKH
           </span>
         </div>
