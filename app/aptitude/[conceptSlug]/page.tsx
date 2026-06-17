@@ -40,22 +40,9 @@ const SOURCE_LABELS: Record<string, string> = {
   all: 'All', rs_agarwal: 'R.S. Agarwal', indiabix: 'IndiaBix', ppt: 'Lecture'
 }
 
-/* ─── Session Storage Caches ────────────────────────────────────────── */
-function getMetaCache(slug: string) {
-  if (typeof window === 'undefined') return null
-  try { return JSON.parse(sessionStorage.getItem('meta_' + slug) || 'null') } catch(e) { return null }
-}
-function setMetaCache(slug: string, data: any) {
-  if (typeof window !== 'undefined') sessionStorage.setItem('meta_' + slug, JSON.stringify(data))
-}
-
-function getQCache(key: string) {
-  if (typeof window === 'undefined') return null
-  try { return JSON.parse(sessionStorage.getItem('q_' + key) || 'null') } catch(e) { return null }
-}
-function setQCache(key: string, data: any) {
-  if (typeof window !== 'undefined') sessionStorage.setItem('q_' + key, JSON.stringify(data))
-}
+/* ─── Module-Level Caches ───────────────────────────────────────────── */
+const metaCache: Record<string, { concept: Concept; formulas: Formula[]; models: AptModel[] }> = {}
+const questionsCache: Record<string, { questions: Question[]; totalPages: number; totalQ: number; page: number }> = {}
 
 function buildQCacheKey(slug: string, model: string, diff: string, source: string): string {
   return `${slug}|${model}|${diff}|${source}`
@@ -88,14 +75,14 @@ function ConceptSlugInner() {
   const initialTab = (searchParams.get('tab') === 'formulas' ? 'formulas' : 'questions') as 'questions' | 'formulas'
 
   /* ─── State ──────────────────────────────────────────────────────── */
-  const cachedMeta = getMetaCache(slug)
+  const cachedMeta = metaCache[slug]
   const [concept, setConcept] = useState<Concept | null>(cachedMeta?.concept ?? null)
   const [formulas, setFormulas] = useState<Formula[]>(cachedMeta?.formulas ?? [])
   const [models, setModels] = useState<AptModel[]>(cachedMeta?.models ?? [])
 
   // Pre-populate questions from cache if available
   const initQKey = buildQCacheKey(slug, initialModel, initialDiff, initialSource)
-  const cachedQ = getQCache(initQKey)
+  const cachedQ = questionsCache[initQKey]
 
   const [questions, setQuestions] = useState<Question[]>(cachedQ?.questions ?? [])
   const [loading, setLoading] = useState(!cachedMeta)
@@ -141,7 +128,7 @@ function ConceptSlugInner() {
     if (!slug) return
 
     // If we have cached meta, use it but still refresh in background
-    const currentMeta = getMetaCache(slug)
+    const currentMeta = metaCache[slug]
     if (currentMeta) {
       setConcept(currentMeta.concept)
       setFormulas(currentMeta.formulas)
@@ -160,7 +147,7 @@ function ConceptSlugInner() {
           formulas: d.formulas ?? [],
           models: d.models ?? []
         }
-        setMetaCache(slug, meta)
+        metaCache[slug] = meta
         setConcept(meta.concept)
         setFormulas(meta.formulas)
         setModels(meta.models)
@@ -187,12 +174,12 @@ function ConceptSlugInner() {
         const newQs = d.questions ?? []
         setQuestions(prev => {
           const updated = reset ? newQs : [...prev, ...newQs]
-          setQCache(cacheKey, {
+          questionsCache[cacheKey] = {
             questions: updated,
             totalPages: d.totalPages ?? 1,
             totalQ: d.total ?? 0,
             page: pg
-          })
+          }
           return updated
         })
         setTotalPages(d.totalPages ?? 1)
@@ -204,7 +191,7 @@ function ConceptSlugInner() {
 
   useEffect(() => {
     const cacheKey = buildQCacheKey(slug, activeModel, activeDiff, activeSource)
-    const cachedQ = getQCache(cacheKey)
+    const cachedQ = questionsCache[cacheKey]
     if (cachedQ) {
       setQuestions(cachedQ.questions)
       setTotalPages(cachedQ.totalPages)

@@ -35,14 +35,19 @@ interface Stats {
   subjectList: { name: string; count: number }[]
 }
 
+let _cachedDashboard: Stats | null = null
+
 export default function DashboardPage() {
-  const [data, setData] = useState<Stats | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [data, setData] = useState<Stats | null>(_cachedDashboard)
+  const [loading, setLoading] = useState(!_cachedDashboard)
 
   useEffect(() => {
     fetch('/api/dashboard/stats')
       .then((r) => r.json())
-      .then(setData)
+      .then((d) => {
+        _cachedDashboard = d
+        setData(d)
+      })
       .catch(() => setData(null))
       .finally(() => setLoading(false))
   }, [])

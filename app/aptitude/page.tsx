@@ -136,13 +136,16 @@ export default function AptitudePage() {
   )
 }
 
+let _cachedQuestions: Question[] | null = null
+let _cachedConcepts: Concept[] | null = null
+
 function AptitudePageInner() {
   const sidebarData = useSidebarData()
   const searchParams = useSearchParams()
   
-  const [questions, setQuestions] = useState<Question[]>([])
-  const [concepts, setConcepts] = useState<Concept[]>([])
-  const [loading, setLoading] = useState(true)
+  const [questions, setQuestions] = useState<Question[]>(_cachedQuestions ?? [])
+  const [concepts, setConcepts] = useState<Concept[]>(_cachedConcepts ?? [])
+  const [loading, setLoading] = useState(!_cachedQuestions || !_cachedConcepts)
   const [searchQuery, setSearchQuery] = useState('')
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
 
@@ -164,14 +167,15 @@ function AptitudePageInner() {
 
   // Fetch all questions & concepts
   useEffect(() => {
-    setLoading(true)
     Promise.all([
       fetch('/api/aptitude/questions?limit=5000').then((res) => res.json()),
       fetch('/api/aptitude/concepts').then((res) => res.json())
     ])
       .then(([qData, cData]) => {
-        setQuestions((qData.questions ?? []) as Question[])
-        setConcepts((cData.concepts ?? []) as Concept[])
+        _cachedQuestions = (qData.questions ?? []) as Question[]
+        _cachedConcepts = (cData.concepts ?? []) as Concept[]
+        setQuestions(_cachedQuestions)
+        setConcepts(_cachedConcepts)
         setLoading(false)
       })
       .catch((err) => {

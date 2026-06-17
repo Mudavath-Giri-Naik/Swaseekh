@@ -58,11 +58,13 @@ interface SyllabusSection {
   }[]
 }
 
+let _cachedSyllabus: SyllabusSection[] | null = null
+
 /* ─── Component ──────────────────────────────────────────────────────────── */
 
 export default function GateSyllabusPage() {
-  const [sections, setSections] = useState<SyllabusSection[]>([])
-  const [loading, setLoading] = useState(true)
+  const [sections, setSections] = useState<SyllabusSection[]>(_cachedSyllabus ?? [])
+  const [loading, setLoading] = useState(!_cachedSyllabus)
 
   useEffect(() => {
     async function fetchData() {
@@ -108,7 +110,9 @@ export default function GateSyllabusPage() {
           sectionMap.get(sec)!.subjects.push(item)
         }
 
-        setSections(sectionOrder.map((s) => sectionMap.get(s)!))
+        const finalSections = sectionOrder.map((s) => sectionMap.get(s)!)
+        _cachedSyllabus = finalSections
+        setSections(finalSections)
       } catch {
         // silently fail
       } finally {
