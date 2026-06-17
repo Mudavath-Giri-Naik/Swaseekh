@@ -75,7 +75,7 @@ export default function HomePage() {
       <Navbar />
 
       {/* Main Container */}
-      <main className="relative flex-1 flex flex-col items-center justify-center w-full mx-auto px-4 pt-[220px] pb-20">
+      <main className="relative flex-1 flex flex-col items-center justify-center w-full mx-auto px-4 pt-[140px] md:pt-[220px] pb-20">
         
         {/* Content Column (Restricted Width) */}
         <div className="relative z-20 flex flex-col items-center text-center max-w-[640px] w-full mx-auto">
@@ -90,13 +90,13 @@ export default function HomePage() {
           </div>
 
           {/* Headline */}
-          <h1 className="flex flex-col items-center text-[#1A1A2E] leading-[1.1] tracking-[-0.02em] mb-[16px] whitespace-nowrap">
-            <span className="font-normal text-[clamp(2.25rem,4.8vw,52px)]">Your Ultimate LMS for</span>
-            <span className="font-extrabold text-[clamp(2.25rem,4.8vw,52px)]">Seamless Learning & Growth</span>
+          <h1 className="text-[#1A1A2E] leading-[1.1] tracking-[-0.02em] mb-[16px] w-full">
+            <span className="font-normal text-[clamp(2rem,7vw,52px)] block md:inline md:mr-2">Your Ultimate LMS for</span>
+            <span className="font-extrabold text-[clamp(2rem,7vw,52px)] block md:inline">Seamless Learning & Growth</span>
           </h1>
 
           {/* Subtext */}
-          <p className="text-[#666666] text-[16px] max-w-[580px] leading-[1.6] mb-[28px]">
+          <p className="text-[#666666] text-[16px] max-w-[580px] leading-[1.6] mb-[28px] px-2">
             Transform the way you teach and learn with our AI-driven Learning Management System. 
             Manage courses, track progress, and engage learners like never before.
           </p>
@@ -110,7 +110,7 @@ export default function HomePage() {
           </Link>
 
           {/* Review Badges */}
-          <div className="flex items-center justify-center gap-6 mt-[48px]">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 mt-[48px]">
             <div className="flex items-center gap-2">
               <span className="font-black text-xl text-[#1A1A2E] tracking-tight">Clutch</span>
               <div className="flex items-center gap-0.5 text-[#F26419]">
@@ -118,7 +118,7 @@ export default function HomePage() {
               </div>
               <span className="text-[14px] font-medium text-[#666666]">4.5/5</span>
             </div>
-            <div className="w-px h-5 bg-[#D1D5DB]"></div>
+            <div className="hidden sm:block w-px h-5 bg-[#D1D5DB]"></div>
             <div className="flex items-center gap-2">
               <span className="font-black text-xl text-[#1A1A2E] flex items-center gap-1">
                 <Star size={20} fill="#00B67A" stroke="#00B67A" />
