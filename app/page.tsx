@@ -206,8 +206,8 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="relative w-full bg-[#17171F] text-white pt-20 pb-16 overflow-hidden mt-auto">
-        <div className="relative z-10 w-full max-w-[1200px] mx-auto px-4 md:px-8 grid grid-cols-2 md:grid-cols-12 gap-y-10 gap-x-6 md:gap-8 mb-16 md:mb-20">
+      <footer className="relative w-full bg-[#17171F] text-white pt-20 pb-12 overflow-hidden mt-auto">
+        <div className="relative z-10 w-full max-w-[1200px] mx-auto px-4 md:px-8 grid grid-cols-2 md:grid-cols-12 gap-y-10 gap-x-6 md:gap-8 mb-6 md:mb-8">
           {/* Col 1 */}
           <div className="col-span-2 md:col-span-4 flex flex-col">
             <Link href="/" className="flex items-center gap-2 mb-6">
@@ -220,7 +220,7 @@ export default function HomePage() {
               <span className="font-bold text-[24px] tracking-tight">Swaseekh</span>
             </Link>
             <p className="text-[#A0A0A0] text-[15px] leading-[1.6] mb-8 max-w-[300px]">
-              Transform your teaching with our AI-driven Learning Management System. Effortlessly manage courses and engage learners.
+              Helping students learn smarter through AI-powered insights, concept mastery, and previous-year question analysis.
             </p>
             <p className="text-[#A0A0A0] text-sm mt-auto hidden md:block">
               © Copyrights 2026 Swaseekh. All rights reserved.
