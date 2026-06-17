@@ -1,154 +1,155 @@
 import Link from 'next/link'
 import Navbar from '@/components/Navbar'
-import AvatarGroup from '@/components/AvatarGroup'
-import { NoiseBackground } from '@/components/ui/noise-background'
-import {
-  LeftCardStack,
-  RightCardStack,
-  MobileCardStack,
-} from '@/components/HeroCardStack'
-import ProductPreview from '@/components/ProductPreview'
+import { Outfit } from 'next/font/google'
+import { ChevronRight, GraduationCap, Star } from 'lucide-react'
+import Image from 'next/image'
+
+const outfit = Outfit({ subsets: ['latin'], display: 'swap' })
+
+const PerformanceCard = () => (
+  <div className="bg-white rounded-[2rem] p-6 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] border border-slate-100 flex flex-col items-center w-[240px]">
+    <div className="w-full flex justify-between items-start mb-4">
+      <span className="text-slate-500 font-medium text-sm">Performance</span>
+      <div className="w-6 h-6 rounded-full border border-orange-200 flex items-center justify-center text-orange-500">
+        <ChevronRight size={12} strokeWidth={3} className="-rotate-45" />
+      </div>
+    </div>
+    
+    <div className="relative w-32 h-32 mb-6 mt-2">
+      <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="40" stroke="#f1f5f9" strokeWidth="8" fill="none" />
+        <circle cx="50" cy="50" r="40" stroke="#FF6000" strokeWidth="8" fill="none" strokeDasharray="251.2" strokeDashoffset="50.24" strokeLinecap="round" />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="text-3xl font-bold text-slate-800">80%</span>
+        <span className="text-[10px] text-slate-400 font-medium">Performance</span>
+      </div>
+    </div>
+
+    <p className="text-sm font-medium text-slate-600 text-center w-full border-t border-slate-100 pt-4">
+      You did a great job!
+    </p>
+  </div>
+)
+
+const TimeSpentCard = () => (
+  <div className="bg-white rounded-[2rem] p-6 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] border border-slate-100 flex flex-col w-[260px]">
+    <div className="w-full flex justify-end mb-2">
+      <div className="w-6 h-6 rounded-full border border-orange-200 flex items-center justify-center text-orange-500">
+        <ChevronRight size={12} strokeWidth={3} className="-rotate-45" />
+      </div>
+    </div>
+    
+    <div className="flex flex-col mb-6">
+      <span className="text-slate-500 font-medium text-sm mb-1">Time Spent</span>
+      <span className="text-3xl font-bold text-slate-800">13.6 Hours</span>
+      <div className="flex items-center gap-3 mt-2 text-xs font-medium text-slate-500">
+        <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-sm bg-[#FF6000]"></div>Study</div>
+        <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-sm bg-slate-200"></div>Exams</div>
+      </div>
+    </div>
+
+    <div className="flex items-end justify-between h-20 gap-1.5 mb-2 relative">
+      <div className="absolute -top-6 left-[60%] -translate-x-1/2 bg-slate-900 text-white text-[10px] font-bold py-1 px-2.5 rounded-full whitespace-nowrap">
+        12.5 H
+        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 border-[3px] border-transparent border-t-slate-900"></div>
+      </div>
+      {[30, 45, 60, 40, 80, 50, 70].map((h, i) => (
+        <div key={i} className="flex flex-col items-center gap-2 flex-1">
+          <div className="w-full bg-slate-100 rounded-t-sm relative h-full flex items-end">
+            <div className={`w-full rounded-t-sm ${i === 4 ? 'bg-[#FF6000]' : 'bg-slate-800'}`} style={{ height: `${h}%` }}></div>
+            {i === 4 && <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[#FF6000]"></div>}
+          </div>
+        </div>
+      ))}
+    </div>
+    <div className="flex justify-between text-[10px] font-bold text-slate-400 mt-1 uppercase">
+      <span>J</span><span>F</span><span>M</span><span>A</span><span>M</span><span>J</span><span>J</span><span>A</span><span>S</span><span>O</span><span>N</span>
+    </div>
+  </div>
+)
 
 export default function HomePage() {
   return (
-    <div className="relative min-h-screen bg-[#FAFAFB] font-sans">
-      {/* Dotted pattern — strongest at the top, fades to nothing at the bottom */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-screen [mask-image:linear-gradient(to_bottom,black_0%,black_35%,transparent_95%)]"
+    <div className={`relative min-h-screen bg-[#FCFCFD] ${outfit.className}`}>
+      {/* Background glow */}
+      <div 
+        className="absolute inset-0 pointer-events-none" 
         style={{
-          backgroundImage:
-            'radial-gradient(circle, rgb(99 102 241 / 0.22) 1.1px, transparent 1.3px)',
-          backgroundSize: '22px 22px',
+          background: 'radial-gradient(circle at 50% 0%, rgba(255, 96, 0, 0.03) 0%, transparent 70%)'
         }}
       />
-
+      
       <Navbar />
 
-      {/* ─── Hero ───────────────────────────────────────────────────────── */}
-      <section className="relative">
-        {/* Content zone — airier mobile spacing, tighter on desktop */}
-        <div className="relative px-4 pt-20 md:pt-4 lg:pt-6">
-          {/* Tilted card stack — LEFT (xl+) */}
-          <div
-            className="pointer-events-none absolute top-[68%] hidden animate-hero-fade xl:block"
-            style={{
-              left: 'max(0.75rem, calc(50% - 42rem))',
-              transform: 'translateY(-50%) rotate(-9deg)',
-              animationDelay: '700ms',
-            }}
-          >
-            <LeftCardStack />
-          </div>
-
-          {/* Tilted card stack — RIGHT (xl+) */}
-          <div
-            className="pointer-events-none absolute top-[68%] hidden animate-hero-fade xl:block"
-            style={{
-              right: 'max(0.75rem, calc(50% - 42rem))',
-              transform: 'translateY(-50%) rotate(9deg)',
-              animationDelay: '850ms',
-            }}
-          >
-            <RightCardStack />
-          </div>
-
-          {/* Center column — pill, headline, subhead, trust row, then CTA */}
-          <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center text-center">
-            {/* 1 — Slot indicator pill */}
-            <div
-              className="inline-flex animate-hero-in items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-medium text-slate-700 shadow-sm md:px-3.5 md:py-1.5 md:text-xs"
-              style={{ animationDelay: '0ms' }}
-            >
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
-              </span>
-              <span>GATE 2026 · 2000+ PYQs mapped &amp; ready</span>
-            </div>
-
-            {/* 2 — Headline (bigger on mobile, original size on desktop) */}
-            <h1
-              className="mt-7 animate-hero-in font-display font-bold leading-[1.1] tracking-[-0.02em] text-slate-900 text-[clamp(1.6rem,4.4vw,3.5rem)] md:mt-5"
-              style={{ animationDelay: '120ms' }}
-            >
-              <span className="block whitespace-nowrap">Cut the noise.</span>
-              <span className="block whitespace-nowrap">
-                Study what <span className="text-indigo-600">GATE</span> asks.
-              </span>
-              <span className="block whitespace-nowrap">
-                Nothing more, nothing less.
-              </span>
-            </h1>
-
-            {/* 3 — Subheading */}
-            <p
-              className="mt-6 max-w-xs animate-hero-in text-[15px] leading-relaxed text-slate-600 sm:max-w-xl md:mt-4 md:text-[15px]"
-              style={{ animationDelay: '240ms' }}
-            >
-              2000+ PYQs mapped to every concept in the GATE CSE syllabus. Know
-              exactly what gets asked, how deep it goes, and what you still
-              haven&apos;t covered.
-            </p>
-
-            {/* 4 — Trust row (above CTA on every breakpoint) */}
-            <div
-              className="mt-7 flex animate-hero-in items-center gap-2.5 rounded-full border border-slate-200 bg-white/80 px-2.5 py-1 shadow-sm backdrop-blur md:mt-5 md:px-3 md:py-1.5"
-              style={{ animationDelay: '360ms' }}
-            >
-              <AvatarGroup />
-              <span className="pr-1.5 text-[11px] font-medium text-slate-600 sm:text-sm">
-                Trusted by 500+ GATE CSE 2027 aspirants
-              </span>
-            </div>
-
-            {/* 5 — CTA */}
-            <div
-              className="mt-7 flex animate-hero-in flex-col items-center md:mt-5"
-              style={{ animationDelay: '480ms' }}
-            >
-              <NoiseBackground
-                containerClassName="w-fit p-2 rounded-full transition-transform duration-200 hover:scale-[1.02]"
-                gradientColors={[
-                  'rgb(255, 100, 150)',
-                  'rgb(100, 150, 255)',
-                  'rgb(255, 200, 100)',
-                ]}
-              >
-                <Link
-                  href="/gate"
-                  className="block h-full w-full cursor-pointer rounded-full bg-gradient-to-r from-neutral-100 via-neutral-100 to-white px-7 py-3 text-center text-sm font-semibold text-black shadow-[0px_2px_0px_0px_rgba(250,250,250,1)_inset,0px_0.5px_1px_0px_rgba(163,163,163,1)] transition-all duration-100 active:scale-[0.98] md:px-8 md:py-3.5 md:text-base"
-                >
-                  Explore the syllabus &rarr;
-                </Link>
-              </NoiseBackground>
-
-              <p className="mt-2 text-[11px] text-slate-400">
-                No sign-up needed · Free to start
-              </p>
-            </div>
-          </div>
+      <main className="relative z-10 pt-20 md:pt-32 pb-20 overflow-hidden flex flex-col items-center text-center px-4">
+        {/* Floating cards (Desktop) */}
+        <div className="absolute left-[calc(50%-550px)] top-40 hidden xl:block" style={{ transform: 'rotate(-12deg)' }}>
+          <PerformanceCard />
+        </div>
+        <div className="absolute right-[calc(50%-550px)] top-40 hidden xl:block" style={{ transform: 'rotate(12deg)' }}>
+          <TimeSpentCard />
         </div>
 
-        {/* ─── Bottom showcase: stack on mobile, big card on tablet+ ──────── */}
-        {/* Mobile: auto-cycling stack matching the big card's footprint */}
-        <div
-          className="relative z-10 mt-20 animate-hero-rise px-4 pb-12 md:hidden"
-          style={{ animationDelay: '600ms' }}
+        {/* Top Badge */}
+        <div className="inline-flex items-center gap-2 bg-white border border-slate-100 shadow-sm rounded-full px-4 py-1.5 mb-8">
+          <div className="bg-orange-100 text-[#FF6000] p-1 rounded-full">
+            <GraduationCap size={14} />
+          </div>
+          <span className="text-sm font-medium text-slate-600">Trusted by over 50,000+ students</span>
+        </div>
+
+        {/* Headline */}
+        <h1 className="text-[2.5rem] md:text-[4.5rem] leading-[1.1] font-bold text-slate-900 max-w-4xl tracking-tight mb-6">
+          Your Ultimate Platform for <br className="hidden md:block" />
+          <span className="text-slate-900">Seamless Learning & Growth</span>
+        </h1>
+
+        {/* Subhead */}
+        <p className="text-slate-500 text-base md:text-lg max-w-2xl leading-relaxed mb-10">
+          Transform the way you prepare for GATE with our comprehensive Learning Management System. 
+          Manage progress, track topics, and master concepts like never before.
+        </p>
+
+        {/* CTA */}
+        <Link 
+          href="/dashboard"
+          className="group inline-flex items-center gap-3 bg-[#FF6000] hover:bg-[#e65600] text-white rounded-full pl-2 pr-6 py-2 transition-all duration-200 hover:shadow-lg hover:shadow-orange-500/20 hover:-translate-y-0.5 active:translate-y-0"
         >
-          <div className="mx-auto w-full max-w-md">
-            <MobileCardStack />
+          <div className="bg-white text-[#FF6000] rounded-full p-2.5 transition-transform group-hover:scale-110">
+            <ChevronRight size={18} strokeWidth={3} />
+          </div>
+          <span className="font-semibold text-lg">Get Started for Free</span>
+        </Link>
+
+        {/* Trust Badges */}
+        <div className="flex items-center justify-center gap-6 mt-12 flex-wrap">
+          <div className="flex items-center gap-2">
+            <span className="font-black text-xl text-slate-800 tracking-tight">Clutch</span>
+            <div className="flex items-center gap-0.5 text-[#FFB800]">
+              {[...Array(5)].map((_, i) => <Star key={i} size={14} fill={i < 4 ? "currentColor" : "none"} strokeWidth={i < 4 ? 0 : 2} />)}
+            </div>
+            <span className="text-sm font-medium text-slate-600">4.5/5</span>
+          </div>
+          <div className="w-px h-6 bg-slate-200 hidden md:block"></div>
+          <div className="flex items-center gap-2">
+            <span className="font-black text-xl text-slate-800 flex items-center gap-1">
+              <Star size={20} fill="#00B67A" stroke="#00B67A" />
+              Trustpilot
+            </span>
+            <div className="flex items-center gap-0.5 text-[#00B67A]">
+              {[...Array(5)].map((_, i) => <div key={i} className={`w-4 h-4 flex items-center justify-center ${i < 4 ? 'bg-[#00B67A]' : 'bg-[#00B67A]/20'}`}><Star size={10} fill="white" strokeWidth={0} /></div>)}
+            </div>
+            <span className="text-sm font-medium text-slate-600">4.5/5</span>
           </div>
         </div>
 
-        {/* Tablet+: full product-preview card */}
-        <div
-          className="relative z-10 mt-12 hidden animate-hero-rise px-4 pb-24 md:block"
-          style={{ animationDelay: '650ms' }}
-        >
-          <ProductPreview />
+        {/* Mobile stacking for cards */}
+        <div className="flex flex-col items-center gap-8 mt-20 xl:hidden">
+          <PerformanceCard />
+          <TimeSpentCard />
         </div>
-      </section>
+      </main>
     </div>
   )
 }
