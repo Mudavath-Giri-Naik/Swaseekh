@@ -6,7 +6,7 @@ import { ChevronsRight, ArrowUpRight, Star } from 'lucide-react'
 const inter = Inter({ subsets: ['latin'], display: 'swap' })
 
 const PerformanceCard = () => (
-  <div className="relative bg-white/85 backdrop-blur-[8px] rounded-[24px] p-5 border-[3px] border-black flex flex-col items-center w-[190px] h-[210px]">
+  <div className="relative bg-white/85 backdrop-blur-[8px] rounded-[24px] p-5 border-[3px] border-black/70 flex flex-col items-center w-[190px] h-[210px]">
     {/* Top Right Orange Button INSIDE the card */}
     <div className="absolute top-3 right-3 w-6 h-6 rounded-full border border-orange-100 bg-white flex items-center justify-center text-[#F26419] z-10">
       <ArrowUpRight size={14} strokeWidth={2.5} />
@@ -34,7 +34,7 @@ const PerformanceCard = () => (
 )
 
 const TimeSpentCard = () => (
-  <div className="relative bg-white/75 backdrop-blur-[8px] rounded-[24px] p-5 border-[3px] border-black flex flex-col w-[190px] h-[210px]">
+  <div className="relative bg-white/75 backdrop-blur-[8px] rounded-[24px] p-5 border-[3px] border-black/70 flex flex-col w-[190px] h-[210px]">
     {/* Top Right Orange Button INSIDE the card */}
     <div className="absolute top-3 right-3 w-6 h-6 rounded-full border border-orange-100 bg-white flex items-center justify-center text-[#F26419] z-10">
       <ArrowUpRight size={14} strokeWidth={2.5} />
