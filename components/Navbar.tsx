@@ -26,12 +26,12 @@ export default function Navbar() {
         {/* Left: Logo */}
         <Link href="/" className="flex items-center gap-2">
           <div className="flex items-center justify-center text-[#F26419]">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 2L2 12L12 22L22 12L12 2Z" fill="currentColor"/>
               <path d="M12 7L7 12L12 17L17 12L12 7Z" fill="white"/>
             </svg>
           </div>
-          <span className="font-bold text-[18px] tracking-tight text-[#1A1A2E]">Swaseekh</span>
+          <span className="font-bold text-[22px] tracking-tight text-[#1A1A2E]">Swaseekh</span>
         </Link>
 
         {/* Center: Links */}
@@ -41,7 +41,7 @@ export default function Navbar() {
               <li key={link.label}>
                 <Link
                   href={link.href}
-                  className={`text-[14px] transition-colors ${link.active ? 'text-[#F26419] font-semibold' : 'text-[#555] font-medium hover:text-[#1A1A2E]'}`}
+                  className={`text-[16px] transition-colors ${link.active ? 'text-[#F26419] font-semibold' : 'text-[#555] font-medium hover:text-[#1A1A2E]'}`}
                 >
                   {link.label}
                 </Link>
@@ -53,12 +53,12 @@ export default function Navbar() {
         {/* Right: CTA */}
         <Link 
           href="/dashboard"
-          className="group flex items-center gap-3 bg-[#F26419] hover:bg-[#d95815] text-white rounded-[50px] pl-1.5 pr-5 py-1.5 transition-all"
+          className="group flex items-center gap-3 bg-[#F26419] hover:bg-[#d95815] text-white rounded-[50px] pl-1.5 pr-6 py-2 transition-all"
         >
-          <div className="bg-white text-[#F26419] rounded-full p-1 flex items-center justify-center">
-            <ChevronsRight size={16} strokeWidth={3} />
+          <div className="bg-white text-[#F26419] rounded-full p-1.5 flex items-center justify-center">
+            <ChevronsRight size={18} strokeWidth={3} />
           </div>
-          <span className="text-[14px] font-medium">Contact Us</span>
+          <span className="text-[16px] font-medium">Contact Us</span>
         </Link>
       </div>
 
@@ -67,28 +67,28 @@ export default function Navbar() {
         <div className="flex items-center justify-between w-full pl-2 pr-1">
           <Link href="/" className="flex items-center gap-2">
             <div className="flex items-center justify-center text-[#F26419]">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12 2L2 12L12 22L22 12L12 2Z" fill="currentColor"/>
                 <path d="M12 7L7 12L12 17L17 12L12 7Z" fill="white"/>
               </svg>
             </div>
-            <span className="font-bold text-[18px] tracking-tight text-[#1A1A2E]">Swaseekh</span>
+            <span className="font-bold text-[22px] tracking-tight text-[#1A1A2E]">Swaseekh</span>
           </Link>
           <button 
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="p-2 rounded-full bg-slate-50 text-slate-600"
+            className="p-2.5 rounded-full bg-slate-50 text-slate-600"
           >
-            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
 
         {mobileOpen && (
-          <nav className="flex flex-col items-center gap-4 pt-6 pb-4">
+          <nav className="flex flex-col items-center gap-5 pt-8 pb-4">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.label}
                 href={link.href}
-                className={`text-base font-medium ${link.active ? 'text-[#F26419]' : 'text-slate-600'}`}
+                className={`text-[18px] font-medium ${link.active ? 'text-[#F26419]' : 'text-slate-600'}`}
                 onClick={() => setMobileOpen(false)}
               >
                 {link.label}
@@ -97,12 +97,12 @@ export default function Navbar() {
             <Link 
               href="/dashboard"
               onClick={() => setMobileOpen(false)}
-              className="mt-2 flex items-center gap-3 bg-[#F26419] text-white rounded-full pl-1.5 pr-5 py-1.5"
+              className="mt-3 flex items-center gap-3 bg-[#F26419] text-white rounded-full pl-1.5 pr-6 py-2"
             >
               <div className="bg-white text-[#F26419] rounded-full p-1.5 flex items-center justify-center">
-                <ChevronsRight size={16} strokeWidth={3} />
+                <ChevronsRight size={18} strokeWidth={3} />
               </div>
-              <span className="text-base font-medium">Contact Us</span>
+              <span className="text-[18px] font-medium">Contact Us</span>
             </Link>
           </nav>
         )}
