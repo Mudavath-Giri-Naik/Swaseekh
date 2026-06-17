@@ -145,6 +145,18 @@ export default function HomePage() {
 
       </main>
 
+      {/* Dashboard Preview Section */}
+      <section className="relative w-full max-w-[1200px] mx-auto px-4 pb-24 md:pb-32 z-20 mt-4 md:mt-8">
+        <div className="relative rounded-[24px] md:rounded-[32px] border-[8px] md:border-[12px] border-[#333333] shadow-2xl overflow-hidden bg-white">
+          {/* Top Bar for App look (optional but adds a nice touch like the reference) */}
+          <img 
+            src="/dashboard.png" 
+            alt="Swaseekh Dashboard Preview" 
+            className="w-full h-auto block"
+          />
+        </div>
+      </section>
+
       {/* SVG Definitions for half star */}
       <svg width="0" height="0" className="absolute">
         <defs>
