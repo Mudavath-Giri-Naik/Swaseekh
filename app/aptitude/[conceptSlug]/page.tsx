@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useState, useCallback, useRef } from 'react'
 import { useParams, useSearchParams, useRouter } from 'next/navigation'
+import { useInView } from 'react-intersection-observer'
 import { AptitudeFormulaCheatsheet } from '@/components/aptitude/AptitudeFormulaCheatsheet'
 import { AptitudeQuestionViewer } from '@/components/aptitude/AptitudeQuestionViewer'
 import { AptitudeDataTable } from '@/components/aptitude/AptitudeDataTable'
@@ -39,12 +40,25 @@ const SOURCE_LABELS: Record<string, string> = {
   all: 'All', rs_agarwal: 'R.S. Agarwal', indiabix: 'IndiaBix', ppt: 'Lecture'
 }
 
-/* ─── Module-Level Caches ───────────────────────────────────────────── */
-const metaCache: Record<string, { concept: Concept; formulas: Formula[]; models: AptModel[] }> = {}
-const questionsCache: Record<string, { questions: Question[]; totalPages: number; totalQ: number }> = {}
+/* ─── Session Storage Caches ────────────────────────────────────────── */
+function getMetaCache(slug: string) {
+  if (typeof window === 'undefined') return null
+  try { return JSON.parse(sessionStorage.getItem('meta_' + slug) || 'null') } catch(e) { return null }
+}
+function setMetaCache(slug: string, data: any) {
+  if (typeof window !== 'undefined') sessionStorage.setItem('meta_' + slug, JSON.stringify(data))
+}
 
-function buildQCacheKey(slug: string, model: string, diff: string, source: string, pg: number): string {
-  return `${slug}|${model}|${diff}|${source}|${pg}`
+function getQCache(key: string) {
+  if (typeof window === 'undefined') return null
+  try { return JSON.parse(sessionStorage.getItem('q_' + key) || 'null') } catch(e) { return null }
+}
+function setQCache(key: string, data: any) {
+  if (typeof window !== 'undefined') sessionStorage.setItem('q_' + key, JSON.stringify(data))
+}
+
+function buildQCacheKey(slug: string, model: string, diff: string, source: string): string {
+  return `${slug}|${model}|${diff}|${source}`
 }
 
 /* ─── Default export with Suspense boundary (required by useSearchParams) */
@@ -71,20 +85,20 @@ function ConceptSlugInner() {
   const initialDiff = (searchParams.get('difficulty') ?? 'all') as typeof DIFF_TABS[number]
   const initialSource = (searchParams.get('source') ?? 'all') as typeof SOURCE_TABS[number]
   const initialSearch = searchParams.get('search') ?? ''
-  const initialPage = Math.max(1, Number(searchParams.get('page')) || 1)
   const initialTab = (searchParams.get('tab') === 'formulas' ? 'formulas' : 'questions') as 'questions' | 'formulas'
 
   /* ─── State ──────────────────────────────────────────────────────── */
-  const [concept, setConcept] = useState<Concept | null>(metaCache[slug]?.concept ?? null)
-  const [formulas, setFormulas] = useState<Formula[]>(metaCache[slug]?.formulas ?? [])
-  const [models, setModels] = useState<AptModel[]>(metaCache[slug]?.models ?? [])
+  const cachedMeta = getMetaCache(slug)
+  const [concept, setConcept] = useState<Concept | null>(cachedMeta?.concept ?? null)
+  const [formulas, setFormulas] = useState<Formula[]>(cachedMeta?.formulas ?? [])
+  const [models, setModels] = useState<AptModel[]>(cachedMeta?.models ?? [])
 
   // Pre-populate questions from cache if available
-  const initQKey = buildQCacheKey(slug, initialModel, initialDiff, initialSource, initialPage)
-  const cachedQ = questionsCache[initQKey]
+  const initQKey = buildQCacheKey(slug, initialModel, initialDiff, initialSource)
+  const cachedQ = getQCache(initQKey)
 
   const [questions, setQuestions] = useState<Question[]>(cachedQ?.questions ?? [])
-  const [loading, setLoading] = useState(!metaCache[slug])
+  const [loading, setLoading] = useState(!cachedMeta)
   const [qLoading, setQLoading] = useState(!cachedQ)
   const [error, setError] = useState<string | null>(null)
 
@@ -93,13 +107,14 @@ function ConceptSlugInner() {
   const [activeDiff, setActiveDiff] = useState<typeof DIFF_TABS[number]>(initialDiff)
   const [activeSource, setActiveSource] = useState<typeof SOURCE_TABS[number]>(initialSource)
   const [searchText, setSearchText] = useState(initialSearch)
-  const [page, setPage] = useState(initialPage)
+  const [page, setPage] = useState(cachedQ?.page ?? 1)
   const [totalPages, setTotalPages] = useState(cachedQ?.totalPages ?? 1)
   const [totalQ, setTotalQ] = useState(cachedQ?.totalQ ?? 0)
   const [activeTab, setActiveTab] = useState<'questions' | 'formulas'>(initialTab)
 
+  const { ref: loadMoreRef, inView } = useInView({ rootMargin: '400px' })
+
   // Ref to prevent the URL-sync effect from running on first mount
-  // (we already read from the URL; no need to write back the same values)
   const isInitialMount = useRef(true)
 
   /* ─── Sync state → URL search params ────────────────────────────── */
@@ -114,23 +129,23 @@ function ConceptSlugInner() {
     if (activeDiff !== 'all') sp.set('difficulty', activeDiff)
     if (activeSource !== 'all') sp.set('source', activeSource)
     if (searchText.trim()) sp.set('search', searchText.trim())
-    if (page > 1) sp.set('page', String(page))
     if (activeTab !== 'questions') sp.set('tab', activeTab)
 
     const qs = sp.toString()
     const newUrl = qs ? `?${qs}` : window.location.pathname
     router.replace(newUrl, { scroll: false })
-  }, [activeModel, activeDiff, activeSource, searchText, page, activeTab, router])
+  }, [activeModel, activeDiff, activeSource, searchText, activeTab, router])
 
   /* ─── Fetch concept meta ─────────────────────────────────────────── */
   useEffect(() => {
     if (!slug) return
 
     // If we have cached meta, use it but still refresh in background
-    if (metaCache[slug]) {
-      setConcept(metaCache[slug].concept)
-      setFormulas(metaCache[slug].formulas)
-      setModels(metaCache[slug].models)
+    const currentMeta = getMetaCache(slug)
+    if (currentMeta) {
+      setConcept(currentMeta.concept)
+      setFormulas(currentMeta.formulas)
+      setModels(currentMeta.models)
       setLoading(false)
     } else {
       setLoading(true)
@@ -145,7 +160,7 @@ function ConceptSlugInner() {
           formulas: d.formulas ?? [],
           models: d.models ?? []
         }
-        metaCache[slug] = meta
+        setMetaCache(slug, meta)
         setConcept(meta.concept)
         setFormulas(meta.formulas)
         setModels(meta.models)
@@ -155,21 +170,11 @@ function ConceptSlugInner() {
   }, [slug])
 
   /* ─── Fetch questions ────────────────────────────────────────────── */
-  const fetchQuestions = useCallback((pg: number) => {
+  const fetchQuestions = useCallback((pg: number, reset = false) => {
     if (!slug) return
 
-    const cacheKey = buildQCacheKey(slug, activeModel, activeDiff, activeSource, pg)
-
-    // If cached data exists, show it immediately
-    if (questionsCache[cacheKey]) {
-      const cached = questionsCache[cacheKey]
-      setQuestions(cached.questions)
-      setTotalPages(cached.totalPages)
-      setTotalQ(cached.totalQ)
-      setQLoading(false)
-    } else {
-      setQLoading(true)
-    }
+    const cacheKey = buildQCacheKey(slug, activeModel, activeDiff, activeSource)
+    if (reset) setQLoading(true)
 
     const qp = new URLSearchParams({ concept: slug, page: String(pg), limit: '15' })
     if (activeModel !== 'all') qp.set('model', activeModel)
@@ -179,22 +184,48 @@ function ConceptSlugInner() {
     fetch(`/api/aptitude/questions?${qp}`)
       .then((r) => r.json())
       .then((d) => {
-        const result = {
-          questions: d.questions ?? [],
-          totalPages: d.totalPages ?? 1,
-          totalQ: d.total ?? 0
-        }
-        questionsCache[cacheKey] = result
-        setQuestions(result.questions)
-        setTotalPages(result.totalPages)
-        setTotalQ(result.totalQ)
+        const newQs = d.questions ?? []
+        setQuestions(prev => {
+          const updated = reset ? newQs : [...prev, ...newQs]
+          setQCache(cacheKey, {
+            questions: updated,
+            totalPages: d.totalPages ?? 1,
+            totalQ: d.total ?? 0,
+            page: pg
+          })
+          return updated
+        })
+        setTotalPages(d.totalPages ?? 1)
+        setTotalQ(d.total ?? 0)
       })
       .catch(() => {})
       .finally(() => setQLoading(false))
   }, [slug, activeModel, activeDiff, activeSource])
 
-  useEffect(() => { setPage(1) }, [activeModel, activeDiff, activeSource])
-  useEffect(() => { fetchQuestions(page) }, [fetchQuestions, page])
+  useEffect(() => {
+    const cacheKey = buildQCacheKey(slug, activeModel, activeDiff, activeSource)
+    const cachedQ = getQCache(cacheKey)
+    if (cachedQ) {
+      setQuestions(cachedQ.questions)
+      setTotalPages(cachedQ.totalPages)
+      setTotalQ(cachedQ.totalQ)
+      setPage(cachedQ.page)
+      setQLoading(false)
+    } else {
+      setPage(1)
+      setQuestions([])
+      fetchQuestions(1, true)
+    }
+  }, [activeModel, activeDiff, activeSource, slug, fetchQuestions])
+
+  // Infinite scroll trigger
+  useEffect(() => {
+    if (inView && page < totalPages && !qLoading && !searchText) {
+      const nextPage = page + 1
+      setPage(nextPage)
+      fetchQuestions(nextPage, false)
+    }
+  }, [inView, page, totalPages, qLoading, searchText, fetchQuestions])
 
   // Client-side search filter
   const displayed = searchText.trim()
@@ -332,7 +363,7 @@ function ConceptSlugInner() {
                 </div>
 
                 {/* Questions */}
-                {qLoading ? (
+                {qLoading && questions.length === 0 ? (
                   <div className="flex items-center justify-center py-16">
                     <Loader2 className="h-5 w-5 animate-spin text-indigo-500" />
                   </div>
@@ -344,30 +375,21 @@ function ConceptSlugInner() {
                     </button>
                   </div>
                 ) : (
-                  <AptitudeDataTable questions={displayed} startIndex={(page - 1) * 15 + 1} />
-                )}
-
-                {/* Pagination */}
-                {totalPages > 1 && !searchText && (
-                  <div className="flex items-center justify-center gap-2 mt-8">
-                    <button
-                      onClick={() => setPage((p) => Math.max(1, p - 1))}
-                      disabled={page === 1}
-                      className="text-sm px-4 py-2 rounded-lg border border-border disabled:opacity-40 hover:border-indigo-400 transition-colors"
-                    >
-                      ← Prev
-                    </button>
-                    <span className="text-sm text-muted-foreground">
-                      Page {page} of {totalPages}
-                    </span>
-                    <button
-                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                      disabled={page === totalPages}
-                      className="text-sm px-4 py-2 rounded-lg border border-border disabled:opacity-40 hover:border-indigo-400 transition-colors"
-                    >
-                      Next →
-                    </button>
-                  </div>
+                  <>
+                    <AptitudeDataTable questions={displayed} startIndex={1} />
+                    
+                    {/* Infinite Scroll Sentinel */}
+                    {!searchText && page < totalPages && (
+                      <div ref={loadMoreRef} className="flex justify-center py-8">
+                        <Loader2 className="h-5 w-5 animate-spin text-indigo-500" />
+                      </div>
+                    )}
+                    {!searchText && page >= totalPages && questions.length > 0 && (
+                      <div className="py-8 text-center text-sm text-muted-foreground">
+                        You have reached the end of the list.
+                      </div>
+                    )}
+                  </>
                 )}
               </>
             )}

@@ -42,6 +42,7 @@ import {
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
 import FormulaBadge from "@/components/concept/FormulaBadge"
+import { useInView } from "react-intersection-observer"
 
 interface Question {
   _id: string
@@ -139,7 +140,7 @@ function QuestionsListPageInner() {
   const [selectedDifficulty, setSelectedDifficulty] = useState(searchParams.get('difficulty') ?? '')
   const [selectedType, setSelectedType] = useState(searchParams.get('type') ?? '')
   const [selectedFormula, setSelectedFormula] = useState(searchParams.get('formula') ?? '')
-  const [currentPage, setCurrentPage] = useState(Number(searchParams.get('page')) || 1)
+  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE)
 
   // Unified sort state
   const [sort, setSort] = useState<{
@@ -171,14 +172,13 @@ function QuestionsListPageInner() {
     if (selectedType) params.set('type', selectedType)
     if (selectedFormula) params.set('formula', selectedFormula)
     if (searchQuery) params.set('search', searchQuery)
-    if (currentPage > 1) params.set('page', String(currentPage))
     if (sort.by !== 'year') params.set('sortBy', sort.by)
     if (sort.order !== 'desc') params.set('sortOrder', sort.order)
 
     const qs = params.toString()
     const newUrl = qs ? `/gate/questions?${qs}` : '/gate/questions'
     router.replace(newUrl, { scroll: false })
-  }, [selectedSubject, selectedTopic, selectedConcept, selectedYear, selectedDifficulty, selectedType, selectedFormula, searchQuery, currentPage, sort, router])
+  }, [selectedSubject, selectedTopic, selectedConcept, selectedYear, selectedDifficulty, selectedType, selectedFormula, searchQuery, sort, router])
 
   useEffect(() => {
     if (isInitialMount.current) {
@@ -194,7 +194,7 @@ function QuestionsListPageInner() {
         ? { by: col, order: prev.order === 'desc' ? 'asc' : 'desc' }
         : { by: col, order: 'desc' }
     )
-    setCurrentPage(1)
+    setVisibleCount(ITEMS_PER_PAGE)
   }
 
   // Difficulty rank for ordering: easy < medium < hard
@@ -366,42 +366,46 @@ function QuestionsListPageInner() {
       })
   }, [questions, selectedSubject, selectedTopic, selectedConcept, selectedYear, selectedDifficulty, selectedType, selectedFormula, searchQuery, sort])
 
-  // ─── Pagination ─────────────────────────────────────────────────────
-  const totalPages = Math.max(1, Math.ceil(filteredQuestions.length / ITEMS_PER_PAGE))
+  // ─── Infinite Scroll ────────────────────────────────────────────────
+  const { ref: loadMoreRef, inView } = useInView({ rootMargin: '400px' })
 
-  // Clamp currentPage if filters change and reduce the total
-  const safePage = Math.min(currentPage, totalPages)
   useEffect(() => {
-    if (currentPage > totalPages && totalPages > 0) {
-      setCurrentPage(totalPages)
+    if (inView) {
+      setVisibleCount((prev) => Math.min(prev + ITEMS_PER_PAGE, filteredQuestions.length))
     }
-  }, [currentPage, totalPages])
+  }, [inView, filteredQuestions.length])
+
+  // Reset visibleCount if filters change and reduce the total below current visibleCount
+  useEffect(() => {
+    if (visibleCount > filteredQuestions.length && filteredQuestions.length > 0) {
+      setVisibleCount(Math.max(ITEMS_PER_PAGE, filteredQuestions.length))
+    }
+  }, [visibleCount, filteredQuestions.length])
 
   const paginatedQuestions = useMemo(() => {
-    const start = (safePage - 1) * ITEMS_PER_PAGE
-    return filteredQuestions.slice(start, start + ITEMS_PER_PAGE)
-  }, [filteredQuestions, safePage])
+    return filteredQuestions.slice(0, visibleCount)
+  }, [filteredQuestions, visibleCount])
 
-  // ─── Filter change helpers (reset page to 1) ───────────────────────
+  // ─── Filter change helpers (reset visibleCount) ──────────────────────
   const handleSubjectChange = useCallback((val: string) => {
     setSelectedSubject(val)
     setSelectedTopic('')
     setSelectedConcept('')
-    setCurrentPage(1)
+    setVisibleCount(ITEMS_PER_PAGE)
   }, [])
   const handleTopicChange = useCallback((val: string) => {
     setSelectedTopic(val)
     setSelectedConcept('')
-    setCurrentPage(1)
+    setVisibleCount(ITEMS_PER_PAGE)
   }, [])
-  const handleConceptChange = useCallback((val: string) => { setSelectedConcept(val); setCurrentPage(1) }, [])
-  const handleYearChange = useCallback((val: string) => { setSelectedYear(val); setCurrentPage(1) }, [])
-  const handleDifficultyChange = useCallback((val: string) => { setSelectedDifficulty(val); setCurrentPage(1) }, [])
-  const handleTypeChange = useCallback((val: string) => { setSelectedType(val); setCurrentPage(1) }, [])
-  const handleFormulaChange = useCallback((val: string) => { setSelectedFormula(val); setCurrentPage(1) }, [])
+  const handleConceptChange = useCallback((val: string) => { setSelectedConcept(val); setVisibleCount(ITEMS_PER_PAGE) }, [])
+  const handleYearChange = useCallback((val: string) => { setSelectedYear(val); setVisibleCount(ITEMS_PER_PAGE) }, [])
+  const handleDifficultyChange = useCallback((val: string) => { setSelectedDifficulty(val); setVisibleCount(ITEMS_PER_PAGE) }, [])
+  const handleTypeChange = useCallback((val: string) => { setSelectedType(val); setVisibleCount(ITEMS_PER_PAGE) }, [])
+  const handleFormulaChange = useCallback((val: string) => { setSelectedFormula(val); setVisibleCount(ITEMS_PER_PAGE) }, [])
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value)
-    setCurrentPage(1)
+    setVisibleCount(ITEMS_PER_PAGE)
   }, [])
 
   // Filter trigger style — compact pill that opens the DropdownMenu.
@@ -665,7 +669,7 @@ function QuestionsListPageInner() {
               const mColor = marksColors[q.marks] || { bg: 'bg-slate-100 dark:bg-slate-800', text: 'text-slate-700 dark:text-slate-300' }
               const questionUrl = `/gate/questions/${slugify(q.subjectName)}/${slugify(q.topicName)}/${slugify(q.conceptName)}/${q._id}`
               const isSolved = !!solvedStatuses[q._id]
-              const globalIdx = (safePage - 1) * ITEMS_PER_PAGE + idx
+              const globalIdx = idx
               return (
                 <li key={q._id}>
                   <Link
@@ -734,7 +738,7 @@ function QuestionsListPageInner() {
                                 e.preventDefault()
                                 e.stopPropagation()
                                 setSelectedFormula((prev) => prev === fId ? '' : fId)
-                                setCurrentPage(1)
+                                setVisibleCount(ITEMS_PER_PAGE)
                               }}
                             />
                           )
@@ -811,7 +815,7 @@ function QuestionsListPageInner() {
                   const tColor = typeColors[q.questionType] || { bg: 'bg-muted/70 dark:bg-white/[0.06]', text: 'text-muted-foreground dark:text-foreground/70' }
                   const mColor = marksColors[q.marks] || { bg: 'bg-muted', text: 'text-muted-foreground' }
                   const questionUrl = `/gate/questions/${slugify(q.subjectName)}/${slugify(q.topicName)}/${slugify(q.conceptName)}/${q._id}`
-                  const globalIdx = (safePage - 1) * ITEMS_PER_PAGE + idx
+                  const globalIdx = idx
 
                   return (
                     <TableRow
@@ -889,7 +893,7 @@ function QuestionsListPageInner() {
                                       onClick={(e) => {
                                         e.stopPropagation()
                                         setSelectedFormula((prev) => prev === primaryId ? '' : primaryId)
-                                        setCurrentPage(1)
+                                        setVisibleCount(ITEMS_PER_PAGE)
                                       }}
                                     />
                                   </div>
@@ -915,31 +919,15 @@ function QuestionsListPageInner() {
           </Table>
         </div>
 
-        {/* ─── Pagination ──────────────────────────────────────────── */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-2 mt-6 mb-4">
-            <button
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              disabled={safePage === 1}
-              className="inline-flex items-center gap-1 text-sm px-4 py-2 rounded-lg border border-border bg-card disabled:opacity-40 hover:border-foreground/20 transition-colors"
-            >
-              <ChevronLeft className="h-4 w-4" />
-              Prev
-            </button>
-            <span className="text-sm text-muted-foreground px-2">
-              Page {safePage} of {totalPages}
-              <span className="hidden sm:inline text-muted-foreground/60 ml-2">
-                ({filteredQuestions.length} questions)
-              </span>
-            </span>
-            <button
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              disabled={safePage === totalPages}
-              className="inline-flex items-center gap-1 text-sm px-4 py-2 rounded-lg border border-border bg-card disabled:opacity-40 hover:border-foreground/20 transition-colors"
-            >
-              Next
-              <ChevronRight className="h-4 w-4" />
-            </button>
+        {/* ─── Infinite Scroll Sentinel ──────────────────────────────── */}
+        {visibleCount < filteredQuestions.length && (
+          <div ref={loadMoreRef} className="flex justify-center py-8">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
+          </div>
+        )}
+        {visibleCount >= filteredQuestions.length && filteredQuestions.length > 0 && (
+          <div className="py-8 text-center text-sm text-muted-foreground">
+            You have reached the end of the list.
           </div>
         )}
       </div>
