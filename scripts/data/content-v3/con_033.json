@@ -1,0 +1,346 @@
+{
+  "_id": "con_033",
+  "conceptId": "con_033",
+  "conceptTitle": "Memory Hierarchy",
+  "reference": "GATE CS — Computer Organization and Architecture / Memory and I/O",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Compute overall access time with hit/miss rates across cache levels",
+        "use": "T_{avg} = h_1 \\cdot t_1 + (1-h_1)[h_2 \\cdot t_2 + (1-h_2) \\cdot t_m]"
+      },
+      {
+        "condition": "Number of cache sets / lines for a set-associative or direct-mapped cache",
+        "use": "\\text{Number of sets} = \\frac{\\text{Cache size}}{\\text{Block size} \\times k}"
+      },
+      {
+        "condition": "Effective access time with TLB and page faults",
+        "use": "T_{eff} = h_{TLB}(t_{TLB}+t_m) + (1-h_{TLB})(t_{TLB}+2t_m) + p \\cdot t_{fault}"
+      },
+      {
+        "condition": "Bandwidth with interleaved memory banks",
+        "use": "B = \\frac{n \\cdot w}{t_{cycle}}"
+      },
+      {
+        "condition": "Address bus bits needed for word-addressable memory",
+        "use": "\\text{Address bits} = \\log_2\\!\\left(\\frac{\\text{Memory size}}{\\text{Word size}}\\right)"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "amat",
+      "groupTitle": "Average Memory Access Time (AMAT)",
+      "formulas": [
+        {
+          "formulaId": "con_033-amat-single-level",
+          "name": "AMAT — Single-Level Cache",
+          "latex": "T_{avg} = h \\cdot t_c + (1-h) \\cdot t_m",
+          "plain": "T_avg = h * t_c + (1 - h) * t_m",
+          "whenToUse": "One level of cache; h = hit rate, t_c = cache access time, t_m = main-memory access time.",
+          "terms": [
+            { "symbol": "h", "means": "cache hit rate (fraction of accesses found in cache)" },
+            { "symbol": "t_c", "means": "cache access time" },
+            { "symbol": "t_m", "means": "main memory access time (full penalty on miss)" }
+          ],
+          "trap": "Confuse simultaneous-access model (penalty = t_m) with sequential model (penalty = t_c + t_m); read the problem carefully.",
+          "reference": "COA / Memory Hierarchy"
+        },
+        {
+          "formulaId": "con_033-amat-sequential-miss",
+          "name": "AMAT — Sequential Miss Penalty Model",
+          "latex": "T_{avg} = t_c + (1-h) \\cdot t_m",
+          "plain": "T_avg = t_c + (1 - h) * t_m",
+          "whenToUse": "Cache is always checked first (time t_c consumed for every access), then main memory is accessed only on a miss.",
+          "terms": [
+            { "symbol": "t_c", "means": "cache access time (always paid)" },
+            { "symbol": "t_m", "means": "additional main-memory penalty paid only on a miss" },
+            { "symbol": "h", "means": "cache hit rate" }
+          ],
+          "trap": "This model adds t_c unconditionally; the simultaneous model does not — mixing them is the #1 GATE mistake.",
+          "reference": "COA / Memory Hierarchy"
+        },
+        {
+          "formulaId": "con_033-amat-two-level",
+          "name": "AMAT — Two-Level Cache (L1 + L2 + Main Memory)",
+          "latex": "T_{avg} = h_1 \\cdot t_1 + (1-h_1)\\bigl[h_2 \\cdot t_2 + (1-h_2)\\cdot t_m\\bigr]",
+          "plain": "T_avg = h1*t1 + (1-h1)*[h2*t2 + (1-h2)*t_m]",
+          "whenToUse": "Two-level cache hierarchy; L1 miss leads to L2 lookup, L2 miss leads to main memory.",
+          "terms": [
+            { "symbol": "h_1, h_2", "means": "local hit rates of L1 and L2 cache respectively" },
+            { "symbol": "t_1, t_2", "means": "access times for L1 and L2 cache" },
+            { "symbol": "t_m", "means": "main memory access time" }
+          ],
+          "trap": "h_2 here is the LOCAL hit rate of L2 (hits in L2 / accesses reaching L2), not the global hit rate.",
+          "reference": "COA / Memory Hierarchy"
+        },
+        {
+          "formulaId": "con_033-miss-rate-penalty",
+          "name": "AMAT — Miss-Rate × Penalty Form",
+          "latex": "T_{avg} = t_{hit} + (1-h) \\cdot t_{miss\\_penalty}",
+          "plain": "T_avg = t_hit + miss_rate * miss_penalty",
+          "whenToUse": "Textbook form used when miss penalty (not total main-memory time) is given separately.",
+          "terms": [
+            { "symbol": "t_{hit}", "means": "cache hit time" },
+            { "symbol": "1-h", "means": "miss rate" },
+            { "symbol": "t_{miss\\_penalty}", "means": "extra cycles paid on a miss" }
+          ],
+          "trap": "Miss penalty is the EXTRA time beyond t_hit; do not double-count t_hit.",
+          "reference": "COA / Memory Hierarchy"
+        }
+      ]
+    },
+    {
+      "groupId": "cache-organisation",
+      "groupTitle": "Cache Organisation & Mapping",
+      "formulas": [
+        {
+          "formulaId": "con_033-cache-sets",
+          "name": "Number of Sets in Set-Associative Cache",
+          "latex": "S = \\frac{C}{B \\times k}",
+          "plain": "S = C / (B * k)",
+          "whenToUse": "Finding number of sets given cache size C, block size B, and k-way associativity.",
+          "terms": [
+            { "symbol": "S", "means": "number of sets" },
+            { "symbol": "C", "means": "total cache size (bytes)" },
+            { "symbol": "B", "means": "block (line) size in bytes" },
+            { "symbol": "k", "means": "number of ways (associativity); k=1 → direct-mapped, k=S → fully associative" }
+          ],
+          "trap": "Direct-mapped is 1-way set-associative (k=1, S=C/B); fully associative has exactly 1 set (S=1).",
+          "reference": "COA / Cache Memory"
+        },
+        {
+          "formulaId": "con_033-address-breakdown",
+          "name": "Physical Address Breakdown for Cache",
+          "latex": "\\underbrace{(N-s-b)}_{\\text{tag}} \\;|\\; \\underbrace{s}_{\\text{set index}} \\;|\\; \\underbrace{b}_{\\text{block offset}}",
+          "plain": "Address = [tag (N-s-b bits)] [set index (s bits)] [block offset (b bits)]",
+          "whenToUse": "Determining tag, index, and offset field widths from address size N, number of sets S=2^s, block size B=2^b.",
+          "terms": [
+            { "symbol": "N", "means": "total physical address bits" },
+            { "symbol": "s = \\log_2 S", "means": "bits for set index" },
+            { "symbol": "b = \\log_2 B", "means": "bits for block offset" },
+            { "symbol": "N-s-b", "means": "tag bits" }
+          ],
+          "trap": "For direct-mapped cache s = log2(number of lines), not log2(cache size); for fully associative s = 0.",
+          "reference": "COA / Cache Memory"
+        },
+        {
+          "formulaId": "con_033-cache-line-count",
+          "name": "Number of Cache Lines (Direct-Mapped)",
+          "latex": "L = \\frac{C}{B}",
+          "plain": "L = C / B",
+          "whenToUse": "Counting total lines/blocks in a direct-mapped cache.",
+          "terms": [
+            { "symbol": "L", "means": "number of cache lines" },
+            { "symbol": "C", "means": "cache size in bytes" },
+            { "symbol": "B", "means": "block size in bytes" }
+          ],
+          "trap": "L is also the number of sets for direct-mapped cache; do not confuse lines with words.",
+          "reference": "COA / Cache Memory"
+        },
+        {
+          "formulaId": "con_033-mapping-mod",
+          "name": "Direct-Mapped Line Assignment",
+          "latex": "\\text{cache line} = \\text{block number} \\bmod L",
+          "plain": "cache_line = block_number mod L",
+          "whenToUse": "Determining which cache line a main-memory block maps to in a direct-mapped cache.",
+          "terms": [
+            { "symbol": "\\text{block number}", "means": "floor(address / block size)" },
+            { "symbol": "L", "means": "total number of cache lines" }
+          ],
+          "trap": "Two blocks with different content can map to the same line → cache conflict miss (thrashing).",
+          "reference": "COA / Cache Memory"
+        },
+        {
+          "formulaId": "con_033-cache-hit-ratio",
+          "name": "Cache Hit Ratio",
+          "latex": "h = \\frac{N_{hits}}{N_{hits} + N_{misses}}",
+          "plain": "h = N_hits / (N_hits + N_misses)",
+          "whenToUse": "Computing hit rate from a trace or given access pattern statistics.",
+          "terms": [
+            { "symbol": "N_{hits}", "means": "number of accesses found in cache" },
+            { "symbol": "N_{misses}", "means": "number of accesses not found in cache" }
+          ],
+          "trap": "Compulsory (cold) misses are unavoidable; a higher associativity reduces conflict misses but not compulsory misses.",
+          "reference": "COA / Cache Memory"
+        },
+        {
+          "formulaId": "con_033-write-policies",
+          "name": "Write Policies — Write-Through vs Write-Back",
+          "latex": "\\text{Write-Through: write to cache AND memory simultaneously}\\\\\\text{Write-Back: write to cache only; memory updated on eviction (dirty bit)}",
+          "plain": "Write-Through: every write goes to cache + memory. Write-Back: write to cache; memory updated only when line is evicted.",
+          "whenToUse": "Cache coherence / bandwidth questions about how writes are handled.",
+          "terms": [
+            { "symbol": "\\text{dirty bit}", "means": "flag indicating a Write-Back line has been modified and must be written back" }
+          ],
+          "trap": "Write-Through needs a write buffer to avoid stalls; Write-Back reduces bus traffic but complicates coherence.",
+          "reference": "COA / Cache Memory"
+        },
+        {
+          "formulaId": "con_033-replacement-policies",
+          "name": "Cache Replacement Policies",
+          "latex": "\\text{LRU} \\succ \\text{FIFO} \\succ \\text{Random} \\quad (\\text{in general hit-rate order})",
+          "plain": "LRU >= FIFO >= Random in typical hit-rate (LRU is optimal for temporal locality)",
+          "whenToUse": "Choosing or comparing replacement algorithms in cache-miss trace problems.",
+          "terms": [
+            { "symbol": "\\text{LRU}", "means": "Least Recently Used — evicts line not used for longest time" },
+            { "symbol": "\\text{FIFO}", "means": "First-In First-Out — evicts oldest loaded line" },
+            { "symbol": "\\text{OPT}", "means": "Optimal (Belady) — evicts line used furthest in future; theoretical lower bound" }
+          ],
+          "trap": "FIFO suffers Belady's anomaly (more frames → more misses for some reference strings); LRU does not.",
+          "reference": "COA / Cache Memory"
+        }
+      ]
+    },
+    {
+      "groupId": "memory-interfacing",
+      "groupTitle": "Memory Interfacing & Interleaving",
+      "formulas": [
+        {
+          "formulaId": "con_033-address-bus-bits",
+          "name": "Address Bus Width",
+          "latex": "\\text{Address bits} = \\log_2\\!\\left(\\frac{\\text{Memory size (bytes)}}{\\text{Word size (bytes)}}\\right)",
+          "plain": "Address bits = log2(Memory size / Word size)",
+          "whenToUse": "Finding minimum address bus width for a word-addressable memory system.",
+          "terms": [
+            { "symbol": "\\text{Memory size}", "means": "total addressable memory in bytes (e.g. 4 GB = 2^32 bytes)" },
+            { "symbol": "\\text{Word size}", "means": "bytes per addressable word (e.g. 2 bytes for 16-bit word)" }
+          ],
+          "trap": "Byte-addressable memory uses all bits; word-addressable memory needs log2(size/word_bytes) fewer bits.",
+          "reference": "COA / Memory Interfacing"
+        },
+        {
+          "formulaId": "con_033-interleaving-bandwidth",
+          "name": "Interleaved Memory Bandwidth",
+          "latex": "B_{peak} = \\frac{n \\cdot w}{t_{cycle}}",
+          "plain": "B_peak = (n * w) / t_cycle",
+          "whenToUse": "Computing peak bandwidth of n interleaved memory banks, each w bytes wide, with cycle time t_cycle.",
+          "terms": [
+            { "symbol": "n", "means": "number of memory banks" },
+            { "symbol": "w", "means": "width of each bank in bytes" },
+            { "symbol": "t_{cycle}", "means": "memory cycle (access + restore) time per bank" }
+          ],
+          "trap": "Peak bandwidth requires block transfer aligned to bank boundaries; wrap-around interleaving may reduce effective bandwidth.",
+          "reference": "COA / Memory Interfacing"
+        },
+        {
+          "formulaId": "con_033-bank-interleaving-types",
+          "name": "Low-Order vs High-Order Interleaving",
+          "latex": "\\text{Low-order (word-interleaved): bank} = \\text{address} \\bmod n \\\\\\text{High-order (block-interleaved): bank} = \\left\\lfloor \\frac{\\text{address}}{B} \\right\\rfloor \\bmod n",
+          "plain": "Low-order: bank = address mod n (consecutive words in consecutive banks). High-order: bank = floor(address/B) mod n (consecutive words in same bank).",
+          "whenToUse": "Questions about interleaved memory organisation; low-order is used for burst/cache-fill transfers.",
+          "terms": [
+            { "symbol": "n", "means": "number of banks" },
+            { "symbol": "B", "means": "block size (bytes per bank-group in high-order)" }
+          ],
+          "trap": "Low-order interleaving maps CONSECUTIVE words to DIFFERENT banks; high-order maps a contiguous block to ONE bank.",
+          "reference": "COA / Memory Interfacing"
+        },
+        {
+          "formulaId": "con_033-cache-fill-time",
+          "name": "Cache-Block Fill Time with Interleaving",
+          "latex": "t_{fill} = t_{first} + (k-1)\\cdot t_{bus}",
+          "plain": "t_fill = t_first + (k-1)*t_bus",
+          "whenToUse": "Time to fill a cache block of k words from interleaved banks after the first word is fetched.",
+          "terms": [
+            { "symbol": "t_{first}", "means": "time to get first word (memory access + bus transfer)" },
+            { "symbol": "k", "means": "number of words in cache block" },
+            { "symbol": "t_{bus}", "means": "bus cycle time for one word transfer" }
+          ],
+          "trap": "Subsequent words can overlap with bank cycle time in a pipelined memory; count only bus cycles for words 2…k.",
+          "reference": "COA / Memory Interfacing"
+        }
+      ]
+    },
+    {
+      "groupId": "virtual-memory",
+      "groupTitle": "Virtual Memory & TLB",
+      "formulas": [
+        {
+          "formulaId": "con_033-eff-access-time-tlb",
+          "name": "Effective Memory Access Time with TLB",
+          "latex": "T_{eff} = h\\,(t_{TLB}+t_m) + (1-h)\\,(t_{TLB}+2\\,t_m)",
+          "plain": "T_eff = h*(t_TLB + t_m) + (1-h)*(t_TLB + 2*t_m)",
+          "whenToUse": "No page faults; TLB hit bypasses page table, TLB miss requires one extra memory access for page table.",
+          "terms": [
+            { "symbol": "h", "means": "TLB hit rate" },
+            { "symbol": "t_{TLB}", "means": "TLB access time" },
+            { "symbol": "t_m", "means": "main memory access time" }
+          ],
+          "trap": "On a TLB miss the sequence is: TLB + page_table_in_memory + actual_data = t_TLB + 2*t_m (not just t_m).",
+          "reference": "COA / Virtual Memory"
+        },
+        {
+          "formulaId": "con_033-eff-access-time-page-fault",
+          "name": "Effective Access Time with Page Faults",
+          "latex": "T_{eff} = (1-p)\\,T_{no\\_fault} + p\\,T_{fault}",
+          "plain": "T_eff = (1-p)*T_no_fault + p*T_fault",
+          "whenToUse": "Including page-fault probability p; T_fault includes disk access, page replacement, and restart.",
+          "terms": [
+            { "symbol": "p", "means": "page-fault rate (fraction of accesses causing a page fault)" },
+            { "symbol": "T_{no\\_fault}", "means": "effective access time without a fault (e.g. TLB + memory)" },
+            { "symbol": "T_{fault}", "means": "total time for a page-fault service (disk seek + transfer + restart)" }
+          ],
+          "trap": "T_fault is typically 10^6–10^8 ns; even p = 10^{-6} can double T_eff — show the arithmetic in GATE answers.",
+          "reference": "COA / Virtual Memory"
+        },
+        {
+          "formulaId": "con_033-page-table-size",
+          "name": "Page Table Size",
+          "latex": "\\text{PT size} = \\frac{\\text{Virtual address space}}{\\text{Page size}} \\times \\text{PTE size}",
+          "plain": "PT size = (Virtual address space / Page size) * PTE size",
+          "whenToUse": "Finding memory consumed by the page table for a process.",
+          "terms": [
+            { "symbol": "\\text{Virtual address space}", "means": "2^{virtual address bits} bytes" },
+            { "symbol": "\\text{Page size}", "means": "2^{page offset bits} bytes" },
+            { "symbol": "\\text{PTE size}", "means": "bytes per page-table entry (holds frame number + flags)" }
+          ],
+          "trap": "Page table lives in main memory; multi-level paging reduces space by not allocating unused sub-tables.",
+          "reference": "COA / Virtual Memory"
+        },
+        {
+          "formulaId": "con_033-virtual-address-breakdown",
+          "name": "Virtual Address Breakdown (Single-Level Paging)",
+          "latex": "\\underbrace{(V - p)}_{\\text{VPN}} \\;|\\; \\underbrace{p}_{\\text{page offset}}",
+          "plain": "Virtual address = [VPN (V-p bits)] [page offset (p bits)]",
+          "whenToUse": "Splitting a virtual address into page number and offset given virtual address size V bits and page size 2^p bytes.",
+          "terms": [
+            { "symbol": "V", "means": "number of virtual address bits" },
+            { "symbol": "p = \\log_2(\\text{page size})", "means": "offset bits" },
+            { "symbol": "\\text{VPN}", "means": "virtual page number — index into page table" }
+          ],
+          "trap": "Physical address size may differ from virtual address size; frame number bits = physical address bits - p.",
+          "reference": "COA / Virtual Memory"
+        },
+        {
+          "formulaId": "con_033-two-level-page-table",
+          "name": "Two-Level Page Table Address Breakdown",
+          "latex": "\\underbrace{p_1}_{\\text{L1 index}} \\;|\\; \\underbrace{p_2}_{\\text{L2 index}} \\;|\\; \\underbrace{d}_{\\text{offset}}",
+          "plain": "VA = [p1 bits] [p2 bits] [offset d bits]; accesses = t_TLB + 3*t_m on TLB miss",
+          "whenToUse": "Two-level (hierarchical) paging questions; determines number of page-table levels accessed on a miss.",
+          "terms": [
+            { "symbol": "p_1", "means": "bits for outer page-directory index" },
+            { "symbol": "p_2", "means": "bits for inner page-table index" },
+            { "symbol": "d", "means": "page offset bits" }
+          ],
+          "trap": "A TLB miss in a 2-level scheme needs 2 memory reads (L1 directory + L2 table) + 1 for data = 3 total memory accesses.",
+          "reference": "COA / Virtual Memory"
+        },
+        {
+          "formulaId": "con_033-tlb-timing",
+          "name": "TLB Access Sequence Summary",
+          "latex": "\\text{TLB hit:}\\; t_{TLB}+t_m \\qquad \\text{TLB miss (1-level):}\\; t_{TLB}+2t_m \\qquad \\text{TLB miss (2-level):}\\; t_{TLB}+3t_m",
+          "plain": "TLB hit: t_TLB + t_m. TLB miss (1-level paging): t_TLB + 2*t_m. TLB miss (2-level paging): t_TLB + 3*t_m.",
+          "whenToUse": "Quick reference for computing access latency depending on TLB outcome and paging level.",
+          "terms": [
+            { "symbol": "t_{TLB}", "means": "TLB lookup time" },
+            { "symbol": "t_m", "means": "single main memory access time" }
+          ],
+          "trap": "Each level of page-table hierarchy adds one t_m on a TLB miss; always add t_m at the end for actual data fetch.",
+          "reference": "COA / Virtual Memory"
+        }
+      ]
+    }
+  ]
+}

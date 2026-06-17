@@ -1,0 +1,329 @@
+{
+  "_id": "con_007",
+  "conceptId": "con_007",
+  "conceptTitle": "Graph Connectivity",
+  "reference": "GATE CS — Discrete Mathematics / Graph Theory",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Question involves vertex degrees or degree sum",
+        "use": "\\sum_{v \\in V} \\deg(v) = 2|E|"
+      },
+      {
+        "condition": "Question asks whether graph has a planar drawing",
+        "use": "|E| \\leq 3|V| - 6 \\text{ (planar, } |V| \\geq 3\\text{)}"
+      },
+      {
+        "condition": "Question asks about isomorphism conditions to check",
+        "use": "\\text{Same degree sequence, } |V|, |E|, \\text{girth, chromatic number}"
+      },
+      {
+        "condition": "Question involves connectivity number or cut sets",
+        "use": "\\kappa(G) \\leq \\kappa'(G) \\leq \\delta(G)"
+      },
+      {
+        "condition": "Graph planarity with bipartite structure",
+        "use": "|E| \\leq 2|V| - 4 \\text{ (planar bipartite, } |V| \\geq 3\\text{)}"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "degree-theorems",
+      "groupTitle": "Degree Theorems",
+      "formulas": [
+        {
+          "formulaId": "con_007-handshaking-lemma",
+          "name": "Handshaking Lemma",
+          "latex": "\\sum_{v \\in V} \\deg(v) = 2|E|",
+          "plain": "Sum of all vertex degrees = 2 * |E|",
+          "whenToUse": "Counting edges from degree information, or proving a degree sequence is valid.",
+          "terms": [
+            { "symbol": "\\deg(v)", "means": "number of edges incident to vertex v" },
+            { "symbol": "|E|", "means": "number of edges in the graph" }
+          ],
+          "trap": "Each edge contributes 2 to the degree sum (once per endpoint), so the sum is always even — an odd number of odd-degree vertices is impossible.",
+          "reference": "Discrete Mathematics / Graph Theory"
+        },
+        {
+          "formulaId": "con_007-odd-degree-count",
+          "name": "Even Number of Odd-Degree Vertices",
+          "latex": "\\left|\\{v \\in V : \\deg(v) \\text{ is odd}\\}\\right| \\equiv 0 \\pmod{2}",
+          "plain": "The number of vertices with odd degree is always even.",
+          "whenToUse": "Validating a degree sequence or proving a specific degree configuration is impossible.",
+          "terms": [
+            { "symbol": "\\deg(v)", "means": "degree of vertex v" }
+          ],
+          "trap": "A sequence with an odd count of odd-degree values can never be a valid graph degree sequence.",
+          "reference": "Discrete Mathematics / Graph Theory"
+        },
+        {
+          "formulaId": "con_007-regular-graph-edges",
+          "name": "Edges in a k-Regular Graph",
+          "latex": "|E| = \\frac{k \\cdot |V|}{2}",
+          "plain": "|E| = (k * |V|) / 2",
+          "whenToUse": "Computing number of edges when every vertex has exactly the same degree k.",
+          "terms": [
+            { "symbol": "k", "means": "degree of every vertex (k-regular graph)" },
+            { "symbol": "|V|", "means": "number of vertices" }
+          ],
+          "trap": "For k*|V| to be even (giving integer edges), either k or |V| must be even; otherwise a k-regular graph on |V| vertices cannot exist.",
+          "reference": "Discrete Mathematics / Graph Theory"
+        },
+        {
+          "formulaId": "con_007-degree-bounds",
+          "name": "Degree Bounds in Simple Graph",
+          "latex": "0 \\leq \\deg(v) \\leq |V| - 1 \\quad \\Rightarrow \\quad \\text{pigeonhole: } \\exists\\, u,w: \\deg(u) = \\deg(w)",
+          "plain": "In any simple graph with |V|>1 vertices, at least two vertices share the same degree.",
+          "whenToUse": "Proving two vertices must have equal degree (classic GATE MCQ).",
+          "terms": [
+            { "symbol": "|V|", "means": "number of vertices" }
+          ],
+          "trap": "Degree 0 and degree |V|-1 cannot both appear simultaneously (isolated vertex and fully-connected vertex cannot coexist in a simple graph), so pigeonhole guarantees a repeated degree.",
+          "reference": "Discrete Mathematics / Graph Theory"
+        },
+        {
+          "formulaId": "con_007-xi-function",
+          "name": "Weighted Degree Sum xi(G)",
+          "latex": "\\xi(G) = \\sum_{d} i_d \\cdot d = 2|E(G)|",
+          "plain": "xi(G) = sum over d of (count of degree-d vertices * d) = 2|E|",
+          "whenToUse": "Comparing xi values of two trees or graphs to deduce edge / vertex relationships (GATE 2014 question on trees S and T).",
+          "terms": [
+            { "symbol": "i_d", "means": "number of vertices of degree d" },
+            { "symbol": "d", "means": "degree value" }
+          ],
+          "trap": "For trees, |E| = |V| - 1, so xi(T) = 2(|V|-1). Equal xi implies equal |V| (and thus equal |E| for trees).",
+          "reference": "Discrete Mathematics / Graph Theory"
+        }
+      ]
+    },
+    {
+      "groupId": "connectivity-definitions",
+      "groupTitle": "Connectivity & Cuts",
+      "formulas": [
+        {
+          "formulaId": "con_007-connectivity-hierarchy",
+          "name": "Connectivity Hierarchy",
+          "latex": "\\kappa(G) \\leq \\kappa'(G) \\leq \\delta(G)",
+          "plain": "vertex-connectivity <= edge-connectivity <= minimum degree",
+          "whenToUse": "Bounding or comparing vertex/edge connectivity and minimum degree.",
+          "terms": [
+            { "symbol": "\\kappa(G)", "means": "vertex connectivity — min vertices to remove to disconnect G" },
+            { "symbol": "\\kappa'(G)", "means": "edge connectivity — min edges to remove to disconnect G" },
+            { "symbol": "\\delta(G)", "means": "minimum degree over all vertices" }
+          ],
+          "trap": "kappa = kappa' = delta for complete graphs K_n (all equal n-1), which is the maximum possible.",
+          "reference": "Discrete Mathematics / Graph Theory"
+        },
+        {
+          "formulaId": "con_007-complete-graph-connectivity",
+          "name": "Complete Graph Connectivity",
+          "latex": "\\kappa(K_n) = \\kappa'(K_n) = \\delta(K_n) = n - 1",
+          "plain": "For K_n: vertex-connectivity = edge-connectivity = min-degree = n-1",
+          "whenToUse": "Evaluating connectivity of complete graphs.",
+          "terms": [
+            { "symbol": "K_n", "means": "complete graph on n vertices" },
+            { "symbol": "n-1", "means": "degree (and connectivity) of each vertex in K_n" }
+          ],
+          "trap": "K_n is maximally connected; removing any single vertex still leaves K_{n-1}, so you need n-1 removals to disconnect.",
+          "reference": "Discrete Mathematics / Graph Theory"
+        },
+        {
+          "formulaId": "con_007-bridge-articulation",
+          "name": "Bridge and Articulation Point Definitions",
+          "latex": "\\text{Bridge: edge } e \\text{ s.t. } G - e \\text{ has more components than } G\\\\ \\text{Cut vertex: vertex } v \\text{ s.t. } G - v \\text{ has more components than } G",
+          "plain": "Bridge = edge whose removal increases connected components. Cut vertex = vertex whose removal increases components.",
+          "whenToUse": "Identifying critical edges/vertices in connectivity questions.",
+          "terms": [
+            { "symbol": "G - e", "means": "graph G with edge e removed" },
+            { "symbol": "G - v", "means": "graph G with vertex v and all its incident edges removed" }
+          ],
+          "trap": "Every edge in a tree is a bridge. A graph with no bridges is called 2-edge-connected.",
+          "reference": "Discrete Mathematics / Graph Theory"
+        },
+        {
+          "formulaId": "con_007-adjacency-matrix-symmetry",
+          "name": "Adjacency Matrix Properties",
+          "latex": "A[i][j] = \\begin{cases} 1 & \\text{if } (i,j) \\in E \\\\ 0 & \\text{otherwise} \\end{cases}, \\quad A = A^T \\text{ (undirected)}",
+          "plain": "A[i][j] = 1 iff edge (i,j) exists; matrix is symmetric for undirected graphs.",
+          "whenToUse": "Writing or verifying adjacency matrix for undirected graphs; checking symmetry.",
+          "terms": [
+            { "symbol": "A^T", "means": "transpose of adjacency matrix" },
+            { "symbol": "A^k[i][j]", "means": "number of walks of length k from i to j" }
+          ],
+          "trap": "Self-loops add 2 to diagonal (or 1 depending on convention); simple graphs have 0 diagonal entries. Row sum = degree of vertex.",
+          "reference": "Discrete Mathematics / Graph Theory"
+        },
+        {
+          "formulaId": "con_007-connected-components",
+          "name": "Connected Components and Spanning Trees",
+          "latex": "\\text{G is connected} \\Leftrightarrow \\exists \\text{ spanning tree of } G\\\\ \\text{Min edges for connected graph on } n \\text{ vertices} = n-1",
+          "plain": "G connected iff it has a spanning tree; minimum edges = n-1.",
+          "whenToUse": "Determining minimum edges needed, or checking connectivity via spanning tree existence.",
+          "terms": [
+            { "symbol": "n", "means": "number of vertices" },
+            { "symbol": "n-1", "means": "minimum number of edges for a connected graph (= tree)" }
+          ],
+          "trap": "A graph with n vertices and exactly n-1 edges is connected if and only if it is also acyclic (i.e., it is a tree).",
+          "reference": "Discrete Mathematics / Graph Theory"
+        }
+      ]
+    },
+    {
+      "groupId": "graph-isomorphism",
+      "groupTitle": "Graph Isomorphism",
+      "formulas": [
+        {
+          "formulaId": "con_007-isomorphism-necessary-conditions",
+          "name": "Necessary Conditions for Isomorphism",
+          "latex": "G_1 \\cong G_2 \\Rightarrow \\begin{cases} |V(G_1)| = |V(G_2)| \\\\ |E(G_1)| = |E(G_2)| \\\\ \\text{same degree sequence} \\\\ \\text{same number of cycles of each length} \\end{cases}",
+          "plain": "Isomorphic graphs must have equal |V|, |E|, same sorted degree sequence, and same cycle structure.",
+          "whenToUse": "Ruling out isomorphism by checking these invariants (they are necessary but NOT sufficient).",
+          "terms": [
+            { "symbol": "\\cong", "means": "graph isomorphism (bijection preserving adjacency)" },
+            { "symbol": "\\text{degree sequence}", "means": "sorted list of all vertex degrees" }
+          ],
+          "trap": "Identical degree sequences do NOT guarantee isomorphism (e.g., two non-isomorphic graphs can share a degree sequence).",
+          "reference": "Discrete Mathematics / Graph Theory"
+        },
+        {
+          "formulaId": "con_007-isomorphism-definition",
+          "name": "Isomorphism Definition",
+          "latex": "G_1 \\cong G_2 \\Leftrightarrow \\exists f: V(G_1) \\to V(G_2) \\text{ bijection s.t. } (u,v) \\in E(G_1) \\Leftrightarrow (f(u), f(v)) \\in E(G_2)",
+          "plain": "G1 isomorphic to G2 iff there exists a bijection f on vertices that preserves all edges.",
+          "whenToUse": "Formally verifying or constructing an isomorphism between two graphs.",
+          "terms": [
+            { "symbol": "f", "means": "vertex bijection (the isomorphism mapping)" },
+            { "symbol": "E(G_1), E(G_2)", "means": "edge sets of graphs G1, G2" }
+          ],
+          "trap": "You must verify BOTH directions: every edge in G1 maps to G2 AND every edge in G2 is the image of some edge in G1.",
+          "reference": "Discrete Mathematics / Graph Theory"
+        },
+        {
+          "formulaId": "con_007-self-complementary-cycle",
+          "name": "Self-Complementary Cycle",
+          "latex": "C_n \\cong \\overline{C_n} \\Leftrightarrow n = 5",
+          "plain": "The cycle graph C_n is isomorphic to its complement only when n = 5.",
+          "whenToUse": "Answering GATE question: 'For which n is C_n isomorphic to its complement?'",
+          "terms": [
+            { "symbol": "C_n", "means": "cycle graph on n vertices" },
+            { "symbol": "\\overline{C_n}", "means": "complement of C_n (edges present iff not in C_n)" }
+          ],
+          "trap": "C_5 complement is also a C_5 (the Petersen inner pentagram), so they are isomorphic. For other small n, the complement has a different structure.",
+          "reference": "Discrete Mathematics / Graph Theory"
+        },
+        {
+          "formulaId": "con_007-petersen-graph-properties",
+          "name": "Petersen Graph Key Properties",
+          "latex": "\\text{Petersen graph: } |V|=10,\\; |E|=15,\\; \\text{3-regular, girth}=5,\\; \\text{non-planar, non-Hamiltonian}",
+          "plain": "Petersen graph: 10 vertices, 15 edges, 3-regular, girth 5, non-planar, non-Hamiltonian.",
+          "whenToUse": "Answering properties of the Petersen graph (standard GATE question on isomorphism and structure).",
+          "terms": [
+            { "symbol": "\\text{girth}", "means": "length of the shortest cycle" },
+            { "symbol": "\\text{3-regular}", "means": "every vertex has exactly degree 3" }
+          ],
+          "trap": "The Petersen graph is non-planar and non-Hamiltonian despite being highly symmetric — do not confuse it with a planar graph just because it can be drawn with 5 crossings minimized.",
+          "reference": "Discrete Mathematics / Graph Theory"
+        }
+      ]
+    },
+    {
+      "groupId": "graph-planarity",
+      "groupTitle": "Graph Planarity",
+      "formulas": [
+        {
+          "formulaId": "con_007-euler-formula",
+          "name": "Euler's Formula for Planar Graphs",
+          "latex": "V - E + F = 2 \\quad (\\text{connected planar graph})",
+          "plain": "V - E + F = 2, where V = vertices, E = edges, F = faces (including outer face).",
+          "whenToUse": "Computing number of faces, or deriving edge bounds for planar graphs.",
+          "terms": [
+            { "symbol": "V", "means": "number of vertices" },
+            { "symbol": "E", "means": "number of edges" },
+            { "symbol": "F", "means": "number of faces (regions), including the unbounded outer face" }
+          ],
+          "trap": "Formula applies only to CONNECTED planar graphs. For disconnected planar graphs: V - E + F = 1 + C, where C = number of connected components.",
+          "reference": "Discrete Mathematics / Graph Theory"
+        },
+        {
+          "formulaId": "con_007-planar-edge-bound",
+          "name": "Edge Bound for Planar Graphs",
+          "latex": "E \\leq 3V - 6 \\quad (\\text{simple planar graph, } V \\geq 3)",
+          "plain": "E <= 3*V - 6 for any simple planar graph with V >= 3.",
+          "whenToUse": "Proving a graph is non-planar by showing it violates this bound.",
+          "terms": [
+            { "symbol": "E", "means": "number of edges" },
+            { "symbol": "V", "means": "number of vertices" }
+          ],
+          "trap": "This is a necessary condition for planarity, NOT sufficient. If E > 3V-6, graph is definitely non-planar; if E <= 3V-6, graph may still be non-planar.",
+          "reference": "Discrete Mathematics / Graph Theory"
+        },
+        {
+          "formulaId": "con_007-bipartite-planar-edge-bound",
+          "name": "Edge Bound for Planar Bipartite Graphs",
+          "latex": "E \\leq 2V - 4 \\quad (\\text{simple planar bipartite graph, } V \\geq 3)",
+          "plain": "E <= 2*V - 4 for any simple planar bipartite graph with V >= 3.",
+          "whenToUse": "Stronger bound when graph is bipartite — useful to show K_{3,3} is non-planar.",
+          "terms": [
+            { "symbol": "E", "means": "number of edges" },
+            { "symbol": "V", "means": "number of vertices" }
+          ],
+          "trap": "K_{3,3} has V=6, E=9; bound gives 2*6-4=8 < 9, confirming non-planarity. The stronger bound only applies when you know the graph is bipartite.",
+          "reference": "Discrete Mathematics / Graph Theory"
+        },
+        {
+          "formulaId": "con_007-kuratowski-theorem",
+          "name": "Kuratowski's Theorem",
+          "latex": "G \\text{ is planar} \\Leftrightarrow G \\text{ contains no subdivision of } K_5 \\text{ or } K_{3,3}",
+          "plain": "A graph is planar iff it has no subgraph that is a subdivision (homeomorphic copy) of K_5 or K_{3,3}.",
+          "whenToUse": "Characterising planarity exactly — the fundamental theorem of graph planarity (GATE direct question).",
+          "terms": [
+            { "symbol": "K_5", "means": "complete graph on 5 vertices (non-planar obstruction)" },
+            { "symbol": "K_{3,3}", "means": "complete bipartite graph on 3+3 vertices (non-planar obstruction)" },
+            { "symbol": "\\text{subdivision}", "means": "graph obtained by inserting vertices on edges (homeomorphic subgraph)" }
+          ],
+          "trap": "The theorem uses 'subdivision' (homeomorphic subgraph), NOT 'isomorphic subgraph'. Answer C in GATE question on planarity is the correct phrasing.",
+          "reference": "Discrete Mathematics / Graph Theory"
+        },
+        {
+          "formulaId": "con_007-k5-k33-non-planar",
+          "name": "Non-Planarity of K_5 and K_{3,3}",
+          "latex": "K_5: V=5, E=10,\\; 3V-6=9 < 10 \\Rightarrow \\text{non-planar}\\\\ K_{3,3}: V=6, E=9,\\; 2V-4=8 < 9 \\Rightarrow \\text{non-planar}",
+          "plain": "K_5 non-planar: 10 edges > 3*5-6=9. K_{3,3} non-planar: 9 edges > 2*6-4=8.",
+          "whenToUse": "Quick verification that K_5 and K_{3,3} violate planarity bounds.",
+          "terms": [
+            { "symbol": "K_5", "means": "complete graph on 5 vertices, E=10" },
+            { "symbol": "K_{3,3}", "means": "complete bipartite graph 3+3, E=9" }
+          ],
+          "trap": "These are the two minimal non-planar graphs. Every non-planar graph contains a subdivision of at least one of them.",
+          "reference": "Discrete Mathematics / Graph Theory"
+        },
+        {
+          "formulaId": "con_007-planarity-testing-linear-time",
+          "name": "Planarity Testing — Linear Time",
+          "latex": "\\text{Planarity testing can be done in } O(V + E) \\text{ time (e.g., Hopcroft-Tarjan algorithm, 1974)}",
+          "plain": "There exists a linear-time O(V+E) algorithm for planarity testing — the statement is TRUE.",
+          "whenToUse": "GATE question: 'Is there a linear-time algorithm for testing planarity?' Answer: TRUE.",
+          "terms": [
+            { "symbol": "O(V+E)", "means": "linear time in vertices and edges" }
+          ],
+          "trap": "Many students think planarity testing is harder (e.g., polynomial but not linear). The Hopcroft-Tarjan and LR-Planarity algorithms achieve O(n) time.",
+          "reference": "Discrete Mathematics / Graph Theory"
+        },
+        {
+          "formulaId": "con_007-q3-hypercube-planar",
+          "name": "3-Cube (Q3) is Planar",
+          "latex": "Q_3: V=8,\\; E=12,\\; 3V-6=18 \\geq 12 \\Rightarrow \\text{not ruled out by bound; } Q_3 \\text{ is planar}",
+          "plain": "Q3 hypercube: 8 vertices, 12 edges; passes 3V-6=18>=12 bound and is indeed planar.",
+          "whenToUse": "GATE question about which graphs among {K_{3,3}-like, Q3} are planar — Q3 is planar.",
+          "terms": [
+            { "symbol": "Q_3", "means": "3-dimensional hypercube graph (2 squares connected by edges)" }
+          ],
+          "trap": "Passing the edge bound does not prove planarity, but Q3 can be drawn as a planar graph (square inside square with connecting edges).",
+          "reference": "Discrete Mathematics / Graph Theory"
+        }
+      ]
+    }
+  ]
+}

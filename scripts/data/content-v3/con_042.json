@@ -1,0 +1,285 @@
+{
+  "_id": "con_042",
+  "conceptId": "con_042",
+  "conceptTitle": "Greedy Algorithms",
+  "reference": "GATE CS — Algorithms / Design Techniques",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Build prefix-free code minimizing expected length",
+        "use": "L = \\sum_{i} p_i \\cdot l_i \\text{ (Huffman)}"
+      },
+      {
+        "condition": "Select max non-overlapping intervals / activities",
+        "use": "\\text{Sort by finish time; pick if } s_i \\ge f_{\\text{prev}}"
+      },
+      {
+        "condition": "Schedule jobs with deadlines to maximize profit",
+        "use": "\\text{Sort by profit desc; place in latest free slot } \\le d_i"
+      },
+      {
+        "condition": "Merge files/runs minimizing total record movements",
+        "use": "\\text{Optimal Merge: use min-heap, cost} = \\sum \\text{(internal node weights)}"
+      },
+      {
+        "condition": "Find shortest paths from a single source",
+        "use": "d[v] = \\min_{u}(d[u] + w(u,v)) \\text{ (Dijkstra)}"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "greedy-fundamentals",
+      "groupTitle": "Greedy Fundamentals",
+      "formulas": [
+        {
+          "formulaId": "con_042-greedy-choice-property",
+          "name": "Greedy Choice Property",
+          "latex": "\\text{A locally optimal (greedy) choice leads to a globally optimal solution}",
+          "plain": "A locally optimal (greedy) choice leads to a globally optimal solution",
+          "whenToUse": "Verify before applying greedy — must hold for the problem to admit a greedy solution",
+          "terms": [
+            { "symbol": "locally optimal", "means": "best choice at the current step without reconsidering past choices" }
+          ],
+          "trap": "Not every optimization problem has the greedy-choice property; confusing it with DP leads to wrong answers.",
+          "reference": "Algorithms / Design Techniques"
+        },
+        {
+          "formulaId": "con_042-optimal-substructure",
+          "name": "Optimal Substructure",
+          "latex": "\\text{Optimal solution contains optimal solutions to its subproblems}",
+          "plain": "Optimal solution contains optimal solutions to its subproblems",
+          "whenToUse": "Required condition (along with greedy-choice property) for a greedy algorithm to be correct",
+          "terms": [
+            { "symbol": "subproblem", "means": "smaller instance of the same problem after a greedy decision" }
+          ],
+          "trap": "Optimal substructure alone is insufficient — DP also has it; greedy additionally needs the greedy-choice property.",
+          "reference": "Algorithms / Design Techniques"
+        }
+      ]
+    },
+    {
+      "groupId": "activity-selection",
+      "groupTitle": "Activity Selection Problem",
+      "formulas": [
+        {
+          "formulaId": "con_042-activity-selection-rule",
+          "name": "Activity Selection — Greedy Rule",
+          "latex": "\\text{Sort activities by finish time } f_i; \\text{ select } a_i \\text{ if } s_i \\ge f_{\\text{last selected}}",
+          "plain": "Sort activities by finish time; select activity i if its start time >= finish time of last selected activity",
+          "whenToUse": "Maximizing the number of non-overlapping activities (intervals) from a given set",
+          "terms": [
+            { "symbol": "s_i", "means": "start time of activity i" },
+            { "symbol": "f_i", "means": "finish time of activity i" },
+            { "symbol": "f_{\\text{last}}", "means": "finish time of the most recently selected activity" }
+          ],
+          "trap": "Sorting by start time or duration does NOT yield the optimal solution; must sort by finish time.",
+          "reference": "Algorithms / Design Techniques"
+        },
+        {
+          "formulaId": "con_042-activity-selection-complexity",
+          "name": "Activity Selection — Time Complexity",
+          "latex": "T(n) = O(n \\log n) \\text{ (dominated by sorting)}",
+          "plain": "T(n) = O(n log n) — sorting dominates",
+          "whenToUse": "Analyzing time needed to solve activity selection on n activities",
+          "terms": [
+            { "symbol": "n", "means": "number of activities" }
+          ],
+          "trap": "After sorting, the greedy scan is O(n); forgetting to count the sort gives incorrect O(n).",
+          "reference": "Algorithms / Design Techniques"
+        }
+      ]
+    },
+    {
+      "groupId": "job-scheduling",
+      "groupTitle": "Job Scheduling with Deadlines",
+      "formulas": [
+        {
+          "formulaId": "con_042-job-scheduling-rule",
+          "name": "Job Scheduling — Greedy Rule",
+          "latex": "\\text{Sort jobs by profit } P_i \\downarrow; \\text{ place job in latest free slot } t \\le d_i",
+          "plain": "Sort jobs by profit descending; place each job in the latest available slot <= its deadline",
+          "whenToUse": "Selecting a subset of jobs with deadlines to maximize total profit (each job takes 1 unit)",
+          "terms": [
+            { "symbol": "P_i", "means": "profit of job i if completed on time" },
+            { "symbol": "d_i", "means": "deadline of job i (must finish by slot d_i)" }
+          ],
+          "trap": "Placing a job in the earliest free slot (instead of latest) may block later jobs with the same deadline.",
+          "reference": "Algorithms / Design Techniques"
+        },
+        {
+          "formulaId": "con_042-job-scheduling-feasibility",
+          "name": "Job Scheduling — Feasibility Condition",
+          "latex": "\\text{A set } S \\text{ of jobs is feasible iff } |S_t| \\le t \\text{ for all } t = 1,\\ldots,n",
+          "plain": "A set S of jobs is feasible iff for every t, the number of jobs in S with deadline <= t is at most t",
+          "whenToUse": "Checking whether a selected subset of jobs can all be completed within their deadlines",
+          "terms": [
+            { "symbol": "S_t", "means": "jobs in S with deadline <= t" },
+            { "symbol": "t", "means": "time slot index" }
+          ],
+          "trap": "Ignoring feasibility and simply picking top-k profit jobs without slot allocation gives wrong answers.",
+          "reference": "Algorithms / Design Techniques"
+        }
+      ]
+    },
+    {
+      "groupId": "optimal-merge",
+      "groupTitle": "Optimal Merge Pattern",
+      "formulas": [
+        {
+          "formulaId": "con_042-optimal-merge-cost",
+          "name": "Optimal Merge — Total Cost",
+          "latex": "\\text{Total record movements} = \\sum_{\\text{internal nodes}} w(\\text{node})",
+          "plain": "Total record movements = sum of weights of all internal nodes in the merge tree",
+          "whenToUse": "Finding minimum record movements to merge n sorted files using a 2-way merge",
+          "terms": [
+            { "symbol": "w(\\text{node})", "means": "weight (total records) at an internal node = sum of its children's sizes" }
+          ],
+          "trap": "Counting only leaf-to-root paths or confusing with the number of merges; always sum ALL internal node weights.",
+          "reference": "Algorithms / Design Techniques"
+        },
+        {
+          "formulaId": "con_042-optimal-merge-algorithm",
+          "name": "Optimal Merge — Min-Heap Algorithm",
+          "latex": "\\text{Repeatedly extract two smallest files, merge them (cost = sum), insert result back}",
+          "plain": "Use a min-heap: repeatedly pick two smallest files, merge (cost = their total size), reinsert merged file",
+          "whenToUse": "Computing the minimum cost merge order for n files (same structure as Huffman coding)",
+          "terms": [
+            { "symbol": "\\text{min-heap}", "means": "priority queue enabling O(log n) extraction of minimum" }
+          ],
+          "trap": "This is identical to Huffman coding; the 'cost' here is total record movements, not code length.",
+          "reference": "Algorithms / Design Techniques"
+        }
+      ]
+    },
+    {
+      "groupId": "huffman-coding",
+      "groupTitle": "Huffman Coding",
+      "formulas": [
+        {
+          "formulaId": "con_042-huffman-expected-length",
+          "name": "Huffman — Expected Code Length",
+          "latex": "L = \\sum_{i=1}^{n} p_i \\cdot l_i",
+          "plain": "L = sum over all symbols of (probability_i * code_length_i)",
+          "whenToUse": "Computing the expected (average) number of bits per symbol for a given Huffman encoding",
+          "terms": [
+            { "symbol": "p_i", "means": "probability (or relative frequency) of symbol i" },
+            { "symbol": "l_i", "means": "bit-length of the Huffman code assigned to symbol i" },
+            { "symbol": "n", "means": "number of symbols in the alphabet" }
+          ],
+          "trap": "Using frequency counts instead of probabilities changes the raw sum but NOT the relative optimality; normalize if needed.",
+          "reference": "Algorithms / Design Techniques"
+        },
+        {
+          "formulaId": "con_042-huffman-algorithm",
+          "name": "Huffman — Building the Tree",
+          "latex": "\\text{Min-heap: extract two nodes with smallest freq, combine (freq}_{\\text{new}} = f_1 + f_2\\text{), insert}",
+          "plain": "Min-heap: extract two lowest-frequency nodes, create parent with frequency = f1 + f2, reinsert; repeat until one node",
+          "whenToUse": "Constructing an optimal prefix-free code for a given frequency/probability distribution",
+          "terms": [
+            { "symbol": "f_1, f_2", "means": "frequencies of the two nodes being merged" },
+            { "symbol": "f_{\\text{new}}", "means": "frequency of the new combined (internal) node" }
+          ],
+          "trap": "When two nodes have equal frequency, the tie-breaking order can produce different but equally optimal trees — all are valid.",
+          "reference": "Algorithms / Design Techniques"
+        },
+        {
+          "formulaId": "con_042-huffman-complexity",
+          "name": "Huffman — Time Complexity",
+          "latex": "T(n) = O(n \\log n)",
+          "plain": "T(n) = O(n log n) — n-1 merge steps each taking O(log n) for heap operations",
+          "whenToUse": "Analyzing the running time of Huffman coding on an alphabet of size n",
+          "terms": [
+            { "symbol": "n", "means": "number of distinct symbols (alphabet size)" }
+          ],
+          "trap": "There are exactly n-1 merge steps; forgetting the -1 is a minor error, but more critically confusing n with total text length.",
+          "reference": "Algorithms / Design Techniques"
+        },
+        {
+          "formulaId": "con_042-huffman-prefix-free",
+          "name": "Huffman — Prefix-Free Property",
+          "latex": "\\text{No codeword is a prefix of another codeword (full binary tree leaves = symbols)}",
+          "plain": "No codeword is a prefix of another; symbols are leaves of the Huffman tree",
+          "whenToUse": "Verifying or explaining why Huffman codes are uniquely decodable without separators",
+          "terms": [
+            { "symbol": "\\text{prefix-free}", "means": "property ensuring unambiguous decoding without delimiters" }
+          ],
+          "trap": "Confusing prefix-free with fixed-length; Huffman is variable-length but prefix-free.",
+          "reference": "Algorithms / Design Techniques"
+        },
+        {
+          "formulaId": "con_042-huffman-optimality",
+          "name": "Huffman — Optimality Result",
+          "latex": "H(X) \\le L_{\\text{Huffman}} < H(X) + 1 \\quad \\text{where } H(X) = -\\sum_i p_i \\log_2 p_i",
+          "plain": "Entropy H(X) <= Huffman expected length < H(X) + 1 (in bits per symbol)",
+          "whenToUse": "Bounding the efficiency of Huffman coding relative to the entropy of the source",
+          "terms": [
+            { "symbol": "H(X)", "means": "Shannon entropy of the source (theoretical lower bound for lossless coding)" },
+            { "symbol": "L_{\\text{Huffman}}", "means": "expected code length of the Huffman code" }
+          ],
+          "trap": "Huffman achieves entropy only for dyadic distributions (all p_i = 2^{-k}); otherwise there is a gap up to 1 bit.",
+          "reference": "Algorithms / Design Techniques"
+        },
+        {
+          "formulaId": "con_042-huffman-code-length-bound",
+          "name": "Huffman — Code Length Bounds",
+          "latex": "\\lceil \\log_2(1/p_i) \\rceil \\le l_i \\le \\lceil \\log_2(1/p_i) \\rceil + 1",
+          "plain": "ceil(log2(1/p_i)) <= code length l_i <= ceil(log2(1/p_i)) + 1",
+          "whenToUse": "Estimating the code length assigned to a particular symbol with probability p_i",
+          "terms": [
+            { "symbol": "p_i", "means": "probability of symbol i" },
+            { "symbol": "l_i", "means": "Huffman code length for symbol i" }
+          ],
+          "trap": "Higher probability symbols get shorter codes; the most frequent symbol may get code length 1 only if it dominates.",
+          "reference": "Algorithms / Design Techniques"
+        }
+      ]
+    },
+    {
+      "groupId": "dijkstra-mst",
+      "groupTitle": "Dijkstra & MST (Greedy Graph Algorithms)",
+      "formulas": [
+        {
+          "formulaId": "con_042-dijkstra-rule",
+          "name": "Dijkstra — Greedy Relaxation Rule",
+          "latex": "d[v] = \\min\\bigl(d[v],\\; d[u] + w(u,v)\\bigr) \\text{ for each neighbor } v \\text{ of extracted } u",
+          "plain": "d[v] = min(d[v], d[u] + w(u,v)) — relax edge (u,v) after extracting u with minimum distance",
+          "whenToUse": "Finding single-source shortest paths in a graph with non-negative edge weights",
+          "terms": [
+            { "symbol": "d[v]", "means": "current known shortest distance from source to v" },
+            { "symbol": "w(u,v)", "means": "weight of edge from u to v" }
+          ],
+          "trap": "Dijkstra FAILS with negative edge weights — use Bellman-Ford instead.",
+          "reference": "Algorithms / Design Techniques"
+        },
+        {
+          "formulaId": "con_042-dijkstra-complexity",
+          "name": "Dijkstra — Time Complexity",
+          "latex": "T = O((V + E) \\log V) \\text{ with binary heap}",
+          "plain": "T = O((V + E) log V) using a binary min-heap (or O(V^2) with adjacency matrix)",
+          "whenToUse": "Analyzing Dijkstra's algorithm complexity on V vertices and E edges",
+          "terms": [
+            { "symbol": "V", "means": "number of vertices" },
+            { "symbol": "E", "means": "number of edges" }
+          ],
+          "trap": "With a Fibonacci heap the complexity improves to O(E + V log V), but binary heap is the GATE-standard assumption.",
+          "reference": "Algorithms / Design Techniques"
+        },
+        {
+          "formulaId": "con_042-prim-kruskal-mst",
+          "name": "MST — Prim's & Kruskal's",
+          "latex": "\\text{Prim: } O(E \\log V); \\quad \\text{Kruskal: } O(E \\log E) \\approx O(E \\log V)",
+          "plain": "Prim: O(E log V) with binary heap; Kruskal: O(E log E) ~ O(E log V) using union-find",
+          "whenToUse": "Finding a Minimum Spanning Tree of an undirected weighted graph",
+          "terms": [
+            { "symbol": "E", "means": "number of edges" },
+            { "symbol": "V", "means": "number of vertices" }
+          ],
+          "trap": "Kruskal's uses Union-Find (Disjoint Set Union) to detect cycles; forgetting this makes cycle detection O(V) per edge, ruining complexity.",
+          "reference": "Algorithms / Design Techniques"
+        }
+      ]
+    }
+  ]
+}

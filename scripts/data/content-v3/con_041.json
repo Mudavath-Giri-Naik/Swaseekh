@@ -1,0 +1,370 @@
+{
+  "_id": "con_041",
+  "conceptId": "con_041",
+  "conceptTitle": "Asymptotic Analysis",
+  "reference": "GATE CS — Algorithms / Basics",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Recurrence of form T(n) = aT(n/b) + f(n)",
+        "use": "T(n) = aT(n/b)+f(n) \\Rightarrow \\text{Master Theorem}"
+      },
+      {
+        "condition": "Recurrence T(n) = T(n-1) + f(n) (decreasing by 1)",
+        "use": "T(n) = T(n-1)+f(n) \\Rightarrow \\sum_{k=1}^{n} f(k)"
+      },
+      {
+        "condition": "Comparing two functions for big-O order",
+        "use": "f(n)=O(g(n)) \\iff \\lim_{n\\to\\infty}\\frac{f(n)}{g(n)} < \\infty"
+      },
+      {
+        "condition": "Solving divide-and-conquer recurrence not fitting Master Theorem",
+        "use": "T(n) = aT(n/b)+f(n) \\Rightarrow \\text{Recursion tree / Akra-Bazzi}"
+      },
+      {
+        "condition": "Determining tight bound when upper and lower bounds match",
+        "use": "f(n)=\\Theta(g(n)) \\iff f(n)=O(g(n)) \\text{ and } f(n)=\\Omega(g(n))"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "asymptotic-definitions",
+      "groupTitle": "Asymptotic Notation Definitions",
+      "formulas": [
+        {
+          "formulaId": "con_041-big-o-def",
+          "name": "Big-O (Upper Bound)",
+          "latex": "f(n)=O(g(n)) \\iff \\exists\\, c>0,\\, n_0 \\text{ s.t. } f(n)\\le c\\cdot g(n)\\;\\forall n\\ge n_0",
+          "plain": "f(n)=O(g(n)) iff there exist c>0 and n0 such that f(n) <= c*g(n) for all n >= n0",
+          "whenToUse": "Proving a worst-case upper bound on runtime or space",
+          "terms": [
+            { "symbol": "c", "means": "positive constant" },
+            { "symbol": "n_0", "means": "threshold beyond which the bound holds" },
+            { "symbol": "g(n)", "means": "bounding function (simpler, dominant term)" }
+          ],
+          "trap": "O( ) gives an upper bound, NOT an exact bound — O(n^3) is technically valid for O(n) algorithms",
+          "reference": "Algorithms/Asymptotic Notation"
+        },
+        {
+          "formulaId": "con_041-big-omega-def",
+          "name": "Big-Omega (Lower Bound)",
+          "latex": "f(n)=\\Omega(g(n)) \\iff \\exists\\, c>0,\\, n_0 \\text{ s.t. } f(n)\\ge c\\cdot g(n)\\;\\forall n\\ge n_0",
+          "plain": "f(n)=Omega(g(n)) iff there exist c>0 and n0 such that f(n) >= c*g(n) for all n >= n0",
+          "whenToUse": "Stating a lower bound (best-case or problem hardness lower bound)",
+          "terms": [
+            { "symbol": "c", "means": "positive constant" },
+            { "symbol": "n_0", "means": "threshold beyond which the bound holds" }
+          ],
+          "trap": "Omega is NOT the best case — it is a lower bound on growth rate independent of case",
+          "reference": "Algorithms/Asymptotic Notation"
+        },
+        {
+          "formulaId": "con_041-big-theta-def",
+          "name": "Big-Theta (Tight Bound)",
+          "latex": "f(n)=\\Theta(g(n)) \\iff f(n)=O(g(n)) \\text{ and } f(n)=\\Omega(g(n))",
+          "plain": "f(n)=Theta(g(n)) iff f(n)=O(g(n)) AND f(n)=Omega(g(n))",
+          "whenToUse": "When exact asymptotic growth is known (upper and lower bounds are the same)",
+          "terms": [
+            { "symbol": "\\Theta", "means": "tight (exact) asymptotic bound" }
+          ],
+          "trap": "Theta requires BOTH O and Omega; a function that is O(n log n) but Omega(n) is NOT Theta(n log n)",
+          "reference": "Algorithms/Asymptotic Notation"
+        },
+        {
+          "formulaId": "con_041-little-o-def",
+          "name": "Little-o (Strict Upper Bound)",
+          "latex": "f(n)=o(g(n)) \\iff \\lim_{n\\to\\infty}\\frac{f(n)}{g(n)}=0",
+          "plain": "f(n)=o(g(n)) iff lim_{n->inf} f(n)/g(n) = 0",
+          "whenToUse": "When f grows strictly slower than g (f is dominated by g)",
+          "terms": [
+            { "symbol": "o", "means": "strict (non-tight) upper bound" }
+          ],
+          "trap": "f(n)=o(g(n)) implies f(n)=O(g(n)) but NOT vice versa",
+          "reference": "Algorithms/Asymptotic Notation"
+        },
+        {
+          "formulaId": "con_041-limit-test",
+          "name": "Limit-Based Comparison Test",
+          "latex": "L=\\lim_{n\\to\\infty}\\frac{f(n)}{g(n)}\\Rightarrow\\begin{cases}L=0 & f=o(g)\\\\0<L<\\infty & f=\\Theta(g)\\\\L=\\infty & f=\\omega(g)\\end{cases}",
+          "plain": "L = lim f/g: L=0 => f=o(g), 0<L<inf => f=Theta(g), L=inf => f=omega(g)",
+          "whenToUse": "Comparing any two functions to determine their asymptotic relationship",
+          "terms": [
+            { "symbol": "L", "means": "limit of f(n)/g(n) as n tends to infinity" }
+          ],
+          "trap": "The limit may not exist (oscillating functions); in such cases use the definition directly",
+          "reference": "Algorithms/Asymptotic Notation"
+        }
+      ]
+    },
+    {
+      "groupId": "function-ordering",
+      "groupTitle": "Hierarchy of Common Functions",
+      "formulas": [
+        {
+          "formulaId": "con_041-growth-order",
+          "name": "Standard Growth Rate Ordering",
+          "latex": "1 \\ll \\log\\log n \\ll \\log n \\ll n^{\\epsilon} \\ll n \\ll n\\log n \\ll n^2 \\ll n^c \\ll 2^n \\ll n! \\ll n^n",
+          "plain": "1 << log(log n) << log n << n^eps << n << n*log n << n^2 << n^c << 2^n << n! << n^n",
+          "whenToUse": "Ranking functions by asymptotic growth; identifying the dominant term",
+          "terms": [
+            { "symbol": "\\epsilon", "means": "any small positive constant (e.g. 0.001)" },
+            { "symbol": "c", "means": "constant greater than 2" },
+            { "symbol": "\\ll", "means": "grows strictly slower than (little-o)" }
+          ],
+          "trap": "log n grows slower than ANY positive power of n, no matter how small the exponent",
+          "reference": "Algorithms/Asymptotic Notation"
+        },
+        {
+          "formulaId": "con_041-log-identities",
+          "name": "Logarithm Identities for Complexity",
+          "latex": "\\log(n^k)=k\\log n;\\quad \\log_a n=\\frac{\\log_b n}{\\log_b a};\\quad n^{\\log n}=2^{(\\log n)^2}",
+          "plain": "log(n^k) = k*log(n);  log_a(n) = log_b(n)/log_b(a);  n^log(n) = 2^((log n)^2)",
+          "whenToUse": "Simplifying complex expressions involving logarithms before comparing growth rates",
+          "terms": [
+            { "symbol": "\\log", "means": "base-2 logarithm unless otherwise stated" }
+          ],
+          "trap": "2^(3 log_2 n) = n^3, NOT 6n — apply log rules carefully before concluding O-class",
+          "reference": "Algorithms/Asymptotic Notation"
+        },
+        {
+          "formulaId": "con_041-poly-vs-exp",
+          "name": "Polynomial vs Exponential vs Factorial",
+          "latex": "n^k = O(2^n)\\text{ for all } k;\\quad 2^n = O(n!)\\quad\\text{(Stirling: }n!\\approx\\sqrt{2\\pi n}\\left(\\tfrac{n}{e}\\right)^n\\!)",
+          "plain": "n^k = O(2^n) for all k;  2^n = O(n!);  n! ~ sqrt(2*pi*n) * (n/e)^n",
+          "whenToUse": "Comparing algorithmic complexity classes (polynomial vs exponential vs factorial)",
+          "terms": [
+            { "symbol": "k", "means": "any fixed positive constant" },
+            { "symbol": "e", "means": "Euler's number (~2.718)" }
+          ],
+          "trap": "c^n (c>1) is exponential regardless of base; log base only changes by a constant factor",
+          "reference": "Algorithms/Asymptotic Notation"
+        }
+      ]
+    },
+    {
+      "groupId": "master-theorem",
+      "groupTitle": "Master Theorem (Divide & Conquer)",
+      "formulas": [
+        {
+          "formulaId": "con_041-master-theorem",
+          "name": "Master Theorem — Three Cases",
+          "latex": "T(n)=aT\\!\\left(\\tfrac{n}{b}\\right)+f(n),\\;a\\ge1,b>1\\Rightarrow\\begin{cases}\\Theta(n^{\\log_b a}) & f=O(n^{\\log_b a-\\epsilon})\\\\\\Theta(n^{\\log_b a}\\log n) & f=\\Theta(n^{\\log_b a})\\\\\\Theta(f(n)) & f=\\Omega(n^{\\log_b a+\\epsilon}),\\;af(n/b)\\le cf(n)\\end{cases}",
+          "plain": "T(n)=a*T(n/b)+f(n): Case1: T=Theta(n^log_b(a)) if f=O(n^(log_b(a)-eps)); Case2: T=Theta(n^log_b(a)*logn) if f=Theta(n^log_b(a)); Case3: T=Theta(f(n)) if f=Omega(n^(log_b(a)+eps)) and regularity holds",
+          "whenToUse": "Solving any divide-and-conquer recurrence that splits into a equal subproblems of size n/b",
+          "terms": [
+            { "symbol": "a", "means": "number of subproblems" },
+            { "symbol": "b", "means": "factor by which input size is reduced" },
+            { "symbol": "f(n)", "means": "cost of divide and combine step" },
+            { "symbol": "n^{\\log_b a}", "means": "critical exponent" },
+            { "symbol": "\\epsilon", "means": "small positive constant" }
+          ],
+          "trap": "Master Theorem does NOT apply when subproblems have different sizes (e.g. T(n)=T(n/3)+T(2n/3)+n)",
+          "reference": "Algorithms/Recurrence Relations"
+        },
+        {
+          "formulaId": "con_041-master-case2-logk",
+          "name": "Master Theorem Case 2 Extended (log^k factor)",
+          "latex": "f(n)=\\Theta(n^{\\log_b a}\\cdot\\log^k n)\\Rightarrow T(n)=\\Theta(n^{\\log_b a}\\cdot\\log^{k+1} n)",
+          "plain": "If f(n)=Theta(n^log_b(a) * log^k(n)) then T(n)=Theta(n^log_b(a) * log^(k+1)(n))",
+          "whenToUse": "When the combine step has an extra log factor (e.g. merge sort on linked lists)",
+          "terms": [
+            { "symbol": "k", "means": "non-negative integer power of log" }
+          ],
+          "trap": "Forgetting to add 1 to the log exponent in Case 2 extended form",
+          "reference": "Algorithms/Recurrence Relations"
+        },
+        {
+          "formulaId": "con_041-common-recurrences",
+          "name": "Common Recurrence Solutions (Reference Table)",
+          "latex": "\\begin{aligned}T(n)=2T(n/2)+O(n)&\\Rightarrow O(n\\log n)\\\\T(n)=2T(n/2)+O(1)&\\Rightarrow O(n)\\\\T(n)=T(n/2)+O(1)&\\Rightarrow O(\\log n)\\\\T(n)=T(n/2)+O(n)&\\Rightarrow O(n)\\\\T(n)=T(n-1)+O(n)&\\Rightarrow O(n^2)\\\\T(n)=2T(n-1)+O(1)&\\Rightarrow O(2^n)\\end{aligned}",
+          "plain": "T(n)=2T(n/2)+O(n) => O(n log n); T(n)=2T(n/2)+O(1) => O(n); T(n)=T(n/2)+O(1) => O(log n); T(n)=T(n/2)+O(n) => O(n); T(n)=T(n-1)+O(n) => O(n^2); T(n)=2T(n-1)+O(1) => O(2^n)",
+          "whenToUse": "Quick lookup for standard algorithm recurrences in GATE MCQs",
+          "terms": [
+            { "symbol": "T(n)", "means": "time complexity as a function of input size n" }
+          ],
+          "trap": "T(n)=T(n-1)+O(n) gives O(n^2), not O(n log n) — it telescopes to n+(n-1)+...+1",
+          "reference": "Algorithms/Recurrence Relations"
+        }
+      ]
+    },
+    {
+      "groupId": "recurrence-techniques",
+      "groupTitle": "Recurrence Solving Techniques",
+      "formulas": [
+        {
+          "formulaId": "con_041-telescoping",
+          "name": "Telescoping / Back-Substitution",
+          "latex": "T(n)=T(n-1)+f(n)\\Rightarrow T(n)=T(1)+\\sum_{k=2}^{n}f(k)",
+          "plain": "T(n)=T(n-1)+f(n) => T(n)=T(1) + sum_{k=2..n} f(k)",
+          "whenToUse": "Linear recurrences where the index decreases by a constant each step",
+          "terms": [
+            { "symbol": "f(k)", "means": "cost at level k of the recursion" },
+            { "symbol": "T(1)", "means": "base case cost" }
+          ],
+          "trap": "Forgetting the summation bounds — always substitute until base case T(1) or T(0)",
+          "reference": "Algorithms/Recurrence Relations"
+        },
+        {
+          "formulaId": "con_041-recursion-tree",
+          "name": "Recursion Tree Method",
+          "latex": "T(n)=aT(n/b)+f(n)\\Rightarrow \\text{Total cost}=\\sum_{i=0}^{\\log_b n}a^i\\cdot f\\!\\left(\\tfrac{n}{b^i}\\right)+\\Theta(n^{\\log_b a})",
+          "plain": "Total cost = sum_{i=0..log_b(n)} a^i * f(n/b^i) + Theta(n^log_b(a))",
+          "whenToUse": "When Master Theorem does not apply or needs verification (unequal splits, non-polynomial f(n))",
+          "terms": [
+            { "symbol": "a^i", "means": "number of nodes at level i" },
+            { "symbol": "f(n/b^i)", "means": "cost per node at level i" },
+            { "symbol": "\\log_b n", "means": "height of the recursion tree" }
+          ],
+          "trap": "When splits are unequal (e.g. T(n/3)+T(2n/3)), the tree is NOT balanced — use the longest path for height",
+          "reference": "Algorithms/Recurrence Relations"
+        },
+        {
+          "formulaId": "con_041-substitution-method",
+          "name": "Substitution (Guess and Verify) Method",
+          "latex": "\\text{Guess } T(n)=O(g(n))\\text{, then prove: } T(n)\\le c\\cdot g(n)-d\\cdot h(n)",
+          "plain": "Guess T(n)=O(g(n)), substitute into recurrence and prove T(n) <= c*g(n) for large n",
+          "whenToUse": "Verifying a guessed closed-form solution using mathematical induction",
+          "terms": [
+            { "symbol": "c, d", "means": "positive constants chosen to make induction work" },
+            { "symbol": "h(n)", "means": "slack term needed to absorb lower-order terms" }
+          ],
+          "trap": "Proving T(n)<=cn*log(n) for T(n)=2T(n/2)+n: guess must subtract a lower-order term to close the induction",
+          "reference": "Algorithms/Recurrence Relations"
+        },
+        {
+          "formulaId": "con_041-akra-bazzi",
+          "name": "Akra-Bazzi Method (Generalized Master Theorem)",
+          "latex": "T(n)=\\sum_{i=1}^{k}a_i T(n/b_i)+f(n)\\Rightarrow T(n)=\\Theta\\!\\left(n^p\\!\\left(1+\\int_1^n\\frac{f(u)}{u^{p+1}}du\\right)\\right)",
+          "plain": "T(n)=sum a_i*T(n/b_i)+f(n) where p satisfies sum a_i/b_i^p=1; T(n)=Theta(n^p*(1+integral))",
+          "whenToUse": "Divide-and-conquer recurrences with unequal split sizes (e.g. T(n)=T(n/3)+T(2n/3)+n)",
+          "terms": [
+            { "symbol": "p", "means": "exponent satisfying sum_{i} a_i / b_i^p = 1" },
+            { "symbol": "a_i, b_i", "means": "number of subproblems and their size factors" }
+          ],
+          "trap": "Standard Master Theorem fails for unequal splits; must use Akra-Bazzi or recursion tree",
+          "reference": "Algorithms/Recurrence Relations"
+        }
+      ]
+    },
+    {
+      "groupId": "time-complexity-algorithms",
+      "groupTitle": "Time Complexity of Standard Algorithms",
+      "formulas": [
+        {
+          "formulaId": "con_041-sorting-complexities",
+          "name": "Sorting Algorithm Complexities",
+          "latex": "\\begin{aligned}\\text{Merge Sort}&: O(n\\log n)\\\\\\text{Quick Sort}&: O(n\\log n)\\text{ avg}, O(n^2)\\text{ worst}\\\\\\text{Heap Sort}&: O(n\\log n)\\\\\\text{Insertion Sort}&: O(n^2)\\\\\\text{Counting Sort}&: O(n+k)\\end{aligned}",
+          "plain": "Merge Sort: O(n log n); Quick Sort: O(n log n) avg / O(n^2) worst; Heap Sort: O(n log n); Insertion Sort: O(n^2); Counting Sort: O(n+k)",
+          "whenToUse": "Comparing sorting algorithms in algorithm design / time complexity questions",
+          "terms": [
+            { "symbol": "n", "means": "number of elements to sort" },
+            { "symbol": "k", "means": "range of input values (for counting sort)" }
+          ],
+          "trap": "Quick sort has O(n^2) worst case (already sorted input with naive pivot) — the average is O(n log n)",
+          "reference": "Algorithms/Time Complexity"
+        },
+        {
+          "formulaId": "con_041-graph-complexities",
+          "name": "Graph Algorithm Complexities",
+          "latex": "\\begin{aligned}\\text{BFS / DFS}&: O(V+E)\\\\\\text{Dijkstra (min-heap)}&: O((V+E)\\log V)\\\\\\text{Bellman-Ford}&: O(VE)\\\\\\text{Floyd-Warshall}&: O(V^3)\\\\\\text{Prim (binary heap)}&: O((V+E)\\log V)\\\\\\text{Kruskal}&: O(E\\log E)\\end{aligned}",
+          "plain": "BFS/DFS: O(V+E); Dijkstra (min-heap): O((V+E) log V); Bellman-Ford: O(VE); Floyd-Warshall: O(V^3); Prim: O((V+E) log V); Kruskal: O(E log E)",
+          "whenToUse": "Algorithm design questions involving graphs, shortest paths, spanning trees",
+          "terms": [
+            { "symbol": "V", "means": "number of vertices" },
+            { "symbol": "E", "means": "number of edges" }
+          ],
+          "trap": "BFS/DFS are O(V+E), NOT O(V*E) — adjacency list representation is assumed",
+          "reference": "Algorithms/Time Complexity"
+        },
+        {
+          "formulaId": "con_041-search-complexities",
+          "name": "Search & Basic Operation Complexities",
+          "latex": "\\begin{aligned}\\text{Binary Search}&: O(\\log n)\\\\\\text{BST (balanced)}&: O(\\log n)\\\\\\text{BST (unbalanced)}&: O(n)\\\\\\text{Hash Table (avg)}&: O(1)\\\\\\text{Heap insert/delete}&: O(\\log n)\\\\\\text{Build Heap}&: O(n)\\end{aligned}",
+          "plain": "Binary Search: O(log n); Balanced BST: O(log n); Unbalanced BST: O(n); Hash Table avg: O(1); Heap insert/delete: O(log n); Build Heap: O(n)",
+          "whenToUse": "Questions about data structure operation costs or selecting appropriate structures",
+          "terms": [
+            { "symbol": "n", "means": "number of elements in the structure" }
+          ],
+          "trap": "Building a heap by inserting one-by-one is O(n log n); the Floyd heapify method is O(n)",
+          "reference": "Algorithms/Time Complexity"
+        }
+      ]
+    },
+    {
+      "groupId": "space-complexity",
+      "groupTitle": "Space Complexity",
+      "formulas": [
+        {
+          "formulaId": "con_041-space-complexity-rules",
+          "name": "Space Complexity Key Rules",
+          "latex": "\\text{Space}=\\text{Auxiliary space}+\\text{Input space};\\quad\\text{In-place}\\Leftrightarrow O(1)\\text{ aux}",
+          "plain": "Total space = Auxiliary space + Input space; In-place algorithm uses O(1) auxiliary space",
+          "whenToUse": "Evaluating whether an algorithm is in-place or computing total memory usage",
+          "terms": [
+            { "symbol": "\\text{Auxiliary space}", "means": "extra space used beyond input storage" }
+          ],
+          "trap": "Merge sort needs O(n) auxiliary space so it is NOT in-place, even though it sorts efficiently",
+          "reference": "Algorithms/Space Complexity"
+        },
+        {
+          "formulaId": "con_041-recursion-space",
+          "name": "Recursive Call Stack Space",
+          "latex": "S(n)=O(\\text{recursion depth})\\times O(\\text{stack frame size})",
+          "plain": "Space = O(recursion depth) * O(stack frame size); e.g. DFS on graph: O(V) stack space",
+          "whenToUse": "Computing auxiliary space of recursive algorithms",
+          "terms": [
+            { "symbol": "\\text{recursion depth}", "means": "maximum number of simultaneous active calls" },
+            { "symbol": "\\text{stack frame}", "means": "memory per function call (local vars, return address)" }
+          ],
+          "trap": "Tail-recursive algorithms may use O(1) stack if optimized by compiler, but typically assumed O(depth)",
+          "reference": "Algorithms/Space Complexity"
+        }
+      ]
+    },
+    {
+      "groupId": "notation-properties",
+      "groupTitle": "Properties & Arithmetic of Notations",
+      "formulas": [
+        {
+          "formulaId": "con_041-notation-arithmetic",
+          "name": "Arithmetic Rules for Asymptotic Notation",
+          "latex": "\\begin{aligned}O(f)+O(g)&=O(\\max(f,g))\\\\O(f)\\cdot O(g)&=O(f\\cdot g)\\\\c\\cdot O(f)&=O(f)\\text{ for constant }c\\\\O(\\log^k n)&=O(n^\\epsilon)\\text{ for any }\\epsilon>0\\end{aligned}",
+          "plain": "O(f)+O(g)=O(max(f,g)); O(f)*O(g)=O(f*g); c*O(f)=O(f); log^k(n)=O(n^eps) for any eps>0",
+          "whenToUse": "Simplifying compound complexity expressions; identifying the dominant term",
+          "terms": [
+            { "symbol": "c", "means": "any positive constant multiplier" },
+            { "symbol": "\\epsilon", "means": "arbitrarily small positive constant" }
+          ],
+          "trap": "O(f)+O(g)=O(f+g) NOT O(f*g); also 2^(2n) is NOT O(2^n) — constants in exponents matter",
+          "reference": "Algorithms/Asymptotic Notation"
+        },
+        {
+          "formulaId": "con_041-transitivity-reflexivity",
+          "name": "Transitivity and Reflexivity of Notations",
+          "latex": "f=O(g),\\;g=O(h)\\Rightarrow f=O(h);\\quad f=O(f)\\;(\\text{reflexive});\\quad f=\\Theta(g)\\Rightarrow g=\\Theta(f)",
+          "plain": "Transitivity: f=O(g) and g=O(h) => f=O(h). Reflexivity: f=O(f). Theta is symmetric.",
+          "whenToUse": "Chaining inequalities between functions; proving asymptotic relationships transitively",
+          "terms": [
+            { "symbol": "f, g, h", "means": "positive asymptotic functions" }
+          ],
+          "trap": "O is NOT symmetric: f=O(g) does NOT imply g=O(f) (unless f=Theta(g))",
+          "reference": "Algorithms/Asymptotic Notation"
+        },
+        {
+          "formulaId": "con_041-summation-formulas",
+          "name": "Key Summation Formulas (for telescoping recurrences)",
+          "latex": "\\sum_{k=1}^{n}k=\\frac{n(n+1)}{2}=O(n^2);\\quad\\sum_{k=1}^{n}k^2=\\frac{n(n+1)(2n+1)}{6}=O(n^3);\\quad\\sum_{k=0}^{n}2^k=2^{n+1}-1=O(2^n)",
+          "plain": "sum k=1..n of k = n(n+1)/2 = O(n^2); sum k=1..n of k^2 = n(n+1)(2n+1)/6 = O(n^3); sum k=0..n of 2^k = 2^(n+1)-1 = O(2^n)",
+          "whenToUse": "Evaluating total cost after telescoping linear or quadratic recurrences",
+          "terms": [
+            { "symbol": "\\sum", "means": "summation across recursion levels" }
+          ],
+          "trap": "Harmonic sum sum(1/k, k=1..n) = Theta(log n), not O(1) — appears in average-case analysis of algorithms like QuickSort",
+          "reference": "Algorithms/Recurrence Relations"
+        }
+      ]
+    }
+  ]
+}

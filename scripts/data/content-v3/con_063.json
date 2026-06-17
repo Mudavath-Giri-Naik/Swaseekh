@@ -1,0 +1,287 @@
+{
+  "_id": "con_063",
+  "conceptId": "con_063",
+  "conceptTitle": "Deadlock",
+  "reference": "GATE CS — Operating System / Processes and Threads",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Find max processes that avoid deadlock with shared resources",
+        "use": "n \\le \\left\\lfloor \\frac{R - 1}{N_{\\max} - 1} \\right\\rfloor + 1"
+      },
+      {
+        "condition": "Check if a safe sequence exists (Banker's Algorithm)",
+        "use": "\\text{Need}[i] = \\text{Max}[i] - \\text{Allocation}[i]"
+      },
+      {
+        "condition": "Detect deadlock from RAG with single-instance resources",
+        "use": "\\text{Deadlock} \\iff \\text{cycle exists in RAG}"
+      },
+      {
+        "condition": "Detect deadlock from RAG with multi-instance resources",
+        "use": "\\text{Deadlock} \\iff \\text{knot exists in RAG}"
+      },
+      {
+        "condition": "Deadlock-free guarantee with n processes, R resources, max k each",
+        "use": "n \\cdot (k - 1) + 1 \\le R \\implies \\text{deadlock-free}"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "necessary-conditions",
+      "groupTitle": "Necessary Conditions for Deadlock",
+      "formulas": [
+        {
+          "formulaId": "con_063-mutual-exclusion",
+          "name": "Mutual Exclusion Condition",
+          "latex": "\\text{At least one resource must be held in a non-sharable mode}",
+          "plain": "At least one resource must be held in a non-sharable (exclusive) mode.",
+          "whenToUse": "Identifying whether mutual exclusion condition for deadlock holds.",
+          "terms": [],
+          "trap": "Mutual exclusion alone does not cause deadlock; all four conditions must hold simultaneously.",
+          "reference": "OS / Deadlock"
+        },
+        {
+          "formulaId": "con_063-hold-and-wait",
+          "name": "Hold and Wait Condition",
+          "latex": "\\text{A process holding } \\ge 1 \\text{ resource is waiting to acquire more resources}",
+          "plain": "A process holding at least one resource is waiting to acquire additional resources held by other processes.",
+          "whenToUse": "Identifying the hold-and-wait necessary condition for deadlock.",
+          "terms": [],
+          "trap": "Prevention requires either requesting all resources at once (low utilization) or releasing before requesting new ones.",
+          "reference": "OS / Deadlock"
+        },
+        {
+          "formulaId": "con_063-no-preemption",
+          "name": "No Preemption Condition",
+          "latex": "\\text{Resources cannot be forcibly taken from a process holding them}",
+          "plain": "Resources cannot be preempted; a resource can be released only voluntarily by the process holding it.",
+          "whenToUse": "Identifying the no-preemption necessary condition for deadlock.",
+          "terms": [],
+          "trap": "Allowing preemption prevents this condition but may cause starvation.",
+          "reference": "OS / Deadlock"
+        },
+        {
+          "formulaId": "con_063-circular-wait",
+          "name": "Circular Wait Condition",
+          "latex": "\\exists \\{P_0, P_1, \\ldots, P_n\\} : P_0 \\to P_1 \\to \\cdots \\to P_n \\to P_0",
+          "plain": "There exists a circular chain: P0 waits for P1, P1 waits for P2, ..., Pn waits for P0.",
+          "whenToUse": "Identifying the circular-wait necessary condition; imposed ordering of resources prevents this.",
+          "terms": [
+            { "symbol": "P_i \\to P_j", "means": "Pi is waiting for a resource held by Pj" }
+          ],
+          "trap": "Circular wait is sufficient to detect deadlock only when resources have single instances.",
+          "reference": "OS / Deadlock"
+        }
+      ]
+    },
+    {
+      "groupId": "deadlock-free-formula",
+      "groupTitle": "Deadlock-Free Resource Bound",
+      "formulas": [
+        {
+          "formulaId": "con_063-deadlock-free-bound",
+          "name": "Maximum Processes for Deadlock-Free System",
+          "latex": "n \\le \\frac{R - 1}{N_{\\max} - 1} + 1",
+          "plain": "n <= (R - 1) / (N_max - 1) + 1, where n = number of processes, R = total resources, N_max = max need per process.",
+          "whenToUse": "Finding the largest number of processes guaranteed deadlock-free with R identical resources when each process needs at most N_max.",
+          "terms": [
+            { "symbol": "n", "means": "number of concurrent processes" },
+            { "symbol": "R", "means": "total number of resource instances" },
+            { "symbol": "N_{\\max}", "means": "maximum resource need of each process" }
+          ],
+          "trap": "Condition n*(N_max-1)+1 <= R guarantees deadlock-free. Deadlock is possible when n*(N_max-1) >= R.",
+          "reference": "OS / Resource Allocation"
+        },
+        {
+          "formulaId": "con_063-deadlock-free-condition",
+          "name": "Deadlock-Free Sufficient Condition",
+          "latex": "n \\cdot (k - 1) + 1 \\le R \\implies \\text{guaranteed deadlock-free}",
+          "plain": "n*(k-1)+1 <= R implies the system is guaranteed to be deadlock-free.",
+          "whenToUse": "Quick check: given n processes each needing at most k resources and R total, is the system safe?",
+          "terms": [
+            { "symbol": "n", "means": "number of processes" },
+            { "symbol": "k", "means": "maximum resource demand per process" },
+            { "symbol": "R", "means": "total resource instances available" }
+          ],
+          "trap": "This gives a sufficient (not necessary) condition; the system may be safe even when violated, but Banker's must be run to confirm.",
+          "reference": "OS / Resource Allocation"
+        }
+      ]
+    },
+    {
+      "groupId": "bankers-algorithm",
+      "groupTitle": "Banker's Algorithm (Deadlock Avoidance)",
+      "formulas": [
+        {
+          "formulaId": "con_063-need-matrix",
+          "name": "Need Matrix",
+          "latex": "\\text{Need}[i][j] = \\text{Max}[i][j] - \\text{Allocation}[i][j]",
+          "plain": "Need[i][j] = Max[i][j] - Allocation[i][j]",
+          "whenToUse": "Computing remaining resource need for each process in Banker's algorithm.",
+          "terms": [
+            { "symbol": "\\text{Max}[i][j]", "means": "maximum demand of process i for resource j" },
+            { "symbol": "\\text{Allocation}[i][j]", "means": "currently allocated units of resource j to process i" },
+            { "symbol": "\\text{Need}[i][j]", "means": "remaining need of process i for resource j" }
+          ],
+          "trap": "If Need[i] <= Available, process i can potentially run to completion and release its resources.",
+          "reference": "OS / Deadlock Avoidance"
+        },
+        {
+          "formulaId": "con_063-available-update",
+          "name": "Available Update on Process Completion",
+          "latex": "\\text{Available} \\mathrel{+}= \\text{Allocation}[i] \\quad \\text{when process } P_i \\text{ finishes}",
+          "plain": "Available += Allocation[i] when process Pi finishes (releases all resources).",
+          "whenToUse": "Simulating Banker's algorithm: once a process completes, add its allocations back to Available.",
+          "terms": [
+            { "symbol": "\\text{Available}", "means": "vector of currently available resource instances" },
+            { "symbol": "\\text{Allocation}[i]", "means": "resource vector currently held by process i" }
+          ],
+          "trap": "Processes must be simulated in a valid safe sequence order; any order that allows all to finish is a safe sequence.",
+          "reference": "OS / Deadlock Avoidance"
+        },
+        {
+          "formulaId": "con_063-safe-state",
+          "name": "Safe State Definition",
+          "latex": "\\text{Safe State} \\iff \\exists \\text{ safe sequence } \\langle P_{\\sigma(1)}, P_{\\sigma(2)}, \\ldots, P_{\\sigma(n)} \\rangle",
+          "plain": "A state is safe if there exists at least one safe sequence in which all processes can complete.",
+          "whenToUse": "Deciding if a resource-allocation state is safe before granting a request.",
+          "terms": [
+            { "symbol": "\\sigma", "means": "permutation of process indices forming a safe sequence" }
+          ],
+          "trap": "Safe state => no deadlock; unsafe state does NOT guarantee deadlock, but deadlock is possible.",
+          "reference": "OS / Deadlock Avoidance"
+        },
+        {
+          "formulaId": "con_063-request-grant-condition",
+          "name": "Request Grant Condition (Banker's)",
+          "latex": "\\text{Grant request } R_i \\iff R_i \\le \\text{Need}[i] \\text{ AND } R_i \\le \\text{Available}",
+          "plain": "Grant request Ri iff Ri <= Need[i] AND Ri <= Available, and the resulting state is safe.",
+          "whenToUse": "Deciding whether to immediately grant or queue a resource request in Banker's algorithm.",
+          "terms": [
+            { "symbol": "R_i", "means": "resource request vector from process i" }
+          ],
+          "trap": "Even if both conditions hold, pretend to allocate and run the safety algorithm; grant only if result is safe.",
+          "reference": "OS / Deadlock Avoidance"
+        }
+      ]
+    },
+    {
+      "groupId": "resource-allocation-graph",
+      "groupTitle": "Resource Allocation Graph (RAG)",
+      "formulas": [
+        {
+          "formulaId": "con_063-rag-single-instance",
+          "name": "Deadlock in Single-Instance RAG",
+          "latex": "\\text{Deadlock} \\iff \\text{cycle exists in RAG (single-instance resources)}",
+          "plain": "For single-instance resources: deadlock exists iff there is a cycle in the Resource Allocation Graph.",
+          "whenToUse": "Detecting deadlock using RAG when each resource type has exactly one instance.",
+          "terms": [
+            { "symbol": "\\text{RAG}", "means": "Resource Allocation Graph: edges from resource to process (assignment) and process to resource (request)" }
+          ],
+          "trap": "A cycle in RAG is necessary AND sufficient for deadlock only when all resources have single instances.",
+          "reference": "OS / Resource Allocation Graph"
+        },
+        {
+          "formulaId": "con_063-rag-multi-instance",
+          "name": "Deadlock in Multi-Instance RAG",
+          "latex": "\\text{Deadlock} \\iff \\text{knot (non-escapable cycle) exists in RAG (multi-instance resources)}",
+          "plain": "For multi-instance resources: a cycle in RAG is necessary but NOT sufficient; a knot (every node reachable from it is also in the cycle) is needed.",
+          "whenToUse": "Analyzing RAG when resource types have multiple instances.",
+          "terms": [
+            { "symbol": "\\text{knot}", "means": "a set of nodes where every node can reach every other node in the set and no node can escape the set" }
+          ],
+          "trap": "A cycle without a knot does NOT necessarily mean deadlock in multi-instance RAG — use Banker's or detection algorithm instead.",
+          "reference": "OS / Resource Allocation Graph"
+        },
+        {
+          "formulaId": "con_063-rag-edges",
+          "name": "RAG Edge Types",
+          "latex": "P_i \\to R_j : \\text{request edge}; \\quad R_j \\to P_i : \\text{assignment edge}",
+          "plain": "Pi -> Rj: process Pi is requesting resource Rj. Rj -> Pi: resource Rj is assigned to process Pi.",
+          "whenToUse": "Reading and constructing a Resource Allocation Graph.",
+          "terms": [
+            { "symbol": "P_i", "means": "process node" },
+            { "symbol": "R_j", "means": "resource type node (with dots for instances)" }
+          ],
+          "trap": "In a claim edge variant (for avoidance), a dashed edge Pi -> Rj means Pi may request Rj in the future but hasn't yet.",
+          "reference": "OS / Resource Allocation Graph"
+        }
+      ]
+    },
+    {
+      "groupId": "detection-recovery",
+      "groupTitle": "Deadlock Detection & Recovery",
+      "formulas": [
+        {
+          "formulaId": "con_063-detection-algorithm",
+          "name": "Deadlock Detection Algorithm (Multi-Instance)",
+          "latex": "\\text{Work} = \\text{Available}; \\quad \\text{Finish}[i] = (\\text{Allocation}[i] = \\mathbf{0})",
+          "plain": "Initialize Work = Available. Finish[i] = true if Allocation[i] is all zeros. Find i where Finish[i]=false and Request[i]<=Work; set Work+=Allocation[i], Finish[i]=true. Repeat. Deadlock if any Finish[i]=false.",
+          "whenToUse": "Detecting deadlock in a system that allows deadlock to occur (no prevention/avoidance).",
+          "terms": [
+            { "symbol": "\\text{Work}", "means": "available resources during detection simulation" },
+            { "symbol": "\\text{Finish}[i]", "means": "true if process i can complete" },
+            { "symbol": "\\text{Request}[i]", "means": "current outstanding request of process i" }
+          ],
+          "trap": "Unlike Banker's, Request[i] is actual current request, not maximum remaining need.",
+          "reference": "OS / Deadlock Detection"
+        },
+        {
+          "formulaId": "con_063-wait-for-graph",
+          "name": "Wait-For Graph (Single-Instance Detection)",
+          "latex": "P_i \\to P_j \\in \\text{WFG} \\iff P_i \\text{ is waiting for a resource held by } P_j",
+          "plain": "In a Wait-For Graph, edge Pi->Pj means Pi is waiting for Pi to release a resource. Deadlock iff cycle in WFG.",
+          "whenToUse": "Detecting deadlock in single-instance resource systems by simplifying the RAG.",
+          "terms": [
+            { "symbol": "\\text{WFG}", "means": "Wait-For Graph derived from RAG by removing resource nodes" }
+          ],
+          "trap": "WFG is derived from RAG by removing resource nodes; only applicable to single-instance resources.",
+          "reference": "OS / Deadlock Detection"
+        }
+      ]
+    },
+    {
+      "groupId": "prevention-schemes",
+      "groupTitle": "Deadlock Prevention Schemes",
+      "formulas": [
+        {
+          "formulaId": "con_063-wait-die",
+          "name": "Wait-Die Scheme (Non-Preemptive)",
+          "latex": "\\text{If } T_i < T_j: P_i \\text{ waits}; \\quad \\text{If } T_i > T_j: P_i \\text{ dies (restarts)}",
+          "plain": "Wait-Die: older process (smaller timestamp) waits for younger; younger process dies and restarts. Non-preemptive.",
+          "whenToUse": "Deadlock prevention using timestamps; process is not preempted, but younger requests are aborted.",
+          "terms": [
+            { "symbol": "T_i", "means": "timestamp (age) of process Pi; smaller = older" }
+          ],
+          "trap": "In Wait-Die, ONLY older waits for younger. Dying process restarts with original timestamp (not new).",
+          "reference": "OS / Deadlock Prevention"
+        },
+        {
+          "formulaId": "con_063-wound-wait",
+          "name": "Wound-Wait Scheme (Preemptive)",
+          "latex": "\\text{If } T_i < T_j: P_j \\text{ is wounded (preempted/dies)}; \\quad \\text{If } T_i > T_j: P_i \\text{ waits}",
+          "plain": "Wound-Wait: older process wounds (preempts) younger; younger waits for older. Preemptive.",
+          "whenToUse": "Deadlock prevention using timestamps; older processes can preempt younger ones.",
+          "terms": [
+            { "symbol": "T_i", "means": "timestamp of process Pi; smaller = older" }
+          ],
+          "trap": "Wound-Wait is opposite of Wait-Die: older WOUNDS younger (not waits); younger WAITS for older (not dies).",
+          "reference": "OS / Deadlock Prevention"
+        },
+        {
+          "formulaId": "con_063-resource-ordering",
+          "name": "Resource Ordering (Circular-Wait Prevention)",
+          "latex": "\\forall i < j: \\text{process must request } R_i \\text{ before } R_j \\implies \\text{no circular wait}",
+          "plain": "Assign a total ordering to resources; processes must request resources only in increasing order. Eliminates circular wait.",
+          "whenToUse": "Preventing deadlock by eliminating the circular-wait condition through resource numbering.",
+          "terms": [],
+          "trap": "Resource ordering eliminates circular wait but reduces flexibility and can cause unnecessary waiting.",
+          "reference": "OS / Deadlock Prevention"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,372 @@
+{
+  "_id": "con_030",
+  "conceptId": "con_030",
+  "conceptTitle": "Machine Instructions and Addressing Modes",
+  "reference": "GATE CS — Computer Organization and Architecture / Instruction Set Architecture",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Effective address computed from PC plus displacement",
+        "use": "EA = PC + \\text{offset}"
+      },
+      {
+        "condition": "Expanding opcode — count zero-address instructions available",
+        "use": "N_{zero} = 2^{n_{instr}} - k_2 \\cdot 2^{n_{instr}-n_{op}} - k_1 \\cdot 2^{n_{instr}-2n_{op}} - k_0 \\cdot 2^0"
+      },
+      {
+        "condition": "Array element access via base + index",
+        "use": "EA = B + I"
+      },
+      {
+        "condition": "Identifying position-independent instruction",
+        "use": "\\text{Use PC-relative (relative) addressing mode}"
+      },
+      {
+        "condition": "Stack machine / zero-address instruction",
+        "use": "\\text{Operands implicitly on TOS; no address field needed}"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "addressing-modes",
+      "groupTitle": "Addressing Modes",
+      "formulas": [
+        {
+          "formulaId": "con_030-immediate",
+          "name": "Immediate Addressing",
+          "latex": "EA = \\text{(operand is the constant in instruction itself)}",
+          "plain": "Operand = constant embedded in instruction; no memory access needed",
+          "whenToUse": "Instruction carries a literal constant as the operand (e.g. ADD R1, #5)",
+          "terms": [
+            { "symbol": "EA", "means": "effective address / operand location" }
+          ],
+          "trap": "No memory access for operand fetch — but the instruction itself must be fetched from memory.",
+          "reference": "COA / Addressing Modes"
+        },
+        {
+          "formulaId": "con_030-direct",
+          "name": "Direct (Absolute) Addressing",
+          "latex": "EA = A",
+          "plain": "EA = address field A in the instruction",
+          "whenToUse": "Operand is at the memory address directly specified in the instruction",
+          "terms": [
+            { "symbol": "A", "means": "address field of the instruction" }
+          ],
+          "trap": "Address is absolute — code is NOT position-independent; relocation is required.",
+          "reference": "COA / Addressing Modes"
+        },
+        {
+          "formulaId": "con_030-indirect",
+          "name": "Indirect Addressing",
+          "latex": "EA = M[A]",
+          "plain": "EA = contents of memory location A",
+          "whenToUse": "The address field points to a memory location that holds the actual effective address",
+          "terms": [
+            { "symbol": "M[A]", "means": "value stored at memory address A" }
+          ],
+          "trap": "Requires two memory accesses (one to get EA, one to get operand) — slower than direct.",
+          "reference": "COA / Addressing Modes"
+        },
+        {
+          "formulaId": "con_030-register",
+          "name": "Register (Direct) Addressing",
+          "latex": "EA = R_i",
+          "plain": "EA = register Ri specified in instruction",
+          "whenToUse": "Operand is in a CPU register; fastest access, no memory reference for operand",
+          "terms": [
+            { "symbol": "R_i", "means": "CPU register i" }
+          ],
+          "trap": "Register indirect is different — register holds an address, not the operand itself.",
+          "reference": "COA / Addressing Modes"
+        },
+        {
+          "formulaId": "con_030-register-indirect",
+          "name": "Register Indirect Addressing",
+          "latex": "EA = M[R_i]",
+          "plain": "EA = memory location whose address is stored in register Ri",
+          "whenToUse": "Register holds a pointer; useful for dynamic data structures and arrays",
+          "terms": [
+            { "symbol": "M[R_i]", "means": "memory contents at address held in register Ri" }
+          ],
+          "trap": "One memory access still needed for operand; confused with register direct.",
+          "reference": "COA / Addressing Modes"
+        },
+        {
+          "formulaId": "con_030-displacement",
+          "name": "Displacement (Base) Addressing",
+          "latex": "EA = A + R",
+          "plain": "EA = offset A + base register R",
+          "whenToUse": "Accessing fields of a struct/record where R is the base address and A is the field offset",
+          "terms": [
+            { "symbol": "A", "means": "constant displacement in instruction" },
+            { "symbol": "R", "means": "base register value" }
+          ],
+          "trap": "Base (displacement) addressing enables position-independent data access, but NOT code unless the base is PC.",
+          "reference": "COA / Addressing Modes"
+        },
+        {
+          "formulaId": "con_030-indexed",
+          "name": "Indexed Addressing",
+          "latex": "EA = A + I",
+          "plain": "EA = base address A + index register I",
+          "whenToUse": "Traversing arrays: A is the array base and I is incremented to walk through elements",
+          "terms": [
+            { "symbol": "A", "means": "base address constant in instruction" },
+            { "symbol": "I", "means": "index register value (auto-incremented for array walk)" }
+          ],
+          "trap": "In some ISAs the index register and base register are swapped in notation — read the definition carefully.",
+          "reference": "COA / Addressing Modes"
+        },
+        {
+          "formulaId": "con_030-pc-relative",
+          "name": "PC-Relative (Relative) Addressing — Position Independence",
+          "latex": "EA = PC + \\text{offset}",
+          "plain": "EA = PC + signed offset in instruction",
+          "whenToUse": "Branches, jumps, and position-independent code; offset is relative to current PC",
+          "terms": [
+            { "symbol": "PC", "means": "program counter (points to next instruction)" },
+            { "symbol": "\\text{offset}", "means": "signed displacement in instruction" }
+          ],
+          "trap": "GATE frequently asks which mode enables position-independent code — answer is PC-relative (relative) mode.",
+          "reference": "COA / Addressing Modes"
+        },
+        {
+          "formulaId": "con_030-stack",
+          "name": "Stack (Implied / Zero-Address) Addressing",
+          "latex": "\\text{Operand} = \\text{TOS}; \\quad SP \\leftarrow SP \\pm 1",
+          "plain": "Operand is implicitly the top of stack; SP is auto-adjusted on push/pop",
+          "whenToUse": "Zero-address (stack) machines; expression evaluation using postfix notation",
+          "terms": [
+            { "symbol": "TOS", "means": "top of stack" },
+            { "symbol": "SP", "means": "stack pointer" }
+          ],
+          "trap": "Stack addressing is called 'implied' because no explicit operand address appears — do not confuse with immediate.",
+          "reference": "COA / Addressing Modes"
+        },
+        {
+          "formulaId": "con_030-mode-comparison",
+          "name": "Addressing Mode — Classic Matches",
+          "latex": "\\begin{array}{ll} \\text{Base} & \\Leftrightarrow \\text{position-independent code} \\\\ \\text{Indexed} & \\Leftrightarrow \\text{array access} \\\\ \\text{Stack} & \\Leftrightarrow \\text{zero-address / RPN} \\\\ \\text{Implied} & \\Leftrightarrow \\text{accumulator} \\end{array}",
+          "plain": "Base -> position-independent; Indexed -> arrays; Stack -> zero-address; Implied -> accumulator",
+          "whenToUse": "Match-the-pair or MCQ questions mapping addressing mode to its primary use-case",
+          "terms": [
+            { "symbol": "RPN", "means": "Reverse Polish Notation (postfix)" }
+          ],
+          "trap": "GATE 2014 match-the-pair: 'base addressing → position-independent' and 'stack → reentrant' are common confusions.",
+          "reference": "COA / Addressing Modes"
+        }
+      ]
+    },
+    {
+      "groupId": "instruction-format",
+      "groupTitle": "Instruction Format & Expanding Opcode",
+      "formulas": [
+        {
+          "formulaId": "con_030-instr-fields",
+          "name": "Basic Instruction Format Fields",
+          "latex": "\\underbrace{\\text{Opcode}}_{k \\text{ bits}} \\; \\underbrace{\\text{Addr}_1}_{a \\text{ bits}} \\; \\underbrace{\\text{Addr}_2}_{a \\text{ bits}}",
+          "plain": "Instruction = opcode (k bits) | address1 (a bits) | address2 (a bits) | ...",
+          "whenToUse": "Determine how many bits remain for opcode vs operands given total instruction length",
+          "terms": [
+            { "symbol": "k", "means": "number of opcode bits" },
+            { "symbol": "a", "means": "number of bits per address field" }
+          ],
+          "trap": "Total bits = opcode + all address fields; increasing address field size reduces opcode space.",
+          "reference": "COA / Instruction Format"
+        },
+        {
+          "formulaId": "con_030-expanding-opcode-capacity",
+          "name": "Expanding Opcode — Maximum Instructions per Level",
+          "latex": "\\text{Max n-address instructions at level } = 2^{k} - \\text{(codes reserved for longer opcodes)}",
+          "plain": "Available opcodes at each level = total codes at that opcode length minus those reserved for next level",
+          "whenToUse": "Determine how many instructions of each type fit when expanding opcode technique is used",
+          "terms": [
+            { "symbol": "k", "means": "opcode bits at the current level" }
+          ],
+          "trap": "Each opcode reserved for the next level 'costs' the entire sub-tree below it — one 3-bit prefix removes 2^(remaining) zero-address slots.",
+          "reference": "COA / Instruction Format"
+        },
+        {
+          "formulaId": "con_030-expanding-opcode-zero",
+          "name": "Zero-Address Instructions Available (Expanding Opcode Formula)",
+          "latex": "N_0 = 2^{n} - k_2 \\cdot 2^{n - p} - k_1 \\cdot 2^{n - 2p} - k_0",
+          "plain": "N0 = 2^n - (num_2addr)*2^(n-p) - (num_1addr)*2^(n-2p) - (num_0addr_prefixes)",
+          "whenToUse": "Count remaining zero-address slots after reserving prefixes for 2-address and 1-address instructions",
+          "terms": [
+            { "symbol": "n", "means": "total instruction length in bits" },
+            { "symbol": "p", "means": "address field size in bits" },
+            { "symbol": "k_2", "means": "number of two-address instructions" },
+            { "symbol": "k_1", "means": "number of one-address instructions" },
+            { "symbol": "N_0", "means": "number of zero-address instructions available" }
+          ],
+          "trap": "Subtract reserved prefixes first; forgetting to account for prefix cascades is the most common GATE error here.",
+          "reference": "COA / Instruction Format"
+        },
+        {
+          "formulaId": "con_030-risc-fixed-length",
+          "name": "RISC Fixed-Length Instruction Format",
+          "latex": "\\text{RISC: all instructions} = L \\text{ bits (e.g., 32 bits)}",
+          "plain": "RISC uses fixed-length instructions; expanding opcode is a CISC (NOT RISC) technique",
+          "whenToUse": "True/False: 'Expanding opcode is used in RISC' — answer is False",
+          "terms": [
+            { "symbol": "L", "means": "fixed instruction length (typically 32 bits in RISC)" }
+          ],
+          "trap": "Expanding opcode is a CISC feature enabling variable instruction length. RISC avoids it for simpler decode.",
+          "reference": "COA / Instruction Format"
+        }
+      ]
+    },
+    {
+      "groupId": "machine-instruction-types",
+      "groupTitle": "Machine Instruction Types & Execution",
+      "formulas": [
+        {
+          "formulaId": "con_030-address-types",
+          "name": "Instruction Address Types (0/1/2/3 address machines)",
+          "latex": "\\begin{array}{ll} \\text{3-address:} & \\text{OP } D, A, B \\\\ \\text{2-address:} & \\text{OP } D, A \\\\ \\text{1-address:} & \\text{OP } A \\;(\\text{ACC implicit}) \\\\ \\text{0-address:} & \\text{OP (stack)} \\end{array}",
+          "plain": "3-addr: OP D A B | 2-addr: OP D A | 1-addr: OP A (ACC) | 0-addr: OP (TOS)",
+          "whenToUse": "Trace assembly programs; determine how many instructions to evaluate an expression",
+          "terms": [
+            { "symbol": "ACC", "means": "accumulator register (implicit source/destination)" },
+            { "symbol": "TOS", "means": "top of stack (implicit in 0-address)" }
+          ],
+          "trap": "A 1-address machine uses an implicit accumulator — LOAD/STORE are still required to move values to/from memory.",
+          "reference": "COA / Machine Instruction"
+        },
+        {
+          "formulaId": "con_030-accumulator-eval",
+          "name": "1-Address (Accumulator) Program Evaluation",
+          "latex": "\\text{LOAD } B \\Rightarrow ACC \\leftarrow M[B]; \\quad \\text{MULT } C \\Rightarrow ACC \\leftarrow ACC \\times M[C]",
+          "plain": "LOAD B: ACC = M[B]; MULT C: ACC = ACC * M[C]; STORE T: M[T] = ACC",
+          "whenToUse": "Trace single-address assembly to derive the arithmetic expression computed",
+          "terms": [
+            { "symbol": "ACC", "means": "accumulator" },
+            { "symbol": "M[X]", "means": "memory value at address X" }
+          ],
+          "trap": "Operations like ADD and MULT implicitly use ACC as one operand AND the destination — easy to miscode in traces.",
+          "reference": "COA / Machine Instruction"
+        },
+        {
+          "formulaId": "con_030-xor-swap",
+          "name": "XOR Register Swap (3-step)",
+          "latex": "R_1 \\leftarrow R_1 \\oplus R_2; \\quad R_2 \\leftarrow R_1 \\oplus R_2; \\quad R_1 \\leftarrow R_1 \\oplus R_2",
+          "plain": "R1 ^= R2; R2 ^= R1; R1 ^= R2  (swaps R1 and R2 without a temporary register)",
+          "whenToUse": "Swap two registers using only XOR instructions with no temporary storage",
+          "terms": [
+            { "symbol": "\\oplus", "means": "bitwise XOR" }
+          ],
+          "trap": "If R1 and R2 are the same register, all three XOR steps produce 0 — swapping a register with itself zeroes it.",
+          "reference": "COA / Machine Instruction"
+        },
+        {
+          "formulaId": "con_030-instruction-cycle",
+          "name": "Basic Instruction Execution Cycle",
+          "latex": "\\text{Fetch} \\to \\text{Decode} \\to \\text{Operand Fetch} \\to \\text{Execute} \\to \\text{Write-back}",
+          "plain": "Fetch -> Decode -> Operand Fetch -> Execute -> Write-back",
+          "whenToUse": "Reason about number of memory accesses, pipeline stages, and clock cycles per instruction",
+          "terms": [
+            { "symbol": "\\text{Fetch}", "means": "read instruction from memory using PC" },
+            { "symbol": "\\text{Decode}", "means": "interpret opcode and fields" }
+          ],
+          "trap": "Indirect addressing adds an extra memory access in the Operand Fetch stage — doubles memory traffic vs direct.",
+          "reference": "COA / Machine Instruction"
+        },
+        {
+          "formulaId": "con_030-memory-accesses",
+          "name": "Memory Accesses per Addressing Mode",
+          "latex": "\\begin{array}{ll} \\text{Immediate} & 0 \\text{ (operand in instr)} \\\\ \\text{Direct/Register indirect} & 1 \\\\ \\text{Indirect} & 2 \\end{array}",
+          "plain": "Immediate: 0 mem refs | Direct/Reg-indirect: 1 | Indirect: 2",
+          "whenToUse": "Compare performance of addressing modes; count total memory accesses in an instruction",
+          "terms": [],
+          "trap": "Instruction fetch itself is always 1 memory access — do not double-count it with the operand access.",
+          "reference": "COA / Machine Instruction"
+        }
+      ]
+    },
+    {
+      "groupId": "cisc-risc",
+      "groupTitle": "CISC vs RISC Architecture",
+      "formulas": [
+        {
+          "formulaId": "con_030-risc-properties",
+          "name": "RISC Characteristics",
+          "latex": "\\text{RISC: } \\begin{cases} \\text{Few instructions, fixed length} \\\\ \\text{Register-to-register ALU ops only} \\\\ \\text{Load/Store architecture} \\\\ \\text{Many registers} \\\\ \\text{Hardwired control unit} \\\\ \\text{Simple/few addressing modes} \\end{cases}",
+          "plain": "RISC: fixed-length instructions, reg-reg ALU, load/store only, many registers, hardwired CU, few addressing modes",
+          "whenToUse": "MCQ asking which features characterize RISC; all of I/II/III in sample Q2",
+          "terms": [
+            { "symbol": "\\text{CU}", "means": "control unit" }
+          ],
+          "trap": "RISC does NOT necessarily have fewer total instructions than CISC programs — it may need MORE instructions to do the same task.",
+          "reference": "COA / CISC RISC Architecture"
+        },
+        {
+          "formulaId": "con_030-cisc-properties",
+          "name": "CISC Characteristics",
+          "latex": "\\text{CISC: } \\begin{cases} \\text{Many complex instructions} \\\\ \\text{Variable-length instruction format} \\\\ \\text{Many addressing modes} \\\\ \\text{Microprogrammed control} \\\\ \\text{Memory-to-memory ops possible} \\end{cases}",
+          "plain": "CISC: complex/variable instructions, many addressing modes, microprogrammed CU, mem-to-mem ops",
+          "whenToUse": "Contrast with RISC; questions about which processor type uses expanding opcodes or microprogramming",
+          "terms": [],
+          "trap": "CISC's expanding opcode is designed to support many different instruction types with variable-length encoding — not used in RISC.",
+          "reference": "COA / CISC RISC Architecture"
+        }
+      ]
+    },
+    {
+      "groupId": "isa-definition",
+      "groupTitle": "Instruction Set Architecture (ISA) Scope",
+      "formulas": [
+        {
+          "formulaId": "con_030-isa-components",
+          "name": "What ISA Includes",
+          "latex": "\\text{ISA} = \\{\\text{Registers visible to programmer, } \\text{Instruction set, Addressing modes, Data types, } \\text{I/O model}\\}",
+          "plain": "ISA includes: programmer-visible registers, instructions, addressing modes, data types, I/O model",
+          "whenToUse": "Identify which items belong to ISA vs microarchitecture (cache size, clock speed are NOT ISA)",
+          "terms": [],
+          "trap": "Cache size, clock frequency, and number of pipeline stages are microarchitecture details — NOT part of ISA.",
+          "reference": "COA / Instruction Set Architecture"
+        },
+        {
+          "formulaId": "con_030-isa-not-includes",
+          "name": "What ISA Does NOT Include",
+          "latex": "\\text{NOT ISA: } \\{\\text{Cache size, Clock frequency, Pipeline depth, Number of ALUs}\\}",
+          "plain": "Cache size, clock speed, pipeline depth, number of ALUs are implementation/microarchitecture, not ISA",
+          "whenToUse": "Eliminate wrong options in ISA-scope MCQs",
+          "terms": [],
+          "trap": "Number of registers is ISA (programmer-visible); size of cache is not — a common GATE distractor.",
+          "reference": "COA / Instruction Set Architecture"
+        }
+      ]
+    },
+    {
+      "groupId": "runtime-environment",
+      "groupTitle": "Runtime Environment & Stack Frame",
+      "formulas": [
+        {
+          "formulaId": "con_030-activation-record",
+          "name": "Activation Record (Stack Frame) Layout",
+          "latex": "\\text{Stack Frame: } [\\text{Return addr} \\mid \\text{Saved regs} \\mid \\text{Local vars} \\mid \\text{Params}]",
+          "plain": "Stack frame contains: return address | saved registers | local variables | parameters",
+          "whenToUse": "Reason about function call overhead, stack pointer movement, and frame pointer usage",
+          "terms": [
+            { "symbol": "\\text{FP}", "means": "frame pointer (base of current activation record)" },
+            { "symbol": "\\text{SP}", "means": "stack pointer (top of stack)" }
+          ],
+          "trap": "Each nested function call pushes a new frame; forgetting to pop on return corrupts the stack.",
+          "reference": "COA / Runtime Environment"
+        },
+        {
+          "formulaId": "con_030-reentrant-code",
+          "name": "Reentrant Code Property",
+          "latex": "\\text{Reentrant code: no self-modification; shared safely by multiple processes}",
+          "plain": "Reentrant code does not modify itself and can be shared by concurrent processes without conflict",
+          "whenToUse": "Identify which addressing mode / code property allows safe sharing (stack addressing enables reentrant routines)",
+          "terms": [],
+          "trap": "Position-independent code (relative addressing) and reentrant code are related but distinct concepts — position-independence is about relocatability, reentrancy is about safe concurrent sharing.",
+          "reference": "COA / Runtime Environment"
+        }
+      ]
+    }
+  ]
+}

@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState, useCallback, useRef } from 'react'
 import { useParams, useSearchParams, useRouter } from 'next/navigation'
 import { AptitudeFormulaCheatsheet } from '@/components/aptitude/AptitudeFormulaCheatsheet'
 import { AptitudeQuestionViewer } from '@/components/aptitude/AptitudeQuestionViewer'
+import { AptitudeDataTable } from '@/components/aptitude/AptitudeDataTable'
 import { AptitudeModelCard } from '@/components/aptitude/AptitudeModelCard'
 import {
   BookOpen, Hash, Layers, ChevronLeft, Loader2, Filter, Search, X
@@ -343,11 +344,7 @@ function ConceptSlugInner() {
                     </button>
                   </div>
                 ) : (
-                  <div className="space-y-4">
-                    {displayed.map((q, i) => (
-                      <AptitudeQuestionViewer key={q.questionId} question={q} index={(page - 1) * 15 + i + 1} />
-                    ))}
-                  </div>
+                  <AptitudeDataTable questions={displayed} startIndex={(page - 1) * 15 + 1} />
                 )}
 
                 {/* Pagination */}

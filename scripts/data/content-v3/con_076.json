@@ -1,0 +1,33 @@
+{
+ "_id": "con_076",
+ "conceptId": "con_076",
+ "conceptTitle": "Ethernet Bridging",
+ "reference": "GATE CS — Computer Networks / Data Link Layer",
+ "decisionGuide": {
+  "title": "Which result do I use?",
+  "map": [
+   {"condition": "Ethernet min frame", "use": "64 \\text{ bytes}"},
+   {"condition": "Collision vs broadcast domain", "use": "\\text{switch port} = 1 \\text{ coll. domain}"},
+   {"condition": "Bridge forwarding", "use": "\\text{backward learning}"}
+  ]
+ },
+ "groups": [
+  {
+   "groupId": "ethernet-frame",
+   "groupTitle": "Ethernet Frame",
+   "formulas": [
+    {"formulaId": "con_076-min-frame", "name": "Ethernet Minimum Frame Size", "latex": "L_{min} = 64\\text{ bytes} = 512\\text{ bits}", "plain": "Minimum Ethernet frame = 64 bytes (512 bits); maximum payload 1500 bytes, max frame 1518 bytes", "whenToUse": "Collision detection sizing and padding small payloads.", "terms": [{"symbol": "64 B", "means": "minimum frame incl. 18 B header/trailer"}], "trap": "Payloads < 46 bytes are padded so the frame reaches 64 bytes.", "reference": "IEEE 802.3"},
+    {"formulaId": "con_076-slot-time", "name": "Slot Time", "latex": "t_{slot} = 512 \\text{ bit times} = 51.2\\,\\mu s \\ (10\\text{ Mbps})", "plain": "Slot time = 512 bit-times = round-trip + jam; basis of the 2500 m max length", "whenToUse": "Reasoning about collision detection window and backoff.", "terms": [{"symbol": "bit time", "means": "1/bandwidth seconds"}], "trap": "Slot time scales with speed; gigabit uses carrier extension to keep it.", "reference": "802.3 slot time"},
+    {"formulaId": "con_076-backoff", "name": "Binary Exponential Backoff", "latex": "K \\in \\{0,1,\\dots,2^{n}-1\\},\\ \\ \\text{wait} = K \\cdot t_{slot}", "plain": "After n-th collision wait K slot-times, K chosen uniformly in [0, 2^n - 1], capped at n=10", "whenToUse": "Computing expected retransmission delay after collisions.", "terms": [{"symbol": "n", "means": "collision number (capped at 10, give up at 16)"}], "trap": "The exponent caps at 10; the attempt count caps at 16.", "reference": "Backoff"}
+   ]
+  },
+  {
+   "groupId": "bridges",
+   "groupTitle": "Bridges & Switches (Key Facts)",
+   "formulas": [
+    {"formulaId": "con_076-backward-learning", "name": "Transparent Bridge Learning", "latex": "\\text{src MAC} \\rightarrow \\text{incoming port (table)}", "plain": "A bridge learns which MAC is on which port from source addresses; floods if destination unknown", "whenToUse": "Tracing frame forwarding/flooding through a learning bridge.", "terms": [{"symbol": "filtering DB", "means": "MAC -> port table"}], "trap": "Unknown-unicast, broadcast and multicast are flooded to all ports except the arrival port.", "reference": "Transparent bridging"},
+    {"formulaId": "con_076-collision-domain", "name": "Collision vs Broadcast Domain", "latex": "\\text{switch: each port} = 1\\text{ coll. dom},\\ \\text{whole switch} = 1\\text{ bcast dom}", "plain": "Hub = one collision domain; switch = one collision domain per port; router separates broadcast domains", "whenToUse": "Counting collision/broadcast domains in a topology.", "terms": [{"symbol": "VLAN", "means": "splits one switch into multiple broadcast domains"}], "trap": "Bridges/switches do NOT break broadcast domains; only routers (or VLANs) do.", "reference": "LAN segmentation"}
+   ]
+  }
+ ]
+}

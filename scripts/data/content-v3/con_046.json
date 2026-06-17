@@ -1,0 +1,293 @@
+{
+  "_id": "con_046",
+  "conceptId": "con_046",
+  "conceptTitle": "Minimum Spanning Trees",
+  "reference": "GATE CS — Algorithms / Graph Algorithms",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Edges already sorted; need MST time complexity",
+        "use": "O(m \\cdot \\alpha(n))"
+      },
+      {
+        "condition": "Edges unsorted; Kruskal full complexity",
+        "use": "O(m \\log m)"
+      },
+      {
+        "condition": "Dense graph, adjacency matrix; Prim's complexity",
+        "use": "O(n^2)"
+      },
+      {
+        "condition": "Sparse graph, binary min-heap; Prim's complexity",
+        "use": "O((m + n) \\log n)"
+      },
+      {
+        "condition": "Counting MSTs / checking uniqueness",
+        "use": "\\text{MST is unique} \\iff \\text{all edge weights are distinct}"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "mst-definition",
+      "groupTitle": "MST Definition & Properties",
+      "formulas": [
+        {
+          "formulaId": "con_046-mst-definition",
+          "name": "Minimum Spanning Tree Definition",
+          "latex": "T \\subseteq E,\\; |T| = n-1,\\; T \\text{ is a spanning tree},\\; w(T) = \\min \\sum_{e \\in T} w(e)",
+          "plain": "T is a subset of E with n-1 edges forming a spanning tree with minimum total weight.",
+          "whenToUse": "Establishing what a valid MST is: connected, acyclic, spans all n vertices, n-1 edges.",
+          "terms": [
+            { "symbol": "T", "means": "set of MST edges" },
+            { "symbol": "E", "means": "edge set of graph" },
+            { "symbol": "n", "means": "number of vertices" },
+            { "symbol": "w(e)", "means": "weight of edge e" }
+          ],
+          "trap": "An MST always has exactly n-1 edges — confusing n (vertices) with m (edges) leads to wrong answers.",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_046-mst-edge-count",
+          "name": "MST Edge Count",
+          "latex": "|T| = n - 1",
+          "plain": "MST has exactly n-1 edges for a graph with n vertices.",
+          "whenToUse": "Verifying or counting edges in an MST.",
+          "terms": [
+            { "symbol": "|T|", "means": "number of edges in the MST" },
+            { "symbol": "n", "means": "number of vertices" }
+          ],
+          "trap": "For a graph with multiple connected components, each component has its own MST (minimum spanning forest).",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_046-mst-uniqueness",
+          "name": "MST Uniqueness Condition",
+          "latex": "\\text{MST is unique} \\iff \\text{all edge weights are distinct}",
+          "plain": "MST is unique if and only if all edge weights are distinct.",
+          "whenToUse": "Answering how many MSTs a graph has when weights may be equal.",
+          "terms": [
+            { "symbol": "unique", "means": "exactly one MST exists" }
+          ],
+          "trap": "Equal-weight edges can produce multiple MSTs; the number of MSTs is NOT simply the number of equal-edge subsets — requires careful enumeration.",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_046-cut-property",
+          "name": "Cut Property (Safe Edge Rule)",
+          "latex": "\\forall \\text{ cut } (S, V\\setminus S),\\; e^* = \\arg\\min_{e \\text{ crosses cut}} w(e) \\Rightarrow e^* \\in \\text{some MST}",
+          "plain": "The minimum weight edge crossing any cut of the graph belongs to some MST.",
+          "whenToUse": "Proving correctness of greedy MST algorithms; justifying why a chosen edge is safe.",
+          "terms": [
+            { "symbol": "S", "means": "one side of the cut" },
+            { "symbol": "e*", "means": "minimum weight crossing edge" }
+          ],
+          "trap": "The cut property gives membership in SOME MST, not all MSTs, when weights are not distinct.",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_046-cycle-property",
+          "name": "Cycle Property",
+          "latex": "\\forall \\text{ cycle } C,\\; e_{\\max} = \\arg\\max_{e \\in C} w(e) \\Rightarrow e_{\\max} \\notin \\text{any MST (if unique max)}",
+          "plain": "The unique maximum weight edge in any cycle does not belong to any MST.",
+          "whenToUse": "Identifying edges that can be excluded from the MST.",
+          "terms": [
+            { "symbol": "C", "means": "a cycle in the graph" },
+            { "symbol": "e_max", "means": "maximum weight edge in C" }
+          ],
+          "trap": "If the max edge weight is not unique within the cycle, it may or may not appear in an MST.",
+          "reference": "Algorithms / Graph Algorithms"
+        }
+      ]
+    },
+    {
+      "groupId": "kruskal-algorithm",
+      "groupTitle": "Kruskal's Algorithm",
+      "formulas": [
+        {
+          "formulaId": "con_046-kruskal-complexity-unsorted",
+          "name": "Kruskal's Time Complexity (Unsorted Edges)",
+          "latex": "T_{\\text{Kruskal}} = O(m \\log m) = O(m \\log n)",
+          "plain": "Kruskal's algorithm runs in O(m log m) = O(m log n) when edges need to be sorted.",
+          "whenToUse": "Finding MST with Kruskal when edges are not pre-sorted.",
+          "terms": [
+            { "symbol": "m", "means": "number of edges" },
+            { "symbol": "n", "means": "number of vertices" }
+          ],
+          "trap": "O(m log m) and O(m log n) are the same because m <= n^2 so log m <= 2 log n — both are correct answers.",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_046-kruskal-complexity-sorted",
+          "name": "Kruskal's Time Complexity (Pre-sorted Edges)",
+          "latex": "T_{\\text{Kruskal, sorted}} = O(m \\cdot \\alpha(n))",
+          "plain": "If edges are already sorted, Kruskal runs in O(m * alpha(n)) using Union-Find.",
+          "whenToUse": "When the question states edges are already sorted and asks for Kruskal's complexity.",
+          "terms": [
+            { "symbol": "m", "means": "number of edges" },
+            { "symbol": "\\alpha(n)", "means": "inverse Ackermann function (nearly constant)" }
+          ],
+          "trap": "Often approximated as O(m) or O(n) but strictly O(m * alpha(n)); GATE may accept O(m) for sorted case.",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_046-kruskal-steps",
+          "name": "Kruskal's Algorithm Steps",
+          "latex": "\\text{Sort edges by weight} \\to \\text{For each edge: if no cycle (Union-Find), add to MST}",
+          "plain": "Sort edges ascending; greedily add each edge if it does not form a cycle, using Union-Find to detect cycles.",
+          "whenToUse": "Tracing Kruskal's execution or verifying which edges are selected.",
+          "terms": [
+            { "symbol": "Union-Find", "means": "disjoint set union data structure to detect cycles" }
+          ],
+          "trap": "Kruskal processes edges globally in sorted order — not vertex by vertex like Prim's.",
+          "reference": "Algorithms / Graph Algorithms"
+        }
+      ]
+    },
+    {
+      "groupId": "prim-algorithm",
+      "groupTitle": "Prim's Algorithm",
+      "formulas": [
+        {
+          "formulaId": "con_046-prim-complexity-matrix",
+          "name": "Prim's Time Complexity (Adjacency Matrix)",
+          "latex": "T_{\\text{Prim, matrix}} = O(n^2)",
+          "plain": "Prim's algorithm with adjacency matrix runs in O(n^2).",
+          "whenToUse": "Dense graphs represented as adjacency matrix.",
+          "terms": [
+            { "symbol": "n", "means": "number of vertices" }
+          ],
+          "trap": "For dense graphs (m ~ n^2), Prim with matrix is better than Kruskal; for sparse graphs, Kruskal or Prim with heap is better.",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_046-prim-complexity-heap",
+          "name": "Prim's Time Complexity (Binary Min-Heap + Adjacency List)",
+          "latex": "T_{\\text{Prim, heap}} = O((m + n) \\log n)",
+          "plain": "Prim's algorithm with a binary min-heap and adjacency list runs in O((m+n) log n).",
+          "whenToUse": "Sparse graphs where adjacency list + priority queue is used.",
+          "terms": [
+            { "symbol": "m", "means": "number of edges" },
+            { "symbol": "n", "means": "number of vertices" }
+          ],
+          "trap": "With a Fibonacci heap this improves to O(m + n log n) — GATE sometimes distinguishes these.",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_046-prim-complexity-fibonacci",
+          "name": "Prim's Time Complexity (Fibonacci Heap)",
+          "latex": "T_{\\text{Prim, Fibonacci}} = O(m + n \\log n)",
+          "plain": "Prim's algorithm with a Fibonacci heap runs in O(m + n log n).",
+          "whenToUse": "Theoretical best complexity of Prim's; used when comparing data structures.",
+          "terms": [
+            { "symbol": "m", "means": "number of edges" },
+            { "symbol": "n", "means": "number of vertices" }
+          ],
+          "trap": "Fibonacci heap has high constant factors in practice; preferred theoretically but rarely implemented.",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_046-prim-steps",
+          "name": "Prim's Algorithm Steps",
+          "latex": "\\text{Start at any vertex} \\to \\text{Repeatedly add min-weight edge from } V_{\\text{visited}} \\text{ to } V_{\\text{unvisited}}",
+          "plain": "Start from any vertex; repeatedly pick the minimum weight edge connecting visited to unvisited vertices until all vertices are included.",
+          "whenToUse": "Tracing Prim's execution or verifying the sequence of edges selected.",
+          "terms": [
+            { "symbol": "V_visited", "means": "set of vertices already in the MST" },
+            { "symbol": "V_unvisited", "means": "set of vertices not yet in the MST" }
+          ],
+          "trap": "Prim grows the MST vertex by vertex from a single source — not globally sorted like Kruskal; starting vertex affects traversal order but not the final MST weight.",
+          "reference": "Algorithms / Graph Algorithms"
+        }
+      ]
+    },
+    {
+      "groupId": "mst-counting-weight",
+      "groupTitle": "MST Count & Weight Results",
+      "formulas": [
+        {
+          "formulaId": "con_046-mst-weight-same",
+          "name": "All MSTs Have Equal Weight",
+          "latex": "w(T_1) = w(T_2) \\text{ for any two MSTs } T_1, T_2 \\text{ of the same graph}",
+          "plain": "All MSTs of a given graph have the same total weight, even if the edge sets differ.",
+          "whenToUse": "When asked whether different MSTs can have different total weights.",
+          "terms": [
+            { "symbol": "w(T)", "means": "total weight of spanning tree T" }
+          ],
+          "trap": "Different MSTs can have different edge sets but always the same total weight — do not confuse edge uniqueness with weight uniqueness.",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_046-complete-graph-mst-count",
+          "name": "Number of Spanning Trees in Complete Graph",
+          "latex": "\\text{# spanning trees of } K_n = n^{n-2} \\quad (\\text{Cayley's formula})",
+          "plain": "The complete graph K_n has n^(n-2) distinct spanning trees (Cayley's formula).",
+          "whenToUse": "Counting spanning trees of a complete graph; MSTs among them depend on weights.",
+          "terms": [
+            { "symbol": "K_n", "means": "complete graph on n vertices" },
+            { "symbol": "n^{n-2}", "means": "number of labeled spanning trees" }
+          ],
+          "trap": "Cayley's formula counts ALL spanning trees, not just minimum ones. With all equal weights, every spanning tree is an MST.",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_046-mst-equal-weights",
+          "name": "MSTs with Equal-Weight Edges",
+          "latex": "\\text{If all edges have equal weight } w,\\; w(\\text{MST}) = (n-1) \\cdot w",
+          "plain": "If all edge weights are equal, every spanning tree is an MST with weight (n-1)*w.",
+          "whenToUse": "When graph has all edges with the same weight and question asks for number of MSTs.",
+          "terms": [
+            { "symbol": "w", "means": "common edge weight" },
+            { "symbol": "n-1", "means": "number of edges in spanning tree" }
+          ],
+          "trap": "With all equal weights, the number of MSTs equals the total number of spanning trees, which can be exponential.",
+          "reference": "Algorithms / Graph Algorithms"
+        }
+      ]
+    },
+    {
+      "groupId": "algorithm-comparison",
+      "groupTitle": "Algorithm Comparison & Correctness",
+      "formulas": [
+        {
+          "formulaId": "con_046-kruskal-vs-prim",
+          "name": "Kruskal vs Prim Comparison",
+          "latex": "\\text{Kruskal: } O(m \\log m) \\text{ (best for sparse)} \\quad \\text{Prim: } O(n^2) \\text{ or } O((m+n)\\log n) \\text{ (best for dense)}",
+          "plain": "Kruskal is O(m log m) — better for sparse graphs. Prim is O(n^2) with matrix — better for dense graphs.",
+          "whenToUse": "Choosing which algorithm is more efficient for a given graph density.",
+          "terms": [
+            { "symbol": "m", "means": "number of edges" },
+            { "symbol": "n", "means": "number of vertices" }
+          ],
+          "trap": "For dense graphs where m ~ n^2, Kruskal's O(m log m) ~ O(n^2 log n) is worse than Prim's O(n^2).",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_046-greedy-correctness",
+          "name": "Greedy Correctness of MST Algorithms",
+          "latex": "\\text{Both Kruskal and Prim are correct} \\iff \\text{Cut Property holds (matroid structure)}",
+          "plain": "Both algorithms are provably correct via the cut property and the graphic matroid structure.",
+          "whenToUse": "Justifying why greedy works for MST but not all optimization problems.",
+          "terms": [
+            { "symbol": "matroid", "means": "combinatorial structure ensuring greedy optimality" }
+          ],
+          "trap": "Greedy does NOT give optimal solutions in general — MST is a special case where matroid structure guarantees optimality.",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_046-negative-weights",
+          "name": "MST with Negative Weights",
+          "latex": "\\text{MST algorithms work correctly with negative edge weights}",
+          "plain": "Both Kruskal's and Prim's algorithms correctly find the MST even when edge weights are negative.",
+          "whenToUse": "When asked whether MST algorithms handle negative weights.",
+          "terms": [
+            { "symbol": "w(e) < 0", "means": "negative edge weight" }
+          ],
+          "trap": "Unlike shortest path algorithms (Bellman-Ford needed for negatives), MST algorithms handle negative weights without modification.",
+          "reference": "Algorithms / Graph Algorithms"
+        }
+      ]
+    }
+  ]
+}

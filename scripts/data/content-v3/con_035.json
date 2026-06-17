@@ -1,0 +1,396 @@
+{
+  "_id": "con_035",
+  "conceptId": "con_035",
+  "conceptTitle": "Programming in C",
+  "reference": "GATE CS — Programming and Data Structures / Programming",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      { "condition": "Question involves pointers, addresses, or dereferencing", "use": "\\text{ptr} \\to \\text{field} \\equiv (*\\text{ptr}).\\text{field}" },
+      { "condition": "Question about call-by-value vs call-by-reference effects", "use": "\\text{call-by-value: callee has copy; call-by-ref: callee has alias}" },
+      { "condition": "Loop terminates or counts iterations", "use": "\\text{Invariant } I \\text{ holds at every loop entry; iterations} = \\lceil (b-a)/s \\rceil" },
+      { "condition": "Memory layout of struct/union", "use": "\\text{sizeof(union)} = \\max(\\text{sizeof each member})" },
+      { "condition": "Number of swaps in bubble-sort style code", "use": "\\text{swaps} \\leq \\binom{n}{2} = \\frac{n(n-1)}{2}" }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "pointers-arrays",
+      "groupTitle": "Pointers & Arrays",
+      "formulas": [
+        {
+          "formulaId": "con_035-pointer-deref",
+          "name": "Arrow vs Dot Operator",
+          "latex": "\\text{ptr}\\to\\text{field} \\;\\equiv\\; (*\\text{ptr}).\\text{field}",
+          "plain": "ptr->field  ==  (*ptr).field",
+          "whenToUse": "Accessing a struct/union member through a pointer.",
+          "terms": [
+            { "symbol": "ptr", "means": "pointer to a struct/union" },
+            { "symbol": "field", "means": "member name inside the struct/union" }
+          ],
+          "trap": "Using dot operator directly on a pointer (e.g. ptr.field) is a compile error in C.",
+          "reference": "Programming in C / Pointers"
+        },
+        {
+          "formulaId": "con_035-array-pointer-decay",
+          "name": "Array-to-Pointer Decay",
+          "latex": "a[i] \\equiv *(a + i) \\equiv *(i + a) \\equiv i[a]",
+          "plain": "a[i]  ==  *(a + i)  ==  i[a]",
+          "whenToUse": "Expressing array element access in pointer arithmetic.",
+          "terms": [
+            { "symbol": "a", "means": "array name (decays to pointer to first element)" },
+            { "symbol": "i", "means": "integer index" }
+          ],
+          "trap": "a[i][j] in a 2-D array is *(*(a+i)+j); pointer arithmetic uses element size, not bytes.",
+          "reference": "Programming in C / Pointers"
+        },
+        {
+          "formulaId": "con_035-pointer-arithmetic",
+          "name": "Pointer Arithmetic — Byte Offset",
+          "latex": "\\text{(char*)p} + k \\cdot \\text{sizeof}(*p)",
+          "plain": "address of p[k]  =  (char*)p  +  k * sizeof(*p)",
+          "whenToUse": "Computing the exact address of an array element given base pointer.",
+          "terms": [
+            { "symbol": "p", "means": "pointer of type T*" },
+            { "symbol": "k", "means": "integer displacement" },
+            { "symbol": "\\text{sizeof}(*p)", "means": "size of the pointed-to type in bytes" }
+          ],
+          "trap": "Pointer difference (p2-p1) gives element count, not byte count.",
+          "reference": "Programming in C / Pointers"
+        },
+        {
+          "formulaId": "con_035-2d-array-layout",
+          "name": "2-D Array Row-Major Layout",
+          "latex": "\\text{address}(a[i][j]) = \\text{base} + (i \\cdot C + j) \\cdot \\text{sizeof}(\\text{element})",
+          "plain": "address(a[i][j])  =  base  +  (i*C + j) * sizeof(element)",
+          "whenToUse": "Finding address of an element in a 2-D (or multi-D) array in C (row-major).",
+          "terms": [
+            { "symbol": "C", "means": "number of columns (second dimension)" },
+            { "symbol": "i,j", "means": "row and column indices" },
+            { "symbol": "\\text{base}", "means": "address of a[0][0]" }
+          ],
+          "trap": "C stores arrays in row-major order; FORTRAN uses column-major. GATE questions sometimes mix indices after loop exits (undefined behaviour).",
+          "reference": "Programming in C / Pointers"
+        },
+        {
+          "formulaId": "con_035-aliasing-def",
+          "name": "Aliasing — Definition",
+          "latex": "\\text{Aliasing}: \\exists\\, x \\neq y \\text{ s.t. } \\&x = \\&y \\text{ (same memory location)}",
+          "plain": "Aliasing: two distinct variable names x, y share the same memory address (&x == &y).",
+          "whenToUse": "When a question asks what aliasing means or when pointer assignments create aliases.",
+          "terms": [
+            { "symbol": "\\&x", "means": "address of variable x" }
+          ],
+          "trap": "Aliasing is not the same as having the same value; the variables must occupy the same memory location.",
+          "reference": "Programming in C / Aliasing"
+        }
+      ]
+    },
+    {
+      "groupId": "parameter-passing",
+      "groupTitle": "Parameter Passing",
+      "formulas": [
+        {
+          "formulaId": "con_035-call-by-value",
+          "name": "Call-by-Value",
+          "latex": "\\text{callee receives a } \\mathbf{copy}; \\text{ changes do NOT affect caller}",
+          "plain": "Call-by-value: callee gets a copy; modifications do not reach caller.",
+          "whenToUse": "Default parameter passing for scalars in C (int, char, float, struct passed by value).",
+          "terms": [
+            { "symbol": "\\text{callee}", "means": "the function being called" },
+            { "symbol": "\\text{caller}", "means": "the function making the call" }
+          ],
+          "trap": "In C, arrays 'passed' to a function decay to a pointer — this behaves like call-by-reference despite looking like call-by-value.",
+          "reference": "Programming in C / Parameter Passing"
+        },
+        {
+          "formulaId": "con_035-call-by-reference",
+          "name": "Call-by-Reference (via Pointer in C)",
+          "latex": "\\text{void swap(int *a, int *b) } \\Rightarrow *a \\leftrightarrow *b \\text{ in caller}",
+          "plain": "Pass address of variable; callee uses *a, *b to modify caller's variables.",
+          "whenToUse": "When C simulates call-by-reference by passing a pointer (&x) to the callee.",
+          "terms": [
+            { "symbol": "*a", "means": "dereference pointer a to get caller's variable" }
+          ],
+          "trap": "Passing the pointer by value lets you modify *ptr but you cannot redirect ptr itself to a new location (need double pointer for that).",
+          "reference": "Programming in C / Parameter Passing"
+        },
+        {
+          "formulaId": "con_035-call-by-value-result",
+          "name": "Call-by-Value-Result (Copy-in Copy-out)",
+          "latex": "\\text{copy in on call},\\; \\text{copy out on return} \\Rightarrow \\text{differs from call-by-ref on aliasing}",
+          "plain": "Call-by-value-result: actual copied in at call, result copied back at return; differs from by-ref when aliasing exists.",
+          "whenToUse": "Distinguishing parameter-passing semantics in GATE theory questions.",
+          "terms": [
+            { "symbol": "\\text{aliasing}", "means": "same location accessed via two different formal parameters" }
+          ],
+          "trap": "Call-by-value-result and call-by-reference give identical results UNLESS there is aliasing.",
+          "reference": "Programming in C / Parameter Passing"
+        },
+        {
+          "formulaId": "con_035-eval-order",
+          "name": "Order of Argument Evaluation",
+          "latex": "\\text{C standard: order of argument evaluation is UNSPECIFIED (implementation-defined)}",
+          "plain": "In C, the order in which function arguments are evaluated is unspecified (could be left-to-right or right-to-left).",
+          "whenToUse": "When a question asks what a program prints when a function call has side effects in its arguments.",
+          "terms": [
+            { "symbol": "f(g(x), h(y))", "means": "either g(x) or h(y) may be evaluated first" }
+          ],
+          "trap": "GATE questions often specify 'arguments evaluated right-to-left' to make output deterministic — read the question carefully.",
+          "reference": "Programming in C / Functions"
+        }
+      ]
+    },
+    {
+      "groupId": "loop-invariants",
+      "groupTitle": "Loop Invariants & Program Correctness",
+      "formulas": [
+        {
+          "formulaId": "con_035-loop-invariant-def",
+          "name": "Loop Invariant — Definition & Proof Obligation",
+          "latex": "\\{I \\wedge B\\}\\; \\text{body} \\;\\{I\\}\\quad \\text{(preservation)}",
+          "plain": "Invariant I must hold: (1) before loop [initialisation], (2) after each iteration [preservation], (3) on exit I & ~B gives postcondition [termination].",
+          "whenToUse": "Proving a loop correct or identifying the invariant at a cut point.",
+          "terms": [
+            { "symbol": "I", "means": "loop invariant predicate" },
+            { "symbol": "B", "means": "loop condition (guard)" }
+          ],
+          "trap": "The invariant is NOT the same as the loop condition; it is a stronger fact that is true throughout.",
+          "reference": "Programming in C / Loop Invariants"
+        },
+        {
+          "formulaId": "con_035-for-while-equiv",
+          "name": "for–while Equivalence Condition",
+          "latex": "\\texttt{for } i:=1 \\texttt{ to } f(x) \\equiv \\texttt{while } i\\le f(x) \\iff f(x) \\text{ is not modified by } S",
+          "plain": "for i=1 to f(x) do S  ==  i=1; while i<=f(x) do { S; i=i+1 }  ONLY if S does not change f(x).",
+          "whenToUse": "When asked under what conditions a for-loop and its while-loop counterpart are equivalent.",
+          "terms": [
+            { "symbol": "f(x)", "means": "upper bound expression" },
+            { "symbol": "S", "means": "loop body statement(s)" }
+          ],
+          "trap": "If S modifies x (and hence f(x)), the for-loop evaluates f(x) once while the while-loop re-evaluates each iteration — they diverge.",
+          "reference": "Programming in C / Loop Invariants"
+        },
+        {
+          "formulaId": "con_035-iteration-count",
+          "name": "Number of Loop Iterations",
+          "latex": "\\text{iterations} = \\left\\lfloor \\frac{b - a}{s} \\right\\rfloor + 1 \\quad (\\text{for } i = a \\text{ to } b \\text{ step } s)",
+          "plain": "iterations  =  floor((b - a) / s) + 1",
+          "whenToUse": "Counting how many times a counted loop body executes.",
+          "terms": [
+            { "symbol": "a", "means": "initial value of loop variable" },
+            { "symbol": "b", "means": "final/upper bound value" },
+            { "symbol": "s", "means": "step size (default 1)" }
+          ],
+          "trap": "Off-by-one errors are common: check whether the bound is inclusive (<=) or exclusive (<).",
+          "reference": "Programming in C / Loop Invariants"
+        },
+        {
+          "formulaId": "con_035-gcd-invariant",
+          "name": "GCD Loop Invariant",
+          "latex": "\\gcd(M, N) = \\gcd(r, d) \\quad \\text{where } r = M \\bmod d",
+          "plain": "Invariant for Euclidean GCD loop: gcd(M, N) == gcd(remainder, divisor) at every iteration.",
+          "whenToUse": "Proving the GCD flowchart/program correct using cut-point assertions.",
+          "terms": [
+            { "symbol": "M, N", "means": "original inputs" },
+            { "symbol": "r, d", "means": "current remainder and divisor in the loop" }
+          ],
+          "trap": "The invariant must also encode M,N>0 at entry and that the loop terminates because remainder strictly decreases.",
+          "reference": "Programming in C / Loop Invariants"
+        }
+      ]
+    },
+    {
+      "groupId": "structs-unions",
+      "groupTitle": "Structures & Unions",
+      "formulas": [
+        {
+          "formulaId": "con_035-sizeof-struct",
+          "name": "sizeof(struct) with Padding",
+          "latex": "\\text{sizeof(struct)} \\geq \\sum \\text{sizeof(fields)},\\; \\text{aligned to largest member alignment}",
+          "plain": "sizeof(struct) >= sum of field sizes; compiler adds padding bytes for alignment; total is rounded up to the largest member's alignment.",
+          "whenToUse": "When asked the size of a struct or where a particular field is stored.",
+          "terms": [
+            { "symbol": "\\text{alignment}", "means": "memory address must be a multiple of the type's size" }
+          ],
+          "trap": "struct { char c; int i; } is typically 8 bytes, NOT 5, due to 3-byte padding after c.",
+          "reference": "Programming in C / Structure"
+        },
+        {
+          "formulaId": "con_035-sizeof-union",
+          "name": "sizeof(union)",
+          "latex": "\\text{sizeof(union)} = \\max_{m \\in \\text{members}} \\text{sizeof}(m),\\; \\text{rounded to alignment}",
+          "plain": "sizeof(union)  =  max size among all members (rounded up for alignment).",
+          "whenToUse": "When a question asks for the size of a union or which fields overlap in memory.",
+          "terms": [
+            { "symbol": "m", "means": "a member of the union" }
+          ],
+          "trap": "All members share the same starting address; writing one member and reading another gives raw byte reinterpretation (type punning).",
+          "reference": "Programming in C / Union"
+        },
+        {
+          "formulaId": "con_035-struct-member-offset",
+          "name": "offsetof Macro",
+          "latex": "\\text{offsetof}(\\text{type}, \\text{member}) = \\text{byte offset of member from start of struct}",
+          "plain": "offsetof(type, member)  =  bytes from start of struct to that member.",
+          "whenToUse": "Computing which byte a struct member starts at, accounting for padding.",
+          "terms": [
+            { "symbol": "\\text{type}", "means": "struct type name" },
+            { "symbol": "\\text{member}", "means": "field name inside the struct" }
+          ],
+          "trap": "Bit-fields can alter offsets significantly; their size and alignment are implementation-defined.",
+          "reference": "Programming in C / Structure"
+        }
+      ]
+    },
+    {
+      "groupId": "sorting-swaps",
+      "groupTitle": "Number of Swaps (Bubble Sort)",
+      "formulas": [
+        {
+          "formulaId": "con_035-bubble-sort-swaps",
+          "name": "Maximum Swaps in Bubble Sort",
+          "latex": "\\text{swaps}_{\\max} = \\binom{n}{2} = \\frac{n(n-1)}{2}",
+          "plain": "max swaps  =  n*(n-1)/2  (when array is reverse-sorted).",
+          "whenToUse": "Counting the maximum or exact number of swaps a bubble-sort code performs on an array.",
+          "terms": [
+            { "symbol": "n", "means": "number of elements in the array" }
+          ],
+          "trap": "Each swap corrects exactly one inversion; total swaps = number of inversions in the original array.",
+          "reference": "Programming in C / Number of Swap"
+        },
+        {
+          "formulaId": "con_035-inversions",
+          "name": "Inversions = Swaps",
+          "latex": "\\text{swaps} = \\#\\{(i,j) : i < j \\text{ and } A[i] > A[j]\\}",
+          "plain": "number of swaps  =  number of inversions  =  count of pairs (i<j) where A[i]>A[j].",
+          "whenToUse": "Exact swap count for any input when bubble sort runs to completion.",
+          "terms": [
+            { "symbol": "(i,j)", "means": "an inversion pair in the array" }
+          ],
+          "trap": "This holds for standard (stable) bubble sort only; selection sort swaps fewer times (at most n-1).",
+          "reference": "Programming in C / Number of Swap"
+        }
+      ]
+    },
+    {
+      "groupId": "type-checking-binding",
+      "groupTitle": "Type Checking & Variable Binding",
+      "formulas": [
+        {
+          "formulaId": "con_035-static-dynamic-typing",
+          "name": "Static vs Dynamic Type Checking",
+          "latex": "\\text{Static: types checked at } \\mathbf{compile\\text{-}time};\\quad \\text{Dynamic: types checked at } \\mathbf{run\\text{-}time}",
+          "plain": "Static type checking at compile-time (C, Java); dynamic type checking at run-time (Python, Lisp).",
+          "whenToUse": "When asked whether C's type errors are detected at compile time or runtime.",
+          "terms": [
+            { "symbol": "\\text{C}", "means": "statically typed, weakly typed language" }
+          ],
+          "trap": "C is statically typed but weakly typed — implicit casts can bypass type safety at run-time (e.g. void* pointer casts).",
+          "reference": "Programming in C / Type Checking"
+        },
+        {
+          "formulaId": "con_035-static-dynamic-binding",
+          "name": "Static vs Dynamic Binding",
+          "latex": "\\text{Static binding: name resolved at compile-time};\\quad \\text{Dynamic binding: at run-time}",
+          "plain": "Static (early) binding: function/variable names resolved at compile-time (C functions). Dynamic (late) binding: resolved at runtime (C++ virtual functions).",
+          "whenToUse": "When asked about variable binding or method dispatch in programming language questions.",
+          "terms": [
+            { "symbol": "\\text{name}", "means": "identifier for a variable or function" }
+          ],
+          "trap": "C does not have dynamic dispatch natively; GATE questions sometimes conflate dynamic binding with dynamic type checking.",
+          "reference": "Programming in C / Variable Binding"
+        }
+      ]
+    },
+    {
+      "groupId": "control-flow",
+      "groupTitle": "Control Flow (Goto, Switch, Constructs)",
+      "formulas": [
+        {
+          "formulaId": "con_035-goto-harmful",
+          "name": "goto — Why Harmful",
+          "latex": "\\texttt{goto} \\Rightarrow \\text{unstructured control flow} \\Rightarrow \\text{harder to verify correctness}",
+          "plain": "Unrestricted goto makes it difficult to reason about/verify programs; it does NOT directly increase run-time or memory usage.",
+          "whenToUse": "GATE questions on why unrestricted goto is considered harmful.",
+          "terms": [
+            { "symbol": "\\text{verify}", "means": "formal or informal proof that program meets specification" }
+          ],
+          "trap": "goto does NOT make programs slower or use more memory; it only complicates reasoning and maintenance.",
+          "reference": "Programming in C / Goto"
+        },
+        {
+          "formulaId": "con_035-switch-fallthrough",
+          "name": "Switch-Case Fall-Through",
+          "latex": "\\text{Without } \\texttt{break},\\; \\text{execution falls through to next case label}",
+          "plain": "In C switch: without a break, execution falls through from matching case to the next case body.",
+          "whenToUse": "Tracing output of a switch statement to identify fall-through behavior.",
+          "terms": [
+            { "symbol": "\\texttt{break}", "means": "exits the switch block immediately" },
+            { "symbol": "\\texttt{default}", "means": "executed if no case matches; position does not matter but fall-through still applies" }
+          ],
+          "trap": "default is not required to be last; without break after default it too can fall through.",
+          "reference": "Programming in C / Switch Case"
+        },
+        {
+          "formulaId": "con_035-structured-programming",
+          "name": "Structured Programming Constructs",
+          "latex": "\\text{Any algorithm} \\equiv \\text{sequence} + \\text{selection} + \\text{iteration}",
+          "plain": "Bohm-Jacopini theorem: any computable function can be expressed using only sequence, selection (if-else), and iteration (while). goto is not needed.",
+          "whenToUse": "Questions on programming paradigms or why structured programming avoids goto.",
+          "terms": [
+            { "symbol": "\\text{sequence}", "means": "statement1; statement2; ..." },
+            { "symbol": "\\text{selection}", "means": "if-else / switch" },
+            { "symbol": "\\text{iteration}", "means": "while / for / do-while" }
+          ],
+          "trap": "Structured programming is a programming paradigm, not a language feature; C supports both structured and unstructured (goto) code.",
+          "reference": "Programming in C / Programming Constructs"
+        }
+      ]
+    },
+    {
+      "groupId": "strings-misc",
+      "groupTitle": "Strings & Miscellaneous C Rules",
+      "formulas": [
+        {
+          "formulaId": "con_035-string-null-terminator",
+          "name": "C String Null Termination",
+          "latex": "\\text{strlen}(s) = n \\Rightarrow \\text{array size} \\geq n+1 \\quad (\\text{extra byte for } \\texttt{'\\backslash 0'})",
+          "plain": "A C string of length n needs n+1 bytes: n characters plus the null terminator '\\0'.",
+          "whenToUse": "Buffer sizing for strings, strcpy safety, and string output tracing.",
+          "terms": [
+            { "symbol": "n", "means": "number of visible characters (strlen result)" },
+            { "symbol": "\\texttt{'\\backslash 0'}", "means": "null terminator, ASCII value 0" }
+          ],
+          "trap": "char s[5] = \"hello\" overflows — 5 chars + null terminator needs 6 bytes; this is a classic buffer overflow.",
+          "reference": "Programming in C / Strings"
+        },
+        {
+          "formulaId": "con_035-printf-format",
+          "name": "printf / scanf Format Specifiers",
+          "latex": "\\texttt{\\%d}\\to\\text{int},\\;\\texttt{\\%f}\\to\\text{float},\\;\\texttt{\\%c}\\to\\text{char},\\;\\texttt{\\%s}\\to\\text{string},\\;\\texttt{\\%p}\\to\\text{pointer}",
+          "plain": "%d int, %f float/double, %c char, %s string, %p pointer, %ld long, %u unsigned.",
+          "whenToUse": "Tracing program output questions involving printf or scanf format strings.",
+          "terms": [
+            { "symbol": "\\texttt{\\%d}", "means": "signed decimal integer" },
+            { "symbol": "\\texttt{\\%u}", "means": "unsigned decimal integer" }
+          ],
+          "trap": "Using %d with an unsigned int that overflows produces negative output; using %f for a double argument is correct in printf but %lf is needed in scanf.",
+          "reference": "Programming in C / Output"
+        },
+        {
+          "formulaId": "con_035-undefined-behaviour",
+          "name": "Undefined Behaviour (UB) in C",
+          "latex": "\\text{UB examples: out-of-bounds array, use-after-free, signed overflow, unsequenced side effects}",
+          "plain": "C has undefined behaviour for: array out-of-bounds access, dereferencing NULL/dangling pointers, signed integer overflow, reading uninitialised variables.",
+          "whenToUse": "When a program accesses array[i][j] after the loop ends with i,j past bounds — output is 'undefined/garbage'.",
+          "terms": [
+            { "symbol": "\\text{UB}", "means": "undefined behaviour — compiler may do anything" }
+          ],
+          "trap": "GATE questions sometimes ask what is printed when array indices go out of bounds after loop — the answer is 'undefined behaviour' / implementation dependent.",
+          "reference": "Programming in C / Output"
+        }
+      ]
+    }
+  ]
+}

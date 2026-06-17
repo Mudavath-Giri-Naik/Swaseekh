@@ -1,0 +1,300 @@
+{
+  "_id": "con_066",
+  "conceptId": "con_066",
+  "conceptTitle": "File Systems",
+  "reference": "GATE CS — Operating System / Memory Management",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Max file size with inode (Unix-style direct + indirect blocks)",
+        "use": "\\text{Max size} = (D + B/A + (B/A)^2 + (B/A)^3) \\times B"
+      },
+      {
+        "condition": "Usable data per block in linked allocation",
+        "use": "\\text{Usable data} = B - P"
+      },
+      {
+        "condition": "Number of disk blocks addressable by FAT with k-bit entries",
+        "use": "\\text{Max blocks} = 2^k"
+      },
+      {
+        "condition": "Max file size with index allocation (single-level index block)",
+        "use": "\\text{Max size} = (B / A) \\times B"
+      },
+      {
+        "condition": "Total disk capacity from block count and block size",
+        "use": "\\text{Capacity} = N \\times B"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "fat-allocation",
+      "groupTitle": "FAT (File Allocation Table)",
+      "formulas": [
+        {
+          "formulaId": "con_066-fat-max-blocks",
+          "name": "FAT: Maximum number of addressable disk blocks",
+          "latex": "\\text{Max blocks} = 2^k",
+          "plain": "Max blocks = 2^k",
+          "whenToUse": "When FAT uses k-bit entries, the total number of disk blocks it can address is 2^k.",
+          "terms": [
+            { "symbol": "k", "means": "number of bits per FAT entry" },
+            { "symbol": "2^k", "means": "maximum number of distinct block addresses" }
+          ],
+          "trap": "Do not confuse the number of FAT entries with the size of the FAT table in bytes; FAT size in bytes = (total blocks) x (k/8).",
+          "reference": "OS / File Systems / FAT"
+        },
+        {
+          "formulaId": "con_066-fat-table-size",
+          "name": "FAT: Size of the FAT table",
+          "latex": "\\text{FAT size (bytes)} = N \\times \\frac{k}{8}",
+          "plain": "FAT size (bytes) = N * k / 8",
+          "whenToUse": "To find how many bytes the FAT occupies on disk given N total blocks and k bits per entry.",
+          "terms": [
+            { "symbol": "N", "means": "total number of disk blocks" },
+            { "symbol": "k", "means": "bits per FAT entry" }
+          ],
+          "trap": "If k = 8, each entry is 1 byte; if k = 16 or 32, entries are 2 or 4 bytes. Watch for alignment or rounding to full blocks.",
+          "reference": "OS / File Systems / FAT"
+        },
+        {
+          "formulaId": "con_066-fat-disk-capacity",
+          "name": "FAT: Total disk capacity from block count and size",
+          "latex": "\\text{Disk capacity} = N \\times B",
+          "plain": "Disk capacity = N * B",
+          "whenToUse": "When you know the number of blocks N and block size B, compute total disk capacity.",
+          "terms": [
+            { "symbol": "N", "means": "total number of disk blocks" },
+            { "symbol": "B", "means": "size of each disk block in bytes" }
+          ],
+          "trap": "Remember block 0 (or other reserved blocks) may be used by the FAT/directory and is not available for file data.",
+          "reference": "OS / File Systems / FAT"
+        },
+        {
+          "formulaId": "con_066-fat-max-file-size",
+          "name": "FAT: Maximum file size (limited by addressable blocks)",
+          "latex": "\\text{Max file size} = 2^k \\times B",
+          "plain": "Max file size = 2^k * B",
+          "whenToUse": "When FAT entry width k and block size B are given, find the largest possible file.",
+          "terms": [
+            { "symbol": "k", "means": "bits per FAT entry" },
+            { "symbol": "B", "means": "block size in bytes" }
+          ],
+          "trap": "The actual disk may be smaller than 2^k * B; max file size is min(disk size, 2^k * B).",
+          "reference": "OS / File Systems / FAT"
+        }
+      ]
+    },
+    {
+      "groupId": "linked-allocation",
+      "groupTitle": "Linked Allocation",
+      "formulas": [
+        {
+          "formulaId": "con_066-linked-usable-per-block",
+          "name": "Linked Allocation: Usable data bytes per block",
+          "latex": "\\text{Usable data per block} = B - P",
+          "plain": "Usable data per block = B - P",
+          "whenToUse": "In linked allocation each block stores a pointer to the next block, so data capacity per block is reduced by the pointer size.",
+          "terms": [
+            { "symbol": "B", "means": "total block size in bytes" },
+            { "symbol": "P", "means": "pointer size in bytes (typically 4 bytes for 32-bit)" }
+          ],
+          "trap": "A common mistake is to use full block size B as usable data, ignoring the P bytes reserved for the next-block pointer.",
+          "reference": "OS / File Systems / Linked Allocation"
+        },
+        {
+          "formulaId": "con_066-linked-blocks-for-file",
+          "name": "Linked Allocation: Number of blocks needed for a file",
+          "latex": "\\text{Blocks needed} = \\left\\lceil \\frac{F}{B - P} \\right\\rceil",
+          "plain": "Blocks needed = ceil(F / (B - P))",
+          "whenToUse": "To find how many disk blocks are required to store a file of size F bytes using linked allocation.",
+          "terms": [
+            { "symbol": "F", "means": "file size in bytes" },
+            { "symbol": "B", "means": "block size in bytes" },
+            { "symbol": "P", "means": "pointer size in bytes" }
+          ],
+          "trap": "Use ceiling (not floor) division; partial blocks still consume a full block.",
+          "reference": "OS / File Systems / Linked Allocation"
+        },
+        {
+          "formulaId": "con_066-linked-overhead",
+          "name": "Linked Allocation: Storage overhead ratio",
+          "latex": "\\text{Overhead} = \\frac{P}{B} \\times 100\\%",
+          "plain": "Overhead = (P / B) * 100%",
+          "whenToUse": "To express what fraction of disk space is wasted on pointers in linked allocation.",
+          "terms": [
+            { "symbol": "P", "means": "pointer size in bytes" },
+            { "symbol": "B", "means": "block size in bytes" }
+          ],
+          "trap": "Overhead decreases with larger block sizes; but larger blocks increase internal fragmentation.",
+          "reference": "OS / File Systems / Linked Allocation"
+        }
+      ]
+    },
+    {
+      "groupId": "inode-indexed-allocation",
+      "groupTitle": "Inode / Indexed Allocation",
+      "formulas": [
+        {
+          "formulaId": "con_066-inode-max-file-size",
+          "name": "Inode: Maximum file size (Unix-style with indirect blocks)",
+          "latex": "\\text{Max size} = \\left(D + \\frac{B}{A} + \\left(\\frac{B}{A}\\right)^2 + \\left(\\frac{B}{A}\\right)^3\\right) \\times B",
+          "plain": "Max size = (D + B/A + (B/A)^2 + (B/A)^3) * B",
+          "whenToUse": "For a Unix inode with D direct pointers, and single/double/triple indirect blocks, each holding B/A pointers.",
+          "terms": [
+            { "symbol": "D", "means": "number of direct block pointers in inode (e.g. 10 in classic Unix)" },
+            { "symbol": "B", "means": "block size in bytes" },
+            { "symbol": "A", "means": "size of a block address/pointer in bytes" },
+            { "symbol": "B/A", "means": "number of block pointers that fit in one indirect block" }
+          ],
+          "trap": "Forget to multiply the total block count by B to convert to bytes; also remember to include D direct blocks.",
+          "reference": "OS / File Systems / Inode"
+        },
+        {
+          "formulaId": "con_066-inode-ptrs-per-block",
+          "name": "Inode: Pointers per indirect block",
+          "latex": "\\text{Pointers per block} = \\frac{B}{A}",
+          "plain": "Pointers per block = B / A",
+          "whenToUse": "To find how many block addresses fit in one indirect block, used for computing levels of indirection.",
+          "terms": [
+            { "symbol": "B", "means": "block size in bytes" },
+            { "symbol": "A", "means": "address/pointer size in bytes" }
+          ],
+          "trap": "If block size is given in KB and pointer size in bytes, convert units before dividing.",
+          "reference": "OS / File Systems / Inode"
+        },
+        {
+          "formulaId": "con_066-single-indirect-contribution",
+          "name": "Single Indirect Block: Data blocks reachable",
+          "latex": "\\text{Blocks via single indirect} = \\frac{B}{A}",
+          "plain": "Blocks via single indirect = B / A",
+          "whenToUse": "Count how many data blocks are addressable through one level of indirection.",
+          "terms": [
+            { "symbol": "B", "means": "block size in bytes" },
+            { "symbol": "A", "means": "pointer size in bytes" }
+          ],
+          "trap": "The single indirect block itself uses one block pointer in the inode but is NOT counted as a data block.",
+          "reference": "OS / File Systems / Inode"
+        },
+        {
+          "formulaId": "con_066-double-indirect-contribution",
+          "name": "Double Indirect Block: Data blocks reachable",
+          "latex": "\\text{Blocks via double indirect} = \\left(\\frac{B}{A}\\right)^2",
+          "plain": "Blocks via double indirect = (B/A)^2",
+          "whenToUse": "Count data blocks addressable through two levels of indirection.",
+          "terms": [
+            { "symbol": "B", "means": "block size in bytes" },
+            { "symbol": "A", "means": "pointer size in bytes" }
+          ],
+          "trap": "Two intermediate index blocks are consumed (not counted as data blocks) before reaching actual data blocks.",
+          "reference": "OS / File Systems / Inode"
+        },
+        {
+          "formulaId": "con_066-triple-indirect-contribution",
+          "name": "Triple Indirect Block: Data blocks reachable",
+          "latex": "\\text{Blocks via triple indirect} = \\left(\\frac{B}{A}\\right)^3",
+          "plain": "Blocks via triple indirect = (B/A)^3",
+          "whenToUse": "Count data blocks addressable through three levels of indirection.",
+          "terms": [
+            { "symbol": "B", "means": "block size in bytes" },
+            { "symbol": "A", "means": "pointer size in bytes" }
+          ],
+          "trap": "Three intermediate index blocks are consumed before reaching data; do not add them to the file size.",
+          "reference": "OS / File Systems / Inode"
+        }
+      ]
+    },
+    {
+      "groupId": "index-allocation",
+      "groupTitle": "Index (Indexed) Allocation",
+      "formulas": [
+        {
+          "formulaId": "con_066-index-max-file-size-single",
+          "name": "Index Allocation: Max file size (single index block)",
+          "latex": "\\text{Max file size} = \\frac{B}{A} \\times B",
+          "plain": "Max file size = (B / A) * B",
+          "whenToUse": "When one full disk block is used as an index block containing pointers to data blocks.",
+          "terms": [
+            { "symbol": "B", "means": "block size in bytes" },
+            { "symbol": "A", "means": "pointer/address size in bytes" }
+          ],
+          "trap": "The index block itself is not a data block; do not count it toward file size.",
+          "reference": "OS / File Systems / Index Allocation"
+        },
+        {
+          "formulaId": "con_066-index-max-file-size-multi",
+          "name": "Index Allocation: Max file size (m index blocks)",
+          "latex": "\\text{Max file size} = m \\times \\frac{B}{A} \\times B",
+          "plain": "Max file size = m * (B / A) * B",
+          "whenToUse": "When m index blocks are used, each pointing to B/A data blocks.",
+          "terms": [
+            { "symbol": "m", "means": "number of index blocks" },
+            { "symbol": "B", "means": "block size in bytes" },
+            { "symbol": "A", "means": "pointer size in bytes" }
+          ],
+          "trap": "More index blocks increase max file size linearly, but disk must have enough free blocks to hold all m index blocks plus data blocks.",
+          "reference": "OS / File Systems / Index Allocation"
+        }
+      ]
+    },
+    {
+      "groupId": "directory-structures",
+      "groupTitle": "Directory Structures & Key Results",
+      "formulas": [
+        {
+          "formulaId": "con_066-one-level-directory",
+          "name": "One-Level Directory: All files in a single directory",
+          "latex": "\\text{Single directory} \\Rightarrow \\text{all files share one namespace}",
+          "plain": "Single directory => all files share one namespace (no subdirectories)",
+          "whenToUse": "When the problem states a one-level (flat) directory structure — no path resolution needed, but no name reuse across users.",
+          "terms": [
+            { "symbol": "namespace", "means": "set of all unique file names visible in the directory" }
+          ],
+          "trap": "In a one-level directory, two users cannot have files with the same name, unlike two-level or hierarchical directories.",
+          "reference": "OS / File Systems / Directory"
+        },
+        {
+          "formulaId": "con_066-two-level-directory",
+          "name": "Two-Level Directory: Per-user master directory",
+          "latex": "\\text{MFD} \\rightarrow \\text{UFD}_1, \\text{UFD}_2, \\ldots",
+          "plain": "MFD -> UFD_1, UFD_2, ... (master file directory points to user file directories)",
+          "whenToUse": "When the system has a master file directory (MFD) with one user file directory (UFD) per user.",
+          "terms": [
+            { "symbol": "MFD", "means": "Master File Directory — top-level directory" },
+            { "symbol": "UFD", "means": "User File Directory — per-user namespace" }
+          ],
+          "trap": "Users can share names across UFDs, but sharing files between users requires special mechanisms (links or copying).",
+          "reference": "OS / File Systems / Directory"
+        },
+        {
+          "formulaId": "con_066-contiguous-allocation-key",
+          "name": "Contiguous Allocation: Key properties",
+          "latex": "\\text{Access time: } O(1) \\text{ (direct seek); suffers external fragmentation}",
+          "plain": "Contiguous: O(1) direct access, suffers external fragmentation, max file size fixed at creation",
+          "whenToUse": "When comparing allocation methods — choose contiguous for sequential/random access performance.",
+          "terms": [
+            { "symbol": "O(1)", "means": "constant-time access to any block given start address and block number" }
+          ],
+          "trap": "Contiguous allocation suffers from external fragmentation and requires knowing the file size at creation time.",
+          "reference": "OS / File Systems / Contiguous Allocation"
+        },
+        {
+          "formulaId": "con_066-allocation-method-comparison",
+          "name": "Allocation Methods: Access-time comparison",
+          "latex": "\\text{Contiguous} < \\text{Indexed} < \\text{Linked (sequential)}",
+          "plain": "Random access speed: Contiguous (best) > Indexed > Linked (worst for random)",
+          "whenToUse": "When asked to compare or rank file allocation methods by access performance.",
+          "terms": [
+            { "symbol": "Contiguous", "means": "direct block access, best random access" },
+            { "symbol": "Indexed (inode)", "means": "1-3 extra disk reads for indirect blocks" },
+            { "symbol": "Linked", "means": "must traverse chain for random access — O(n) seeks" }
+          ],
+          "trap": "Linked allocation is efficient for sequential access but terrible for random access; indexed is the middle ground.",
+          "reference": "OS / File Systems / Allocation Methods"
+        }
+      ]
+    }
+  ]
+}

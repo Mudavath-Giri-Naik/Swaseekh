@@ -1,0 +1,346 @@
+{
+  "_id": "con_051",
+  "conceptId": "con_051",
+  "conceptTitle": "Context-Free Languages",
+  "reference": "GATE CS — Theory of Computation / Formal Languages",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Checking if CFLs are closed under union / concatenation / Kleene star",
+        "use": "\\text{CFLs are closed under } \\cup,\\ \\cdot,\\ {}^*"
+      },
+      {
+        "condition": "Checking if CFLs are closed under intersection or complementation",
+        "use": "\\text{CFLs are NOT closed under } \\cap \\text{ or complementation}"
+      },
+      {
+        "condition": "Intersection of a CFL with a regular language",
+        "use": "\\text{CFL} \\cap \\text{Regular} = \\text{CFL}"
+      },
+      {
+        "condition": "Proving a language is not context-free",
+        "use": "\\text{Pumping Lemma for CFLs: } \\forall w \\in L,\\ |w| \\geq p,\\ w = uvxyz,\\ |vy| \\geq 1,\\ |vxy| \\leq p,\\ uv^ixy^iz \\in L"
+      },
+      {
+        "condition": "Checking if a grammar generates a language like a^n b^n",
+        "use": "S \\rightarrow aSb \\mid \\epsilon \\text{ generates } \\{a^n b^n \\mid n \\geq 0\\}"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "cfl-definition",
+      "groupTitle": "Definition & Characterization",
+      "formulas": [
+        {
+          "formulaId": "con_051-cfl-definition",
+          "name": "Context-Free Language (CFL) Definition",
+          "latex": "L \\text{ is a CFL} \\iff \\exists \\text{ CFG } G = (V, \\Sigma, R, S) \\text{ such that } L = L(G)",
+          "plain": "L is a CFL if and only if there exists a Context-Free Grammar G = (V, Sigma, R, S) such that L = L(G)",
+          "whenToUse": "When verifying whether a language qualifies as context-free by exhibiting a generating CFG.",
+          "terms": [
+            { "symbol": "V", "means": "set of non-terminal symbols (variables)" },
+            { "symbol": "\\Sigma", "means": "set of terminal symbols (alphabet)" },
+            { "symbol": "R", "means": "set of production rules of the form A -> alpha" },
+            { "symbol": "S", "means": "start symbol (S in V)" }
+          ],
+          "trap": "A language is CFL if ANY CFG exists for it — the grammar need not be unique or in any normal form.",
+          "reference": "Theory of Computation / Formal Languages"
+        },
+        {
+          "formulaId": "con_051-cfl-pda-equivalence",
+          "name": "CFL = PDA Equivalence",
+          "latex": "L \\text{ is CFL} \\iff L \\text{ is accepted by a Pushdown Automaton (PDA)}",
+          "plain": "L is CFL if and only if L is accepted by a Pushdown Automaton (PDA)",
+          "whenToUse": "When the question asks about the machine model equivalent to CFLs.",
+          "terms": [
+            { "symbol": "\\text{PDA}", "means": "Pushdown Automaton — finite automaton with an unbounded stack" }
+          ],
+          "trap": "Deterministic PDA (DPDA) recognises only DCFLs (proper subset of CFLs); non-deterministic PDA is needed for all CFLs.",
+          "reference": "Theory of Computation / Formal Languages"
+        },
+        {
+          "formulaId": "con_051-chomsky-hierarchy",
+          "name": "Chomsky Hierarchy Containment",
+          "latex": "\\text{Regular} \\subset \\text{DCFL} \\subset \\text{CFL} \\subset \\text{CSL} \\subset \\text{RE}",
+          "plain": "Regular SUBSET DCFL SUBSET CFL SUBSET Context-Sensitive SUBSET Recursively Enumerable",
+          "whenToUse": "When comparing language classes or determining which machine/grammar type is needed.",
+          "terms": [
+            { "symbol": "\\text{DCFL}", "means": "Deterministic Context-Free Languages (accepted by DPDA)" },
+            { "symbol": "\\text{CSL}", "means": "Context-Sensitive Languages (Type-1 grammars)" }
+          ],
+          "trap": "Every regular language is a CFL but not vice versa; a^n b^n is CFL but not regular.",
+          "reference": "Theory of Computation / Formal Languages"
+        }
+      ]
+    },
+    {
+      "groupId": "cfl-closure",
+      "groupTitle": "Closure Properties",
+      "formulas": [
+        {
+          "formulaId": "con_051-closed-union",
+          "name": "Closure under Union",
+          "latex": "L_1, L_2 \\in \\text{CFL} \\Rightarrow L_1 \\cup L_2 \\in \\text{CFL}",
+          "plain": "If L1 and L2 are CFLs then L1 union L2 is also a CFL",
+          "whenToUse": "When asked whether the union of two CFLs is always a CFL.",
+          "terms": [
+            { "symbol": "L_1, L_2", "means": "context-free languages" }
+          ],
+          "trap": "This is proved by adding a new start symbol S -> S1 | S2 in the combined grammar.",
+          "reference": "Theory of Computation / Formal Languages"
+        },
+        {
+          "formulaId": "con_051-closed-concat",
+          "name": "Closure under Concatenation",
+          "latex": "L_1, L_2 \\in \\text{CFL} \\Rightarrow L_1 \\cdot L_2 \\in \\text{CFL}",
+          "plain": "If L1 and L2 are CFLs then L1 concatenated with L2 is also a CFL",
+          "whenToUse": "When asked whether concatenation of two CFLs is context-free.",
+          "terms": [
+            { "symbol": "L_1 \\cdot L_2", "means": "language of all strings w1w2 where w1 in L1 and w2 in L2" }
+          ],
+          "trap": "Proved by grammar rule S -> S1 S2 using separate non-terminals for each grammar.",
+          "reference": "Theory of Computation / Formal Languages"
+        },
+        {
+          "formulaId": "con_051-closed-kleene",
+          "name": "Closure under Kleene Star",
+          "latex": "L \\in \\text{CFL} \\Rightarrow L^* \\in \\text{CFL}",
+          "plain": "If L is a CFL then L* is also a CFL",
+          "whenToUse": "When asked whether the Kleene closure of a CFL remains context-free.",
+          "terms": [
+            { "symbol": "L^*", "means": "zero or more concatenations of strings from L" }
+          ],
+          "trap": "L+ (one or more) is also closed; L* includes the empty string epsilon even if L does not.",
+          "reference": "Theory of Computation / Formal Languages"
+        },
+        {
+          "formulaId": "con_051-not-closed-intersection",
+          "name": "NOT Closed under Intersection",
+          "latex": "L_1, L_2 \\in \\text{CFL} \\not\\Rightarrow L_1 \\cap L_2 \\in \\text{CFL}",
+          "plain": "The intersection of two CFLs is NOT necessarily a CFL",
+          "whenToUse": "When asked whether intersection of two CFLs is always a CFL (the answer is NO).",
+          "terms": [
+            { "symbol": "L_1 \\cap L_2", "means": "set of strings belonging to both L1 and L2" }
+          ],
+          "trap": "Classic counterexample: L1 = {a^n b^n c^m} and L2 = {a^m b^n c^n} are both CFL, but L1 cap L2 = {a^n b^n c^n} is NOT CFL.",
+          "reference": "Theory of Computation / Formal Languages"
+        },
+        {
+          "formulaId": "con_051-not-closed-complement",
+          "name": "NOT Closed under Complementation",
+          "latex": "L \\in \\text{CFL} \\not\\Rightarrow \\overline{L} \\in \\text{CFL}",
+          "plain": "The complement of a CFL is NOT necessarily a CFL",
+          "whenToUse": "When asked whether complementation preserves context-freeness.",
+          "terms": [
+            { "symbol": "\\overline{L}", "means": "complement of L with respect to Sigma*" }
+          ],
+          "trap": "This follows from De Morgan's law: if CFLs were closed under complement, they would be closed under intersection (since L1 cap L2 = complement(complement(L1) union complement(L2))), which is a contradiction.",
+          "reference": "Theory of Computation / Formal Languages"
+        },
+        {
+          "formulaId": "con_051-intersection-with-regular",
+          "name": "Intersection with Regular Language",
+          "latex": "L \\in \\text{CFL},\\ R \\in \\text{Regular} \\Rightarrow L \\cap R \\in \\text{CFL}",
+          "plain": "CFL intersected with a Regular language is always a CFL",
+          "whenToUse": "When filtering a CFL by a regular constraint or deciding if the result is CFL.",
+          "terms": [
+            { "symbol": "R", "means": "a regular language (accepted by DFA/NFA)" }
+          ],
+          "trap": "This is proved by running a PDA and DFA in parallel (product construction); the result is a PDA, hence CFL.",
+          "reference": "Theory of Computation / Formal Languages"
+        },
+        {
+          "formulaId": "con_051-closed-reversal",
+          "name": "Closure under Reversal",
+          "latex": "L \\in \\text{CFL} \\Rightarrow L^R \\in \\text{CFL}",
+          "plain": "If L is a CFL then the reversal of L (all strings reversed) is also a CFL",
+          "whenToUse": "When asked about reversal closure of CFLs.",
+          "terms": [
+            { "symbol": "L^R", "means": "language of reversals of all strings in L" }
+          ],
+          "trap": "Reversal is closed for CFLs; proved by reversing all RHS of grammar productions.",
+          "reference": "Theory of Computation / Formal Languages"
+        }
+      ]
+    },
+    {
+      "groupId": "cfl-pumping-lemma",
+      "groupTitle": "Pumping Lemma for CFLs",
+      "formulas": [
+        {
+          "formulaId": "con_051-pumping-lemma",
+          "name": "Pumping Lemma for CFLs",
+          "latex": "\\forall L \\in \\text{CFL},\\ \\exists p > 0 \\text{ s.t. } \\forall w \\in L,\\ |w| \\geq p:\\newline w = uvxyz,\\ |vy| \\geq 1,\\ |vxy| \\leq p,\\ \\forall i \\geq 0:\\ uv^ixy^iz \\in L",
+          "plain": "For every CFL L, there exists pumping length p > 0 such that for all w in L with |w| >= p, w can be split as w = uvxyz where |vy| >= 1, |vxy| <= p, and for all i >= 0, uv^i x y^i z is in L",
+          "whenToUse": "When proving a language is NOT context-free by deriving a contradiction.",
+          "terms": [
+            { "symbol": "p", "means": "pumping length (depends on L)" },
+            { "symbol": "u, v, x, y, z", "means": "substrings such that w = uvxyz" },
+            { "symbol": "|vy| \\geq 1", "means": "at least one of v, y is non-empty" },
+            { "symbol": "|vxy| \\leq p", "means": "the pumpable middle section has bounded length" }
+          ],
+          "trap": "Unlike pumping lemma for regular languages (two parts vxy), CFLs split into FIVE parts (uvxyz) — v and y are pumped simultaneously. Pumping lemma can only DISPROVE CFL membership, not prove it.",
+          "reference": "Theory of Computation / Formal Languages"
+        },
+        {
+          "formulaId": "con_051-non-cfl-example",
+          "name": "Classic Non-CFL: a^n b^n c^n",
+          "latex": "L = \\{a^n b^n c^n \\mid n \\geq 1\\} \\notin \\text{CFL}",
+          "plain": "L = {a^n b^n c^n | n >= 1} is NOT a context-free language",
+          "whenToUse": "As a benchmark: any language requiring counting three equal-length segments is not CFL.",
+          "terms": [
+            { "symbol": "a^n b^n c^n", "means": "equal counts of three distinct symbols" }
+          ],
+          "trap": "a^n b^n IS CFL (two equal segments); a^n b^n c^n is NOT CFL (three equal segments).",
+          "reference": "Theory of Computation / Formal Languages"
+        }
+      ]
+    },
+    {
+      "groupId": "cfl-grammars",
+      "groupTitle": "Standard CFL Grammars & Productions",
+      "formulas": [
+        {
+          "formulaId": "con_051-grammar-anbn",
+          "name": "Grammar for a^n b^n (n >= 1)",
+          "latex": "S \\rightarrow aSb \\mid ab",
+          "plain": "S -> aSb | ab  generates {a^n b^n | n >= 1}",
+          "whenToUse": "When writing a CFG for strings with equal numbers of a's followed by b's (n >= 1).",
+          "terms": [
+            { "symbol": "S", "means": "start non-terminal" }
+          ],
+          "trap": "Using S -> aSb | epsilon generates n >= 0 (includes empty string). If n >= 1 is required, use S -> ab as base case, not epsilon.",
+          "reference": "Theory of Computation / Formal Languages"
+        },
+        {
+          "formulaId": "con_051-grammar-anbn-zero",
+          "name": "Grammar for a^n b^n (n >= 0)",
+          "latex": "S \\rightarrow aSb \\mid \\epsilon",
+          "plain": "S -> aSb | epsilon  generates {a^n b^n | n >= 0}",
+          "whenToUse": "When writing a CFG for equal a's and b's including the empty string.",
+          "terms": [
+            { "symbol": "\\epsilon", "means": "empty string (also written lambda)" }
+          ],
+          "trap": "This grammar also generates the empty string (n=0). Distinguish from n >= 1 variant carefully in GATE questions.",
+          "reference": "Theory of Computation / Formal Languages"
+        },
+        {
+          "formulaId": "con_051-grammar-palindromes",
+          "name": "Grammar for Even Palindromes",
+          "latex": "S \\rightarrow aSa \\mid bSb \\mid \\epsilon",
+          "plain": "S -> aSa | bSb | epsilon  generates even-length palindromes over {a, b}",
+          "whenToUse": "When asked for a CFG producing palindromes over a two-symbol alphabet.",
+          "terms": [
+            { "symbol": "\\text{palindrome}", "means": "string that reads the same forward and backward" }
+          ],
+          "trap": "For odd-length palindromes include S -> a | b as additional base cases.",
+          "reference": "Theory of Computation / Formal Languages"
+        },
+        {
+          "formulaId": "con_051-grammar-balanced-parens",
+          "name": "Grammar for Balanced Parentheses / Dyck Language",
+          "latex": "S \\rightarrow SS \\mid (S) \\mid \\epsilon",
+          "plain": "S -> SS | (S) | epsilon  generates balanced parentheses (Dyck language)",
+          "whenToUse": "When constructing a grammar for properly matched brackets/parentheses.",
+          "terms": [
+            { "symbol": "SS", "means": "concatenation of two balanced sub-expressions" },
+            { "symbol": "(S)", "means": "balanced sub-expression wrapped in parentheses" }
+          ],
+          "trap": "The Dyck language is CFL (generated by CFG); nesting of any depth is handled by the recursive rule (S).",
+          "reference": "Theory of Computation / Formal Languages"
+        },
+        {
+          "formulaId": "con_051-grammar-unequal",
+          "name": "Grammar for Strings with Unequal Counts: |a| != |b|",
+          "latex": "L = \\{w \\in \\{a,b\\}^* \\mid n_a(w) \\neq n_b(w)\\} \\in \\text{CFL}",
+          "plain": "The language of strings over {a,b} where count of a's is not equal to count of b's is a CFL",
+          "whenToUse": "When asked whether comparing (unequal) counts of two symbols yields a CFL.",
+          "terms": [
+            { "symbol": "n_a(w)", "means": "number of a's in w" },
+            { "symbol": "n_b(w)", "means": "number of b's in w" }
+          ],
+          "trap": "L = {w | #a = #b} is CFL; L = {w | #a != #b} is also CFL (complement of a DCFL). But {w | #a = #b = #c} is NOT CFL.",
+          "reference": "Theory of Computation / Formal Languages"
+        }
+      ]
+    },
+    {
+      "groupId": "cfl-normal-forms",
+      "groupTitle": "Normal Forms",
+      "formulas": [
+        {
+          "formulaId": "con_051-cnf",
+          "name": "Chomsky Normal Form (CNF)",
+          "latex": "\\text{Every production is: } A \\rightarrow BC \\text{ or } A \\rightarrow a",
+          "plain": "In CNF every production is either A -> BC (two non-terminals) or A -> a (single terminal)",
+          "whenToUse": "When converting a CFG to CNF for CYK parsing or theoretical proofs.",
+          "terms": [
+            { "symbol": "A, B, C", "means": "non-terminal symbols (with B, C != S if epsilon in L)" },
+            { "symbol": "a", "means": "a single terminal symbol" }
+          ],
+          "trap": "Every CFL has a CNF grammar; conversion may increase the number of productions but does not change the language.",
+          "reference": "Theory of Computation / Formal Languages"
+        },
+        {
+          "formulaId": "con_051-gnf",
+          "name": "Greibach Normal Form (GNF)",
+          "latex": "\\text{Every production is: } A \\rightarrow a\\alpha,\\ a \\in \\Sigma,\\ \\alpha \\in V^*",
+          "plain": "In GNF every production starts with exactly one terminal followed by zero or more non-terminals",
+          "whenToUse": "When constructing a PDA with exactly one stack push per input symbol, or eliminating left recursion.",
+          "terms": [
+            { "symbol": "a", "means": "a terminal (first symbol on RHS)" },
+            { "symbol": "\\alpha", "means": "a (possibly empty) string of non-terminals" }
+          ],
+          "trap": "GNF eliminates left recursion; every CFL (without epsilon) can be converted to GNF.",
+          "reference": "Theory of Computation / Formal Languages"
+        }
+      ]
+    },
+    {
+      "groupId": "cfl-decision-problems",
+      "groupTitle": "Decidability & Decision Problems",
+      "formulas": [
+        {
+          "formulaId": "con_051-decidable-membership",
+          "name": "Membership Problem is Decidable (CYK)",
+          "latex": "\\text{Given CFG } G \\text{ and string } w:\\ w \\in L(G)? \\text{ is decidable (CYK in } O(n^3)\\text{)}",
+          "plain": "Given a CFG G and a string w, deciding whether w is in L(G) is decidable using the CYK algorithm in O(n^3)",
+          "whenToUse": "When asked about parsing complexity or decidability of membership for CFLs.",
+          "terms": [
+            { "symbol": "n", "means": "length of input string w" },
+            { "symbol": "\\text{CYK}", "means": "Cocke-Younger-Kasami dynamic programming parsing algorithm" }
+          ],
+          "trap": "Membership is decidable for CFLs but the universality problem (L(G) = Sigma*?) is UNDECIDABLE for CFLs.",
+          "reference": "Theory of Computation / Formal Languages"
+        },
+        {
+          "formulaId": "con_051-undecidable-problems",
+          "name": "Undecidable Problems for CFLs",
+          "latex": "\\text{Undecidable for CFGs: } L(G_1) \\cap L(G_2) = \\emptyset?,\\ L(G) = \\Sigma^*?,\\ L(G_1) = L(G_2)?",
+          "plain": "Undecidable for CFGs: intersection emptiness, universality (L(G)=Sigma*?), and equivalence (L(G1)=L(G2)?) are all undecidable",
+          "whenToUse": "When asked which decision problems about CFLs/CFGs are undecidable.",
+          "terms": [
+            { "symbol": "L(G) = \\Sigma^*", "means": "universality: does the grammar generate all strings?" },
+            { "symbol": "L(G_1) = L(G_2)", "means": "equivalence of two context-free grammars" }
+          ],
+          "trap": "Emptiness (L(G) = empty?) IS decidable for CFLs; universality is NOT. Do not confuse them.",
+          "reference": "Theory of Computation / Formal Languages"
+        },
+        {
+          "formulaId": "con_051-decidable-emptiness",
+          "name": "Emptiness and Finiteness are Decidable",
+          "latex": "L(G) = \\emptyset? \\text{ and } |L(G)| < \\infty? \\text{ are both decidable for CFGs}",
+          "plain": "Both emptiness (L(G)=empty?) and finiteness (L(G) finite?) are decidable for context-free grammars",
+          "whenToUse": "When asked which decision problems are decidable for CFLs.",
+          "terms": [
+            { "symbol": "L(G) = \\emptyset", "means": "no string is generated by the grammar" }
+          ],
+          "trap": "Decidability contrast: empty/finite = decidable; universal/equivalent/ambiguous = undecidable.",
+          "reference": "Theory of Computation / Formal Languages"
+        }
+      ]
+    }
+  ]
+}

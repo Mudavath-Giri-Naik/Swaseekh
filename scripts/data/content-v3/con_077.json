@@ -1,0 +1,33 @@
+{
+ "_id": "con_077",
+ "conceptId": "con_077",
+ "conceptTitle": "Routing Protocols",
+ "reference": "GATE CS — Computer Networks / Network Layer",
+ "decisionGuide": {
+  "title": "Which result do I use?",
+  "map": [
+   {"condition": "Distance-vector update", "use": "D_x(y)=\\min_v\\{c(x,v)+D_v(y)\\}"},
+   {"condition": "Link-state shortest path", "use": "\\text{Dijkstra}"},
+   {"condition": "RIP loop limit", "use": "\\le 15 \\text{ hops}"}
+  ]
+ },
+ "groups": [
+  {
+   "groupId": "distance-vector",
+   "groupTitle": "Distance-Vector Routing",
+   "formulas": [
+    {"formulaId": "con_077-bellman-ford-dv", "name": "Bellman-Ford Update", "latex": "D_x(y) = \\min_{v \\in N(x)} \\{\\, c(x,v) + D_v(y) \\,\\}", "plain": "Node x's distance to y = min over neighbours v of (cost x->v + v's distance to y)", "whenToUse": "Computing/updating distance vectors (RIP).", "terms": [{"symbol": "c(x,v)", "means": "link cost x to neighbour v"}, {"symbol": "D_v(y)", "means": "neighbour v's advertised distance to y"}], "trap": "Each node knows only neighbour vectors, not the full topology.", "reference": "DV routing"},
+    {"formulaId": "con_077-count-to-infinity", "name": "Count-to-Infinity", "latex": "\\text{bad news travels slowly} \\Rightarrow D \\to \\infty", "plain": "On link failure DV may loop incrementing costs; mitigations: split horizon, poison reverse, hold-down", "whenToUse": "Explaining DV convergence problems.", "terms": [{"symbol": "split horizon", "means": "don't advertise a route back to the neighbour you learned it from"}], "trap": "RIP caps the metric at 16 (= infinity) to bound the loop.", "reference": "DV instability"},
+    {"formulaId": "con_077-rip-hop", "name": "RIP Hop Limit", "latex": "\\text{metric} \\le 15,\\quad 16 = \\infty", "plain": "RIP max usable hop count = 15; 16 means unreachable", "whenToUse": "RIP reachability questions.", "terms": [{"symbol": "hop", "means": "one router traversal"}], "trap": "Limits network diameter to 15 hops.", "reference": "RIP"}
+   ]
+  },
+  {
+   "groupId": "link-state",
+   "groupTitle": "Link-State Routing",
+   "formulas": [
+    {"formulaId": "con_077-dijkstra-ls", "name": "Link-State (Dijkstra)", "latex": "O(E + V\\log V)\\ \\text{(heap)},\\ \\ O(V^2)\\ \\text{(array)}", "plain": "OSPF floods full topology (LSAs) and each router runs Dijkstra to build its tree", "whenToUse": "OSPF / link-state shortest-path computation.", "terms": [{"symbol": "LSA", "means": "link-state advertisement, flooded to all routers"}], "trap": "Link-state floods topology globally; distance-vector shares only its own table with neighbours.", "reference": "OSPF"},
+    {"formulaId": "con_077-hierarchical", "name": "Routing Tables & Longest Prefix Match", "latex": "\\text{forward to entry with longest matching prefix}", "plain": "A router forwards a packet using the most specific (longest) matching prefix in its table", "whenToUse": "Choosing the next hop from a routing table.", "terms": [{"symbol": "prefix", "means": "network/mask entry"}], "trap": "Longest-prefix wins even over a default 0.0.0.0/0 route.", "reference": "Forwarding"}
+   ]
+  }
+ ]
+}

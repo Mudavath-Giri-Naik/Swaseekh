@@ -1,0 +1,265 @@
+{
+  "_id": "con_074",
+  "conceptId": "con_074",
+  "conceptTitle": "Circuit and Packet Switching",
+  "reference": "GATE CS — Computer Networks / Network Architecture",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Packet size given, store-and-forward, k hops",
+        "use": "T_{total} = k \\cdot \\frac{L}{B} + (n-1) \\cdot \\frac{L}{B}"
+      },
+      {
+        "condition": "File of M bytes split into packets of p bytes each (p includes header h)",
+        "use": "T = \\frac{M + (n_{pkt}-1) \\cdot h}{B} \\cdot \\frac{1}{1} \\approx \\text{(see pipelining formula)}"
+      },
+      {
+        "condition": "Optimal packet size to minimise total delay",
+        "use": "p^* = h + \\sqrt{\\frac{h \\cdot M}{k-1}}"
+      },
+      {
+        "condition": "Comparing circuit vs packet: bandwidth utilisation",
+        "use": "\\eta_{circuit} = \\frac{1}{N}, \\quad \\eta_{packet} \\approx 1 \\text{ (statistical mux)}"
+      },
+      {
+        "condition": "End-to-end delay for message switching (no pipelining)",
+        "use": "T_{msg} = k \\cdot \\frac{M}{B}"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "switching-types",
+      "groupTitle": "Switching Paradigms — Key Definitions",
+      "formulas": [
+        {
+          "formulaId": "con_074-circuit-switching-def",
+          "name": "Circuit Switching",
+          "latex": "\\text{Dedicated path reserved end-to-end before data flows.}",
+          "plain": "A dedicated physical circuit is established, held for the entire session, then torn down.",
+          "whenToUse": "When reasoning about connection setup time, guaranteed bandwidth, or telephone-network comparisons.",
+          "terms": [
+            { "symbol": "setup", "means": "Call-setup phase before data can be sent" },
+            { "symbol": "teardown", "means": "Release phase after the call ends" }
+          ],
+          "trap": "GATE often states 'bandwidth reservation' as a property of circuit switching — do not confuse with packet-switching QoS.",
+          "reference": "Computer Networks / Network Architecture"
+        },
+        {
+          "formulaId": "con_074-packet-switching-def",
+          "name": "Packet Switching",
+          "latex": "\\text{Data split into packets; each routed independently.}",
+          "plain": "No dedicated path; packets share links dynamically (statistical multiplexing).",
+          "whenToUse": "Default networking paradigm for the Internet; used in any delay/utilisation computation question.",
+          "terms": [
+            { "symbol": "header", "means": "Per-packet overhead (h bytes)" },
+            { "symbol": "payload", "means": "Data portion of a packet" }
+          ],
+          "trap": "Packet switching has MORE delay variation (jitter), not less — a common false statement in GATE.",
+          "reference": "Computer Networks / Network Architecture"
+        },
+        {
+          "formulaId": "con_074-message-switching-def",
+          "name": "Message Switching (Store-and-Forward, no fragmentation)",
+          "latex": "\\text{Entire message stored at each node, then forwarded.}",
+          "plain": "The whole file is received at an intermediate node before being forwarded — no pipelining between hops.",
+          "whenToUse": "Baseline for comparing against packet switching; used when packet size equals total message size.",
+          "terms": [
+            { "symbol": "M", "means": "Total message size in bytes" }
+          ],
+          "trap": "Message switching is NOT the same as packet switching with one large packet when headers must be added at each hop.",
+          "reference": "Computer Networks / Network Architecture"
+        }
+      ]
+    },
+    {
+      "groupId": "circuit-vs-packet-properties",
+      "groupTitle": "Circuit vs Packet — Key Properties",
+      "formulas": [
+        {
+          "formulaId": "con_074-bandwidth-utilisation",
+          "name": "Bandwidth Utilisation Comparison",
+          "latex": "\\eta_{\\text{circuit}} = \\frac{1}{N}, \\quad \\eta_{\\text{packet}} \\approx 1 \\text{ (statistical mux)}",
+          "plain": "Circuit: 1/N of capacity used when one of N channels is active. Packet: near full utilisation via multiplexing.",
+          "whenToUse": "Questions asking which switching gives better bandwidth utilisation.",
+          "terms": [
+            { "symbol": "N", "means": "Number of multiplexed channels on a circuit-switched link" },
+            { "symbol": "\\eta", "means": "Bandwidth utilisation ratio" }
+          ],
+          "trap": "Packet switching has BETTER utilisation than circuit switching — if a question says otherwise, it is false.",
+          "reference": "Computer Networks / Network Architecture"
+        },
+        {
+          "formulaId": "con_074-delay-variation",
+          "name": "Delay and Jitter Comparison",
+          "latex": "\\text{Jitter}_{\\text{circuit}} = 0, \\quad \\text{Jitter}_{\\text{packet}} > 0",
+          "plain": "Circuit switching: fixed delay, zero jitter. Packet switching: variable queuing delay, non-zero jitter.",
+          "whenToUse": "True/false questions about delay variation or which switching suits real-time applications.",
+          "terms": [
+            { "symbol": "jitter", "means": "Variation in end-to-end packet delay" }
+          ],
+          "trap": "A classic GATE false statement is 'packet switching results in less variation in delay than circuit switching' — this is FALSE.",
+          "reference": "Computer Networks / Network Architecture"
+        },
+        {
+          "formulaId": "con_074-connection-setup",
+          "name": "Connection Setup Overhead",
+          "latex": "T_{\\text{total, circuit}} = T_{\\text{setup}} + T_{\\text{data}} + T_{\\text{teardown}}",
+          "plain": "Total time = setup + data transfer + teardown; packet switching has no setup phase.",
+          "whenToUse": "When comparing total transfer time including call setup, especially for short messages.",
+          "terms": [
+            { "symbol": "T_{setup}", "means": "Call-setup latency (RTT to establish path)" },
+            { "symbol": "T_{teardown}", "means": "Link release latency" }
+          ],
+          "trap": "For very short messages, circuit switching may be slower overall due to setup overhead even though per-bit transmission delay is fixed.",
+          "reference": "Computer Networks / Network Architecture"
+        }
+      ]
+    },
+    {
+      "groupId": "store-and-forward-delay",
+      "groupTitle": "Store-and-Forward Packet Delay",
+      "formulas": [
+        {
+          "formulaId": "con_074-single-packet-delay",
+          "name": "Single-Packet End-to-End Delay (k hops)",
+          "latex": "T = k \\cdot \\frac{L}{B}",
+          "plain": "T = k * (L / B)  where k = number of links, L = packet size (bytes), B = link bandwidth (bytes/s).",
+          "whenToUse": "When a single packet traverses k store-and-forward links of equal bandwidth.",
+          "terms": [
+            { "symbol": "k", "means": "Number of links (hops)" },
+            { "symbol": "L", "means": "Packet size in bytes" },
+            { "symbol": "B", "means": "Link bandwidth in bytes/s" }
+          ],
+          "trap": "Do not confuse number of routers with number of links: k links = k-1 intermediate routers + 2 endpoints.",
+          "reference": "Computer Networks / Network Architecture"
+        },
+        {
+          "formulaId": "con_074-pipelining-delay",
+          "name": "Pipelined Multi-Packet End-to-End Delay",
+          "latex": "T_{\\text{pipeline}} = \\left( n_{pkt} + k - 1 \\right) \\cdot \\frac{L}{B}",
+          "plain": "T = (n_pkt + k - 1) * (L / B)  — pipelining lets last packet overlap with earlier ones.",
+          "whenToUse": "When a file is split into n_pkt equal packets, each of size L bytes, sent over k links.",
+          "terms": [
+            { "symbol": "n_{pkt}", "means": "Number of packets the file is split into" },
+            { "symbol": "k", "means": "Number of links (hops)" },
+            { "symbol": "L", "means": "Packet size in bytes (including header)" }
+          ],
+          "trap": "Propagation delay is often zero in GATE store-and-forward problems unless explicitly given — check the question.",
+          "reference": "Computer Networks / Network Architecture"
+        },
+        {
+          "formulaId": "con_074-pipelining-with-header",
+          "name": "Pipelined Delay with Header Overhead",
+          "latex": "n_{pkt} = \\left\\lceil \\frac{M}{p - h} \\right\\rceil, \\quad T = (n_{pkt} + k - 1) \\cdot \\frac{p}{B}",
+          "plain": "n_pkt = ceil(M / (p-h));  T = (n_pkt + k - 1) * p / B  where p = total packet size, h = header bytes.",
+          "whenToUse": "File of M data bytes, packets of total size p (payload = p-h), sent over k store-and-forward links.",
+          "terms": [
+            { "symbol": "M", "means": "Total data (file) size in bytes" },
+            { "symbol": "p", "means": "Total packet size including header (bytes)" },
+            { "symbol": "h", "means": "Header size per packet (bytes)" },
+            { "symbol": "k", "means": "Number of links" }
+          ],
+          "trap": "Payload per packet is (p - h), NOT p — forgetting header overhead inflates n_pkt.",
+          "reference": "Computer Networks / Network Architecture"
+        },
+        {
+          "formulaId": "con_074-message-switching-delay",
+          "name": "Message Switching Delay (no fragmentation)",
+          "latex": "T_{\\text{msg}} = k \\cdot \\frac{M}{B}",
+          "plain": "T_msg = k * M / B — entire message transmitted at each hop before forwarding.",
+          "whenToUse": "Baseline comparison: packet switching is faster due to pipelining whenever k > 1.",
+          "terms": [
+            { "symbol": "k", "means": "Number of links" },
+            { "symbol": "M", "means": "Total message size" },
+            { "symbol": "B", "means": "Link bandwidth" }
+          ],
+          "trap": "Message switching delay is k times the single-link delay — packet switching with pipelining beats this for k > 1.",
+          "reference": "Computer Networks / Network Architecture"
+        }
+      ]
+    },
+    {
+      "groupId": "optimal-packet-size",
+      "groupTitle": "Optimal Packet Size",
+      "formulas": [
+        {
+          "formulaId": "con_074-total-delay-expression",
+          "name": "Total Delay as Function of Packet Size",
+          "latex": "T(p) = \\frac{1}{B} \\left[ M + \\frac{M \\cdot h}{p - h} + (k-1) \\cdot p \\right]",
+          "plain": "T(p) = (1/B) * [ M + M*h/(p-h) + (k-1)*p ]  — sum of data bits + header overhead + pipeline tail.",
+          "whenToUse": "Setting up the optimisation to find optimal packet size p that minimises total transmission time.",
+          "terms": [
+            { "symbol": "p", "means": "Total packet size (bytes), the variable to optimise" },
+            { "symbol": "h", "means": "Header bytes per packet" },
+            { "symbol": "M", "means": "Total data bytes in the file" },
+            { "symbol": "k", "means": "Number of links" }
+          ],
+          "trap": "The term (k-1)*p accounts for the pipeline tail at k-1 intermediate nodes — often omitted in student derivations.",
+          "reference": "Computer Networks / Network Architecture"
+        },
+        {
+          "formulaId": "con_074-optimal-packet-size",
+          "name": "Optimal Packet Size (minimises total delay)",
+          "latex": "p^* = h + \\sqrt{\\frac{M \\cdot h}{k - 1}}",
+          "plain": "p* = h + sqrt(M*h / (k-1))  — derived by dT/dp = 0.",
+          "whenToUse": "GATE numerical question: given M, h, k, find the packet size that minimises end-to-end delay.",
+          "terms": [
+            { "symbol": "p^*", "means": "Optimal total packet size in bytes" },
+            { "symbol": "h", "means": "Header size per packet (bytes)" },
+            { "symbol": "M", "means": "Total file size (bytes)" },
+            { "symbol": "k", "means": "Number of links (hops)" }
+          ],
+          "trap": "k is the number of LINKS, not routers. For 2 intermediate nodes, k = 3 links.",
+          "reference": "Computer Networks / Network Architecture"
+        },
+        {
+          "formulaId": "con_074-optimal-payload",
+          "name": "Optimal Payload Size",
+          "latex": "\\text{payload}^* = p^* - h = \\sqrt{\\frac{M \\cdot h}{k-1}}",
+          "plain": "optimal_payload = p* - h = sqrt(M*h / (k-1))",
+          "whenToUse": "When the question asks for optimal payload (data portion) rather than total packet size.",
+          "terms": [
+            { "symbol": "p^* - h", "means": "Optimal data bytes per packet" }
+          ],
+          "trap": "Do not substitute payload for p in the formula — p is the full packet (header + payload).",
+          "reference": "Computer Networks / Network Architecture"
+        }
+      ]
+    },
+    {
+      "groupId": "circuit-switching-capacity",
+      "groupTitle": "Circuit Switching — Capacity and Multiplexing",
+      "formulas": [
+        {
+          "formulaId": "con_074-tdm-channels",
+          "name": "TDM Circuit Switching — Number of Channels",
+          "latex": "N = \\frac{B_{\\text{link}}}{B_{\\text{channel}}}",
+          "plain": "N = B_link / B_channel — total link bandwidth divided evenly among N circuit channels.",
+          "whenToUse": "Computing how many simultaneous circuit-switched calls a link can support.",
+          "terms": [
+            { "symbol": "B_{link}", "means": "Total link bandwidth" },
+            { "symbol": "B_{channel}", "means": "Bandwidth allocated per call/channel" },
+            { "symbol": "N", "means": "Number of simultaneous circuits" }
+          ],
+          "trap": "Each channel always holds its allocation even during silence — this is the waste that packet switching avoids.",
+          "reference": "Computer Networks / Network Architecture"
+        },
+        {
+          "formulaId": "con_074-statistical-mux-gain",
+          "name": "Statistical Multiplexing Gain (Packet Switching)",
+          "latex": "\\text{Users supportable} \\gg N \\text{ when } \\rho_{\\text{active}} \\ll 1",
+          "plain": "Packet switching supports many more users than N when each user is active only a fraction of the time.",
+          "whenToUse": "Qualitative questions about why packet switching supports more simultaneous users than circuit switching.",
+          "terms": [
+            { "symbol": "\\rho_{active}", "means": "Probability a user is actively transmitting" },
+            { "symbol": "N", "means": "Max simultaneous circuit-switched users on same link" }
+          ],
+          "trap": "The gain only applies when users are bursty — for continuous streams, packet and circuit switching support the same number.",
+          "reference": "Computer Networks / Network Architecture"
+        }
+      ]
+    }
+  ]
+}

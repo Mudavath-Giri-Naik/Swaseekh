@@ -1,0 +1,307 @@
+{
+  "_id": "con_064",
+  "conceptId": "con_064",
+  "conceptTitle": "CPU and I/O Scheduling",
+  "reference": "GATE CS — Operating System / Scheduling",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Computing average access time for a disk request",
+        "use": "T_{access} = T_{seek} + T_{rotation} + T_{transfer}"
+      },
+      {
+        "condition": "Finding total head movement for a disk scheduling algorithm",
+        "use": "\\text{Total movement} = \\sum |\\text{current} - \\text{next}|"
+      },
+      {
+        "condition": "Computing average waiting time / turnaround time for a scheduling algorithm",
+        "use": "\\text{AWT} = \\frac{\\sum W_i}{n},\\quad \\text{ATT} = \\frac{\\sum (C_i - A_i)}{n}"
+      },
+      {
+        "condition": "Finding CPU efficiency lost to interrupt overhead",
+        "use": "\\eta_{CPU} = \\frac{T_{main}}{T_{main} + T_{interrupt}} \\times 100\\%"
+      },
+      {
+        "condition": "Computing bit rate of an I/O terminal",
+        "use": "R_{bit} = \\frac{\\text{chars/line} \\times \\text{bits/char}}{T_{sweep}}"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "disk-performance",
+      "groupTitle": "Disk Performance Metrics",
+      "formulas": [
+        {
+          "formulaId": "con_064-disk-access-time",
+          "name": "Total Disk Access Time",
+          "latex": "T_{access} = T_{seek} + T_{rotation} + T_{transfer}",
+          "plain": "T_access = T_seek + T_rotation + T_transfer",
+          "whenToUse": "Estimating how long a single disk request takes end-to-end",
+          "terms": [
+            { "symbol": "T_{seek}", "means": "time to move head to the target track" },
+            { "symbol": "T_{rotation}", "means": "time waiting for sector to rotate under the head" },
+            { "symbol": "T_{transfer}", "means": "time to read/write the data once under head" }
+          ],
+          "trap": "Average rotational latency is half the full rotation time (T_rot/2), not the full rotation time",
+          "reference": "OS / Disk Storage"
+        },
+        {
+          "formulaId": "con_064-rotation-latency",
+          "name": "Rotational Period and Average Latency",
+          "latex": "T_{rot} = \\frac{60}{\\text{RPM}}\\text{ s},\\quad T_{avg\\_rot} = \\frac{T_{rot}}{2}",
+          "plain": "T_rot = 60/RPM (seconds); avg rotational latency = T_rot/2",
+          "whenToUse": "Converting RPM to rotational period and computing average wait for sector",
+          "terms": [
+            { "symbol": "\\text{RPM}", "means": "revolutions per minute of the disk" },
+            { "symbol": "T_{rot}", "means": "time for one full revolution" }
+          ],
+          "trap": "RPM gives revolutions per minute; convert to seconds: T_rot = 60/RPM, not 1/RPM",
+          "reference": "OS / Disk Storage"
+        },
+        {
+          "formulaId": "con_064-transfer-time",
+          "name": "Data Transfer Time",
+          "latex": "T_{transfer} = \\frac{\\text{Data size}}{\\text{Track capacity}} \\times T_{rot}",
+          "plain": "T_transfer = (bytes_to_transfer / bytes_per_track) * T_rot",
+          "whenToUse": "Computing time to read a known number of bytes from a rotating disk",
+          "terms": [
+            { "symbol": "\\text{Track capacity}", "means": "bytes stored on one full track" },
+            { "symbol": "T_{rot}", "means": "time for one full disk revolution" }
+          ],
+          "trap": "Transfer time scales linearly with fraction of track; a full track read takes exactly T_rot",
+          "reference": "OS / Disk Storage"
+        },
+        {
+          "formulaId": "con_064-disk-bandwidth",
+          "name": "Disk Bandwidth / Transfer Rate",
+          "latex": "B_{disk} = \\frac{\\text{Track capacity}}{T_{rot}} = \\text{Track capacity} \\times \\frac{\\text{RPM}}{60}",
+          "plain": "Disk bandwidth = track_capacity_bytes * (RPM/60)  [bytes/sec]",
+          "whenToUse": "Estimating maximum sustained data rate of a disk",
+          "terms": [
+            { "symbol": "\\text{Track capacity}", "means": "bytes per track" },
+            { "symbol": "\\text{RPM}", "means": "disk rotation speed" }
+          ],
+          "trap": "This is the peak rate; actual throughput is much lower due to seek and rotational latency",
+          "reference": "OS / Disk Storage"
+        }
+      ]
+    },
+    {
+      "groupId": "disk-scheduling",
+      "groupTitle": "Disk Scheduling Algorithms",
+      "formulas": [
+        {
+          "formulaId": "con_064-disk-head-movement",
+          "name": "Total Head Movement (Any Algorithm)",
+          "latex": "\\text{Total movement} = \\sum_{i=1}^{n} |c_{i} - c_{i-1}|",
+          "plain": "Total head movement = sum of |current_cylinder - next_cylinder| over all moves",
+          "whenToUse": "Evaluating and comparing disk scheduling algorithms by seek distance",
+          "terms": [
+            { "symbol": "c_i", "means": "cylinder number of the i-th request served" },
+            { "symbol": "c_{i-1}", "means": "cylinder number of the previous position" }
+          ],
+          "trap": "Always trace the order in which requests are served; SSTF and SCAN do not serve in FIFO order",
+          "reference": "OS / Disk Scheduling"
+        },
+        {
+          "formulaId": "con_064-sstf-rule",
+          "name": "SSTF — Shortest Seek Time First Rule",
+          "latex": "\\text{Next} = \\arg\\min_{r \\in Q}\\,|r - \\text{current}|",
+          "plain": "Always serve the pending request closest to current head position",
+          "whenToUse": "Simulating SSTF disk scheduling to find order served and total movement",
+          "terms": [
+            { "symbol": "Q", "means": "set of pending cylinder requests" },
+            { "symbol": "\\text{current}", "means": "current head cylinder position" }
+          ],
+          "trap": "SSTF can cause starvation of far-away cylinders; it is NOT optimal in all cases",
+          "reference": "OS / Disk Scheduling"
+        },
+        {
+          "formulaId": "con_064-scan-elevator",
+          "name": "SCAN (Elevator) Algorithm",
+          "latex": "\\text{Head moves in one direction, services requests, reverses at end of disk}",
+          "plain": "Head sweeps to one end, reverses direction, sweeps to other end; services requests along the way",
+          "whenToUse": "SCAN / Elevator scheduling problems asking for service order or total movement",
+          "terms": [
+            { "symbol": "\\text{direction}", "means": "current direction of head movement (increasing or decreasing cylinder)" }
+          ],
+          "trap": "In SCAN the head reaches the last cylinder before reversing; C-SCAN wraps to cylinder 0 without servicing on the return trip",
+          "reference": "OS / Disk Scheduling"
+        },
+        {
+          "formulaId": "con_064-cscan-rule",
+          "name": "C-SCAN (Circular SCAN) Rule",
+          "latex": "\\text{One-direction sweep only; non-servicing jump from end back to start}",
+          "plain": "Serve requests in one direction only; when end is reached, jump to other end without servicing",
+          "whenToUse": "C-SCAN problems; provides more uniform wait times than SCAN",
+          "terms": [
+            { "symbol": "\\text{jump}", "means": "non-servicing return from one end to the other" }
+          ],
+          "trap": "The jump from end to start is NOT counted as head movement in many textbook problems; clarify convention",
+          "reference": "OS / Disk Scheduling"
+        }
+      ]
+    },
+    {
+      "groupId": "process-scheduling-metrics",
+      "groupTitle": "Process Scheduling Metrics",
+      "formulas": [
+        {
+          "formulaId": "con_064-turnaround-waiting",
+          "name": "Turnaround Time and Waiting Time",
+          "latex": "TT_i = C_i - A_i,\\quad WT_i = TT_i - B_i",
+          "plain": "TT_i = Completion_i - Arrival_i;  WT_i = TT_i - Burst_i",
+          "whenToUse": "Computing individual and average turnaround/waiting times for any scheduling algorithm",
+          "terms": [
+            { "symbol": "C_i", "means": "completion time of process i" },
+            { "symbol": "A_i", "means": "arrival time of process i" },
+            { "symbol": "B_i", "means": "CPU burst time of process i" }
+          ],
+          "trap": "Waiting time = TT - burst (not TT - start time); response time = first scheduling time - arrival time",
+          "reference": "OS / Process Scheduling"
+        },
+        {
+          "formulaId": "con_064-avg-wt-tt",
+          "name": "Average Waiting Time and Average Turnaround Time",
+          "latex": "\\text{AWT} = \\frac{\\sum_{i=1}^{n} WT_i}{n},\\quad \\text{ATT} = \\frac{\\sum_{i=1}^{n} TT_i}{n}",
+          "plain": "AWT = sum(WT_i)/n;  ATT = sum(TT_i)/n",
+          "whenToUse": "Final step in any process scheduling problem to produce summary statistics",
+          "terms": [
+            { "symbol": "n", "means": "total number of processes" }
+          ],
+          "trap": "Count ALL processes; do not drop processes that arrive at time 0 or have zero wait",
+          "reference": "OS / Process Scheduling"
+        },
+        {
+          "formulaId": "con_064-cpu-utilization",
+          "name": "CPU Utilization",
+          "latex": "\\text{CPU utilization} = \\frac{\\text{Total busy time}}{\\text{Total elapsed time}} \\times 100\\%",
+          "plain": "CPU_util = (total_CPU_busy_time / total_elapsed_time) * 100%",
+          "whenToUse": "Measuring how efficiently the CPU is being used in a multiprogramming scenario",
+          "terms": [
+            { "symbol": "\\text{Total busy time}", "means": "time CPU is executing (not idle)" }
+          ],
+          "trap": "Idle time (when all processes are in I/O) reduces utilization; count idle gaps carefully from the Gantt chart",
+          "reference": "OS / Process Scheduling"
+        },
+        {
+          "formulaId": "con_064-throughput",
+          "name": "Throughput",
+          "latex": "\\text{Throughput} = \\frac{n}{T_{total}}",
+          "plain": "Throughput = number_of_processes_completed / total_time_elapsed",
+          "whenToUse": "Evaluating scheduling algorithm by number of processes completed per unit time",
+          "terms": [
+            { "symbol": "n", "means": "number of processes completed" },
+            { "symbol": "T_{total}", "means": "total elapsed time" }
+          ],
+          "trap": "Compare throughput of different algorithms over the same total time span for a fair comparison",
+          "reference": "OS / Process Scheduling"
+        }
+      ]
+    },
+    {
+      "groupId": "scheduling-algorithms",
+      "groupTitle": "CPU Scheduling Algorithm Rules",
+      "formulas": [
+        {
+          "formulaId": "con_064-srtf-preemption",
+          "name": "SRTF (Preemptive SJF) Preemption Rule",
+          "latex": "\\text{Preempt if } B_{new} < \\text{remaining}_{\\text{running}}",
+          "plain": "When a new process arrives, preempt current if new burst < remaining burst of running process",
+          "whenToUse": "SRTF / preemptive SJF scheduling; deciding when to context switch",
+          "terms": [
+            { "symbol": "B_{new}", "means": "burst time of the newly arrived process" },
+            { "symbol": "\\text{remaining}_{\\text{running}}", "means": "remaining CPU time needed by the current running process" }
+          ],
+          "trap": "Context switch happens only at arrival of a new process; the remaining burst shrinks continuously as the process runs",
+          "reference": "OS / Process Scheduling"
+        },
+        {
+          "formulaId": "con_064-round-robin-quantum",
+          "name": "Round Robin — Context Switch Count",
+          "latex": "\\text{Context switches} \\approx \\sum_{i=1}^{n} \\left\\lceil \\frac{B_i}{q} \\right\\rceil",
+          "plain": "Context switches ~ sum over all processes of ceil(B_i / q)",
+          "whenToUse": "Round Robin problems asking how many context switches occur or comparing quantum sizes",
+          "terms": [
+            { "symbol": "q", "means": "time quantum" },
+            { "symbol": "B_i", "means": "CPU burst of process i" }
+          ],
+          "trap": "Smaller quantum increases context switch overhead; larger quantum causes RR to behave like FCFS",
+          "reference": "OS / Process Scheduling"
+        },
+        {
+          "formulaId": "con_064-aging-starvation",
+          "name": "Priority Scheduling — Starvation and Aging",
+          "latex": "\\text{priority}(t) = \\text{base\\_priority} + k \\times \\text{wait\\_time}",
+          "plain": "Aging: increase priority of waiting process by k per unit time to prevent starvation",
+          "whenToUse": "Priority scheduling questions about starvation and its solution",
+          "terms": [
+            { "symbol": "k", "means": "aging rate (priority increment per time unit waiting)" }
+          ],
+          "trap": "Starvation can occur in SJF and static priority scheduling; Round Robin does NOT starve any process",
+          "reference": "OS / Process Scheduling"
+        }
+      ]
+    },
+    {
+      "groupId": "io-interrupt",
+      "groupTitle": "I/O Handling and Interrupts",
+      "formulas": [
+        {
+          "formulaId": "con_064-interrupt-overhead",
+          "name": "CPU Time Available for Main Program",
+          "latex": "\\eta_{CPU} = \\frac{T_{exec}}{T_{exec} + T_{ISR}} \\times 100\\%",
+          "plain": "CPU_efficiency = T_exec / (T_exec + T_ISR) * 100%",
+          "whenToUse": "Finding what fraction of CPU time is spent on the main program vs. interrupt service routines",
+          "terms": [
+            { "symbol": "T_{exec}", "means": "time executing main program between interrupts" },
+            { "symbol": "T_{ISR}", "means": "time to service one interrupt" }
+          ],
+          "trap": "If interrupts arrive every X ms and ISR takes Y ms, efficiency = (X - Y)/X; ensure units match",
+          "reference": "OS / Interrupts"
+        },
+        {
+          "formulaId": "con_064-interrupt-cycle",
+          "name": "Interrupt Cycle Components",
+          "latex": "T_{int\\_cycle} = T_{save} + T_{ISR} + T_{restore}",
+          "plain": "Interrupt cycle time = save_context + ISR_execution + restore_context",
+          "whenToUse": "Detailed interrupt timing problems with context save/restore overhead specified",
+          "terms": [
+            { "symbol": "T_{save}", "means": "time to push registers / PC onto stack" },
+            { "symbol": "T_{ISR}", "means": "interrupt service routine execution time" },
+            { "symbol": "T_{restore}", "means": "time to pop and restore saved state" }
+          ],
+          "trap": "Context save and restore add to interrupt overhead; omitting them underestimates total CPU time lost",
+          "reference": "OS / Interrupts"
+        },
+        {
+          "formulaId": "con_064-terminal-bitrate",
+          "name": "I/O Terminal Bit Rate",
+          "latex": "R_{bit} = \\frac{\\text{chars/line} \\times \\text{bits/char}}{T_{active\\_sweep}}",
+          "plain": "Bit_rate = (chars_per_line * bits_per_char) / active_sweep_time",
+          "whenToUse": "Computing bit rate of a video terminal given characters per line, bits per char, and sweep time",
+          "terms": [
+            { "symbol": "T_{active\\_sweep}", "means": "horizontal sweep time excluding retrace (blanking) time" },
+            { "symbol": "\\text{chars/line}", "means": "number of characters per horizontal scan line" }
+          ],
+          "trap": "Subtract the retrace (blanking) time from total sweep time to get the active data transmission window",
+          "reference": "OS / I/O Handling"
+        },
+        {
+          "formulaId": "con_064-spooling",
+          "name": "Spooling — Definition and Key Property",
+          "latex": "\\text{SPOOL}: \\text{job output} \\xrightarrow{\\text{disk buffer}} \\text{slow device (e.g., printer)}",
+          "plain": "Spooling buffers output (e.g., print jobs) to disk so CPU is not blocked by slow device",
+          "whenToUse": "I/O handling questions about which devices use spooling vs. direct I/O",
+          "terms": [
+            { "symbol": "\\text{spool}", "means": "disk queue that decouples process output from slow I/O device" }
+          ],
+          "trap": "An interactive terminal is NOT spooled; a shared printer IS the classic spooled device example",
+          "reference": "OS / I/O Handling"
+        }
+      ]
+    }
+  ]
+}

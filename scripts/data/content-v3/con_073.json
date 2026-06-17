@@ -1,0 +1,305 @@
+{
+  "_id": "con_073",
+  "conceptId": "con_073",
+  "conceptTitle": "OSI and TCP/IP Protocol Stacks",
+  "reference": "GATE CS — Computer Networks / Network Architecture",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Need to find MAC address from known IP address",
+        "use": "\\text{ARP}: \\text{IP} \\rightarrow \\text{MAC}"
+      },
+      {
+        "condition": "Need to find IP address from known MAC address",
+        "use": "\\text{RARP}: \\text{MAC} \\rightarrow \\text{IP}"
+      },
+      {
+        "condition": "Packet too large for next link (fragmentation)",
+        "use": "n_{frag} = \\left\\lceil \\frac{L - H_{IP}}{\\text{MTU} - H_{IP}} \\right\\rceil"
+      },
+      {
+        "condition": "Identify which layer handles a given function (routing / framing / reliability)",
+        "use": "\\text{Network} \\to \\text{routing},\\ \\text{Data Link} \\to \\text{framing},\\ \\text{Transport} \\to \\text{e2e reliability}"
+      },
+      {
+        "condition": "Protocol uses UDP vs TCP",
+        "use": "\\text{DNS, DHCP, SNMP, TFTP} \\to \\text{UDP};\\quad \\text{HTTP, FTP, SMTP, Telnet, SSH} \\to \\text{TCP}"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "osi-layers",
+      "groupTitle": "OSI 7-Layer Model",
+      "formulas": [
+        {
+          "formulaId": "con_073-osi-layer-stack",
+          "name": "OSI Layer Order (bottom to top)",
+          "latex": "1.\\,\\text{Physical} \\;|\\; 2.\\,\\text{Data Link} \\;|\\; 3.\\,\\text{Network} \\;|\\; 4.\\,\\text{Transport} \\;|\\; 5.\\,\\text{Session} \\;|\\; 6.\\,\\text{Presentation} \\;|\\; 7.\\,\\text{Application}",
+          "plain": "1. Physical | 2. Data Link | 3. Network | 4. Transport | 5. Session | 6. Presentation | 7. Application",
+          "whenToUse": "When identifying which OSI layer a given function, protocol, or device belongs to.",
+          "terms": [
+            { "symbol": "PDU", "means": "Protocol Data Unit — the name of data at each layer (bits / frames / packets / segments / data)" }
+          ],
+          "trap": "Confusing Physical (bit transmission) with Data Link (framing, MAC, error detection on a single hop) — switches operate at Layer 2, routers at Layer 3.",
+          "reference": "Computer Networks / OSI Model"
+        },
+        {
+          "formulaId": "con_073-osi-layer-functions",
+          "name": "OSI Layer Key Functions",
+          "latex": "\\begin{array}{ll} \\text{Layer} & \\text{Function} \\\\ \\hline 2\\,(DLL) & \\text{Framing, MAC addressing, error detection (CRC), flow control on link} \\\\ 3\\,(Network) & \\text{Logical addressing (IP), routing, packet forwarding} \\\\ 4\\,(Transport) & \\text{End-to-end delivery, port addressing, segmentation, e2e error/flow control} \\\\ 5\\,(Session) & \\text{Session establishment, synchronisation, dialogue control} \\\\ 6\\,(Presentation) & \\text{Encryption, compression, data format translation} \\\\ 7\\,(Application) & \\text{User-facing protocols: HTTP, FTP, SMTP, DNS} \\end{array}",
+          "plain": "DLL: framing/MAC/CRC | Network: IP routing | Transport: end-to-end, ports | Session: sync | Presentation: encrypt/compress | Application: HTTP/DNS/FTP",
+          "whenToUse": "When matching a layer name to its primary responsibility in GATE matching questions.",
+          "terms": [
+            { "symbol": "DLL", "means": "Data Link Layer (Layer 2)" },
+            { "symbol": "e2e", "means": "End-to-end (across entire network path)" }
+          ],
+          "trap": "Transport layer does NOT route packets — it provides end-to-end reliability. Routing is exclusively Layer 3 (Network layer).",
+          "reference": "Computer Networks / OSI Model"
+        },
+        {
+          "formulaId": "con_073-pdu-names",
+          "name": "PDU Names per Layer",
+          "latex": "\\text{Layer 1: Bits} \\;\\to\\; \\text{Layer 2: Frames} \\;\\to\\; \\text{Layer 3: Packets} \\;\\to\\; \\text{Layer 4: Segments (TCP) / Datagrams (UDP)}",
+          "plain": "Physical=Bits, Data Link=Frames, Network=Packets, Transport=Segments(TCP)/Datagrams(UDP)",
+          "whenToUse": "When a question asks what data is called at a specific layer.",
+          "terms": [
+            { "symbol": "PDU", "means": "Protocol Data Unit" }
+          ],
+          "trap": "UDP units are called datagrams, not segments. IP units are packets (not datagrams, though IP datagrams is also accepted).",
+          "reference": "Computer Networks / OSI Model"
+        }
+      ]
+    },
+    {
+      "groupId": "tcpip-stack",
+      "groupTitle": "TCP/IP Stack",
+      "formulas": [
+        {
+          "formulaId": "con_073-tcpip-layers",
+          "name": "TCP/IP 4-Layer Model",
+          "latex": "1.\\,\\text{Network Access (Link)} \\;|\\; 2.\\,\\text{Internet (IP)} \\;|\\; 3.\\,\\text{Transport (TCP/UDP)} \\;|\\; 4.\\,\\text{Application}",
+          "plain": "1. Network Access/Link | 2. Internet | 3. Transport | 4. Application",
+          "whenToUse": "When comparing TCP/IP model to OSI model or locating a protocol within TCP/IP.",
+          "terms": [
+            { "symbol": "IP", "means": "Internet Protocol — handles logical addressing and routing" }
+          ],
+          "trap": "TCP/IP has 4 layers, not 7. OSI layers 5,6,7 all map to the single Application layer in TCP/IP.",
+          "reference": "Computer Networks / Network Architecture"
+        },
+        {
+          "formulaId": "con_073-osi-tcpip-mapping",
+          "name": "OSI to TCP/IP Layer Mapping",
+          "latex": "\\begin{array}{ll} \\text{OSI} & \\text{TCP/IP} \\\\ \\hline 7+6+5 & \\text{Application} \\\\ 4 & \\text{Transport} \\\\ 3 & \\text{Internet} \\\\ 2+1 & \\text{Network Access} \\end{array}",
+          "plain": "OSI 7+6+5 -> Application; OSI 4 -> Transport; OSI 3 -> Internet; OSI 2+1 -> Network Access",
+          "whenToUse": "When a question asks which TCP/IP layer corresponds to a given OSI layer or function.",
+          "terms": [],
+          "trap": "There is no Session or Presentation layer in TCP/IP — those functions (encryption, session control) fall inside the Application layer.",
+          "reference": "Computer Networks / Network Architecture"
+        }
+      ]
+    },
+    {
+      "groupId": "header-field-sizes",
+      "groupTitle": "Protocol Header Field Sizes",
+      "formulas": [
+        {
+          "formulaId": "con_073-field-sizes",
+          "name": "Standard Header Field Bit Widths",
+          "latex": "\\begin{array}{ll} \\text{Field} & \\text{Size (bits)} \\\\ \\hline \\text{UDP / TCP Port Number} & 16 \\\\ \\text{TCP Sequence Number} & 32 \\\\ \\text{TCP Acknowledgment Number} & 32 \\\\ \\text{Ethernet MAC Address} & 48 \\\\ \\text{IPv4 Address} & 32 \\\\ \\text{IPv6 Address} & 128 \\\\ \\text{IPv6 Next Header} & 8 \\\\ \\text{IPv4 Time-to-Live (TTL)} & 8 \\end{array}",
+          "plain": "UDP/TCP Port=16b, TCP Seq#=32b, TCP Ack#=32b, MAC=48b, IPv4=32b, IPv6=128b, IPv6 NextHdr=8b, TTL=8b",
+          "whenToUse": "When a GATE matching question asks for the bit length of specific header fields.",
+          "terms": [
+            { "symbol": "TTL", "means": "Time To Live — hop count field in IPv4" },
+            { "symbol": "Next Header", "means": "IPv6 field indicating the type of the next header/extension" }
+          ],
+          "trap": "Port numbers are 16 bits (not 32). MAC addresses are 48 bits (6 bytes), NOT 32 bits like IPv4 addresses.",
+          "reference": "Computer Networks / Network Protocols"
+        },
+        {
+          "formulaId": "con_073-ip-header-size",
+          "name": "Standard IPv4 / UDP / TCP Header Sizes",
+          "latex": "H_{IPv4} = 20\\text{ bytes (min)},\\quad H_{UDP} = 8\\text{ bytes},\\quad H_{TCP} = 20\\text{ bytes (min)}",
+          "plain": "IPv4 header = 20 bytes (min), UDP header = 8 bytes, TCP header = 20 bytes (min)",
+          "whenToUse": "When calculating data payload, fragmentation offsets, or effective throughput.",
+          "terms": [
+            { "symbol": "H_{IPv4}", "means": "IPv4 header size" }
+          ],
+          "trap": "UDP header is only 8 bytes (source port 2, dest port 2, length 2, checksum 2). TCP minimum header is 20 bytes.",
+          "reference": "Computer Networks / Network Protocols"
+        }
+      ]
+    },
+    {
+      "groupId": "ip-fragmentation",
+      "groupTitle": "IP Fragmentation",
+      "formulas": [
+        {
+          "formulaId": "con_073-fragmentation-count",
+          "name": "Number of Fragments",
+          "latex": "n_{frag} = \\left\\lceil \\frac{D}{\\text{MTU} - H_{IP}} \\right\\rceil",
+          "plain": "n_frag = ceil( D / (MTU - H_IP) )",
+          "whenToUse": "When a datagram with payload D bytes must be sent over a link with a given MTU.",
+          "terms": [
+            { "symbol": "D", "means": "Data payload size in bytes (original IP datagram size minus IP header)" },
+            { "symbol": "MTU", "means": "Maximum Transmission Unit of the link" },
+            { "symbol": "H_{IP}", "means": "IP header size (typically 20 bytes)" }
+          ],
+          "trap": "Each fragment also carries its own 20-byte IP header, so the usable data per fragment is (MTU - 20). Fragmentation offset is in units of 8 bytes.",
+          "reference": "Computer Networks / Network Protocols"
+        },
+        {
+          "formulaId": "con_073-fragmentation-offset",
+          "name": "Fragment Offset Field",
+          "latex": "\\text{Offset of } k\\text{-th fragment} = \\frac{\\sum_{i=1}^{k-1} \\text{data}_{i}}{8}",
+          "plain": "Offset of k-th fragment = (sum of data bytes in previous fragments) / 8",
+          "whenToUse": "When computing the fragment offset field value for each IP fragment.",
+          "terms": [
+            { "symbol": "\\text{data}_i", "means": "Data bytes carried by the i-th fragment" }
+          ],
+          "trap": "Offset is measured in 8-byte units (not bytes). Each fragment's data size must itself be a multiple of 8, except the last fragment.",
+          "reference": "Computer Networks / Network Protocols"
+        }
+      ]
+    },
+    {
+      "groupId": "address-resolution",
+      "groupTitle": "Address Resolution Protocols",
+      "formulas": [
+        {
+          "formulaId": "con_073-arp",
+          "name": "ARP — Address Resolution Protocol",
+          "latex": "\\text{ARP}: \\text{IP Address} \\xrightarrow{\\text{broadcast query}} \\text{MAC Address}",
+          "plain": "ARP: IP Address -> MAC Address (broadcast query on local LAN)",
+          "whenToUse": "When a host knows the destination IP but needs the Layer 2 MAC address to deliver a frame on the local network.",
+          "terms": [
+            { "symbol": "ARP", "means": "Address Resolution Protocol — maps IP to MAC on a local subnet" }
+          ],
+          "trap": "ARP resolves IP to MAC (not the reverse). It works only within a single subnet/broadcast domain. ARP is NOT used to find the IP of a domain name — that is DNS.",
+          "reference": "Computer Networks / Network Protocols"
+        },
+        {
+          "formulaId": "con_073-rarp-dns",
+          "name": "RARP, DNS, DHCP Functions",
+          "latex": "\\text{RARP}: \\text{MAC} \\to \\text{IP}; \\quad \\text{DNS}: \\text{hostname} \\to \\text{IP}; \\quad \\text{DHCP}: \\text{auto-assign IP}",
+          "plain": "RARP: MAC->IP | DNS: hostname->IP | DHCP: dynamically assigns IP address",
+          "whenToUse": "When a question asks which protocol performs a specific address-lookup or assignment function.",
+          "terms": [
+            { "symbol": "RARP", "means": "Reverse ARP — maps MAC to IP (legacy; replaced by DHCP)" },
+            { "symbol": "DNS", "means": "Domain Name System — resolves hostnames to IP addresses" },
+            { "symbol": "DHCP", "means": "Dynamic Host Configuration Protocol — auto-assigns IP, mask, gateway" }
+          ],
+          "trap": "ARP is NOT for finding the IP address corresponding to a MAC — that is RARP. ARP goes the other direction (IP to MAC).",
+          "reference": "Computer Networks / Network Protocols"
+        }
+      ]
+    },
+    {
+      "groupId": "tcp-vs-udp",
+      "groupTitle": "TCP vs UDP & Protocol Transport Mapping",
+      "formulas": [
+        {
+          "formulaId": "con_073-tcp-udp-properties",
+          "name": "TCP vs UDP Properties",
+          "latex": "\\begin{array}{lll} & \\text{TCP} & \\text{UDP} \\\\ \\hline \\text{Connection} & \\text{Connection-oriented} & \\text{Connectionless} \\\\ \\text{Reliability} & \\text{Reliable (ACK, retransmit)} & \\text{Unreliable} \\\\ \\text{Order} & \\text{In-order delivery} & \\text{No ordering} \\\\ \\text{Flow control} & \\text{Yes (window)} & \\text{No} \\\\ \\text{Overhead} & \\text{High (20B header)} & \\text{Low (8B header)} \\end{array}",
+          "plain": "TCP: connection-oriented, reliable, ordered, flow-controlled, 20B header. UDP: connectionless, unreliable, unordered, 8B header.",
+          "whenToUse": "When determining whether a scenario requires TCP or UDP, or comparing their properties.",
+          "terms": [
+            { "symbol": "ACK", "means": "Acknowledgement — TCP uses ACKs to confirm receipt" }
+          ],
+          "trap": "TCP provides end-to-end reliability; if the transport protocol is UDP, the application layer must handle its own reliability (e.g., TFTP does this at application level).",
+          "reference": "Computer Networks / Network Protocols"
+        },
+        {
+          "formulaId": "con_073-protocol-transport",
+          "name": "Application Protocol to Transport Mapping",
+          "latex": "\\underbrace{\\text{DNS, DHCP, SNMP, TFTP, RIP}}_{\\text{UDP}} \\qquad \\underbrace{\\text{HTTP, HTTPS, FTP, SMTP, Telnet, SSH, POP3, IMAP}}_{\\text{TCP}}",
+          "plain": "UDP: DNS, DHCP, SNMP, TFTP, RIP | TCP: HTTP, HTTPS, FTP, SMTP, Telnet, SSH, POP3, IMAP",
+          "whenToUse": "When a GATE question asks which application protocol uses UDP or TCP.",
+          "terms": [
+            { "symbol": "SNMP", "means": "Simple Network Management Protocol — uses UDP port 161" },
+            { "symbol": "TFTP", "means": "Trivial FTP — uses UDP (adds its own reliability at app layer)" }
+          ],
+          "trap": "DNS primarily uses UDP (port 53) for queries but uses TCP for zone transfers. DHCP uses UDP (ports 67/68). A common trap is placing DNS under TCP only.",
+          "reference": "Computer Networks / Network Protocols"
+        },
+        {
+          "formulaId": "con_073-well-known-ports",
+          "name": "Well-Known Port Numbers",
+          "latex": "\\begin{array}{ll} \\text{Protocol} & \\text{Port} \\\\ \\hline \\text{FTP (data/control)} & 20/21 \\\\ \\text{SSH} & 22 \\\\ \\text{Telnet} & 23 \\\\ \\text{SMTP} & 25 \\\\ \\text{DNS} & 53 \\\\ \\text{HTTP} & 80 \\\\ \\text{HTTPS} & 443 \\\\ \\text{DHCP server/client} & 67/68 \\end{array}",
+          "plain": "FTP:20/21, SSH:22, Telnet:23, SMTP:25, DNS:53, HTTP:80, HTTPS:443, DHCP:67/68",
+          "whenToUse": "When a question tests recognition of port numbers for standard application protocols.",
+          "terms": [
+            { "symbol": "Port", "means": "16-bit number identifying an application endpoint at the transport layer" }
+          ],
+          "trap": "FTP uses TWO ports: 21 for control (commands) and 20 for data transfer. SSH replaces Telnet (port 23) with encrypted communication on port 22.",
+          "reference": "Computer Networks / Network Protocols"
+        }
+      ]
+    },
+    {
+      "groupId": "multiplexing-access",
+      "groupTitle": "Multiplexing and Channel Access",
+      "formulas": [
+        {
+          "formulaId": "con_073-tdm-efficiency",
+          "name": "Statistical TDM Throughput",
+          "latex": "\\text{Useful throughput} = \\frac{\\text{active sources} \\times \\text{packet size}}{\\text{channel capacity}}",
+          "plain": "Useful throughput = (active_sources * packet_size) / channel_capacity",
+          "whenToUse": "When computing how much of the channel capacity is utilised in statistical TDM with bursty sources.",
+          "terms": [
+            { "symbol": "\\text{active sources}", "means": "Number of sources actually transmitting in a given time slot" }
+          ],
+          "trap": "Statistical TDM allocates slots dynamically, so efficiency depends on actual traffic load, not the total number of sources.",
+          "reference": "Computer Networks / Communication"
+        },
+        {
+          "formulaId": "con_073-polling-throughput",
+          "name": "Polling Channel Throughput",
+          "latex": "\\eta = \\frac{T_{tx}}{T_{tx} + T_{poll}}",
+          "plain": "Efficiency = T_tx / (T_tx + T_poll)   where T_poll = polling overhead per node",
+          "whenToUse": "When a broadcast channel uses polling and you need effective throughput or efficiency.",
+          "terms": [
+            { "symbol": "T_{tx}", "means": "Time to transmit one packet" },
+            { "symbol": "T_{poll}", "means": "Polling delay between consecutive node polls" }
+          ],
+          "trap": "Polling overhead reduces throughput even when multiple nodes always have data. Total capacity used = N * (T_tx + T_poll) per cycle for N nodes.",
+          "reference": "Computer Networks / Communication"
+        }
+      ]
+    },
+    {
+      "groupId": "transport-layer-responsibilities",
+      "groupTitle": "Transport vs Network Layer Responsibilities",
+      "formulas": [
+        {
+          "formulaId": "con_073-transport-above-network",
+          "name": "What Transport Must Add Over Network Layer",
+          "latex": "\\text{Transport adds: } \\underbrace{\\text{multiplexing (ports)}}_{\\text{always}} + \\underbrace{\\text{reliability, ordering, flow control}}_{\\text{TCP only}}",
+          "plain": "Transport adds port-based multiplexing (always); TCP adds reliability + ordering + flow control on top of IP.",
+          "whenToUse": "When a question asks which functionalities MUST be implemented by transport over and above the network layer.",
+          "terms": [
+            { "symbol": "\\text{multiplexing}", "means": "Identifying the correct application using port numbers" }
+          ],
+          "trap": "Duplicate packet detection and in-order delivery are NOT guaranteed by IP (network layer) — they must be added by TCP (transport layer) if needed. UDP does not add these.",
+          "reference": "Computer Networks / Network Layering"
+        },
+        {
+          "formulaId": "con_073-encapsulation",
+          "name": "Encapsulation / Decapsulation",
+          "latex": "\\text{App data} \\xrightarrow{+H_T} \\text{Segment} \\xrightarrow{+H_N} \\text{Packet} \\xrightarrow{+H_{DL}} \\text{Frame} \\xrightarrow{\\text{bits}} \\text{Physical}",
+          "plain": "App data + transport header = Segment; + network header = Packet; + DL header = Frame; -> bits",
+          "whenToUse": "When tracing how data is wrapped with headers as it passes down the protocol stack.",
+          "terms": [
+            { "symbol": "H_T", "means": "Transport layer header (TCP/UDP)" },
+            { "symbol": "H_N", "means": "Network layer header (IP)" },
+            { "symbol": "H_{DL}", "means": "Data Link layer header (Ethernet frame header)" }
+          ],
+          "trap": "At each intermediate router, only the IP header (and below) is read; the TCP/UDP header is NOT examined by routers unless doing deep packet inspection.",
+          "reference": "Computer Networks / Network Layering"
+        }
+      ]
+    }
+  ]
+}

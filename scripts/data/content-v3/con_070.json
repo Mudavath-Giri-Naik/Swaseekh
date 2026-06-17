@@ -1,0 +1,338 @@
+{
+  "_id": "con_070",
+  "conceptId": "con_070",
+  "conceptTitle": "Normal Forms",
+  "reference": "GATE CS — Databases / Constraints and Normalization",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Checking if a relation is in 1NF",
+        "use": "\\text{All attributes are atomic (no repeating groups or multi-valued attributes)}"
+      },
+      {
+        "condition": "Checking if a relation is in 2NF",
+        "use": "\\text{In 1NF} \\land \\text{No partial dependency: every non-prime attribute fully depends on every candidate key}"
+      },
+      {
+        "condition": "Checking if a relation is in 3NF",
+        "use": "\\text{In 2NF} \\land \\text{No transitive dependency: } X \\to A \\Rightarrow X \\text{ is superkey or } A \\text{ is prime}"
+      },
+      {
+        "condition": "Checking if a relation is in BCNF",
+        "use": "\\forall X \\to Y \\text{ (non-trivial): } X \\text{ must be a superkey}"
+      },
+      {
+        "condition": "Checking if a relation is in 4NF",
+        "use": "\\text{In BCNF} \\land \\forall X \\twoheadrightarrow Y \\text{ (non-trivial): } X \\text{ must be a superkey}"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "functional-dependency-axioms",
+      "groupTitle": "Functional Dependency & Armstrong's Axioms",
+      "formulas": [
+        {
+          "formulaId": "con_070-fd-definition",
+          "name": "Functional Dependency Definition",
+          "latex": "X \\to Y \\iff \\forall t_1, t_2 \\in r,\\; t_1[X] = t_2[X] \\Rightarrow t_1[Y] = t_2[Y]",
+          "plain": "X -> Y iff for all tuples t1, t2 in r: t1[X] = t2[X] implies t1[Y] = t2[Y]",
+          "whenToUse": "Verifying whether Y is functionally determined by X in a given relation instance.",
+          "terms": [
+            { "symbol": "X", "means": "determinant attribute set" },
+            { "symbol": "Y", "means": "dependent attribute set" },
+            { "symbol": "t_1, t_2", "means": "any two tuples in the relation r" }
+          ],
+          "trap": "A single relation instance satisfying X -> Y does not prove the FD holds; it must hold for ALL valid instances.",
+          "reference": "Databases / Functional Dependency"
+        },
+        {
+          "formulaId": "con_070-armstrong-reflexivity",
+          "name": "Armstrong's Axiom — Reflexivity",
+          "latex": "Y \\subseteq X \\Rightarrow X \\to Y",
+          "plain": "If Y is a subset of X, then X -> Y (trivial FD)",
+          "whenToUse": "Deriving trivial functional dependencies; always true.",
+          "terms": [
+            { "symbol": "X, Y", "means": "attribute sets with Y contained in X" }
+          ],
+          "trap": "Trivial FDs (where Y ⊆ X) are always satisfied and do not constrain the data.",
+          "reference": "Databases / Functional Dependency"
+        },
+        {
+          "formulaId": "con_070-armstrong-augmentation",
+          "name": "Armstrong's Axiom — Augmentation",
+          "latex": "X \\to Y \\Rightarrow XZ \\to YZ",
+          "plain": "If X -> Y, then XZ -> YZ (adding Z to both sides)",
+          "whenToUse": "Extending an existing FD by appending the same attributes to both sides.",
+          "terms": [
+            { "symbol": "X, Y, Z", "means": "disjoint or overlapping attribute sets" }
+          ],
+          "trap": "Z can overlap with X or Y — only additional attributes matter for new derivations.",
+          "reference": "Databases / Functional Dependency"
+        },
+        {
+          "formulaId": "con_070-armstrong-transitivity",
+          "name": "Armstrong's Axiom — Transitivity",
+          "latex": "X \\to Y \\land Y \\to Z \\Rightarrow X \\to Z",
+          "plain": "If X -> Y and Y -> Z, then X -> Z",
+          "whenToUse": "Chaining functional dependencies to derive new ones.",
+          "terms": [
+            { "symbol": "X, Y, Z", "means": "attribute sets forming a chain of dependencies" }
+          ],
+          "trap": "Transitivity is the basis for transitive dependency violations in 3NF — do not confuse derived FD with direct FD.",
+          "reference": "Databases / Functional Dependency"
+        },
+        {
+          "formulaId": "con_070-closure-computation",
+          "name": "Attribute Closure X+",
+          "latex": "X^+ = \\{ A \\mid X \\to A \\text{ is derivable from } F \\}",
+          "plain": "X+ = {A | X -> A is derivable from F using Armstrong's axioms}",
+          "whenToUse": "Finding all attributes determined by X; testing superkeys and candidate keys.",
+          "terms": [
+            { "symbol": "X^+", "means": "closure of attribute set X under F" },
+            { "symbol": "F", "means": "set of given functional dependencies" }
+          ],
+          "trap": "If X+ = all attributes, then X is a superkey. If no proper subset of X has X+ = all attributes, X is a candidate key.",
+          "reference": "Databases / Functional Dependency"
+        },
+        {
+          "formulaId": "con_070-union-decomposition",
+          "name": "Union & Decomposition Rules (Derived)",
+          "latex": "\\text{Union: } X \\to Y,\\; X \\to Z \\Rightarrow X \\to YZ \\qquad \\text{Decomp: } X \\to YZ \\Rightarrow X \\to Y,\\; X \\to Z",
+          "plain": "Union: X->Y and X->Z implies X->YZ. Decomposition: X->YZ implies X->Y and X->Z.",
+          "whenToUse": "Splitting or merging the right-hand side of functional dependencies.",
+          "terms": [
+            { "symbol": "X, Y, Z", "means": "attribute sets" }
+          ],
+          "trap": "Decomposition works on the RHS but NOT the LHS: X->Y does NOT imply X\\ minus\\ A -> Y.",
+          "reference": "Databases / Functional Dependency"
+        }
+      ]
+    },
+    {
+      "groupId": "normal-forms-definitions",
+      "groupTitle": "Normal Forms — Definitions & Conditions",
+      "formulas": [
+        {
+          "formulaId": "con_070-1nf",
+          "name": "First Normal Form (1NF)",
+          "latex": "\\text{1NF: All attributes are atomic; no repeating groups or multi-valued attributes in any tuple}",
+          "plain": "1NF: Every attribute value is atomic (indivisible); no set-valued or composite attributes.",
+          "whenToUse": "Baseline requirement for any relational table; needed before checking higher normal forms.",
+          "terms": [
+            { "symbol": "\\text{atomic}", "means": "cannot be further subdivided into meaningful sub-parts" }
+          ],
+          "trap": "A relation can be in 1NF but still have redundancy via partial or transitive dependencies.",
+          "reference": "Databases / Normalization"
+        },
+        {
+          "formulaId": "con_070-2nf",
+          "name": "Second Normal Form (2NF)",
+          "latex": "\\text{2NF: In 1NF} \\land \\text{ No non-prime attribute is partially dependent on any candidate key}",
+          "plain": "2NF: In 1NF AND every non-prime attribute is fully functionally dependent on every candidate key (no partial dependency).",
+          "whenToUse": "When a relation has a composite candidate key and you suspect some attributes depend only on part of the key.",
+          "terms": [
+            { "symbol": "\\text{non-prime attribute}", "means": "attribute not part of any candidate key" },
+            { "symbol": "\\text{partial dependency}", "means": "non-prime attribute depends on a proper subset of a candidate key" }
+          ],
+          "trap": "2NF only matters when there is a composite candidate key; with a single-attribute key a 1NF relation is automatically in 2NF.",
+          "reference": "Databases / Normalization"
+        },
+        {
+          "formulaId": "con_070-3nf",
+          "name": "Third Normal Form (3NF)",
+          "latex": "\\text{3NF: } \\forall X \\to A \\text{ (non-trivial): } X \\text{ is a superkey } \\lor A \\text{ is a prime attribute}",
+          "plain": "3NF: For every non-trivial FD X->A, either X is a superkey OR A is a prime attribute (member of some candidate key).",
+          "whenToUse": "Eliminating transitive dependencies while still guaranteeing lossless-join and dependency-preserving decomposition.",
+          "terms": [
+            { "symbol": "A", "means": "single attribute on RHS" },
+            { "symbol": "\\text{prime attribute}", "means": "attribute that belongs to at least one candidate key" }
+          ],
+          "trap": "3NF allows an FD X->A where A is prime even if X is not a superkey — this is the key difference from BCNF.",
+          "reference": "Databases / Normalization"
+        },
+        {
+          "formulaId": "con_070-bcnf",
+          "name": "Boyce-Codd Normal Form (BCNF)",
+          "latex": "\\text{BCNF: } \\forall X \\to Y \\text{ (non-trivial): } X \\text{ must be a superkey}",
+          "plain": "BCNF: For every non-trivial FD X->Y, X must be a superkey. Stricter than 3NF.",
+          "whenToUse": "Eliminating all FD-based redundancy; use when 3NF is insufficient.",
+          "terms": [
+            { "symbol": "\\text{superkey}", "means": "attribute set whose closure contains all attributes of the relation" }
+          ],
+          "trap": "BCNF decomposition always yields lossless join but may NOT preserve all functional dependencies — trade-off vs 3NF.",
+          "reference": "Databases / Normalization"
+        },
+        {
+          "formulaId": "con_070-4nf",
+          "name": "Fourth Normal Form (4NF)",
+          "latex": "\\text{4NF: In BCNF} \\land \\forall X \\twoheadrightarrow Y \\text{ (non-trivial, } Y \\not\\subseteq X\\text{, } XY \\neq R\\text{): } X \\text{ is a superkey}",
+          "plain": "4NF: In BCNF AND for every non-trivial MVD X ->> Y, X must be a superkey.",
+          "whenToUse": "Removing multi-valued dependency redundancy after achieving BCNF.",
+          "terms": [
+            { "symbol": "X \\twoheadrightarrow Y", "means": "X multi-determines Y (MVD)" }
+          ],
+          "trap": "Every FD is also an MVD, so 4NF is strictly stronger than BCNF.",
+          "reference": "Databases / Normalization"
+        },
+        {
+          "formulaId": "con_070-normal-form-hierarchy",
+          "name": "Normal Form Containment Hierarchy",
+          "latex": "\\text{4NF} \\subset \\text{BCNF} \\subset \\text{3NF} \\subset \\text{2NF} \\subset \\text{1NF}",
+          "plain": "4NF is subset of BCNF is subset of 3NF is subset of 2NF is subset of 1NF",
+          "whenToUse": "Quickly determining which normal forms a relation satisfies given it satisfies a higher one.",
+          "terms": [
+            { "symbol": "\\subset", "means": "strict containment; every relation in the left NF is also in the right NF" }
+          ],
+          "trap": "The containment is strict: a relation in 3NF is not necessarily in BCNF.",
+          "reference": "Databases / Normalization"
+        }
+      ]
+    },
+    {
+      "groupId": "multivalued-dependency",
+      "groupTitle": "Multivalued Dependency (MVD) & 4NF",
+      "formulas": [
+        {
+          "formulaId": "con_070-mvd-definition",
+          "name": "Multivalued Dependency Definition",
+          "latex": "X \\twoheadrightarrow Y \\iff \\text{in any valid instance, the set of } Y\\text{-values for a given }X\\text{-value is independent of } Z = R - X - Y",
+          "plain": "X ->> Y iff the set of Y values associated with any X value is independent of the Z values (Z = R minus X minus Y).",
+          "whenToUse": "Identifying independent multi-valued facts stored together, causing 4NF violation.",
+          "terms": [
+            { "symbol": "X \\twoheadrightarrow Y", "means": "X multi-determines Y" },
+            { "symbol": "Z", "means": "remaining attributes R - X - Y" }
+          ],
+          "trap": "An MVD X ->> Y is trivial if Y ⊆ X or XY = R; only non-trivial MVDs can cause 4NF violations.",
+          "reference": "Databases / Multivalued Dependency 4NF"
+        },
+        {
+          "formulaId": "con_070-mvd-fd-implication",
+          "name": "FD Implies MVD (but not vice-versa)",
+          "latex": "X \\to Y \\Rightarrow X \\twoheadrightarrow Y \\quad \\text{(converse is false)}",
+          "plain": "If X -> Y (FD) then X ->> Y (MVD). The reverse does not hold.",
+          "whenToUse": "Reasoning about whether an FD is also an MVD; important for 4NF proofs.",
+          "terms": [
+            { "symbol": "X \\to Y", "means": "functional dependency" },
+            { "symbol": "X \\twoheadrightarrow Y", "means": "multivalued dependency" }
+          ],
+          "trap": "A -> B and A -> C implies A ->> BC (as a combined MVD), but A ->> B and A ->> C does NOT imply A -> B or A -> C.",
+          "reference": "Databases / Multivalued Dependency 4NF"
+        },
+        {
+          "formulaId": "con_070-mvd-complementation",
+          "name": "MVD Complementation Rule",
+          "latex": "X \\twoheadrightarrow Y \\Rightarrow X \\twoheadrightarrow (R - X - Y)",
+          "plain": "If X ->> Y then X ->> (R minus X minus Y). MVDs always come in complementary pairs.",
+          "whenToUse": "Deriving the complementary MVD; useful in 4NF decomposition.",
+          "terms": [
+            { "symbol": "R - X - Y", "means": "attributes of R not in X or Y" }
+          ],
+          "trap": "Both Y and (R - X - Y) are independently multi-determined by X — this is the source of 4NF redundancy.",
+          "reference": "Databases / Multivalued Dependency 4NF"
+        }
+      ]
+    },
+    {
+      "groupId": "decomposition-properties",
+      "groupTitle": "Decomposition Properties",
+      "formulas": [
+        {
+          "formulaId": "con_070-lossless-join",
+          "name": "Lossless-Join Decomposition Condition",
+          "latex": "R \\to \\{R_1, R_2\\} \\text{ is lossless} \\iff (R_1 \\cap R_2) \\to R_1 \\in F^+ \\;\\lor\\; (R_1 \\cap R_2) \\to R_2 \\in F^+",
+          "plain": "Decomposition of R into R1 and R2 is lossless iff (R1 intersect R2) -> R1 OR (R1 intersect R2) -> R2 holds.",
+          "whenToUse": "Verifying that a binary decomposition loses no information on natural join.",
+          "terms": [
+            { "symbol": "R_1 \\cap R_2", "means": "common attributes of R1 and R2; must be a superkey of at least one part" },
+            { "symbol": "F^+", "means": "closure of the set of FDs F" }
+          ],
+          "trap": "Lossless-join and dependency-preservation are independent properties; a decomposition can have one without the other.",
+          "reference": "Databases / Decomposition"
+        },
+        {
+          "formulaId": "con_070-dependency-preservation",
+          "name": "Dependency-Preserving Decomposition",
+          "latex": "(F_1 \\cup F_2 \\cup \\cdots \\cup F_k)^+ = F^+ \\quad \\text{where } F_i = \\pi_{R_i}(F)",
+          "plain": "A decomposition {R1,...,Rk} is dependency-preserving if the union of projections of F onto each Ri has the same closure as F.",
+          "whenToUse": "Checking whether all original FDs can be enforced without re-joining fragments.",
+          "terms": [
+            { "symbol": "\\pi_{R_i}(F)", "means": "projection of F: FDs in F+ involving only attributes of Ri" },
+            { "symbol": "F^+", "means": "full closure of all original FDs" }
+          ],
+          "trap": "If decomposition is NOT dependency-preserving, a JOIN is needed to check violated FDs — at extra cost.",
+          "reference": "Databases / Decomposition"
+        },
+        {
+          "formulaId": "con_070-3nf-decomposition-guarantee",
+          "name": "3NF Decomposition Guarantees",
+          "latex": "\\text{3NF decomposition (synthesis): Lossless-join} \\land \\text{Dependency-preserving} \\land \\text{Each schema in 3NF}",
+          "plain": "3NF synthesis algorithm always yields a lossless, dependency-preserving decomposition with each schema in 3NF.",
+          "whenToUse": "Choosing between 3NF and BCNF decomposition when dependency preservation is required.",
+          "terms": [
+            { "symbol": "\\text{synthesis}", "means": "algorithm creating one schema per FD in minimal cover" }
+          ],
+          "trap": "BCNF decomposition may NOT preserve all FDs; 3NF is preferred when dependency preservation is mandatory.",
+          "reference": "Databases / Decomposition"
+        },
+        {
+          "formulaId": "con_070-bcnf-decomposition-guarantee",
+          "name": "BCNF Decomposition Guarantees",
+          "latex": "\\text{BCNF decomposition: Lossless-join} \\land \\text{Each schema in BCNF} \\;(\\text{but dependency preservation NOT guaranteed})",
+          "plain": "BCNF decomposition always yields a lossless-join decomposition with each schema in BCNF, but may not preserve all FDs.",
+          "whenToUse": "When eliminating all FD-based redundancy is the priority over dependency preservation.",
+          "terms": [
+            { "symbol": "\\text{BCNF violation}", "means": "an FD X->Y where X is not a superkey; split on this FD" }
+          ],
+          "trap": "After BCNF decomposition, some FDs may only be enforceable by joining all fragments — an expensive operation.",
+          "reference": "Databases / Decomposition"
+        }
+      ]
+    },
+    {
+      "groupId": "keys-and-candidate-keys",
+      "groupTitle": "Keys & Candidate Keys",
+      "formulas": [
+        {
+          "formulaId": "con_070-superkey-candidate-key",
+          "name": "Superkey vs Candidate Key",
+          "latex": "\\text{Superkey: } X^+ = R \\qquad \\text{Candidate Key: } X^+ = R \\land \\nexists\\, Y \\subsetneq X : Y^+ = R",
+          "plain": "Superkey: closure of X = all attributes. Candidate Key: minimal superkey (no proper subset is also a superkey).",
+          "whenToUse": "Finding candidate keys before checking normal forms or determining prime attributes.",
+          "terms": [
+            { "symbol": "X^+", "means": "closure of attribute set X" },
+            { "symbol": "R", "means": "set of all attributes in the relation schema" }
+          ],
+          "trap": "A relation can have multiple candidate keys; every candidate key is a superkey but not every superkey is a candidate key.",
+          "reference": "Databases / Functional Dependency"
+        },
+        {
+          "formulaId": "con_070-prime-nonprime",
+          "name": "Prime vs Non-Prime Attributes",
+          "latex": "\\text{Prime: } A \\in \\text{some candidate key} \\qquad \\text{Non-prime: } A \\notin \\text{any candidate key}",
+          "plain": "Prime attribute: belongs to at least one candidate key. Non-prime: does not belong to any candidate key.",
+          "whenToUse": "Classifying attributes when checking 2NF, 3NF, and BCNF conditions.",
+          "terms": [
+            { "symbol": "A", "means": "a single attribute of the relation" }
+          ],
+          "trap": "In 3NF, a dependency X -> A is allowed even if X is not a superkey, provided A is prime — BCNF removes this exception.",
+          "reference": "Databases / Functional Dependency"
+        },
+        {
+          "formulaId": "con_070-minimal-cover",
+          "name": "Minimal Cover (Canonical Cover)",
+          "latex": "F_c: \\text{RHS is single attribute} \\land \\text{No extraneous attribute on LHS} \\land \\text{No redundant FD}",
+          "plain": "Minimal cover Fc of F: every FD has a single attribute RHS, no LHS attribute is extraneous, no FD is redundant.",
+          "whenToUse": "Computing the minimal cover before applying 3NF synthesis decomposition.",
+          "terms": [
+            { "symbol": "F_c", "means": "canonical cover / minimal cover of F" },
+            { "symbol": "\\text{extraneous attribute}", "means": "an attribute whose removal does not change the closure" }
+          ],
+          "trap": "The minimal cover is not necessarily unique — different orderings can yield different but equally valid minimal covers.",
+          "reference": "Databases / Functional Dependency"
+        }
+      ]
+    }
+  ]
+}

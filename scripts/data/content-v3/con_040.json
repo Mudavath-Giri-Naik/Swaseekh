@@ -1,0 +1,332 @@
+{
+  "_id": "con_040",
+  "conceptId": "con_040",
+  "conceptTitle": "Searching, Sorting and Hashing",
+  "reference": "GATE CS — Algorithms / Basics",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      { "condition": "Binary search on sorted array, worst-case comparisons", "use": "F(n) = F(\\lfloor n/2 \\rfloor) + 1,\\; F(1)=1 \\Rightarrow \\Theta(\\log_2 n)" },
+      { "condition": "Insertion sort number of swaps / comparisons from inversions", "use": "\\text{comparisons} = O(n^2),\\; \\text{swaps} = \\text{(number of inversions)}" },
+      { "condition": "Hash table open addressing, linear probing load factor", "use": "\\alpha = n/m,\\quad \\text{avg comparisons} \\approx \\frac{1}{1-\\alpha}" },
+      { "condition": "Double hashing i-th probe position", "use": "h(k,i) = (h_1(k) + i \\cdot h_2(k)) \\bmod m" },
+      { "condition": "Sorting comparison lower bound", "use": "\\Omega(n \\log n) \\text{ comparisons required by any comparison-based sort}" }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "binary-search",
+      "groupTitle": "Binary Search",
+      "formulas": [
+        {
+          "formulaId": "con_040-binary-search-recurrence",
+          "name": "Binary Search Recurrence",
+          "latex": "F(n) = F\\!\\left(\\left\\lfloor \\frac{n}{2} \\right\\rfloor\\right) + 1, \\quad F(1) = 1",
+          "plain": "F(n) = F(floor(n/2)) + 1, F(1) = 1",
+          "whenToUse": "Counting maximum comparisons in recursive binary search on a sorted array of size n",
+          "terms": [
+            { "symbol": "F(n)", "means": "max comparisons on array of size n" },
+            { "symbol": "n", "means": "number of elements in the sorted array" }
+          ],
+          "trap": "GATE sets F(1)=1 (one comparison for a single element) vs F(1)=0 depending on the model; read the question carefully — the recurrence should have F(n)=F(floor(n/2))+1 and F(1)=1 gives Theta(log n)",
+          "reference": "Algorithms / Binary Search"
+        },
+        {
+          "formulaId": "con_040-binary-search-complexity",
+          "name": "Binary Search Time Complexity",
+          "latex": "T(n) = \\Theta(\\log_2 n) \\text{ (worst case)}, \\quad T(n) = O(1) \\text{ (best case)}",
+          "plain": "Worst case: Theta(log2 n), Best case: O(1)",
+          "whenToUse": "Stating time complexity of binary search on a sorted array",
+          "terms": [
+            { "symbol": "n", "means": "size of sorted array" }
+          ],
+          "trap": "Binary search requires a sorted array — it does NOT work on a linked list (no O(1) random access) or unsorted arrays. Questions often test whether you confuse average and worst case.",
+          "reference": "Algorithms / Binary Search"
+        },
+        {
+          "formulaId": "con_040-binary-search-arithmetic-ops",
+          "name": "Arithmetic Operations in Recursive Binary Search",
+          "latex": "\\text{Arithmetic ops} = \\Theta(\\log_2 n)",
+          "plain": "Arithmetic ops = Theta(log2 n)",
+          "whenToUse": "When the question asks for arithmetic operations (mid computation, comparisons) rather than memory use",
+          "terms": [
+            { "symbol": "n", "means": "array size" }
+          ],
+          "trap": "Counting arithmetic operations is the same order as comparisons; both are Theta(log n) in the worst case for binary search.",
+          "reference": "Algorithms / Binary Search"
+        }
+      ]
+    },
+    {
+      "groupId": "insertion-sort",
+      "groupTitle": "Insertion Sort",
+      "formulas": [
+        {
+          "formulaId": "con_040-insertion-sort-complexity",
+          "name": "Insertion Sort Standard Complexity",
+          "latex": "T(n) = O(n^2) \\text{ (worst)}, \\quad T(n) = O(n) \\text{ (best — already sorted)}",
+          "plain": "Worst: O(n^2), Best: O(n) for already-sorted input",
+          "whenToUse": "Standard insertion sort with linear search for insertion position",
+          "terms": [
+            { "symbol": "n", "means": "number of elements" }
+          ],
+          "trap": "Best case is O(n), not O(1). Worst case is reversed-order input, not just 'random' input.",
+          "reference": "Algorithms / Sorting"
+        },
+        {
+          "formulaId": "con_040-insertion-sort-inversions",
+          "name": "Insertion Sort and Inversions",
+          "latex": "\\text{# swaps} = \\text{# inversions},\\quad \\text{max inversions} = \\binom{n}{2} = \\frac{n(n-1)}{2}",
+          "plain": "Number of swaps = number of inversions; max = n*(n-1)/2",
+          "whenToUse": "When the question gives inversions or asks how many swaps/comparisons insertion sort makes on a specific permutation",
+          "terms": [
+            { "symbol": "\\binom{n}{2}", "means": "number of pairs, maximum possible inversions" },
+            { "symbol": "inversion", "means": "pair (i,j) with i<j but a[i]>a[j]" }
+          ],
+          "trap": "Comparisons and swaps are related but not equal — the number of comparisons >= number of swaps. Swaps equal inversions exactly in the standard adjacent-swap version.",
+          "reference": "Algorithms / Sorting"
+        },
+        {
+          "formulaId": "con_040-insertion-sort-binary-search-variant",
+          "name": "Insertion Sort with Binary Search for Position",
+          "latex": "\\text{Comparisons} = O(n \\log n),\\quad \\text{Shifts} = O(n^2)",
+          "plain": "Comparisons: O(n log n) using binary search; shifts/moves still O(n^2)",
+          "whenToUse": "When the question replaces linear search with binary search to find insertion point in insertion sort",
+          "terms": [
+            { "symbol": "\\text{Comparisons}", "means": "reduced to O(n log n) by binary search" },
+            { "symbol": "\\text{Shifts}", "means": "element moves to create gap — still O(n^2)" }
+          ],
+          "trap": "Using binary search only reduces comparisons, NOT the total running time — the array-shift cost is still O(n^2), so overall complexity remains O(n^2).",
+          "reference": "Algorithms / Sorting"
+        }
+      ]
+    },
+    {
+      "groupId": "sorting-complexity",
+      "groupTitle": "Sorting Algorithms",
+      "formulas": [
+        {
+          "formulaId": "con_040-comparison-sort-lower-bound",
+          "name": "Comparison-Based Sorting Lower Bound",
+          "latex": "\\Omega(n \\log n) \\text{ comparisons required by any comparison-based sorting algorithm}",
+          "plain": "Any comparison sort needs Omega(n log n) comparisons",
+          "whenToUse": "When asked why merge/heap sort is optimal, or whether a comparison sort can beat O(n log n)",
+          "terms": [
+            { "symbol": "n", "means": "number of elements to sort" }
+          ],
+          "trap": "This lower bound applies ONLY to comparison-based sorts. Counting sort, radix sort, bucket sort bypass it by using key structure rather than comparisons.",
+          "reference": "Algorithms / Sorting"
+        },
+        {
+          "formulaId": "con_040-merge-sort",
+          "name": "Merge Sort Complexity",
+          "latex": "T(n) = 2T\\!\\left(\\frac{n}{2}\\right) + O(n) \\Rightarrow T(n) = O(n \\log n) \\text{ (all cases)}",
+          "plain": "T(n) = 2T(n/2) + O(n) => O(n log n) in all cases",
+          "whenToUse": "Merge sort on arrays — worst, average, and best all Theta(n log n)",
+          "terms": [
+            { "symbol": "O(n)", "means": "merge step cost" }
+          ],
+          "trap": "Merge sort is NOT in-place (needs O(n) auxiliary space). Its best case is still Theta(n log n), unlike insertion sort.",
+          "reference": "Algorithms / Sorting"
+        },
+        {
+          "formulaId": "con_040-quick-sort",
+          "name": "Quick Sort Complexity",
+          "latex": "T_{\\text{avg}}(n) = O(n \\log n),\\quad T_{\\text{worst}}(n) = O(n^2)",
+          "plain": "Average: O(n log n); Worst: O(n^2) (sorted or reverse-sorted input with fixed pivot)",
+          "whenToUse": "Quick sort analysis, pivot selection, best vs worst case",
+          "terms": [
+            { "symbol": "T_{\\text{worst}}", "means": "occurs when pivot is always min or max element" }
+          ],
+          "trap": "The worst case of quick sort is O(n^2) when the input is already sorted and pivot is chosen as first/last element. Randomized pivot makes worst case unlikely but not impossible.",
+          "reference": "Algorithms / Sorting"
+        },
+        {
+          "formulaId": "con_040-heap-sort",
+          "name": "Heap Sort Complexity",
+          "latex": "T(n) = O(n \\log n) \\text{ (all cases)}, \\quad \\text{Space} = O(1) \\text{ (in-place)}",
+          "plain": "O(n log n) all cases, in-place",
+          "whenToUse": "When both O(n log n) worst-case and in-place are required simultaneously",
+          "terms": [
+            { "symbol": "O(1)", "means": "auxiliary space (sorts in original array)" }
+          ],
+          "trap": "Heap sort is not stable. Merge sort is stable but needs O(n) space. Heap sort is in-place but not stable.",
+          "reference": "Algorithms / Sorting"
+        },
+        {
+          "formulaId": "con_040-counting-radix-sort",
+          "name": "Counting / Radix Sort Complexity",
+          "latex": "\\text{Counting sort}: O(n+k),\\quad \\text{Radix sort (d digits, base k)}: O(d(n+k))",
+          "plain": "Counting sort: O(n+k); Radix sort: O(d*(n+k))",
+          "whenToUse": "Integer keys in range [0,k]; bypasses comparison lower bound",
+          "terms": [
+            { "symbol": "k", "means": "range of key values" },
+            { "symbol": "d", "means": "number of digits in key" }
+          ],
+          "trap": "Counting/radix sort is linear only when k=O(n). If k is very large (e.g. k=n^2), counting sort is NOT better than O(n log n) sorts.",
+          "reference": "Algorithms / Sorting"
+        },
+        {
+          "formulaId": "con_040-stability-in-place",
+          "name": "Stability and In-Place Properties",
+          "latex": "\\begin{array}{l|c|c} \\text{Algorithm} & \\text{Stable} & \\text{In-place} \\\\ \\hline \\text{Insertion} & \\checkmark & \\checkmark \\\\ \\text{Merge} & \\checkmark & \\times \\\\ \\text{Quick} & \\times & \\checkmark \\\\ \\text{Heap} & \\times & \\checkmark \\\\ \\text{Selection} & \\times & \\checkmark \\end{array}",
+          "plain": "Insertion: stable, in-place. Merge: stable, NOT in-place. Quick: NOT stable, in-place. Heap: NOT stable, in-place. Selection: NOT stable, in-place.",
+          "whenToUse": "Questions about whether an algorithm is stable or in-place",
+          "terms": [
+            { "symbol": "\\text{stable}", "means": "equal elements maintain original relative order" },
+            { "symbol": "\\text{in-place}", "means": "O(1) auxiliary space beyond input" }
+          ],
+          "trap": "Merge sort can be made in-place but then loses O(n log n) or stability guarantees. Standard merge sort is NOT in-place.",
+          "reference": "Algorithms / Sorting"
+        }
+      ]
+    },
+    {
+      "groupId": "hashing-fundamentals",
+      "groupTitle": "Hashing Fundamentals",
+      "formulas": [
+        {
+          "formulaId": "con_040-hash-function-modular",
+          "name": "Division-Method Hash Function",
+          "latex": "h(k) = k \\bmod m",
+          "plain": "h(k) = k mod m",
+          "whenToUse": "Standard hash function mapping key k to slot in table of size m",
+          "terms": [
+            { "symbol": "k", "means": "key value" },
+            { "symbol": "m", "means": "number of slots/buckets in hash table" }
+          ],
+          "trap": "Choose m to be a prime not close to a power of 2 for best distribution. m = power of 2 only uses the low-order bits of k.",
+          "reference": "Algorithms / Hashing"
+        },
+        {
+          "formulaId": "con_040-load-factor",
+          "name": "Load Factor",
+          "latex": "\\alpha = \\frac{n}{m}",
+          "plain": "alpha = n / m",
+          "whenToUse": "Measure of how full a hash table is; drives expected performance",
+          "terms": [
+            { "symbol": "n", "means": "number of keys stored" },
+            { "symbol": "m", "means": "number of slots in hash table" },
+            { "symbol": "\\alpha", "means": "load factor; for chaining alpha can exceed 1; for open addressing alpha < 1" }
+          ],
+          "trap": "For open addressing, alpha must be strictly less than 1. For chaining, alpha can be > 1 without failure.",
+          "reference": "Algorithms / Hashing"
+        },
+        {
+          "formulaId": "con_040-chaining-complexity",
+          "name": "Hashing with Chaining — Expected Complexity",
+          "latex": "\\text{Search (unsuccessful)} = O(1 + \\alpha),\\quad \\text{Search (successful)} = O\\!\\left(1 + \\frac{\\alpha}{2}\\right)",
+          "plain": "Unsuccessful search: O(1 + alpha); Successful search: O(1 + alpha/2)",
+          "whenToUse": "Expected time analysis of hash table with separate chaining under simple uniform hashing assumption",
+          "terms": [
+            { "symbol": "\\alpha", "means": "load factor = n/m" }
+          ],
+          "trap": "Worst case of chaining is O(n) when ALL keys hash to same bucket. GATE often asks for worst case vs average case.",
+          "reference": "Algorithms / Hashing"
+        }
+      ]
+    },
+    {
+      "groupId": "open-addressing",
+      "groupTitle": "Open Addressing & Probing",
+      "formulas": [
+        {
+          "formulaId": "con_040-linear-probing",
+          "name": "Linear Probing Probe Sequence",
+          "latex": "h(k, i) = (h'(k) + i) \\bmod m, \\quad i = 0, 1, 2, \\ldots",
+          "plain": "h(k,i) = (h'(k) + i) mod m",
+          "whenToUse": "Resolving collisions by probing next sequential slot",
+          "terms": [
+            { "symbol": "h'(k)", "means": "auxiliary hash function" },
+            { "symbol": "i", "means": "probe number (0-indexed)" },
+            { "symbol": "m", "means": "table size" }
+          ],
+          "trap": "Linear probing suffers from primary clustering — long runs of occupied slots form, degrading performance well before alpha reaches 1.",
+          "reference": "Algorithms / Hashing"
+        },
+        {
+          "formulaId": "con_040-linear-probing-expected",
+          "name": "Linear Probing Expected Probes",
+          "latex": "\\text{Unsuccessful}: \\frac{1}{2}\\left(1 + \\frac{1}{(1-\\alpha)^2}\\right),\\quad \\text{Successful}: \\frac{1}{2}\\left(1 + \\frac{1}{1-\\alpha}\\right)",
+          "plain": "Unsuccessful: (1 + 1/(1-alpha)^2)/2; Successful: (1 + 1/(1-alpha))/2",
+          "whenToUse": "Expected number of probes for linear probing as a function of load factor",
+          "terms": [
+            { "symbol": "\\alpha", "means": "load factor n/m, must be < 1" }
+          ],
+          "trap": "As alpha approaches 1, expected probes blow up — table must not be completely full. At alpha=0.5 expected unsuccessful probes ~ 2.5.",
+          "reference": "Algorithms / Hashing"
+        },
+        {
+          "formulaId": "con_040-quadratic-probing",
+          "name": "Quadratic Probing Probe Sequence",
+          "latex": "h(k, i) = \\left(h'(k) + c_1 i + c_2 i^2\\right) \\bmod m",
+          "plain": "h(k,i) = (h'(k) + c1*i + c2*i^2) mod m",
+          "whenToUse": "Resolving collisions with quadratic step to reduce primary clustering",
+          "terms": [
+            { "symbol": "c_1, c_2", "means": "auxiliary constants (c2 != 0)" },
+            { "symbol": "i", "means": "probe number" }
+          ],
+          "trap": "Quadratic probing avoids primary clustering but suffers from secondary clustering — keys with same h'(k) follow same probe sequence.",
+          "reference": "Algorithms / Hashing"
+        },
+        {
+          "formulaId": "con_040-double-hashing",
+          "name": "Double Hashing Probe Sequence",
+          "latex": "h(k, i) = \\left(h_1(k) + i \\cdot h_2(k)\\right) \\bmod m",
+          "plain": "h(k,i) = (h1(k) + i*h2(k)) mod m",
+          "whenToUse": "Best open-addressing collision resolution — avoids both primary and secondary clustering",
+          "terms": [
+            { "symbol": "h_1(k)", "means": "primary hash function, e.g. k mod m" },
+            { "symbol": "h_2(k)", "means": "secondary hash function, e.g. 1 + (k mod m')" },
+            { "symbol": "i", "means": "probe number (0-indexed)" }
+          ],
+          "trap": "h2(k) must never evaluate to 0 (would cause infinite loop on same slot). Common choice: h2(k)=1+(k mod (m-1)) or h2(k)=1+(k mod (m')) for m' slightly less than m.",
+          "reference": "Algorithms / Hashing"
+        },
+        {
+          "formulaId": "con_040-double-hashing-example",
+          "name": "Double Hashing Typical GATE Setup",
+          "latex": "h_1(k) = k \\bmod 11,\\quad h_2(k) = 1 + (k \\bmod 7),\\quad h(k,i) = (h_1(k) + i \\cdot h_2(k)) \\bmod 11",
+          "plain": "h1(k) = k mod 11, h2(k) = 1 + (k mod 7), h(k,i) = (h1(k) + i*h2(k)) mod 11",
+          "whenToUse": "Standard GATE double hashing example with m=11, m'=7",
+          "terms": [
+            { "symbol": "m", "means": "table size = 11 (prime)" },
+            { "symbol": "m'", "means": "secondary modulus = 7 (prime, < m)" }
+          ],
+          "trap": "Compute h2(k) first to get the step size, then add multiples for each collision. The '+1' in h2 ensures step size is never 0.",
+          "reference": "Algorithms / Hashing"
+        }
+      ]
+    },
+    {
+      "groupId": "searching-general",
+      "groupTitle": "Searching",
+      "formulas": [
+        {
+          "formulaId": "con_040-linear-search",
+          "name": "Linear Search Complexity",
+          "latex": "T_{\\text{worst}}(n) = O(n),\\quad T_{\\text{avg}}(n) = O(n/2) = O(n)",
+          "plain": "Worst: O(n), Average: O(n/2) = O(n)",
+          "whenToUse": "Sequential search through unsorted or sorted array element by element",
+          "terms": [
+            { "symbol": "n", "means": "number of elements in array" }
+          ],
+          "trap": "Linear search works on unsorted arrays; binary search requires a sorted array. A sorted array does NOT require binary search — linear search also works, just slower.",
+          "reference": "Algorithms / Searching"
+        },
+        {
+          "formulaId": "con_040-binary-search-requirement",
+          "name": "Binary Search Prerequisites",
+          "latex": "\\text{Requires: sorted array + O(1) random access (not linked list)}",
+          "plain": "Requires sorted array with O(1) index access (arrays only, not linked lists)",
+          "whenToUse": "Determining applicability of binary search to a given data structure",
+          "terms": [
+            { "symbol": "O(1) \\text{ access}", "means": "possible only on arrays, not linked lists" }
+          ],
+          "trap": "Binary search on a linked list has O(n) worst case even if sorted, because finding the midpoint requires O(n) traversal. So it is no better than linear search on a linked list.",
+          "reference": "Algorithms / Searching"
+        }
+      ]
+    }
+  ]
+}

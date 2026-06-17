@@ -1,0 +1,338 @@
+{
+  "_id": "con_048",
+  "conceptId": "con_048",
+  "conceptTitle": "Regular Expressions and Finite Automata",
+  "reference": "GATE CS — Theory of Computation / Automata",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Converting NFA to DFA — upper bound on states",
+        "use": "|Q_{DFA}| \\leq 2^{|Q_{NFA}|}"
+      },
+      {
+        "condition": "Minimizing DFA — counting equivalence classes",
+        "use": "\\text{Use Myhill-Nerode table-filling (partition refinement)}"
+      },
+      {
+        "condition": "DFA for language divisible by k — number of states",
+        "use": "|Q| = k \\text{ states (one per residue class mod } k\\text{)}"
+      },
+      {
+        "condition": "Combining two DFAs with m and n states via product construction",
+        "use": "|Q_{product}| = m \\times n"
+      },
+      {
+        "condition": "NFA with epsilon-transitions — computing epsilon-closure",
+        "use": "\\varepsilon\\text{-closure}(q) = \\{q\\} \\cup \\bigcup_{p \\in \\delta(q,\\varepsilon)} \\varepsilon\\text{-closure}(p)"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "dfa-nfa-equivalence",
+      "groupTitle": "DFA / NFA Equivalence & Conversion",
+      "formulas": [
+        {
+          "formulaId": "con_048-nfa-to-dfa-subset-construction",
+          "name": "Subset Construction (NFA to DFA)",
+          "latex": "|Q_{DFA}| \\leq 2^{|Q_{NFA}|}",
+          "plain": "|Q_DFA| <= 2^|Q_NFA|",
+          "whenToUse": "Upper-bounding states when converting an NFA with n states to an equivalent DFA.",
+          "terms": [
+            { "symbol": "Q_{NFA}", "means": "set of states in the NFA" },
+            { "symbol": "Q_{DFA}", "means": "set of states in the resulting DFA (subsets of Q_NFA)" }
+          ],
+          "trap": "The bound 2^n is the WORST case; in practice far fewer subsets are reachable. GATE questions often ask for the minimum DFA, not the naive subset-construction DFA.",
+          "reference": "Theory of Computation / Automata"
+        },
+        {
+          "formulaId": "con_048-nfa-dfa-language-equivalence",
+          "name": "NFA–DFA Language Equivalence",
+          "latex": "L(NFA) = L(DFA) \\text{ — every NFA has an equivalent DFA}",
+          "plain": "L(NFA) = L(DFA)  [for every NFA there exists an equivalent DFA]",
+          "whenToUse": "When asked whether determinism restricts recognizing power for finite automata.",
+          "terms": [
+            { "symbol": "L(M)", "means": "language accepted by machine M" }
+          ],
+          "trap": "This equivalence holds for FA but NOT for PDA: non-deterministic PDA is strictly more powerful than deterministic PDA.",
+          "reference": "Theory of Computation / Automata"
+        },
+        {
+          "formulaId": "con_048-epsilon-closure",
+          "name": "Epsilon-Closure Definition",
+          "latex": "\\varepsilon\\text{-closure}(q) = \\{q\\} \\cup \\bigcup_{p \\in \\delta(q,\\varepsilon)} \\varepsilon\\text{-closure}(p)",
+          "plain": "epsilon-closure(q) = {q} union epsilon-closure of all states reachable from q on epsilon",
+          "whenToUse": "Converting an NFA-epsilon to a plain NFA or DFA — must fold epsilon transitions first.",
+          "terms": [
+            { "symbol": "q", "means": "a state in the NFA" },
+            { "symbol": "\\delta(q,\\varepsilon)", "means": "set of states reachable from q on epsilon transition" }
+          ],
+          "trap": "Every state is in its own epsilon-closure (reflexive). Forgetting q itself is a common error.",
+          "reference": "Theory of Computation / Automata"
+        },
+        {
+          "formulaId": "con_048-nfa-acceptance",
+          "name": "NFA Acceptance Condition",
+          "latex": "w \\in L(NFA) \\iff \\exists \\text{ a computation path that ends in } F",
+          "plain": "w is accepted if at least one path through the NFA on w ends in an accept state",
+          "whenToUse": "Deciding membership in an NFA-recognized language; contrasted with DFA where ALL paths are deterministic.",
+          "terms": [
+            { "symbol": "F", "means": "set of accept states" },
+            { "symbol": "w", "means": "input string" }
+          ],
+          "trap": "NFA accepts if ANY branch accepts; rejection requires ALL branches to fail.",
+          "reference": "Theory of Computation / Automata"
+        }
+      ]
+    },
+    {
+      "groupId": "dfa-minimization",
+      "groupTitle": "DFA Minimization",
+      "formulas": [
+        {
+          "formulaId": "con_048-myhill-nerode-theorem",
+          "name": "Myhill–Nerode Theorem",
+          "latex": "\\text{min states of DFA for } L = \\text{number of equivalence classes of } \\equiv_L",
+          "plain": "minimum DFA states = number of Myhill-Nerode equivalence classes of L",
+          "whenToUse": "Proving a language is not regular (infinite classes) or counting minimum states.",
+          "terms": [
+            { "symbol": "\\equiv_L", "means": "Myhill-Nerode equivalence: x equiv_L y iff for all z, xz in L <=> yz in L" }
+          ],
+          "trap": "The theorem works on the language, not a particular DFA — it gives the ABSOLUTE minimum, not just a locally reduced machine.",
+          "reference": "Theory of Computation / Automata"
+        },
+        {
+          "formulaId": "con_048-table-filling-algorithm",
+          "name": "Table-Filling (Distinguishability) Algorithm",
+          "latex": "\\text{Mark } (p,q) \\text{ if one} \\in F,\\ \\text{one} \\notin F;\\text{ then propagate: mark }(p,q)\\text{ if }(\\delta(p,a),\\delta(q,a))\\text{ marked}",
+          "plain": "Mark (p,q) distinguishable if one is final and other is not; propagate for each symbol a",
+          "whenToUse": "Minimizing a given DFA by merging indistinguishable (equivalent) states.",
+          "terms": [
+            { "symbol": "\\delta(p,a)", "means": "transition from state p on symbol a" },
+            { "symbol": "(p,q)", "means": "pair of states being tested for distinguishability" }
+          ],
+          "trap": "States that are both non-final can still be distinguishable; don't merge them without checking all transitions.",
+          "reference": "Theory of Computation / Automata"
+        },
+        {
+          "formulaId": "con_048-ndfa-min-dfa-not-always-2n",
+          "name": "Minimal DFA from NDFA — NOT Always 2^n",
+          "latex": "\\text{min } |Q_{DFA}| \\leq 2^n \\text{ but may be } \\ll 2^n",
+          "plain": "Minimal DFA from n-state NFA has at most 2^n states but can have far fewer",
+          "whenToUse": "Answering TRUE/FALSE: 'Minimal DFA for an n-state NDFA always has 2^n states' — the answer is FALSE.",
+          "terms": [
+            { "symbol": "n", "means": "number of states in the NFA" }
+          ],
+          "trap": "GATE classic trap: the statement 'always 2^n' is FALSE. The worst-case is 2^n, but the minimum DFA can be much smaller.",
+          "reference": "Theory of Computation / Automata"
+        },
+        {
+          "formulaId": "con_048-product-construction",
+          "name": "Product Construction for Intersection / Union",
+          "latex": "|Q_{M_1 \\times M_2}| = |Q_{M_1}| \\times |Q_{M_2}|",
+          "plain": "States of product DFA = |Q_M1| * |Q_M2|",
+          "whenToUse": "Building a DFA for L1 intersection L2 or L1 union L2 when DFAs for L1 (m states) and L2 (n states) are given.",
+          "terms": [
+            { "symbol": "|Q_{M_i}|", "means": "number of states in DFA M_i" }
+          ],
+          "trap": "The product construction gives an upper bound; after minimization the actual state count may be smaller.",
+          "reference": "Theory of Computation / Automata"
+        }
+      ]
+    },
+    {
+      "groupId": "state-counting",
+      "groupTitle": "State Count for Specific Languages",
+      "formulas": [
+        {
+          "formulaId": "con_048-states-mod-k",
+          "name": "DFA for Divisibility by k",
+          "latex": "|Q| = k \\quad (\\text{one state per residue class } 0,1,\\ldots,k-1)",
+          "plain": "|Q| = k states, one per residue class mod k",
+          "whenToUse": "Counting states of the minimum DFA that accepts strings whose numeric value (or length, or product) is divisible by k.",
+          "terms": [
+            { "symbol": "k", "means": "the divisor" },
+            { "symbol": "Q", "means": "states, labelled by remainder 0 through k-1" }
+          ],
+          "trap": "For a product-mod-7 language over {1,2,3,4}, only residues actually reachable from residue 1 (initial) need to be counted — may be fewer than k states.",
+          "reference": "Theory of Computation / Automata"
+        },
+        {
+          "formulaId": "con_048-states-two-conditions",
+          "name": "DFA for Combined Divisibility Conditions",
+          "latex": "|Q| = k_1 \\times k_2 \\quad (\\text{one state per pair of residues})",
+          "plain": "|Q| = k1 * k2 states for language where count_a mod k1 = 0 AND count_b mod k2 = 0",
+          "whenToUse": "Minimum DFA for strings where #a mod k1 = 0 AND #b mod k2 = 0 simultaneously.",
+          "terms": [
+            { "symbol": "k_1", "means": "divisor for occurrences of symbol a" },
+            { "symbol": "k_2", "means": "divisor for occurrences of symbol b" }
+          ],
+          "trap": "k1*k2 is the maximum; after checking which pairs are reachable the minimum may differ.",
+          "reference": "Theory of Computation / Automata"
+        },
+        {
+          "formulaId": "con_048-states-third-from-right",
+          "name": "DFA for 'k-th Symbol from Right'",
+          "latex": "|Q_{DFA}| = 2^k \\quad (\\text{NFA needs } k+1 \\text{ states})",
+          "plain": "DFA for '3rd symbol from right is 1' needs 2^3 = 8 states; NFA needs 4 states",
+          "whenToUse": "Any problem asking for the minimum DFA recognizing 'the k-th symbol from right is X'.",
+          "terms": [
+            { "symbol": "k", "means": "position from the right end" }
+          ],
+          "trap": "The NFA needs only k+1 states but the equivalent minimal DFA needs 2^k states — a common GATE question.",
+          "reference": "Theory of Computation / Automata"
+        }
+      ]
+    },
+    {
+      "groupId": "regular-expressions",
+      "groupTitle": "Regular Expressions",
+      "formulas": [
+        {
+          "formulaId": "con_048-regex-operators",
+          "name": "Regular Expression Operators",
+          "latex": "R_1 + R_2 \\;(\\text{union}),\\quad R_1 R_2 \\;(\\text{concat}),\\quad R^* \\;(\\text{Kleene star})",
+          "plain": "R1 + R2 (union), R1 R2 (concatenation), R* (Kleene star / zero or more)",
+          "whenToUse": "Writing or interpreting any regular expression over an alphabet.",
+          "terms": [
+            { "symbol": "R^*", "means": "zero or more repetitions of R, includes epsilon" },
+            { "symbol": "R^+", "means": "one or more repetitions of R; R+ = RR*" }
+          ],
+          "trap": "R* includes the empty string epsilon; R+ does not. Confusing the two changes the language.",
+          "reference": "Theory of Computation / Automata"
+        },
+        {
+          "formulaId": "con_048-kleene-closure-identities",
+          "name": "Kleene Star Identities",
+          "latex": "(R^*)^* = R^*,\\quad \\emptyset^* = \\{\\varepsilon\\},\\quad (\\varepsilon)^* = \\{\\varepsilon\\}",
+          "plain": "(R*)* = R*,  empty_set* = {epsilon},  epsilon* = {epsilon}",
+          "whenToUse": "Simplifying regular expressions; recognizing edge cases in GATE option elimination.",
+          "terms": [
+            { "symbol": "\\emptyset", "means": "empty language (no strings)" },
+            { "symbol": "\\varepsilon", "means": "empty string" }
+          ],
+          "trap": "emptyset* is NOT empty — it equals {epsilon}. This is the most common GATE MCQ trap in this area.",
+          "reference": "Theory of Computation / Automata"
+        },
+        {
+          "formulaId": "con_048-regex-to-nfa-thompsons",
+          "name": "Thompson's Construction (Regex to NFA)",
+          "latex": "\\text{For } R_1 R_2: \\text{chain NFAs; for } R_1+R_2: \\text{add start/accept with } \\varepsilon\\text{-moves; for } R^*: \\text{add loop}",
+          "plain": "Thompson's: union adds epsilon-branching start; concat chains; star adds epsilon loop back to start",
+          "whenToUse": "Mechanically converting a regular expression to an NFA.",
+          "terms": [
+            { "symbol": "\\varepsilon\\text{-move}", "means": "epsilon transition (free move without consuming input)" }
+          ],
+          "trap": "Thompson's NFA always has exactly one start and one accept state; do not merge intermediate accept states.",
+          "reference": "Theory of Computation / Automata"
+        },
+        {
+          "formulaId": "con_048-regex-complement",
+          "name": "Complement of Regular Language",
+          "latex": "\\overline{L} = \\Sigma^* \\setminus L \\text{ — swap final and non-final states in the MIN-DFA}",
+          "plain": "complement(L) = swap final/non-final states of the MINIMIZED DFA of L",
+          "whenToUse": "When asked to build DFA or regex for the complement of a regular language.",
+          "terms": [
+            { "symbol": "F^c", "means": "complement of final states: Q \\ F" }
+          ],
+          "trap": "Complement swap must be done on a COMPLETE DFA (dead/trap state must exist); otherwise unreachable non-final states become spurious accept states.",
+          "reference": "Theory of Computation / Automata"
+        },
+        {
+          "formulaId": "con_048-regex-substrings",
+          "name": "Regex for Proper Substrings of a Fixed String",
+          "latex": "\\text{Proper non-null substrings of } s: \\text{ enumerate substrings of length } 1 \\text{ to } |s|-1 \\text{ and union}",
+          "plain": "List all proper non-null substrings explicitly and write their union as a regular expression",
+          "whenToUse": "GATE problem: 'give a regex for proper non-null substrings of 0110' — enumerate, then write union.",
+          "terms": [
+            { "symbol": "|s|", "means": "length of the fixed string s" }
+          ],
+          "trap": "The null/empty string is usually excluded when 'non-null' is specified. Also, identical substrings need not be repeated in the union.",
+          "reference": "Theory of Computation / Automata"
+        }
+      ]
+    },
+    {
+      "groupId": "closure-properties",
+      "groupTitle": "Closure Properties of Regular Languages",
+      "formulas": [
+        {
+          "formulaId": "con_048-closure-regular",
+          "name": "Closure Properties of Regular Languages",
+          "latex": "\\text{Regular languages are closed under: } \\cup,\\ \\cap,\\ \\text{complement},\\ \\cdot,\\ {}^*,\\ \\text{reversal, homomorphism, inverse-hom}",
+          "plain": "Regular languages closed under: union, intersection, complement, concatenation, Kleene star, reversal, homomorphism, inverse homomorphism",
+          "whenToUse": "Any GATE question asking 'is the result of operation X on regular languages still regular?'",
+          "terms": [
+            { "symbol": "\\cup", "means": "union" },
+            { "symbol": "\\cap", "means": "intersection" }
+          ],
+          "trap": "Regular languages are NOT closed under infinite union or intersection of infinitely many languages.",
+          "reference": "Theory of Computation / Automata"
+        },
+        {
+          "formulaId": "con_048-dfa-complement-construction",
+          "name": "DFA for L-complement (F2 = L^c)",
+          "latex": "M_{L^c} = (Q, \\Sigma, \\delta, q_0, Q \\setminus F)",
+          "plain": "DFA for complement: same Q, delta, q0 but final states = Q minus F",
+          "whenToUse": "Building the DFA for the complement language from a given DFA for L.",
+          "terms": [
+            { "symbol": "Q \\setminus F", "means": "all states that were NOT accepting in the original DFA" }
+          ],
+          "trap": "Requires the DFA to be COMPLETE (total transition function). Add a dead/sink state if any transitions are missing.",
+          "reference": "Theory of Computation / Automata"
+        }
+      ]
+    },
+    {
+      "groupId": "fsm-mealy-moore",
+      "groupTitle": "Finite State Machines (Mealy / Moore)",
+      "formulas": [
+        {
+          "formulaId": "con_048-mealy-machine",
+          "name": "Mealy Machine Definition",
+          "latex": "M = (Q, \\Sigma, \\Delta, \\delta, \\lambda, q_0) \\text{ where output } \\lambda: Q \\times \\Sigma \\to \\Delta",
+          "plain": "Mealy: output depends on current state AND current input symbol",
+          "whenToUse": "FSM problems where the output is given in the transition table as a function of (state, input).",
+          "terms": [
+            { "symbol": "\\Delta", "means": "output alphabet" },
+            { "symbol": "\\lambda", "means": "output function: (state, input) -> output symbol" }
+          ],
+          "trap": "In a Mealy machine the output is on TRANSITIONS; in a Moore machine it is on STATES. Mealy can simulate Moore with same or fewer states.",
+          "reference": "Theory of Computation / Automata"
+        },
+        {
+          "formulaId": "con_048-moore-machine",
+          "name": "Moore Machine Definition",
+          "latex": "M = (Q, \\Sigma, \\Delta, \\delta, \\lambda, q_0) \\text{ where output } \\lambda: Q \\to \\Delta",
+          "plain": "Moore: output depends only on the current state (output labelled on states)",
+          "whenToUse": "FSM problems where the output column in the state table depends only on the state, not the input.",
+          "terms": [
+            { "symbol": "\\lambda: Q \\to \\Delta", "means": "Moore output function maps each state to an output symbol" }
+          ],
+          "trap": "A Moore machine may need more states than an equivalent Mealy machine by at most a factor related to the output alphabet.",
+          "reference": "Theory of Computation / Automata"
+        }
+      ]
+    },
+    {
+      "groupId": "non-determinism-key-results",
+      "groupTitle": "Non-Determinism Key Results",
+      "formulas": [
+        {
+          "formulaId": "con_048-nfa-pda-non-det-comparison",
+          "name": "Non-Determinism: FA vs PDA vs TM",
+          "latex": "\\text{NFA} \\equiv \\text{DFA},\\quad \\text{NPDA} \\supsetneq \\text{DPDA},\\quad \\text{NTM} \\equiv \\text{DTM (power)}",
+          "plain": "NFA = DFA (power); NPDA strictly > DPDA; NTM = DTM (same class, different time)",
+          "whenToUse": "GATE question: 'Which conversion is NOT possible algorithmically?' Non-det PDA to det PDA is not always possible.",
+          "terms": [
+            { "symbol": "\\equiv", "means": "equivalent in language recognition power" },
+            { "symbol": "\\supsetneq", "means": "strictly more powerful" }
+          ],
+          "trap": "NFA to DFA conversion IS always possible. NPDA to DPDA is NOT always possible. This is the most tested GATE distinction.",
+          "reference": "Theory of Computation / Automata"
+        }
+      ]
+    }
+  ]
+}

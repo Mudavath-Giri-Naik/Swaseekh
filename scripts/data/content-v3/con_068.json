@@ -1,0 +1,438 @@
+{
+  "_id": "con_068",
+  "conceptId": "con_068",
+  "conceptTitle": "Relational Model, Algebra and SQL",
+  "reference": "GATE CS — Databases / Data Models",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Finding tuples common to two relations",
+        "use": "R \\cap S = R - (R - S)"
+      },
+      {
+        "condition": "Expressing division (R ÷ S) with primitive operators",
+        "use": "R \\div S = \\Pi_{A}(R) - \\Pi_{A}((\\Pi_{A}(R) \\times S) - R)"
+      },
+      {
+        "condition": "Counting tuples after natural join with FD B->A, B->C",
+        "use": "\\text{If } B \\rightarrow A,C \\text{ then } |R \\bowtie S| \\leq \\min(|R|, |S|) \\cdot |S|"
+      },
+      {
+        "condition": "Result size of cross product",
+        "use": "|R \\times S| = |R| \\cdot |S|"
+      },
+      {
+        "condition": "Checking if a SQL subquery returns any row",
+        "use": "\\text{EXISTS}(\\text{subquery}) \\equiv \\text{result set is non-empty}"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "relational-model-basics",
+      "groupTitle": "Relational Model Basics",
+      "formulas": [
+        {
+          "formulaId": "con_068-relation-cardinality-degree",
+          "name": "Cardinality and Degree",
+          "latex": "\\text{Degree} = \\text{number of attributes (columns)};\\quad \\text{Cardinality} = \\text{number of tuples (rows)}",
+          "plain": "Degree = number of attributes; Cardinality = number of tuples",
+          "whenToUse": "When a question asks about size or structure of a relation",
+          "terms": [
+            { "symbol": "Degree", "means": "number of columns (attributes)" },
+            { "symbol": "Cardinality", "means": "number of rows (tuples)" }
+          ],
+          "trap": "Confusing degree (columns) with cardinality (rows) — GATE often asks 'cardinality after join' meaning row count, not column count.",
+          "reference": "Databases / Relational Model"
+        },
+        {
+          "formulaId": "con_068-cross-product-size",
+          "name": "Cross Product Size",
+          "latex": "|R \\times S| = |R| \\cdot |S|",
+          "plain": "|R x S| = |R| * |S|",
+          "whenToUse": "Computing the maximum number of tuples before applying a join condition",
+          "terms": [
+            { "symbol": "|R|", "means": "number of tuples in relation R" },
+            { "symbol": "|S|", "means": "number of tuples in relation S" }
+          ],
+          "trap": "Cross product is NOT the result of a join; a join further filters with a condition and can yield fewer tuples.",
+          "reference": "Databases / Relational Model"
+        },
+        {
+          "formulaId": "con_068-key-superkey",
+          "name": "Key and Superkey Definition",
+          "latex": "K \\text{ is a superkey of } R \\iff K \\rightarrow R; \\quad K \\text{ is a key iff no proper subset of } K \\text{ is a superkey}",
+          "plain": "K is a superkey if K -> R; K is a key if no proper subset of K is also a superkey (minimality)",
+          "whenToUse": "Identifying candidate keys, primary keys, or checking minimal superkeys",
+          "terms": [
+            { "symbol": "K", "means": "set of attributes forming the key" },
+            { "symbol": "R", "means": "full set of attributes of the relation" }
+          ],
+          "trap": "A primary key is ONE chosen candidate key; all candidate keys are minimal superkeys. A superkey need not be minimal.",
+          "reference": "Databases / Relational Model"
+        }
+      ]
+    },
+    {
+      "groupId": "relational-algebra-operators",
+      "groupTitle": "Relational Algebra Operators",
+      "formulas": [
+        {
+          "formulaId": "con_068-select-operator",
+          "name": "Selection (sigma)",
+          "latex": "\\sigma_{\\text{condition}}(R) = \\{\\, t \\in R \\mid \\text{condition}(t) \\,\\}",
+          "plain": "sigma_condition(R) = all tuples t in R satisfying condition",
+          "whenToUse": "Filtering rows based on a predicate (like WHERE in SQL)",
+          "terms": [
+            { "symbol": "\\sigma", "means": "selection operator" },
+            { "symbol": "\\text{condition}", "means": "boolean predicate on tuple attributes" }
+          ],
+          "trap": "Selection does NOT remove duplicate columns — it works row-wise only. The output has same schema as R.",
+          "reference": "Databases / Relational Algebra"
+        },
+        {
+          "formulaId": "con_068-project-operator",
+          "name": "Projection (pi)",
+          "latex": "\\Pi_{A_1,\\ldots,A_k}(R) = \\{\\, t[A_1,\\ldots,A_k] \\mid t \\in R \\,\\}",
+          "plain": "Pi_{A1,...,Ak}(R) = project R onto attributes A1...Ak (duplicates removed)",
+          "whenToUse": "Keeping only specific columns and eliminating duplicates (like SELECT DISTINCT in SQL)",
+          "terms": [
+            { "symbol": "\\Pi", "means": "projection operator" },
+            { "symbol": "A_1,\\ldots,A_k", "means": "list of attribute names to keep" }
+          ],
+          "trap": "Projection automatically removes duplicate tuples. SQL SELECT without DISTINCT does NOT remove duplicates — a key distinction in GATE.",
+          "reference": "Databases / Relational Algebra"
+        },
+        {
+          "formulaId": "con_068-union-intersection-difference",
+          "name": "Set Operations",
+          "latex": "R \\cup S,\\quad R \\cap S,\\quad R - S \\quad (\\text{require union-compatible schemas})",
+          "plain": "R union S, R intersect S, R minus S — require same arity and compatible attribute domains",
+          "whenToUse": "Combining or comparing two relations with the same schema",
+          "terms": [
+            { "symbol": "\\cup", "means": "union — tuples in R or S (duplicates removed)" },
+            { "symbol": "\\cap", "means": "intersection — tuples in both R and S" },
+            { "symbol": "-", "means": "set difference — tuples in R but not in S" }
+          ],
+          "trap": "Union compatibility requires same NUMBER of attributes with compatible domains — attribute names need not match exactly.",
+          "reference": "Databases / Relational Algebra"
+        },
+        {
+          "formulaId": "con_068-intersection-via-difference",
+          "name": "Intersection via Difference (non-primitive to primitive)",
+          "latex": "R \\cap S = R - (R - S)",
+          "plain": "R intersect S = R - (R - S)",
+          "whenToUse": "Expressing intersection using only set-difference (and union), which are the primitive operators",
+          "terms": [
+            { "symbol": "R - S", "means": "tuples in R that are not in S" }
+          ],
+          "trap": "GATE frequently asks 'minimum operators from {union, difference} to express intersection' — the answer is 2 difference operations (no union needed).",
+          "reference": "Databases / Relational Algebra"
+        },
+        {
+          "formulaId": "con_068-division-operator",
+          "name": "Division Operator (R ÷ S)",
+          "latex": "R \\div S = \\Pi_{A}(R) - \\Pi_{A}\\!\\left((\\Pi_{A}(R) \\times S) - R\\right)",
+          "plain": "R / S = Pi_A(R) - Pi_A( (Pi_A(R) x S) - R )  where A = attrs(R) - attrs(S)",
+          "whenToUse": "Finding tuples in R that are associated with ALL tuples in S (universal quantification / 'for all')",
+          "terms": [
+            { "symbol": "A", "means": "attributes of R not in S (the 'quotient' attributes)" },
+            { "symbol": "S", "means": "the divisor relation (subset of R's attributes)" }
+          ],
+          "trap": "Division is derived, not primitive. GATE asks to express it with primitives — requires cross-product, set-difference, and projection (minimum 3 primitive operators).",
+          "reference": "Databases / Relational Algebra"
+        },
+        {
+          "formulaId": "con_068-rename-operator",
+          "name": "Rename Operator (rho)",
+          "latex": "\\rho_{S(B_1,\\ldots,B_n)}(R) \\equiv \\text{rename relation } R \\text{ to } S \\text{ and attributes to } B_1,\\ldots,B_n",
+          "plain": "rho_{S(B1,...,Bn)}(R) — rename R to S with new attribute names",
+          "whenToUse": "Needed for self-joins or when combining two copies of the same relation",
+          "terms": [
+            { "symbol": "\\rho", "means": "rename operator" },
+            { "symbol": "S", "means": "new relation name" }
+          ],
+          "trap": "Without renaming, a self-join (e.g., finding pairs of employees in same dept) is ambiguous — always rename one copy.",
+          "reference": "Databases / Relational Algebra"
+        }
+      ]
+    },
+    {
+      "groupId": "join-operations",
+      "groupTitle": "Join Operations",
+      "formulas": [
+        {
+          "formulaId": "con_068-theta-equi-join",
+          "name": "Theta Join and Equi-Join",
+          "latex": "R \\bowtie_{\\theta} S = \\sigma_{\\theta}(R \\times S)",
+          "plain": "R join_theta S = sigma_theta(R x S)",
+          "whenToUse": "Joining two relations on a general condition theta (equi-join when theta is equality)",
+          "terms": [
+            { "symbol": "\\theta", "means": "join condition (predicate on attributes of R and S)" },
+            { "symbol": "\\bowtie", "means": "join operator symbol" }
+          ],
+          "trap": "Theta join / equi-join retains BOTH join columns in the output; natural join removes duplicate join columns.",
+          "reference": "Databases / Joins"
+        },
+        {
+          "formulaId": "con_068-natural-join",
+          "name": "Natural Join",
+          "latex": "R \\bowtie S = \\Pi_{\\text{attrs}(R) \\cup \\text{attrs}(S)}\\!\\left(\\sigma_{R.A=S.A}(R \\times S)\\right)",
+          "plain": "R natural-join S = join on all common attributes, keeping each common column once",
+          "whenToUse": "Joining on all attributes with the same name, automatically merging them",
+          "terms": [
+            { "symbol": "\\text{attrs}(R) \\cup \\text{attrs}(S)", "means": "union of attribute sets (common attrs appear once)" }
+          ],
+          "trap": "If R and S have NO common attributes, natural join degenerates to cross product. If all attributes are common, it becomes intersection.",
+          "reference": "Databases / Natural Join"
+        },
+        {
+          "formulaId": "con_068-natural-join-size",
+          "name": "Natural Join Size Bounds",
+          "latex": "0 \\leq |R \\bowtie S| \\leq |R| \\cdot |S|",
+          "plain": "0 <= |R natural-join S| <= |R| * |S|",
+          "whenToUse": "Bounding the number of tuples resulting from a natural join",
+          "terms": [
+            { "symbol": "|R \\bowtie S|", "means": "cardinality of the natural join result" }
+          ],
+          "trap": "When a FD B->A holds and B is the join attribute, the max is min(|R|,|S|) because matching is 1-to-1 on B side. GATE 2014 classic question.",
+          "reference": "Databases / Natural Join"
+        },
+        {
+          "formulaId": "con_068-outer-join-types",
+          "name": "Outer Join Types",
+          "latex": "\\text{Left outer: } R \\mathbin{⟕} S; \\quad \\text{Right outer: } R \\mathbin{⟖} S; \\quad \\text{Full outer: } R \\mathbin{⟗} S",
+          "plain": "Left outer join: all R tuples + matched S (NULLs for unmatched); Right outer: all S tuples; Full outer: all tuples from both",
+          "whenToUse": "When unmatched tuples from one or both sides must appear in the result (padded with NULLs)",
+          "terms": [
+            { "symbol": "\\text{NULL}", "means": "placeholder for missing attribute values from unmatched tuples" }
+          ],
+          "trap": "Full outer join result can have MORE tuples than either relation alone. Inner join loses unmatched tuples from BOTH sides.",
+          "reference": "Databases / Joins"
+        },
+        {
+          "formulaId": "con_068-lossy-lossless-join",
+          "name": "Lossless vs Lossy Decomposition",
+          "latex": "\\text{Lossless: } r = \\Pi_{R_1}(r) \\bowtie \\Pi_{R_2}(r); \\quad \\text{Lossy: } r \\subsetneq \\Pi_{R_1}(r) \\bowtie \\Pi_{R_2}(r)",
+          "plain": "Lossless: original relation = join of projections; Lossy: join produces spurious tuples (more than original)",
+          "whenToUse": "Checking if a decomposition preserves all original information",
+          "terms": [
+            { "symbol": "R_1, R_2", "means": "schemas of the decomposed relations" }
+          ],
+          "trap": "Lossy decomposition means the join produces MORE tuples (spurious tuples), NOT fewer. The original is a SUBSET of the join result.",
+          "reference": "Databases / Natural Join"
+        }
+      ]
+    },
+    {
+      "groupId": "relational-calculus",
+      "groupTitle": "Relational Calculus",
+      "formulas": [
+        {
+          "formulaId": "con_068-trc-formula",
+          "name": "Tuple Relational Calculus (TRC)",
+          "latex": "\\{\\, t \\mid P(t) \\,\\}",
+          "plain": "{ t | P(t) } — set of all tuples t satisfying predicate P",
+          "whenToUse": "Expressing queries declaratively using tuple variables and logical predicates",
+          "terms": [
+            { "symbol": "t", "means": "tuple variable ranging over a relation" },
+            { "symbol": "P(t)", "means": "logical predicate involving t" }
+          ],
+          "trap": "TRC can be unsafe (infinite results) if the domain is unrestricted. Safe TRC == domain-independent queries.",
+          "reference": "Databases / Tuple Relational Calculus"
+        },
+        {
+          "formulaId": "con_068-drc-formula",
+          "name": "Domain Relational Calculus (DRC)",
+          "latex": "\\{\\, \\langle x_1,\\ldots,x_n \\rangle \\mid P(x_1,\\ldots,x_n) \\,\\}",
+          "plain": "{ <x1,...,xn> | P(x1,...,xn) } — set of domain value tuples satisfying predicate P",
+          "whenToUse": "Expressing queries using domain variables (each variable is a single attribute value)",
+          "terms": [
+            { "symbol": "x_i", "means": "domain variable for one attribute value" },
+            { "symbol": "P", "means": "predicate involving domain variables and relation membership" }
+          ],
+          "trap": "DRC uses DOMAIN variables (single attribute), while TRC uses TUPLE variables (full row). Confusing them is a common GATE error.",
+          "reference": "Databases / Relational Calculus"
+        },
+        {
+          "formulaId": "con_068-codd-theorem",
+          "name": "Codd's Theorem (Equivalence)",
+          "latex": "\\text{Relational Algebra} \\equiv \\text{Safe TRC} \\equiv \\text{Safe DRC}",
+          "plain": "Relational Algebra is equivalent in expressive power to Safe TRC and Safe DRC",
+          "whenToUse": "Questions about expressive power or comparing RA vs RC",
+          "terms": [
+            { "symbol": "\\equiv", "means": "equivalent in expressive power (same set of queries expressible)" }
+          ],
+          "trap": "Datalog with recursion is MORE powerful than RA; SQL with recursion (WITH RECURSIVE) is also more powerful. Pure RA cannot express transitive closure.",
+          "reference": "Databases / Relational Calculus"
+        },
+        {
+          "formulaId": "con_068-existential-universal",
+          "name": "Existential and Universal Quantifiers in Calculus",
+          "latex": "\\exists\\, t \\in R(P(t)) \\quad \\text{vs} \\quad \\forall\\, t \\in R(P(t))",
+          "plain": "EXISTS t in R(P(t)): at least one tuple satisfies P; FORALL t in R(P(t)): every tuple satisfies P",
+          "whenToUse": "Translating 'there exists' or 'for all' conditions in query logic",
+          "terms": [
+            { "symbol": "\\exists", "means": "existential quantifier — 'there exists at least one'" },
+            { "symbol": "\\forall", "means": "universal quantifier — 'for all / every'" }
+          ],
+          "trap": "Universal quantification (for all) maps to division in RA; existential maps to a join/select. Mixing them up leads to wrong RA expressions.",
+          "reference": "Databases / Relational Calculus"
+        }
+      ]
+    },
+    {
+      "groupId": "sql-core",
+      "groupTitle": "SQL Core Constructs",
+      "formulas": [
+        {
+          "formulaId": "con_068-sql-select-structure",
+          "name": "SQL Query Structure",
+          "latex": "\\text{SELECT}\\; A_1,\\ldots,A_k \\;\\text{FROM}\\; R_1,\\ldots,R_m \\;[\\text{WHERE}\\; P] \\;[\\text{GROUP BY}\\; G] \\;[\\text{HAVING}\\; H]",
+          "plain": "SELECT cols FROM tables [WHERE pred] [GROUP BY cols] [HAVING pred]",
+          "whenToUse": "Writing or interpreting any SQL SELECT query",
+          "terms": [
+            { "symbol": "A_i", "means": "output attributes or aggregate expressions" },
+            { "symbol": "G", "means": "grouping attributes" },
+            { "symbol": "H", "means": "predicate on groups (applied after GROUP BY)" }
+          ],
+          "trap": "HAVING filters GROUPS (after grouping); WHERE filters ROWS (before grouping). Using aggregate functions in WHERE is a syntax error.",
+          "reference": "Databases / SQL"
+        },
+        {
+          "formulaId": "con_068-sql-aggregate-functions",
+          "name": "SQL Aggregate Functions",
+          "latex": "\\text{COUNT}(*),\\; \\text{COUNT}(A),\\; \\text{SUM}(A),\\; \\text{AVG}(A),\\; \\text{MAX}(A),\\; \\text{MIN}(A)",
+          "plain": "COUNT(*): all rows; COUNT(A): non-NULL values of A; SUM/AVG/MAX/MIN: over non-NULL values",
+          "whenToUse": "Computing summary statistics on groups or the whole table",
+          "terms": [
+            { "symbol": "\\text{COUNT}(*)", "means": "counts all rows including NULLs" },
+            { "symbol": "\\text{COUNT}(A)", "means": "counts non-NULL values of attribute A" }
+          ],
+          "trap": "COUNT(*) includes NULL rows; COUNT(col) excludes NULLs. SUM/AVG/MIN/MAX all ignore NULLs. A GATE question may test this difference.",
+          "reference": "Databases / SQL"
+        },
+        {
+          "formulaId": "con_068-sql-null-semantics",
+          "name": "NULL Semantics and Three-Valued Logic",
+          "latex": "\\text{NULL} \\neq \\text{NULL}; \\quad x = \\text{NULL} \\Rightarrow \\text{UNKNOWN}; \\quad \\text{Use IS NULL / IS NOT NULL}",
+          "plain": "NULL compared to anything yields UNKNOWN (not TRUE/FALSE). Check with IS NULL, not = NULL.",
+          "whenToUse": "Any query involving missing values, outer joins, or aggregation over nullable columns",
+          "terms": [
+            { "symbol": "\\text{UNKNOWN}", "means": "third truth value in SQL's three-valued logic (TRUE/FALSE/UNKNOWN)" }
+          ],
+          "trap": "WHERE clause only passes rows where condition is TRUE (not UNKNOWN). So 'WHERE A = NULL' never returns rows — must use 'WHERE A IS NULL'.",
+          "reference": "Databases / SQL"
+        },
+        {
+          "formulaId": "con_068-sql-exists-in",
+          "name": "EXISTS vs IN Subquery",
+          "latex": "\\text{WHERE EXISTS}(\\text{subquery}) \\equiv \\text{subquery returns} \\geq 1 \\text{ row}; \\quad \\text{WHERE } A \\in (\\text{subquery})",
+          "plain": "EXISTS: true if subquery is non-empty; IN: true if value equals some value from subquery",
+          "whenToUse": "Correlated subqueries (EXISTS) and set membership checks (IN)",
+          "terms": [
+            { "symbol": "\\text{EXISTS}", "means": "correlated subquery returns at least one row" },
+            { "symbol": "\\text{IN}", "means": "value is a member of the subquery result set" }
+          ],
+          "trap": "NOT IN with NULLs in subquery returns UNKNOWN (no rows pass). NOT EXISTS handles NULLs correctly. Classic GATE trap.",
+          "reference": "Databases / SQL"
+        },
+        {
+          "formulaId": "con_068-sql-join-types",
+          "name": "SQL JOIN Syntax",
+          "latex": "\\text{INNER JOIN / LEFT [OUTER] JOIN / RIGHT [OUTER] JOIN / FULL [OUTER] JOIN / CROSS JOIN / NATURAL JOIN}",
+          "plain": "INNER JOIN: matched rows only; LEFT JOIN: all left + NULLs; RIGHT JOIN: all right + NULLs; FULL JOIN: all rows both sides",
+          "whenToUse": "Writing SQL joins that need to preserve unmatched rows from one or both tables",
+          "terms": [
+            { "symbol": "\\text{ON}", "means": "explicit join condition" },
+            { "symbol": "\\text{USING}", "means": "join on named common column (removes duplicate)" }
+          ],
+          "trap": "NATURAL JOIN in SQL auto-joins on ALL columns with same name — adding a new column to a table can silently change query results.",
+          "reference": "Databases / SQL"
+        },
+        {
+          "formulaId": "con_068-sql-set-ops",
+          "name": "SQL Set Operations",
+          "latex": "\\text{UNION [ALL]} \\;|\\; \\text{INTERSECT [ALL]} \\;|\\; \\text{EXCEPT [ALL]}",
+          "plain": "UNION/INTERSECT/EXCEPT remove duplicates by default; add ALL to keep duplicates",
+          "whenToUse": "Combining results of two SELECT statements with the same column types",
+          "terms": [
+            { "symbol": "\\text{UNION ALL}", "means": "concatenates all rows including duplicates (faster)" },
+            { "symbol": "\\text{EXCEPT}", "means": "rows in first SELECT not in second (equivalent to set difference)" }
+          ],
+          "trap": "SQL UNION removes duplicates (like RA union) but UNION ALL does NOT. SQL SELECT by default keeps duplicates unlike RA projection.",
+          "reference": "Databases / SQL"
+        },
+        {
+          "formulaId": "con_068-sql-distinct-duplicates",
+          "name": "DISTINCT vs No DISTINCT in SQL",
+          "latex": "\\text{SELECT } A \\text{ FROM } R \\; \\leftrightarrow \\; \\text{multiset result}; \\quad \\text{SELECT DISTINCT } A \\text{ FROM } R \\; \\leftrightarrow \\; \\Pi_A(R)",
+          "plain": "SELECT without DISTINCT is a multiset (bag); SELECT DISTINCT gives set (= RA projection)",
+          "whenToUse": "Understanding difference between SQL (bags) and RA (sets) semantics",
+          "terms": [
+            { "symbol": "\\text{multiset}", "means": "a set that allows duplicate elements (also called bag)" }
+          ],
+          "trap": "RA projection always removes duplicates (set semantics). SQL without DISTINCT keeps duplicates (bag semantics). GATE exploits this difference.",
+          "reference": "Databases / SQL"
+        },
+        {
+          "formulaId": "con_068-sql-all-any",
+          "name": "ALL and ANY / SOME Quantifiers",
+          "latex": "x > \\text{ALL}(\\text{subquery}) \\iff x > \\max(\\text{subquery}); \\quad x > \\text{ANY}(\\text{subquery}) \\iff x > \\min(\\text{subquery})",
+          "plain": "x > ALL(subquery): x greater than maximum value in subquery; x > ANY(subquery): x greater than at least one value",
+          "whenToUse": "Comparing a value against all or some values returned by a subquery",
+          "terms": [
+            { "symbol": "\\text{ALL}", "means": "condition must hold for every value in subquery" },
+            { "symbol": "\\text{ANY/SOME}", "means": "condition must hold for at least one value in subquery" }
+          ],
+          "trap": "x > ALL(empty set) is TRUE (vacuously). x > ANY(empty set) is FALSE. This edge case appears in GATE.",
+          "reference": "Databases / SQL"
+        },
+        {
+          "formulaId": "con_068-sql-order-of-execution",
+          "name": "SQL Logical Order of Execution",
+          "latex": "\\text{FROM} \\to \\text{WHERE} \\to \\text{GROUP BY} \\to \\text{HAVING} \\to \\text{SELECT} \\to \\text{ORDER BY}",
+          "plain": "Execution order: FROM -> WHERE -> GROUP BY -> HAVING -> SELECT -> ORDER BY",
+          "whenToUse": "Debugging or predicting results of complex SQL queries with filters and grouping",
+          "terms": [
+            { "symbol": "\\text{SELECT}", "means": "executed AFTER WHERE/GROUP BY/HAVING — aliases not available in WHERE" }
+          ],
+          "trap": "Column aliases defined in SELECT cannot be used in WHERE or HAVING (evaluated before SELECT). They can be used in ORDER BY.",
+          "reference": "Databases / SQL"
+        }
+      ]
+    },
+    {
+      "groupId": "sql-constraints-integrity",
+      "groupTitle": "SQL Constraints and Integrity",
+      "formulas": [
+        {
+          "formulaId": "con_068-primary-foreign-key-sql",
+          "name": "Primary Key and Foreign Key Constraints",
+          "latex": "\\text{PRIMARY KEY} \\Rightarrow \\text{NOT NULL} + \\text{UNIQUE}; \\quad \\text{FOREIGN KEY}(A) \\text{ REFERENCES } R(B) \\Rightarrow A \\in \\Pi_B(R) \\cup \\{\\text{NULL}\\}",
+          "plain": "Primary key: NOT NULL + UNIQUE. Foreign key A must reference an existing value in R.B or be NULL.",
+          "whenToUse": "Questions about integrity constraints, referential integrity, or insertion/deletion anomalies",
+          "terms": [
+            { "symbol": "\\text{FOREIGN KEY}", "means": "referential integrity constraint between tables" }
+          ],
+          "trap": "A foreign key CAN be NULL (unless also declared NOT NULL). A primary key CANNOT be NULL — even partial NULL in composite PK is disallowed.",
+          "reference": "Databases / SQL"
+        },
+        {
+          "formulaId": "con_068-sql-views",
+          "name": "SQL Views",
+          "latex": "\\text{CREATE VIEW } V \\text{ AS } Q; \\quad \\text{Updatable iff: single table, no DISTINCT/GROUP BY/HAVING/aggregates, no subqueries in WHERE}",
+          "plain": "View is a named query. Updatable view: single base table, no aggregates, no GROUP BY, no DISTINCT.",
+          "whenToUse": "Questions about view definition, updatability, or virtual relation behavior",
+          "terms": [
+            { "symbol": "V", "means": "view name (virtual table)" },
+            { "symbol": "Q", "means": "defining SQL query" }
+          ],
+          "trap": "Views defined with GROUP BY or aggregates are NOT updatable. Materialized views store the result physically, ordinary views do not.",
+          "reference": "Databases / SQL"
+        }
+      ]
+    }
+  ]
+}

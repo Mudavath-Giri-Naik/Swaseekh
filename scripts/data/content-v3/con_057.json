@@ -1,0 +1,252 @@
+{
+  "_id": "con_057",
+  "conceptId": "con_057",
+  "conceptTitle": "Runtime Environments",
+  "reference": "GATE CS — Compiler Design / Backend Phases",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Alias created when two formals refer to same location",
+        "use": "\\text{Call-by-Reference: aliasing possible when same variable passed twice}"
+      },
+      {
+        "condition": "Expression re-evaluated each time parameter is used",
+        "use": "\\text{Call-by-Name: uses thunk / copy rule (Jensen's Device)}"
+      },
+      {
+        "condition": "Formal copied back to actual on procedure exit",
+        "use": "\\text{Call-by-Value-Result: copy-in at call, copy-out on return}"
+      },
+      {
+        "condition": "Variable resolved in lexically enclosing scope",
+        "use": "\\text{Static Scope: use access link / display to find enclosing frame}"
+      },
+      {
+        "condition": "Variable resolved in most-recently-called active scope",
+        "use": "\\text{Dynamic Scope: walk call stack to find binding}"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "parameter-passing",
+      "groupTitle": "Parameter Passing Mechanisms",
+      "formulas": [
+        {
+          "formulaId": "con_057-call-by-value",
+          "name": "Call-by-Value",
+          "latex": "\\text{formal} \\leftarrow \\text{copy of actual at call time; changes to formal do NOT affect actual}",
+          "plain": "formal = copy of actual; callee's changes are local only",
+          "whenToUse": "Simplest mechanism — actual is never modified by callee; use when you see local copies.",
+          "terms": [
+            {"symbol": "formal", "means": "parameter variable inside the procedure"},
+            {"symbol": "actual", "means": "argument expression at the call site"}
+          ],
+          "trap": "Passing a pointer by value still lets the callee modify the pointed-to data — the pointer itself is copied, not the object.",
+          "reference": "Compiler Design / Backend Phases"
+        },
+        {
+          "formulaId": "con_057-call-by-reference",
+          "name": "Call-by-Reference",
+          "latex": "\\text{formal} \\equiv \\text{alias of actual's l-value; }\\quad \\text{P}(x, x) \\Rightarrow \\text{aliasing}",
+          "plain": "formal is an alias for the actual location; P(x,x) makes two formals alias the same cell",
+          "whenToUse": "When two actuals are the same variable or overlap in memory; used to detect aliasing problems.",
+          "terms": [
+            {"symbol": "l-value", "means": "memory address / location of the actual"},
+            {"symbol": "aliasing", "means": "two formals pointing to the same memory cell"}
+          ],
+          "trap": "Call-by-reference and call-by-value give different results when the same variable is passed more than once (e.g. P(a, a)).",
+          "reference": "Compiler Design / Backend Phases"
+        },
+        {
+          "formulaId": "con_057-call-by-value-result",
+          "name": "Call-by-Value-Result (Copy-in Copy-out)",
+          "latex": "\\text{On call: formal} \\leftarrow \\text{actual}\\quad \\text{On return: actual} \\leftarrow \\text{formal}",
+          "plain": "Copy actual into formal at call; copy formal back into actual on return",
+          "whenToUse": "Simulates call-by-reference without aliasing; copy-back happens only once on exit.",
+          "terms": [
+            {"symbol": "copy-in", "means": "formal receives value of actual at call time"},
+            {"symbol": "copy-out", "means": "actual receives final value of formal on return"}
+          ],
+          "trap": "If actual is an array element A[i] and i changes during the call, the copy-back goes to the location of i at call time, not at return time (different from reference).",
+          "reference": "Compiler Design / Backend Phases"
+        },
+        {
+          "formulaId": "con_057-call-by-name",
+          "name": "Call-by-Name (Textual Substitution / Thunk)",
+          "latex": "\\text{Each use of formal substitutes the actual expression (re-evaluated with caller's scope)}",
+          "plain": "Formal is replaced by the actual text; expression re-evaluated every access (thunk closure)",
+          "whenToUse": "When an expression (not a variable) is passed and its value may change between uses.",
+          "terms": [
+            {"symbol": "thunk", "means": "closure encoding the actual expression for lazy re-evaluation"},
+            {"symbol": "copy rule", "means": "Algol 60 rule: textually replace formal with actual text"}
+          ],
+          "trap": "Call-by-name and call-by-reference differ when an array element A[i] is passed and i is modified inside the procedure — name re-indexes, reference keeps the original address.",
+          "reference": "Compiler Design / Backend Phases"
+        },
+        {
+          "formulaId": "con_057-passing-comparison",
+          "name": "When Mechanisms Differ",
+          "latex": "\\text{CBR} \\neq \\text{CBN when: (a) expr passed, (b) array elem with index change, (c) same var twice}",
+          "plain": "CBR != CBN when: expression passed, or A[i] with i changing, or same variable passed twice",
+          "whenToUse": "Quick check to decide if two mechanisms produce different results for a given call.",
+          "terms": [
+            {"symbol": "CBR", "means": "Call-by-Reference"},
+            {"symbol": "CBN", "means": "Call-by-Name"}
+          ],
+          "trap": "Passing a simple variable (not an array element, not an expression) by reference and by name always give the same result — a common distractor.",
+          "reference": "Compiler Design / Backend Phases"
+        }
+      ]
+    },
+    {
+      "groupId": "activation-records",
+      "groupTitle": "Activation Records & Stack Layout",
+      "formulas": [
+        {
+          "formulaId": "con_057-activation-record-structure",
+          "name": "Activation Record (Stack Frame) Layout",
+          "latex": "\\begin{array}{|c|}\\hline \\text{Return value} \\\\ \\hline \\text{Actual parameters} \\\\ \\hline \\text{Control link (saved fp)} \\\\ \\hline \\text{Access link (static link)} \\\\ \\hline \\text{Saved machine registers} \\\\ \\hline \\text{Local variables} \\\\ \\hline \\text{Temporaries} \\\\ \\hline\\end{array}",
+          "plain": "[Return value | Parameters | Control link | Access link | Saved regs | Locals | Temporaries]",
+          "whenToUse": "Drawing or reading an activation record in any GATE question involving calling sequences.",
+          "terms": [
+            {"symbol": "control link", "means": "pointer to caller's activation record (dynamic link / saved fp)"},
+            {"symbol": "access link", "means": "pointer to the enclosing scope's activation record (static link)"},
+            {"symbol": "fp", "means": "frame pointer — base of current activation record"}
+          ],
+          "trap": "Control link tracks the call chain (dynamic); access link tracks lexical nesting (static). Confusing them is a classic GATE mistake.",
+          "reference": "Compiler Design / Backend Phases"
+        },
+        {
+          "formulaId": "con_057-static-allocation-recursion",
+          "name": "Static Allocation & Recursion",
+          "latex": "\\text{Static allocation} \\Rightarrow \\text{one frame per procedure globally} \\Rightarrow \\text{recursion FAILS}",
+          "plain": "With static allocation there is only one activation record per procedure; recursion requires multiple simultaneous frames, so it cannot work.",
+          "whenToUse": "When asked whether recursion works with static/global allocation of variables.",
+          "terms": [
+            {"symbol": "static allocation", "means": "each variable has a fixed compile-time address"},
+            {"symbol": "recursion", "means": "a procedure calling itself, needing multiple live activation records"}
+          ],
+          "trap": "A language CAN have recursion with stack (dynamic) allocation even if local variables are allocated statically for non-recursive calls.",
+          "reference": "Compiler Design / Backend Phases"
+        },
+        {
+          "formulaId": "con_057-calling-sequence",
+          "name": "Calling Sequence Steps",
+          "latex": "\\text{Caller: } \\text{push args} \\to \\text{save regs} \\to \\text{push return addr} \\to \\text{jump callee}\\\\\\text{Callee prologue: } \\text{save fp} \\to fp \\leftarrow sp \\to sp \\leftarrow sp - \\text{frame\\_size}",
+          "plain": "Caller: push args, save regs, push return address, jump. Callee: save old fp, set fp=sp, allocate locals by moving sp.",
+          "whenToUse": "Tracing an activation tree or computing the state of the stack during a procedure call sequence.",
+          "terms": [
+            {"symbol": "sp", "means": "stack pointer — top of the runtime stack"},
+            {"symbol": "frame_size", "means": "space needed for locals and temporaries of callee"}
+          ],
+          "trap": "Return value slot is typically allocated by the CALLER before the call, not the callee.",
+          "reference": "Compiler Design / Backend Phases"
+        },
+        {
+          "formulaId": "con_057-activation-tree",
+          "name": "Activation Tree",
+          "latex": "\\text{Node: activation of procedure } P\\quad \\text{Child: activation called by } P\\quad \\text{Execution order = DFS left-to-right}",
+          "plain": "Activation tree: each node is one call; children are calls made during that activation; DFS order matches execution order.",
+          "whenToUse": "Reconstructing the call sequence diagram (e.g. p -> s -> q -> r -> q) from a program.",
+          "terms": [
+            {"symbol": "activation", "means": "one invocation of a procedure from entry to return"},
+            {"symbol": "DFS", "means": "depth-first search — mirrors the LIFO stack discipline"}
+          ],
+          "trap": "Recursive calls appear as multiple nodes in the tree even though it is the same procedure — each invocation is a separate node.",
+          "reference": "Compiler Design / Backend Phases"
+        }
+      ]
+    },
+    {
+      "groupId": "scope-rules",
+      "groupTitle": "Scope Rules",
+      "formulas": [
+        {
+          "formulaId": "con_057-static-scope",
+          "name": "Static (Lexical) Scope",
+          "latex": "\\text{Variable resolved in the textually enclosing block at the definition site; resolved at compile time}",
+          "plain": "Variable binding determined by lexical (textual) nesting; same result every call regardless of who called it.",
+          "whenToUse": "When the question says 'static scope rules' or asks what value a variable has under static scoping.",
+          "terms": [
+            {"symbol": "lexical enclosing block", "means": "nearest surrounding block that declares the variable in the source text"},
+            {"symbol": "access link", "means": "runtime mechanism to walk the static chain to reach the enclosing scope's frame"}
+          ],
+          "trap": "Under static scope, a nested procedure uses the variable from its DEFINITION context, not from the procedure that called it.",
+          "reference": "Compiler Design / Backend Phases"
+        },
+        {
+          "formulaId": "con_057-dynamic-scope",
+          "name": "Dynamic Scope",
+          "latex": "\\text{Variable resolved by searching the call stack at runtime; most recent active binding wins}",
+          "plain": "Variable binding found by walking up the CALL CHAIN at runtime; whoever called most recently and declared it wins.",
+          "whenToUse": "When the question says 'dynamic scope rules' or asks what the program prints under dynamic scoping.",
+          "terms": [
+            {"symbol": "call stack", "means": "stack of currently active activation records"},
+            {"symbol": "most recent binding", "means": "innermost activation on the stack that declares the variable"}
+          ],
+          "trap": "Under dynamic scope, the same procedure call can give a different value for a free variable depending on WHO called it.",
+          "reference": "Compiler Design / Backend Phases"
+        },
+        {
+          "formulaId": "con_057-static-vs-dynamic-difference",
+          "name": "When Static and Dynamic Scope Differ",
+          "latex": "\\text{Static} \\neq \\text{Dynamic when a free variable is declared in both the definition and the calling scope}",
+          "plain": "Static and dynamic scope give different results only when a variable is free in a procedure and declared differently in its textual parent vs. its calling parent.",
+          "whenToUse": "Deciding which scope rule to trace for a program with nested procedures and non-local variable access.",
+          "terms": [
+            {"symbol": "free variable", "means": "variable used in a procedure but not declared locally in it"}
+          ],
+          "trap": "If a variable is locally declared in every procedure that uses it, static and dynamic scope produce the same result.",
+          "reference": "Compiler Design / Backend Phases"
+        },
+        {
+          "formulaId": "con_057-block-structured-scope",
+          "name": "Block-Structured Scope (Nested Blocks)",
+          "latex": "\\text{Inner block variable shadows outer block variable; exits scope at end of block (}\\}\\text{)}",
+          "plain": "A variable declared in an inner block shadows any same-named variable in an outer block; scope ends at block close.",
+          "whenToUse": "When tracing programs with nested begin...end or { } blocks and same-named variables at different levels.",
+          "terms": [
+            {"symbol": "shadowing", "means": "inner declaration hides outer declaration of same name within its scope"},
+            {"symbol": "scope", "means": "region of program text where a declaration is visible"}
+          ],
+          "trap": "After the inner block ends, the outer variable is visible again — the inner one is gone, not reassigned.",
+          "reference": "Compiler Design / Backend Phases"
+        }
+      ]
+    },
+    {
+      "groupId": "memory-management",
+      "groupTitle": "Runtime Memory Organization",
+      "formulas": [
+        {
+          "formulaId": "con_057-memory-segments",
+          "name": "Runtime Memory Segments",
+          "latex": "\\underbrace{\\text{Code}}_{}\\;|\\;\\underbrace{\\text{Static/Global data}}_{}\\;|\\;\\underbrace{\\text{Heap}\\uparrow}_{\\text{dynamic alloc}}\\;\\cdots\\;\\underbrace{\\downarrow\\text{Stack}}_{\\text{activation records}}",
+          "plain": "Code | Static/Global | Heap (grows up) ... Stack (grows down) — standard four-segment model",
+          "whenToUse": "Any question about where variables live: local -> stack, global/static -> data segment, malloc/new -> heap.",
+          "terms": [
+            {"symbol": "heap", "means": "region for dynamically allocated objects (malloc, new)"},
+            {"symbol": "stack", "means": "region for activation records; grows towards lower addresses"}
+          ],
+          "trap": "Stack and heap can collide if both grow toward each other with no guard — a classic runtime error not caught by the compiler.",
+          "reference": "Compiler Design / Backend Phases"
+        },
+        {
+          "formulaId": "con_057-heap-vs-stack-allocation",
+          "name": "Heap vs Stack Allocation",
+          "latex": "\\text{Stack: LIFO, compile-time size known, auto reclaimed}\\quad\\text{Heap: arbitrary lifetime, fragmentation possible}",
+          "plain": "Stack: LIFO, size fixed at compile time, freed automatically on return. Heap: dynamic size, programmer-managed lifetime.",
+          "whenToUse": "When asked why certain objects must be heap-allocated (closures, objects with unknown lifetime, dynamic arrays).",
+          "terms": [
+            {"symbol": "LIFO", "means": "Last-In First-Out — stack frames are freed in reverse creation order"},
+            {"symbol": "fragmentation", "means": "heap memory wasted due to interleaved alloc/free cycles"}
+          ],
+          "trap": "A closure (function + environment) escaping its defining scope cannot live on the stack — it must be heap-allocated.",
+          "reference": "Compiler Design / Backend Phases"
+        }
+      ]
+    }
+  ]
+}

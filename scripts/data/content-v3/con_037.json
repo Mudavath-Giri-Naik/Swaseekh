@@ -1,0 +1,377 @@
+{
+  "_id": "con_037",
+  "conceptId": "con_037",
+  "conceptTitle": "Arrays, Stacks, Queues and Linked Lists",
+  "reference": "GATE CS — Programming and Data Structures / Linear Data Structures",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Address of element in 1-D / 2-D array",
+        "use": "\\text{addr}(A[i]) = B + i \\times s"
+      },
+      {
+        "condition": "Lower triangular matrix index (row-major, 0-based)",
+        "use": "\\text{addr}(A[i][j]) = B + \\left(\\frac{i(i+1)}{2} + j\\right) \\times s"
+      },
+      {
+        "condition": "Expected time for successful search in chained hash table (load factor \\alpha)",
+        "use": "\\Theta\\!\\left(1 + \\frac{\\alpha}{2}\\right)"
+      },
+      {
+        "condition": "Infix-to-postfix conversion using stack (operator precedence clash)",
+        "use": "\\text{pop while } \\text{prec}(\\text{top}) \\ge \\text{prec}(\\text{incoming})"
+      },
+      {
+        "condition": "Circular queue: number of slots occupied",
+        "use": "(\\text{rear} - \\text{front} + \\text{SIZE}) \\bmod \\text{SIZE}"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "array-addressing",
+      "groupTitle": "Array Addressing & Storage",
+      "formulas": [
+        {
+          "formulaId": "con_037-1d-address",
+          "name": "1-D Array — Element Address",
+          "latex": "\\text{addr}(A[i]) = B + (i - L) \\times s",
+          "plain": "addr(A[i]) = B + (i - L) * s",
+          "whenToUse": "Finding the memory address of A[i] given base address B, lower bound L, and element size s.",
+          "terms": [
+            { "symbol": "B", "means": "base (starting) address of the array" },
+            { "symbol": "i", "means": "index of the desired element" },
+            { "symbol": "L", "means": "lower bound of the index" },
+            { "symbol": "s", "means": "size of each element in bytes / words" }
+          ],
+          "trap": "Forgetting to subtract L when arrays are not 0-based (e.g. A[1..n]).",
+          "reference": "Programming and Data Structures / Arrays"
+        },
+        {
+          "formulaId": "con_037-2d-row-major",
+          "name": "2-D Array — Row-Major Address",
+          "latex": "\\text{addr}(A[i][j]) = B + \\bigl[(i - R_1) \\times C + (j - C_1)\\bigr] \\times s",
+          "plain": "addr(A[i][j]) = B + [(i - R1) * C + (j - C1)] * s",
+          "whenToUse": "Row-major (C-style) storage; C = number of columns in the declared range.",
+          "terms": [
+            { "symbol": "R_1, C_1", "means": "lower bounds of row and column indices" },
+            { "symbol": "C", "means": "number of columns = C_2 - C_1 + 1" },
+            { "symbol": "s", "means": "element size" }
+          ],
+          "trap": "Using the wrong major order — swap rows and columns for column-major (Fortran/Pascal).",
+          "reference": "Programming and Data Structures / Arrays"
+        },
+        {
+          "formulaId": "con_037-lower-triangular",
+          "name": "Lower Triangular Matrix — Packed Row-Major Index (0-based)",
+          "latex": "\\text{addr}(A[i][j]) = B + \\left(\\frac{i(i+1)}{2} + j\\right) \\times s, \\quad j \\le i",
+          "plain": "addr(A[i][j]) = B + (i*(i+1)/2 + j) * s,  for j <= i",
+          "whenToUse": "Compact (packed) storage of an n×n lower triangular matrix (elements with j > i are zero and not stored).",
+          "terms": [
+            { "symbol": "i, j", "means": "row and column indices (0-based)" },
+            { "symbol": "i(i+1)/2", "means": "total elements in rows 0 through i-1" }
+          ],
+          "trap": "Applying this formula to upper triangular matrices without transposing; also forgetting that the formula changes for 1-based indexing.",
+          "reference": "Programming and Data Structures / Arrays"
+        },
+        {
+          "formulaId": "con_037-two-pointer",
+          "name": "Two-Pointer Pair-Sum in Sorted Array",
+          "latex": "\\text{while } l < r:\\; \\text{if } A[l]+A[r]=M \\Rightarrow \\text{found};\\; A[l]+A[r]<M \\Rightarrow l{+}{+};\\; \\text{else } r{-}{-}",
+          "plain": "l=1, r=n; while l<r: if A[l]+A[r]==M found; elif sum<M: l++; else r--",
+          "whenToUse": "Finding indices i, j with A[i]+A[j] = M in a sorted array in O(n) time.",
+          "terms": [
+            { "symbol": "l, r", "means": "left and right pointers starting at ends of the array" },
+            { "symbol": "M", "means": "target sum" }
+          ],
+          "trap": "Forgetting that the array must be sorted; a naive O(n^2) search is wrong for O(n) requirement.",
+          "reference": "Programming and Data Structures / Arrays"
+        }
+      ]
+    },
+    {
+      "groupId": "hashing",
+      "groupTitle": "Hashing",
+      "formulas": [
+        {
+          "formulaId": "con_037-hash-function",
+          "name": "Division Hash Function",
+          "latex": "h(k) = k \\bmod m",
+          "plain": "h(k) = k mod m",
+          "whenToUse": "Basic hash function mapping key k to one of m buckets/slots.",
+          "terms": [
+            { "symbol": "k", "means": "key value (or ordinal representation of key)" },
+            { "symbol": "m", "means": "table size (number of buckets/slots)" }
+          ],
+          "trap": "Choosing m as a power of 2 makes the hash depend only on low-order bits; prefer m prime.",
+          "reference": "Programming and Data Structures / Hashing"
+        },
+        {
+          "formulaId": "con_037-load-factor",
+          "name": "Load Factor",
+          "latex": "\\alpha = \\frac{n}{m}",
+          "plain": "alpha = n / m",
+          "whenToUse": "Measuring how full a hash table is; drives expected search/insert time analysis.",
+          "terms": [
+            { "symbol": "n", "means": "number of keys stored" },
+            { "symbol": "m", "means": "number of slots / buckets" }
+          ],
+          "trap": "For open addressing alpha must stay < 1; for chaining alpha can exceed 1.",
+          "reference": "Programming and Data Structures / Hashing"
+        },
+        {
+          "formulaId": "con_037-chaining-search",
+          "name": "Expected Search Time — Chaining (Uniform Hashing)",
+          "latex": "\\text{Successful: } \\Theta\\!\\left(1 + \\frac{\\alpha}{2}\\right), \\quad \\text{Unsuccessful: } \\Theta(1 + \\alpha)",
+          "plain": "Successful: Theta(1 + alpha/2),  Unsuccessful: Theta(1 + alpha)",
+          "whenToUse": "Expected number of comparisons for search in a chained hash table under simple uniform hashing.",
+          "terms": [
+            { "symbol": "\\alpha", "means": "load factor n/m" }
+          ],
+          "trap": "GATE often asks about worst-case (O(n) for chaining) vs expected-case — do not confuse them.",
+          "reference": "Programming and Data Structures / Hashing"
+        },
+        {
+          "formulaId": "con_037-open-addressing-probing",
+          "name": "Linear Probing — Probe Sequence",
+          "latex": "h(k, i) = (h'(k) + i) \\bmod m, \\quad i = 0, 1, \\ldots, m-1",
+          "plain": "h(k, i) = (h'(k) + i) mod m",
+          "whenToUse": "Open-addressing collision resolution where the next slot is probed sequentially.",
+          "terms": [
+            { "symbol": "h'(k)", "means": "auxiliary hash function" },
+            { "symbol": "i", "means": "probe number (0 = first attempt)" }
+          ],
+          "trap": "Linear probing causes primary clustering; double hashing avoids this.",
+          "reference": "Programming and Data Structures / Hashing"
+        },
+        {
+          "formulaId": "con_037-chaining-vs-open",
+          "name": "Chaining vs Open Addressing — Key Properties",
+          "latex": "\\text{Chaining: deletion easy, } \\alpha > 1 \\text{ allowed} \\quad|\\quad \\text{Open addr: no extra memory, } \\alpha < 1 \\text{ required}",
+          "plain": "Chaining: easy deletion, alpha>1 ok | Open addressing: no pointers, alpha<1 required",
+          "whenToUse": "Deciding which collision-resolution strategy to use or answering comparison questions.",
+          "terms": [
+            { "symbol": "\\alpha", "means": "load factor" }
+          ],
+          "trap": "Chaining does NOT have better worst-case search time than open addressing in general (both are O(n) worst case).",
+          "reference": "Programming and Data Structures / Hashing"
+        }
+      ]
+    },
+    {
+      "groupId": "stack-applications",
+      "groupTitle": "Stack & Expression Conversion",
+      "formulas": [
+        {
+          "formulaId": "con_037-infix-to-postfix",
+          "name": "Infix-to-Postfix Algorithm (Shunting Yard)",
+          "latex": "\\text{Pop stack while } \\text{prec}(\\text{top}) \\ge \\text{prec}(\\text{token}); \\text{ push token}",
+          "plain": "While prec(stack.top) >= prec(incoming_op): pop and output; then push incoming_op",
+          "whenToUse": "Converting infix arithmetic expressions to postfix (RPN) using a single operator stack.",
+          "terms": [
+            { "symbol": "\\text{prec}", "means": "operator precedence: ^ > */ > +-" },
+            { "symbol": "\\text{top}", "means": "operator at top of stack" }
+          ],
+          "trap": "Exponentiation ^ is right-associative: pop only if prec(top) > prec(^), not >=.",
+          "reference": "Programming and Data Structures / Infix Prefix"
+        },
+        {
+          "formulaId": "con_037-operator-precedence",
+          "name": "Standard Operator Precedence",
+          "latex": "\\hat{\\phantom{x}} > \\{*,/\\} > \\{+,-\\}",
+          "plain": "^ (highest) > { *, / } > { +, - } (lowest)",
+          "whenToUse": "Determining which operator to pop when two operators of different precedence meet during expression conversion.",
+          "terms": [
+            { "symbol": "\\hat{\\phantom{x}}", "means": "exponentiation (right-associative)" }
+          ],
+          "trap": "Right-associativity of ^ means a^b^c = a^(b^c); pop ^ only when incoming precedence is strictly lower.",
+          "reference": "Programming and Data Structures / Infix Prefix"
+        },
+        {
+          "formulaId": "con_037-postfix-evaluation",
+          "name": "Postfix Expression Evaluation",
+          "latex": "\\text{Scan left-to-right: push operands; on operator } \\otimes \\text{: pop } b, a; \\text{ push } (a \\otimes b)",
+          "plain": "Scan L-to-R: push numbers; on operator: pop b then a, push (a op b)",
+          "whenToUse": "Evaluating a postfix (RPN) expression using an operand stack.",
+          "terms": [
+            { "symbol": "a, b", "means": "operands; a is popped second (was pushed first)" }
+          ],
+          "trap": "Order matters for non-commutative operators: for a-b or a/b, a is the second pop, not the first.",
+          "reference": "Programming and Data Structures / Infix Prefix"
+        },
+        {
+          "formulaId": "con_037-stack-adt",
+          "name": "Stack ADT — Operations",
+          "latex": "\\text{push}(x), \\text{pop}() \\Rightarrow O(1); \\quad \\text{LIFO order}",
+          "plain": "push(x), pop() -> O(1); Last-In First-Out (LIFO)",
+          "whenToUse": "Any GATE question about stack complexity or LIFO property.",
+          "terms": [
+            { "symbol": "\\text{LIFO}", "means": "Last-In First-Out" }
+          ],
+          "trap": "A stack can be implemented with an array or linked list; neither changes the O(1) amortized push/pop.",
+          "reference": "Programming and Data Structures / Stack"
+        }
+      ]
+    },
+    {
+      "groupId": "queue-operations",
+      "groupTitle": "Queue & Circular Queue",
+      "formulas": [
+        {
+          "formulaId": "con_037-queue-adt",
+          "name": "Queue ADT — FIFO Property",
+          "latex": "\\text{enqueue}(x), \\text{dequeue}() \\Rightarrow O(1); \\quad \\text{FIFO order}",
+          "plain": "enqueue(x), dequeue() -> O(1); First-In First-Out (FIFO)",
+          "whenToUse": "BFS, scheduling, printer spooling — anywhere FIFO ordering is required.",
+          "terms": [
+            { "symbol": "\\text{FIFO}", "means": "First-In First-Out" }
+          ],
+          "trap": "Simple array queue wastes space on dequeue; use circular queue or dynamic array.",
+          "reference": "Programming and Data Structures / Queue"
+        },
+        {
+          "formulaId": "con_037-circular-queue-size",
+          "name": "Circular Queue — Number of Elements",
+          "latex": "\\text{count} = (\\text{rear} - \\text{front} + \\text{SIZE}) \\bmod \\text{SIZE}",
+          "plain": "count = (rear - front + SIZE) mod SIZE",
+          "whenToUse": "Determining how many elements are in a circular queue given front and rear pointers.",
+          "terms": [
+            { "symbol": "\\text{SIZE}", "means": "total allocated slots in the circular buffer" },
+            { "symbol": "\\text{front}", "means": "index of the front element" },
+            { "symbol": "\\text{rear}", "means": "index of the last element (or next-to-insert, depending on convention)" }
+          ],
+          "trap": "A circular queue of SIZE slots holds at most SIZE-1 elements (one slot kept empty to distinguish full from empty).",
+          "reference": "Programming and Data Structures / Queue"
+        },
+        {
+          "formulaId": "con_037-circular-queue-full-empty",
+          "name": "Circular Queue — Full & Empty Conditions",
+          "latex": "\\text{Empty: front} = \\text{rear}; \\quad \\text{Full: (rear}+1) \\bmod \\text{SIZE} = \\text{front}",
+          "plain": "Empty: front == rear;  Full: (rear+1) mod SIZE == front",
+          "whenToUse": "Checking full/empty state in a circular queue implemented with one wasted slot.",
+          "terms": [
+            { "symbol": "\\text{front, rear}", "means": "indices maintained by the queue; front points to first element" }
+          ],
+          "trap": "If no wasted slot is used, a counter variable is needed to distinguish full from empty.",
+          "reference": "Programming and Data Structures / Queue"
+        },
+        {
+          "formulaId": "con_037-deque",
+          "name": "Double-Ended Queue (Deque) — Key Property",
+          "latex": "\\text{insert/delete at both front and rear in } O(1)",
+          "plain": "insert/delete at both ends in O(1)",
+          "whenToUse": "Sliding window maximum, palindrome checking, problems needing both-end access.",
+          "terms": [],
+          "trap": "A deque generalises both stack and queue but does not sort elements.",
+          "reference": "Programming and Data Structures / Queue"
+        }
+      ]
+    },
+    {
+      "groupId": "linked-list",
+      "groupTitle": "Linked List",
+      "formulas": [
+        {
+          "formulaId": "con_037-sll-insert-delete",
+          "name": "Singly Linked List — Insert/Delete at Head/Tail",
+          "latex": "\\text{Insert at head: } O(1); \\quad \\text{Delete head: } O(1); \\quad \\text{Delete tail: } O(n)",
+          "plain": "Insert head: O(1); Delete head: O(1); Delete tail: O(n) for SLL",
+          "whenToUse": "Comparing linked list operations; choosing between head/tail insertion.",
+          "terms": [
+            { "symbol": "n", "means": "number of nodes in the list" }
+          ],
+          "trap": "Deleting the last node in a singly linked list requires O(n) traversal (no back pointer).",
+          "reference": "Programming and Data Structures / Linked List"
+        },
+        {
+          "formulaId": "con_037-dll-insert-delete",
+          "name": "Doubly Linked List — Insert/Delete",
+          "latex": "\\text{Insert/Delete at any given pointer: } O(1); \\quad \\text{Delete tail with tail pointer: } O(1)",
+          "plain": "Insert/Delete with given node pointer: O(1); tail delete: O(1) with DLL",
+          "whenToUse": "When backward traversal or O(1) deletion at any known position is needed.",
+          "terms": [
+            { "symbol": "\\text{prev, next}", "means": "backward and forward pointers in each node" }
+          ],
+          "trap": "DLL uses extra memory (one extra pointer per node); also needs careful pointer update (4 pointer changes for insert).",
+          "reference": "Programming and Data Structures / Linked List"
+        },
+        {
+          "formulaId": "con_037-linked-list-reverse",
+          "name": "Reverse a Singly Linked List — O(n)",
+          "latex": "\\text{prev} \\leftarrow \\text{NULL};\\; \\text{while curr} \\ne \\text{NULL}:\\; \\text{next} = \\text{curr.next};\\; \\text{curr.next} = \\text{prev};\\; \\text{prev} = \\text{curr};\\; \\text{curr} = \\text{next}",
+          "plain": "prev=NULL; while curr!=NULL: next=curr.next; curr.next=prev; prev=curr; curr=next",
+          "whenToUse": "Reversing a linked list in O(n) time with O(1) extra space (three-pointer technique).",
+          "terms": [
+            { "symbol": "\\text{prev, curr, next}", "means": "three pointers maintained during reversal" }
+          ],
+          "trap": "Must save curr.next BEFORE overwriting curr.next; otherwise the list is lost.",
+          "reference": "Programming and Data Structures / Linked List"
+        },
+        {
+          "formulaId": "con_037-floyd-cycle",
+          "name": "Floyd's Cycle Detection (Linked List)",
+          "latex": "\\text{slow} \\leftarrow \\text{slow.next};\\; \\text{fast} \\leftarrow \\text{fast.next.next};\\; \\text{cycle iff slow} = \\text{fast}",
+          "plain": "slow = slow.next; fast = fast.next.next; cycle if slow == fast",
+          "whenToUse": "Detecting a cycle in a linked list in O(n) time and O(1) space.",
+          "terms": [
+            { "symbol": "\\text{slow}", "means": "pointer advancing one step at a time" },
+            { "symbol": "\\text{fast}", "means": "pointer advancing two steps at a time" }
+          ],
+          "trap": "If fast reaches NULL (or fast.next is NULL) before meeting slow, there is no cycle.",
+          "reference": "Programming and Data Structures / Linked List"
+        },
+        {
+          "formulaId": "con_037-linked-list-search",
+          "name": "Linked List — Search Complexity",
+          "latex": "\\text{Search (unsorted): } O(n); \\quad \\text{No random access (no index arithmetic)}",
+          "plain": "Search: O(n); no O(1) random access unlike arrays",
+          "whenToUse": "Comparing linked lists to arrays for random-access vs dynamic-size trade-off questions.",
+          "terms": [
+            { "symbol": "n", "means": "number of nodes" }
+          ],
+          "trap": "Binary search cannot be applied to a linked list (no O(1) index access), so sorted linked list search is still O(n).",
+          "reference": "Programming and Data Structures / Linked List"
+        }
+      ]
+    },
+    {
+      "groupId": "adt-definitions",
+      "groupTitle": "Key Results & Definitions",
+      "formulas": [
+        {
+          "formulaId": "con_037-adt-definition",
+          "name": "Abstract Data Type (ADT) — Definition",
+          "latex": "\\text{ADT} = \\{\\text{data representation (hidden)} + \\text{operations defined on it}\\}",
+          "plain": "ADT = { hidden data representation } + { defined operations }; users can only use the defined operations",
+          "whenToUse": "Answering conceptual GATE questions about what an ADT is vs a concrete data structure.",
+          "terms": [
+            { "symbol": "\\text{ADT}", "means": "Abstract Data Type — specifies behaviour (what), not implementation (how)" }
+          ],
+          "trap": "An ADT is NOT the same as an abstract class in OOP; it is a mathematical specification.",
+          "reference": "Programming and Data Structures / Data Structures"
+        },
+        {
+          "formulaId": "con_037-stack-queue-implementation",
+          "name": "Stack / Queue — Array vs Linked List Implementation Complexity",
+          "latex": "\\text{Array: } O(1) \\text{ amortized (resizing);} \\quad \\text{Linked list: } O(1) \\text{ worst-case per op}",
+          "plain": "Array (dynamic): O(1) amortized; Linked list: O(1) worst-case per push/pop/enqueue/dequeue",
+          "whenToUse": "Comparing implementations when GATE asks about time/space trade-offs.",
+          "terms": [],
+          "trap": "Array-based stack may overflow if fixed-size; linked-list-based uses extra pointer memory.",
+          "reference": "Programming and Data Structures / Data Structures"
+        },
+        {
+          "formulaId": "con_037-bfs-uses-queue",
+          "name": "BFS Uses Queue; DFS Uses Stack",
+          "latex": "\\text{BFS} \\Rightarrow \\text{Queue (FIFO)}; \\quad \\text{DFS} \\Rightarrow \\text{Stack (LIFO) or recursion}",
+          "plain": "BFS -> Queue (FIFO);  DFS -> Stack (LIFO) or recursion call stack",
+          "whenToUse": "Graph traversal questions that ask which data structure is required.",
+          "terms": [],
+          "trap": "Iterative DFS explicitly uses a stack; recursive DFS uses the implicit call stack.",
+          "reference": "Programming and Data Structures / Data Structures"
+        }
+      ]
+    }
+  ]
+}

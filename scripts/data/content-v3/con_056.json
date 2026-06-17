@@ -1,0 +1,325 @@
+{
+  "_id": "con_056",
+  "conceptId": "con_056",
+  "conceptTitle": "Syntax-Directed Translation",
+  "reference": "GATE CS — Compiler Design / Frontend Phases",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Attribute computed from children's attributes",
+        "use": "\\text{Synthesized attribute: } A.val = f(B.val, C.val)"
+      },
+      {
+        "condition": "Attribute computed from parent or siblings' attributes",
+        "use": "\\text{Inherited attribute: } B.inh = g(A.inh, C.val)"
+      },
+      {
+        "condition": "SDD is S-attributed (all synthesized)",
+        "use": "\\text{Bottom-up (LR) parser evaluates in a single pass}"
+      },
+      {
+        "condition": "SDD is L-attributed (synthesized + left-to-right inherited)",
+        "use": "\\text{Top-down (LL) or SDT with actions in rule bodies}"
+      },
+      {
+        "condition": "Evaluating an arithmetic expression without function calls",
+        "use": "\\text{One stack is sufficient}"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "sdt-core-definitions",
+      "groupTitle": "Core SDT Definitions",
+      "formulas": [
+        {
+          "formulaId": "con_056-sdd-definition",
+          "name": "Syntax-Directed Definition (SDD)",
+          "latex": "\\text{SDD} = \\text{CFG} + \\{\\text{semantic rules attaching attributes to grammar symbols}\\}",
+          "plain": "SDD = CFG + semantic rules attaching attributes to grammar symbols",
+          "whenToUse": "When formalizing the association between grammar productions and attribute computations.",
+          "terms": [
+            { "symbol": "CFG", "means": "Context-Free Grammar (productions)" },
+            { "symbol": "\\text{semantic rules}", "means": "equations that define attribute values" }
+          ],
+          "trap": "An SDD is a specification, not a translation scheme; it does not specify evaluation order.",
+          "reference": "Compiler Design / Syntax-Directed Translation"
+        },
+        {
+          "formulaId": "con_056-sdts-definition",
+          "name": "Syntax-Directed Translation Scheme (SDTS)",
+          "latex": "\\text{SDTS}: \\text{CFG production with embedded semantic actions (program fragments)}",
+          "plain": "SDTS: CFG production with embedded semantic actions (program fragments)",
+          "whenToUse": "When semantic actions are placed at specific positions within grammar rule bodies to control execution order.",
+          "terms": [
+            { "symbol": "\\text{semantic action}", "means": "code fragment executed when reached during parsing" }
+          ],
+          "trap": "In an LR parser, actions embedded mid-rule may need marker non-terminals; actions at rule end are executed on reduce.",
+          "reference": "Compiler Design / Syntax-Directed Translation"
+        },
+        {
+          "formulaId": "con_056-synthesized-attribute",
+          "name": "Synthesized Attribute",
+          "latex": "\\text{For } A \\to X_1 X_2 \\cdots X_n:\\quad A.a = f(X_1.a_1,\\, X_2.a_2,\\, \\ldots,\\, X_n.a_n)",
+          "plain": "A.a = f(X1.a1, X2.a2, ..., Xn.an)  [defined from children or terminals]",
+          "whenToUse": "When an attribute of a non-terminal is computed from attributes of its children in the parse tree.",
+          "terms": [
+            { "symbol": "A", "means": "parent non-terminal" },
+            { "symbol": "X_i", "means": "grammar symbol (child) in the production body" },
+            { "symbol": "a", "means": "the attribute being defined" }
+          ],
+          "trap": "The start symbol has no parent, so all its attributes must be synthesized (or no inherited attrs used at root).",
+          "reference": "Compiler Design / Syntax-Directed Translation"
+        },
+        {
+          "formulaId": "con_056-inherited-attribute",
+          "name": "Inherited Attribute",
+          "latex": "\\text{For } A \\to X_1 X_2 \\cdots X_n:\\quad X_j.b = g(A.a,\\, X_1.c_1,\\, \\ldots,\\, X_{j-1}.c_{j-1})",
+          "plain": "Xj.b = g(A.a, X1.c1, ..., X_{j-1}.c_{j-1})  [from parent or left siblings]",
+          "whenToUse": "When passing context (type, scope, etc.) downward or left-to-right through the parse tree.",
+          "terms": [
+            { "symbol": "A.a", "means": "attribute of the parent non-terminal" },
+            { "symbol": "X_j.b", "means": "inherited attribute of the j-th child" }
+          ],
+          "trap": "A terminal's attribute value comes from the lexer; terminals cannot have inherited attributes defined by semantic rules.",
+          "reference": "Compiler Design / Syntax-Directed Translation"
+        }
+      ]
+    },
+    {
+      "groupId": "sdt-attribute-grammars",
+      "groupTitle": "Attribute Grammar Classes",
+      "formulas": [
+        {
+          "formulaId": "con_056-s-attributed",
+          "name": "S-Attributed SDD",
+          "latex": "\\text{S-attributed:}\\quad \\text{only synthesized attributes}\\;\\Rightarrow\\;\\text{evaluate bottom-up (LR parse)}",
+          "plain": "S-attributed: only synthesized attributes => evaluate bottom-up (LR parse)",
+          "whenToUse": "To determine if a single bottom-up pass is sufficient to evaluate all attributes.",
+          "terms": [
+            { "symbol": "\\text{synthesized only}", "means": "no attribute depends on parent/sibling values" }
+          ],
+          "trap": "S-attributed does NOT mean the grammar itself is S-type; it is a property of the SDD, not the grammar class.",
+          "reference": "Compiler Design / Syntax-Directed Translation"
+        },
+        {
+          "formulaId": "con_056-l-attributed",
+          "name": "L-Attributed SDD",
+          "latex": "\\text{L-attributed:}\\quad X_j.b = g\\!\\left(A.a,\\, X_1.c_1,\\, \\ldots,\\, X_{j-1}.c_{j-1}\\right) \\;\\forall j",
+          "plain": "L-attributed: each inherited attribute of Xj depends only on A's attrs and left siblings X1..X_{j-1}",
+          "whenToUse": "Checking if one left-to-right depth-first traversal (or LL parse) can evaluate the SDD.",
+          "terms": [
+            { "symbol": "j", "means": "position of symbol in production body (1-indexed)" },
+            { "symbol": "A.a", "means": "inherited attribute of the head non-terminal" }
+          ],
+          "trap": "Every S-attributed SDD is also L-attributed, but not vice versa.",
+          "reference": "Compiler Design / Syntax-Directed Translation"
+        },
+        {
+          "formulaId": "con_056-dependency-graph",
+          "name": "Dependency Graph & Evaluation Order",
+          "latex": "\\text{Evaluation order} = \\text{topological sort of attribute dependency graph}",
+          "plain": "Evaluation order = topological sort of attribute dependency graph",
+          "whenToUse": "When finding a valid order to evaluate attributes in a given parse tree.",
+          "terms": [
+            { "symbol": "\\text{dependency graph}", "means": "directed graph where edge A.a -> B.b means B.b is needed to compute A.a" }
+          ],
+          "trap": "If the dependency graph has a cycle, the SDD is not well-defined (circular attributes).",
+          "reference": "Compiler Design / Syntax-Directed Translation"
+        }
+      ]
+    },
+    {
+      "groupId": "sdt-translation-schemes",
+      "groupTitle": "Translation Schemes & Parser Actions",
+      "formulas": [
+        {
+          "formulaId": "con_056-lr-actions-on-reduce",
+          "name": "LR Parser: Action Timing (Postfix SDTS)",
+          "latex": "A \\to X_1 X_2 \\cdots X_n\\;\\{\\text{action}\\} \\Rightarrow \\text{action executes at REDUCE step}",
+          "plain": "In LR parser: action placed at end of production body executes when the parser reduces by that rule",
+          "whenToUse": "When tracing what an LR (shift-reduce) parser prints or computes for a given SDTS.",
+          "terms": [
+            { "symbol": "\\text{REDUCE}", "means": "parser replaces RHS symbols on stack with LHS non-terminal" },
+            { "symbol": "\\{\\text{action}\\}", "means": "semantic action (e.g., print, push, compute)" }
+          ],
+          "trap": "Actions are executed in reduce order (bottom-up), so for E->E+T {print '+'}, '+' prints after the operands, producing postfix output.",
+          "reference": "Compiler Design / Syntax-Directed Translation"
+        },
+        {
+          "formulaId": "con_056-postfix-sdt-output",
+          "name": "Postfix SDT Output Order",
+          "latex": "E \\to E_1 \\oplus E_2\\;\\{\\text{print }\\oplus\\} \\Rightarrow \\text{operands printed first, operator last}",
+          "plain": "Production E -> E op E { print op } with LR parser yields postfix (RPN) output",
+          "whenToUse": "When computing the output string produced by an SDTS on an LR parser for arithmetic expressions.",
+          "terms": [
+            { "symbol": "\\oplus", "means": "binary operator (+, -, *, .)" },
+            { "symbol": "\\text{RPN}", "means": "Reverse Polish Notation / postfix" }
+          ],
+          "trap": "Students confuse infix vs postfix: { print op } at end of rule always gives postfix, not infix.",
+          "reference": "Compiler Design / Syntax-Directed Translation"
+        },
+        {
+          "formulaId": "con_056-marker-nonterminal",
+          "name": "Marker Non-Terminal for Mid-Rule Actions",
+          "latex": "A \\to B\\;\\{\\text{act}\\}\\;C \\equiv A \\to B\\,M\\,C,\\quad M \\to \\varepsilon\\;\\{\\text{act}\\}",
+          "plain": "Mid-rule action { act } is converted to a marker non-terminal M -> epsilon { act }",
+          "whenToUse": "When converting an SDTS with mid-rule actions to a form compatible with an LR parser.",
+          "terms": [
+            { "symbol": "M", "means": "fresh marker (epsilon) non-terminal" },
+            { "symbol": "\\varepsilon", "means": "empty string" }
+          ],
+          "trap": "Adding marker non-terminals may introduce reduce-reduce conflicts in the LR parser.",
+          "reference": "Compiler Design / Syntax-Directed Translation"
+        },
+        {
+          "formulaId": "con_056-annotated-parse-tree",
+          "name": "Annotated Parse Tree",
+          "latex": "\\text{Annotated parse tree} = \\text{parse tree} + \\text{attribute values at each node}",
+          "plain": "Annotated parse tree = parse tree with attribute values written at every node",
+          "whenToUse": "When manually evaluating an SDD by constructing and annotating the parse tree.",
+          "terms": [
+            { "symbol": "\\text{node attribute}", "means": "concrete value of the attribute for that particular tree node" }
+          ],
+          "trap": "Inherited attributes flow top-down; drawing arrows upward for inherited values is incorrect.",
+          "reference": "Compiler Design / Syntax-Directed Translation"
+        }
+      ]
+    },
+    {
+      "groupId": "sdt-type-symbol-table",
+      "groupTitle": "Type Propagation & Symbol Table",
+      "formulas": [
+        {
+          "formulaId": "con_056-type-propagation-inherited",
+          "name": "Type Propagation via Inherited Attributes",
+          "latex": "D \\to T\\;L,\\quad L.\\text{inh} = T.\\text{type},\\quad L \\to L_1\\,\\mathbf{,}\\,\\text{id}\\;\\{L_1.\\text{inh}=L.\\text{inh};\\;\\text{addtype}(\\text{id},L.\\text{inh})\\}",
+          "plain": "D -> T L, L.inh = T.type; L -> L1 , id { L1.inh = L.inh; addtype(id, L.inh) }",
+          "whenToUse": "When writing semantic rules to attach types to identifier entries during a declaration.",
+          "terms": [
+            { "symbol": "L.\\text{inh}", "means": "inherited type attribute flowing down the list" },
+            { "symbol": "\\text{addtype}", "means": "procedure to update symbol-table entry with type" },
+            { "symbol": "T.\\text{type}", "means": "synthesized type from the type specifier" }
+          ],
+          "trap": "If you use synthesized attributes for type propagation across a list without rewriting the grammar, L-attributed rules with inherited attrs are needed.",
+          "reference": "Compiler Design / Syntax-Directed Translation"
+        },
+        {
+          "formulaId": "con_056-symbol-table-entry",
+          "name": "Symbol Table Update in SDT",
+          "latex": "\\text{addtype}(\\text{id}.\\text{lexval},\\;T.\\text{type}) \\Rightarrow \\text{inserts type into symbol table at semantic action time}",
+          "plain": "addtype(id.lexval, T.type) inserts type for identifier into the symbol table",
+          "whenToUse": "When tracing which identifiers get what types added to the symbol table during semantic analysis.",
+          "terms": [
+            { "symbol": "\\text{id}.\\text{lexval}", "means": "lexeme / name of the identifier from the lexer" },
+            { "symbol": "T.\\text{type}", "means": "type (int, float, pointer, etc.)" }
+          ],
+          "trap": "Identifiers are added when their declarations are processed, not when they are used.",
+          "reference": "Compiler Design / Syntax-Directed Translation"
+        }
+      ]
+    },
+    {
+      "groupId": "expression-evaluation",
+      "groupTitle": "Expression Evaluation",
+      "formulas": [
+        {
+          "formulaId": "con_056-stack-for-expression",
+          "name": "Stack Requirement for Expression Evaluation",
+          "latex": "\\text{Evaluating arithmetic expression (no function calls):}\\quad \\text{ONE stack suffices}",
+          "plain": "Evaluating an arithmetic expression without embedded function calls: one stack is enough",
+          "whenToUse": "When asked how many stacks are needed to evaluate an expression without function calls.",
+          "terms": [
+            { "symbol": "\\text{stack}", "means": "LIFO data structure used to hold operands/operators" }
+          ],
+          "trap": "With function calls, additional stacks (or an activation record stack) may be needed. Without function calls, one stack is always sufficient.",
+          "reference": "Compiler Design / Expression Evaluation"
+        },
+        {
+          "formulaId": "con_056-expression-tree-value",
+          "name": "Expression Tree Evaluation",
+          "latex": "\\text{Value}(\\text{node}) = \\begin{cases} \\text{leaf value} & \\text{if leaf} \\\\ \\text{op}\\left(\\text{Value}(\\text{left}),\\, \\text{Value}(\\text{right})\\right) & \\text{if internal node} \\end{cases}",
+          "plain": "Value(node) = leaf_value if leaf; else op(Value(left), Value(right))",
+          "whenToUse": "When computing the value of an expression represented as a binary expression tree.",
+          "terms": [
+            { "symbol": "\\text{op}", "means": "operator at the internal node (+, -, *, /)" },
+            { "symbol": "\\text{leaf value}", "means": "numeric literal or variable value (0 or 1 in typical GATE problems)" }
+          ],
+          "trap": "To maximize/minimize the expression value over all leaf assignments, enumerate systematically rather than greedily.",
+          "reference": "Compiler Design / Expression Evaluation"
+        },
+        {
+          "formulaId": "con_056-infix-postfix-prefix",
+          "name": "Infix, Postfix, Prefix from Expression Tree",
+          "latex": "\\text{Inorder} \\Rightarrow \\text{Infix},\\quad \\text{Postorder} \\Rightarrow \\text{Postfix (RPN)},\\quad \\text{Preorder} \\Rightarrow \\text{Prefix}",
+          "plain": "Inorder traversal -> infix; Postorder -> postfix (RPN); Preorder -> prefix",
+          "whenToUse": "When deriving the output of an SDTS or expression tree traversal.",
+          "terms": [
+            { "symbol": "\\text{Inorder}", "means": "left, root, right" },
+            { "symbol": "\\text{Postorder}", "means": "left, right, root" },
+            { "symbol": "\\text{Preorder}", "means": "root, left, right" }
+          ],
+          "trap": "LR-parser SDTS with { print op } at rule end always produces postfix, matching postorder traversal.",
+          "reference": "Compiler Design / Expression Evaluation"
+        }
+      ]
+    },
+    {
+      "groupId": "sdt-key-results",
+      "groupTitle": "Key Results & Definitions",
+      "formulas": [
+        {
+          "formulaId": "con_056-ll-vs-lr-sdt",
+          "name": "LL vs LR Suitability for SDT",
+          "latex": "\\text{S-attributed} \\Rightarrow \\text{LR parse}\\;(\\text{bottom-up}),\\quad \\text{L-attributed} \\Rightarrow \\text{LL parse}\\;(\\text{top-down})",
+          "plain": "S-attributed SDD -> LR (bottom-up) parser; L-attributed SDD -> LL (top-down) parser",
+          "whenToUse": "When choosing or justifying which parser type can evaluate a given SDD in one pass.",
+          "terms": [
+            { "symbol": "\\text{S-attributed}", "means": "all attributes synthesized" },
+            { "symbol": "\\text{L-attributed}", "means": "synthesized + left-to-right inherited attributes" }
+          ],
+          "trap": "L-attributed SDDs can also be evaluated with LR parsers using extra mechanisms (e.g., extra stack for inherited attrs), but LL is the natural fit.",
+          "reference": "Compiler Design / Syntax-Directed Translation"
+        },
+        {
+          "formulaId": "con_056-semantic-rule-vs-action",
+          "name": "Semantic Rule (SDD) vs Semantic Action (SDTS)",
+          "latex": "\\text{Semantic rule (SDD): declarative equation}\\quad\\text{vs}\\quad\\text{Semantic action (SDTS): imperative code}",
+          "plain": "SDD semantic rule: declarative (equation defining an attribute); SDTS semantic action: imperative (executable code)",
+          "whenToUse": "When distinguishing between SDD notation and SDTS notation in GATE questions.",
+          "terms": [
+            { "symbol": "\\text{declarative}", "means": "defines WHAT value is, not HOW/WHEN to compute it" },
+            { "symbol": "\\text{imperative}", "means": "specifies executable program fragment with explicit ordering" }
+          ],
+          "trap": "Mixing up SDD (specification) with SDTS (implementation) can lead to wrong answers about evaluation order.",
+          "reference": "Compiler Design / Syntax-Directed Translation"
+        },
+        {
+          "formulaId": "con_056-attribute-at-terminal",
+          "name": "Attribute Values at Terminal Nodes",
+          "latex": "\\text{Terminal } t:\\quad t.\\text{lexval} = \\text{value supplied by lexer (token attribute)}",
+          "plain": "For terminal t: t.lexval is provided by the lexer, not computed by semantic rules",
+          "whenToUse": "When tracing how identifier names or literal values enter the attribute computation.",
+          "terms": [
+            { "symbol": "t.\\text{lexval}", "means": "lexical value (e.g., identifier name, integer constant)" }
+          ],
+          "trap": "Do not write semantic rules that define a terminal's attribute; it is always supplied by the lexer.",
+          "reference": "Compiler Design / Syntax-Directed Translation"
+        },
+        {
+          "formulaId": "con_056-inherited-not-in-lr",
+          "name": "Inherited Attributes in LR Parsers",
+          "latex": "\\text{Inherited attributes cannot be computed directly on the LR parse stack without extra mechanisms}",
+          "plain": "Inherited attributes are not naturally computed by an LR parser; workarounds include extra stack or grammar transformation",
+          "whenToUse": "When asked why an SDD with inherited attributes cannot be directly implemented with a shift-reduce parser.",
+          "terms": [
+            { "symbol": "\\text{LR parse stack}", "means": "stack holding states and grammar symbols" }
+          ],
+          "trap": "Some inherited attributes CAN be simulated on an LR stack if the grammar allows copying them as synthesized attributes of a sub-non-terminal.",
+          "reference": "Compiler Design / Syntax-Directed Translation"
+        }
+      ]
+    }
+  ]
+}

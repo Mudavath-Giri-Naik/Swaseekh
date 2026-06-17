@@ -1,0 +1,327 @@
+{
+  "_id": "con_065",
+  "conceptId": "con_065",
+  "conceptTitle": "Memory Management and Virtual Memory",
+  "reference": "GATE CS — Operating System / Memory Management",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Need effective memory access time with TLB hit ratio",
+        "use": "T_{eff} = h \\cdot (T_{TLB} + T_M) + (1-h)(T_{TLB} + 2T_M)"
+      },
+      {
+        "condition": "Need effective access time with page fault rate / hit ratio",
+        "use": "T_{eff} = H \\cdot T_M + (1-H) \\cdot T_D"
+      },
+      {
+        "condition": "Computing number of bits for page/frame offset in paging",
+        "use": "\\text{offset bits} = \\log_2(\\text{page size})"
+      },
+      {
+        "condition": "Two-level (multilevel) paging address breakdown",
+        "use": "\\text{logical address} = p_1 \\;|\\; p_2 \\;|\\; d \\quad (\\text{outer, inner, offset})"
+      },
+      {
+        "condition": "Deciding page faults — which algorithm minimises?",
+        "use": "\\text{Optimal} \\leq \\text{LRU} \\leq \\text{FIFO} \\quad (\\text{fault ordering})"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "virtual-memory-eat",
+      "groupTitle": "Effective Access Time",
+      "formulas": [
+        {
+          "formulaId": "con_065-eat-with-tlb",
+          "name": "Effective Access Time with TLB",
+          "latex": "T_{eff} = h(T_{TLB} + T_M) + (1-h)(T_{TLB} + 2T_M)",
+          "plain": "T_eff = h*(T_TLB + T_M) + (1-h)*(T_TLB + 2*T_M)",
+          "whenToUse": "When TLB hit ratio h is given and each page-fault-free access needs 1 or 2 memory references",
+          "terms": [
+            { "symbol": "h", "means": "TLB hit ratio (probability that page is found in TLB)" },
+            { "symbol": "T_{TLB}", "means": "TLB lookup time" },
+            { "symbol": "T_M", "means": "Main memory access time" }
+          ],
+          "trap": "On a TLB miss you still pay T_TLB plus TWO memory accesses (page table + actual data), not one",
+          "reference": "OS / Virtual Memory / TLB"
+        },
+        {
+          "formulaId": "con_065-eat-page-fault",
+          "name": "Effective Access Time with Page Fault Rate",
+          "latex": "T_{eff} = H \\cdot T_M + (1-H) \\cdot T_D",
+          "plain": "T_eff = H * T_M + (1-H) * T_D",
+          "whenToUse": "When hit ratio H (fraction of accesses satisfied by main memory) is given with disk access time T_D",
+          "terms": [
+            { "symbol": "H", "means": "Hit ratio — fraction of accesses found in main memory" },
+            { "symbol": "T_M", "means": "Main memory access time" },
+            { "symbol": "T_D", "means": "Disk (secondary memory) access time" }
+          ],
+          "trap": "T_D is orders of magnitude larger than T_M; even a small (1-H) term dominates — solve for H when efficiency target is given",
+          "reference": "OS / Virtual Memory / EAT"
+        },
+        {
+          "formulaId": "con_065-eat-efficiency-condition",
+          "name": "Efficiency Condition for Effective Access Time",
+          "latex": "\\frac{T_{eff}}{T_M} \\leq k \\implies H \\geq \\frac{T_D/T_M - k}{T_D/T_M - 1}",
+          "plain": "T_eff / T_M <= k  =>  H >= (T_D/T_M - k) / (T_D/T_M - 1)",
+          "whenToUse": "When a question asks: 'what must H be so that EAT is no more than k times T_M?'",
+          "terms": [
+            { "symbol": "k", "means": "Allowed slow-down factor relative to pure main-memory access" },
+            { "symbol": "H", "means": "Required minimum hit ratio" }
+          ],
+          "trap": "Substitute numeric values for T_D/T_M first (often 1000:1); forgetting to do so gives wrong H",
+          "reference": "OS / Virtual Memory / EAT"
+        }
+      ]
+    },
+    {
+      "groupId": "paging-address-translation",
+      "groupTitle": "Paging & Address Translation",
+      "formulas": [
+        {
+          "formulaId": "con_065-page-offset-bits",
+          "name": "Page Offset Bits",
+          "latex": "\\text{offset bits} = \\log_2(\\text{page size in bytes})",
+          "plain": "offset bits = log2(page size in bytes)",
+          "whenToUse": "Converting page size to the number of bits used for the offset in a logical/physical address",
+          "terms": [
+            { "symbol": "\\text{page size}", "means": "Size of one page (must be a power of 2)" }
+          ],
+          "trap": "Page size is always a power of 2 in GATE problems; if given in KB multiply by 1024 before taking log",
+          "reference": "OS / Memory Management / Paging"
+        },
+        {
+          "formulaId": "con_065-logical-address-split",
+          "name": "Logical Address Split (Single-Level Paging)",
+          "latex": "\\underbrace{p}_{\\text{page number}} \\;|\\; \\underbrace{d}_{\\text{offset}}, \\quad |\\text{logical address}| = \\log_2(\\text{virtual space})",
+          "plain": "logical address = page_number_bits | offset_bits;  total bits = log2(virtual address space)",
+          "whenToUse": "Determining page number and offset fields from logical address size and page size",
+          "terms": [
+            { "symbol": "p", "means": "Page number field (logical address bits minus offset bits)" },
+            { "symbol": "d", "means": "Displacement / offset within the page" }
+          ],
+          "trap": "Confusing logical address space with physical address space — page number bits come from logical space, frame number bits from physical space",
+          "reference": "OS / Memory Management / Paging"
+        },
+        {
+          "formulaId": "con_065-multilevel-paging-split",
+          "name": "Two-Level Paging Address Split",
+          "latex": "\\underbrace{p_1}_{\\text{outer index}} \\;|\\; \\underbrace{p_2}_{\\text{inner index}} \\;|\\; \\underbrace{d}_{\\text{offset}}",
+          "plain": "logical address = outer_page_index | inner_page_index | offset",
+          "whenToUse": "Two-level (hierarchical) paging — splitting bits among outer table, inner table, and offset",
+          "terms": [
+            { "symbol": "p_1", "means": "Index into the outer page table" },
+            { "symbol": "p_2", "means": "Index into the inner page table" },
+            { "symbol": "d", "means": "Byte offset within the page" }
+          ],
+          "trap": "In a 2-level scheme two memory accesses are needed for page table (outer then inner) before the actual data access — total 3 accesses without TLB",
+          "reference": "OS / Memory Management / Multilevel Paging"
+        },
+        {
+          "formulaId": "con_065-page-table-size",
+          "name": "Page Table Size",
+          "latex": "\\text{Page Table Size} = \\frac{\\text{Virtual Address Space}}{\\text{Page Size}} \\times \\text{Entry Size}",
+          "plain": "Page Table Size = (Virtual Address Space / Page Size) * Entry Size",
+          "whenToUse": "Calculating the memory footprint of a page table given virtual space, page size, and entry width",
+          "terms": [
+            { "symbol": "\\text{Virtual Address Space}", "means": "Total addressable virtual memory" },
+            { "symbol": "\\text{Page Size}", "means": "Size of one page (power of 2)" },
+            { "symbol": "\\text{Entry Size}", "means": "Size of each page table entry in bytes" }
+          ],
+          "trap": "Entry size must include the frame number bits PLUS protection/valid/dirty bits, rounded up to bytes",
+          "reference": "OS / Memory Management / Page Table"
+        },
+        {
+          "formulaId": "con_065-number-of-frames",
+          "name": "Number of Physical Frames",
+          "latex": "\\text{Number of frames} = \\frac{\\text{Physical Memory Size}}{\\text{Page (Frame) Size}}",
+          "plain": "Number of frames = Physical Memory Size / Frame Size",
+          "whenToUse": "Finding how many frames the physical memory holds — determines frame number field width",
+          "terms": [
+            { "symbol": "\\text{Physical Memory Size}", "means": "Total installed RAM" },
+            { "symbol": "\\text{Frame Size}", "means": "Frame size equals page size" }
+          ],
+          "trap": "Frame number bits = log2(number of frames), NOT log2(physical memory size) directly; they are the same but write the formula clearly",
+          "reference": "OS / Memory Management / Paging"
+        }
+      ]
+    },
+    {
+      "groupId": "page-replacement-algorithms",
+      "groupTitle": "Page Replacement Algorithms",
+      "formulas": [
+        {
+          "formulaId": "con_065-optimal-algorithm",
+          "name": "Optimal (OPT / MIN) Page Replacement",
+          "latex": "\\text{Replace the page whose next use is farthest in the future}",
+          "plain": "On a page fault: evict the page not needed for the longest future time",
+          "whenToUse": "Theoretical lower bound on page faults — requires future knowledge; used in GATE to compare other algorithms",
+          "terms": [
+            { "symbol": "\\text{OPT}", "means": "Optimal algorithm — minimum possible page faults for any reference string" }
+          ],
+          "trap": "OPT is not implementable in practice (requires future references); GATE questions often ask you to trace it manually on a given string",
+          "reference": "OS / Page Replacement / Optimal"
+        },
+        {
+          "formulaId": "con_065-lru-algorithm",
+          "name": "LRU Page Replacement",
+          "latex": "\\text{Replace the page that was least recently used (longest since last reference)}",
+          "plain": "On a page fault: evict the page with the oldest last-use timestamp",
+          "whenToUse": "Approximates OPT using past history; no Belady's anomaly; used in GATE tracing questions",
+          "terms": [
+            { "symbol": "\\text{LRU}", "means": "Least Recently Used — evicts page last accessed furthest in the past" }
+          ],
+          "trap": "A page in constant recent use will NEVER be evicted by LRU — contrast with FIFO which can evict a heavily-used page based on arrival time",
+          "reference": "OS / Page Replacement / LRU"
+        },
+        {
+          "formulaId": "con_065-fifo-algorithm",
+          "name": "FIFO Page Replacement",
+          "latex": "\\text{Replace the page that has been in memory the longest (oldest arrival)}",
+          "plain": "On a page fault: evict the page that arrived earliest (queue order)",
+          "whenToUse": "Simplest replacement — suffers Belady's anomaly (more frames can cause more faults)",
+          "terms": [
+            { "symbol": "\\text{FIFO}", "means": "First-In First-Out — treats page frames as a circular queue" }
+          ],
+          "trap": "Belady's anomaly: increasing the number of frames with FIFO can increase page faults — unique to FIFO; OPT and LRU are stack algorithms that do NOT have this anomaly",
+          "reference": "OS / Page Replacement / FIFO"
+        },
+        {
+          "formulaId": "con_065-beladys-anomaly",
+          "name": "Belady's Anomaly",
+          "latex": "\\exists\\; \\text{reference strings where } F(n+1) > F(n) \\text{ with FIFO}",
+          "plain": "For some reference strings, FIFO gives MORE page faults with MORE frames",
+          "whenToUse": "Answering which algorithms suffer / do not suffer Belady's anomaly",
+          "terms": [
+            { "symbol": "F(n)", "means": "Number of page faults with n frames" }
+          ],
+          "trap": "Only FIFO (and some clock variants) exhibit Belady's anomaly; LRU and OPT are stack algorithms — they NEVER exhibit it",
+          "reference": "OS / Page Replacement / Belady"
+        },
+        {
+          "formulaId": "con_065-page-fault-formula",
+          "name": "Page Fault Count in a Reference String",
+          "latex": "\\text{Page faults} = \\text{(compulsory misses)} + \\text{(capacity/conflict misses)}",
+          "plain": "Total page faults = cold-start misses + misses due to insufficient frames",
+          "whenToUse": "Tracing a reference string with a given algorithm and fixed frame count to count total faults",
+          "terms": [
+            { "symbol": "\\text{compulsory misses}", "means": "First reference to each unique page is always a fault (cold miss)" },
+            { "symbol": "\\text{capacity misses}", "means": "Faults caused by having fewer frames than active pages" }
+          ],
+          "trap": "First n distinct pages always cause faults regardless of algorithm; don't forget to count the cold-start faults at the beginning of a trace",
+          "reference": "OS / Page Replacement"
+        }
+      ]
+    },
+    {
+      "groupId": "working-set-model",
+      "groupTitle": "Working Set Model",
+      "formulas": [
+        {
+          "formulaId": "con_065-working-set-definition",
+          "name": "Working Set Definition",
+          "latex": "WS(t,\\Delta) = \\{\\text{pages referenced in the interval } (t-\\Delta, t]\\}",
+          "plain": "WS(t, delta) = set of pages referenced in the last delta time units ending at time t",
+          "whenToUse": "Determining which pages are in the working set at a given time t with window size delta",
+          "terms": [
+            { "symbol": "t", "means": "Current time (reference position in the string)" },
+            { "symbol": "\\Delta", "means": "Working set window size (number of recent references to look back)" }
+          ],
+          "trap": "The window is the LAST delta references, not future ones; pages referenced outside the window are no longer in the working set even if they will be used soon",
+          "reference": "OS / Memory Management / Working Set"
+        },
+        {
+          "formulaId": "con_065-working-set-size",
+          "name": "Working Set Size Over Time",
+          "latex": "|WS(t,\\Delta)| \\leq \\min(\\Delta,\\; \\text{total distinct pages})",
+          "plain": "|WS(t,delta)| <= min(delta, total unique pages in program)",
+          "whenToUse": "Bounding the number of frames a process needs at any instant to avoid thrashing",
+          "terms": [
+            { "symbol": "|WS(t,\\Delta)|", "means": "Number of distinct pages in working set at time t" }
+          ],
+          "trap": "Working set size changes over time; allocate frames equal to max working set size to prevent thrashing",
+          "reference": "OS / Memory Management / Working Set"
+        }
+      ]
+    },
+    {
+      "groupId": "memory-partitioning",
+      "groupTitle": "Memory Partitioning & Fragmentation",
+      "formulas": [
+        {
+          "formulaId": "con_065-internal-fragmentation",
+          "name": "Internal Fragmentation (Fixed Partitions / Paging)",
+          "latex": "\\text{Internal Frag} = \\text{Partition size} - \\text{Process size}",
+          "plain": "Internal Fragmentation = allocated block size - actual process size",
+          "whenToUse": "Fixed-partition or paging systems where memory is allocated in fixed-size units",
+          "terms": [
+            { "symbol": "\\text{Partition size}", "means": "Size of the fixed partition or page frame allocated" },
+            { "symbol": "\\text{Process size}", "means": "Actual memory required by the process" }
+          ],
+          "trap": "Paging eliminates external fragmentation but introduces internal fragmentation in the last page; worst case is (page size - 1) bytes wasted",
+          "reference": "OS / Memory Management / Fragmentation"
+        },
+        {
+          "formulaId": "con_065-external-fragmentation",
+          "name": "External Fragmentation (Variable Partitions)",
+          "latex": "\\text{External Frag: total free memory} \\geq \\text{request, but no single hole is large enough}",
+          "plain": "External Fragmentation: enough total free memory exists but it is split into non-contiguous holes",
+          "whenToUse": "Variable-partition / contiguous allocation when compaction is not done",
+          "terms": [
+            { "symbol": "\\text{hole}", "means": "A contiguous free region of memory" }
+          ],
+          "trap": "The smallest request that CANNOT be satisfied equals (largest hole + 1) bytes when no compaction is done",
+          "reference": "OS / Memory Management / Fragmentation"
+        },
+        {
+          "formulaId": "con_065-fit-strategies",
+          "name": "Allocation Fit Strategies",
+          "latex": "\\text{First-Fit: first hole} \\geq \\text{size} \\quad \\text{Best-Fit: smallest hole} \\geq \\text{size} \\quad \\text{Worst-Fit: largest hole}",
+          "plain": "First-Fit: first adequate hole | Best-Fit: tightest fit | Worst-Fit: largest hole",
+          "whenToUse": "Choosing or comparing allocation strategies in variable-partition memory management problems",
+          "terms": [
+            { "symbol": "\\text{First-Fit}", "means": "Fastest search; leaves large holes intact at the end" },
+            { "symbol": "\\text{Best-Fit}", "means": "Minimises wasted space per allocation; creates many tiny unusable holes" },
+            { "symbol": "\\text{Worst-Fit}", "means": "Maximises leftover hole size; often performs worst overall" }
+          ],
+          "trap": "Best-Fit does NOT always give the least overall fragmentation in practice; First-Fit often performs better overall",
+          "reference": "OS / Memory Management / Allocation"
+        }
+      ]
+    },
+    {
+      "groupId": "tlb-and-protection",
+      "groupTitle": "TLB & Memory Protection",
+      "formulas": [
+        {
+          "formulaId": "con_065-tlb-function",
+          "name": "TLB (Translation Lookaside Buffer) Role",
+          "latex": "\\text{Physical Address} = \\text{Frame}[\\text{TLB}(p)] \\cdot \\text{Page Size} + d",
+          "plain": "Physical Address = Frame_number * Page_Size + offset  (frame found via TLB on a hit)",
+          "whenToUse": "Explaining address translation when a TLB hit occurs — avoids memory access for page table",
+          "terms": [
+            { "symbol": "p", "means": "Page number from logical address" },
+            { "symbol": "d", "means": "Offset from logical address" },
+            { "symbol": "\\text{TLB}(p)", "means": "Frame number returned by TLB for page p" }
+          ],
+          "trap": "TLB is a content-addressable (associative) memory — lookup is parallel, not sequential; on a miss, page table in main memory must be consulted (extra memory access)",
+          "reference": "OS / Virtual Memory / TLB"
+        },
+        {
+          "formulaId": "con_065-memory-accesses-with-tlb",
+          "name": "Memory Accesses per Reference (TLB scenario)",
+          "latex": "\\text{Accesses} = \\begin{cases} 1 & \\text{TLB hit (only data)} \\\\ 2 & \\text{TLB miss, single-level paging} \\\\ k+1 & \\text{TLB miss, k-level paging} \\end{cases}",
+          "plain": "Memory accesses = 1 (TLB hit) | 2 (miss, 1-level) | k+1 (miss, k-level paging)",
+          "whenToUse": "Counting actual memory bus accesses when TLB is present",
+          "terms": [
+            { "symbol": "k", "means": "Number of page table levels" }
+          ],
+          "trap": "TLB lookup itself is not a memory access (it is a hardware cache); only RAM accesses count in EAT formulas",
+          "reference": "OS / Virtual Memory / TLB"
+        }
+      ]
+    }
+  ]
+}

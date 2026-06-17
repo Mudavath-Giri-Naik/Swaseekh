@@ -1,0 +1,295 @@
+{
+  "_id": "con_054",
+  "conceptId": "con_054",
+  "conceptTitle": "Lexical Analysis",
+  "reference": "GATE CS — Compiler Design / Frontend Phases",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Question asks about compiler phase that reads source character-by-character",
+        "use": "\\text{Lexical Analyser} \\rightarrow \\text{uses Finite Automaton (FA)}"
+      },
+      {
+        "condition": "Question asks which automaton / data structure a phase uses",
+        "use": "\\text{Lexical} \\to \\text{FA},\\ \\text{Syntax} \\to \\text{PDA},\\ \\text{Semantic} \\to \\text{Syntax Tree},\\ \\text{Opt} \\to \\text{DAG}"
+      },
+      {
+        "condition": "Question asks to count tokens in a C statement",
+        "use": "\\text{Count: keywords + identifiers + literals + operators + punctuators (not whitespace)}"
+      },
+      {
+        "condition": "Question involves macro expansion order or recursion",
+        "use": "\\text{Macro expanded at use site (call by name); recursive macro} \\Rightarrow \\text{infinite loop possible}"
+      },
+      {
+        "condition": "Question about symbol table property or implementation",
+        "use": "\\text{Symbol Table: scope, type, size, address; implemented via hash table, BST, or linked list}"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "compilation-phases",
+      "groupTitle": "Compilation Phases & Their Tools",
+      "formulas": [
+        {
+          "formulaId": "con_054-phase-sequence",
+          "name": "Standard Compiler Phase Sequence",
+          "latex": "\\text{Source} \\to \\underbrace{\\text{Lexical}}_\\text{FA} \\to \\underbrace{\\text{Syntax}}_\\text{PDA} \\to \\underbrace{\\text{Semantic}}_\\text{Attr. Grammar} \\to \\underbrace{\\text{IR/Opt}}_\\text{DAG} \\to \\underbrace{\\text{Code Gen}}_\\text{Graph} \\to \\text{Object}",
+          "plain": "Source -> Lexical(FA) -> Syntax(PDA) -> Semantic(Attr.Grammar) -> Opt(DAG) -> CodeGen(Graph) -> Object",
+          "whenToUse": "When matching each compiler phase to its underlying automaton or data structure",
+          "terms": [
+            { "symbol": "FA", "means": "Finite Automaton — used by lexer to recognise tokens" },
+            { "symbol": "PDA", "means": "Push-Down Automaton — used by parser to check syntax" },
+            { "symbol": "DAG", "means": "Directed Acyclic Graph — used in code optimisation to eliminate redundancy" }
+          ],
+          "trap": "Confusing DAG (optimisation) with syntax tree (semantic analysis); code generation uses register-allocation graphs, not DAGs",
+          "reference": "Compiler Design / Frontend Phases"
+        },
+        {
+          "formulaId": "con_054-lexer-role",
+          "name": "Role of Lexical Analyser",
+          "latex": "\\text{Lexical Analyser: reads every char of source} \\Rightarrow \\text{emits } \\langle \\textit{token-type},\\ \\textit{attribute} \\rangle",
+          "plain": "Lexical Analyser: reads every char of source => emits <token-type, attribute>",
+          "whenToUse": "When question asks which module checks every character or produces tokens",
+          "terms": [
+            { "symbol": "token-type", "means": "category: keyword, identifier, literal, operator, punctuator" },
+            { "symbol": "attribute", "means": "pointer into symbol table or value of literal" }
+          ],
+          "trap": "Syntax analyser does NOT read characters; it reads tokens produced by the lexer",
+          "reference": "Compiler Design / Lexical Analysis"
+        },
+        {
+          "formulaId": "con_054-error-detection-phase",
+          "name": "Which Phase Detects Which Error",
+          "latex": "\\begin{array}{ll} \\text{Lexical error} & \\text{(invalid char / malformed token)} \\\\ \\text{Syntax error} & \\text{(grammar rule violation)} \\\\ \\text{Semantic error} & \\text{(type mismatch, undeclared var)} \\\\ \\text{Logical error} & \\text{(not caught by compiler)} \\end{array}",
+          "plain": "Lexical error: invalid char / malformed token | Syntax error: grammar violation | Semantic error: type mismatch or undeclared var | Logical error: not caught",
+          "whenToUse": "When question gives a buggy source line (e.g. 'fro' instead of 'for') and asks which phase catches it",
+          "terms": [
+            { "symbol": "fro", "means": "Misspelling of 'for' — lexer emits it as a valid identifier; syntax error is caught by parser" }
+          ],
+          "trap": "A typo keyword like 'fro' is a VALID identifier token for the lexer; the syntax error is caught by the parser, not the lexer",
+          "reference": "Compiler Design / Frontend Phases"
+        },
+        {
+          "formulaId": "con_054-pass-structure",
+          "name": "Single-Pass vs. Multi-Pass Compiler",
+          "latex": "\\text{Single-pass: one scan of source} \\quad \\text{Multi-pass: } k \\text{ scans, each a pass}",
+          "plain": "Single-pass: one scan of source | Multi-pass: k scans, each a pass",
+          "whenToUse": "When question asks about number of passes or when a task (e.g. macro expansion) is done",
+          "terms": [
+            { "symbol": "pass", "means": "a complete scan over the source or intermediate representation" }
+          ],
+          "trap": "In a two-pass macro assembler, macro expansion is done in pass 1 (definition table built and calls expanded) so pass 2 has clean assembly code",
+          "reference": "Compiler Design / Frontend Phases"
+        }
+      ]
+    },
+    {
+      "groupId": "lexical-analysis-core",
+      "groupTitle": "Lexical Analysis — Tokens & Automata",
+      "formulas": [
+        {
+          "formulaId": "con_054-token-categories",
+          "name": "Token Categories",
+          "latex": "\\text{Tokens} = \\{\\text{keywords},\\ \\text{identifiers},\\ \\text{literals},\\ \\text{operators},\\ \\text{punctuators}\\}",
+          "plain": "Tokens = { keywords, identifiers, literals, operators, punctuators }",
+          "whenToUse": "When counting tokens in a C/language statement",
+          "terms": [
+            { "symbol": "keyword", "means": "reserved word: if, int, for, printf, etc." },
+            { "symbol": "identifier", "means": "user-defined names: variable names, function names" },
+            { "symbol": "literal", "means": "constant values including string literals like \"i=%d, &i=%x\"" },
+            { "symbol": "punctuator", "means": "( ) , ; etc." }
+          ],
+          "trap": "Whitespace and comments are NOT tokens; a string literal like \"i=%d, &i=%x\" is ONE token, not multiple",
+          "reference": "Compiler Design / Lexical Analysis"
+        },
+        {
+          "formulaId": "con_054-token-count-example",
+          "name": "Token Count: printf Statement",
+          "latex": "\\texttt{printf(\"i=\\%d, \\&i=\\%x\", i, \\&i);} \\Rightarrow 10 \\text{ tokens}",
+          "plain": "printf(\"i=%d, &i=%x\", i, &i); => 10 tokens: printf ( \"i=%d,&i=%x\" , i , & i ) ;",
+          "whenToUse": "Direct GATE question: count tokens in this exact C statement",
+          "terms": [
+            { "symbol": "printf", "means": "1 identifier token" },
+            { "symbol": "\"i=%d, &i=%x\"", "means": "1 string-literal token" },
+            { "symbol": "i", "means": "each occurrence is 1 identifier token" },
+            { "symbol": "&", "means": "address-of operator token" }
+          ],
+          "trap": "Characters inside a string literal are NOT separate tokens; count the whole string as ONE token",
+          "reference": "Compiler Design / Lexical Analysis"
+        },
+        {
+          "formulaId": "con_054-identifier-length",
+          "name": "Effect of Identifier Length on Compilation",
+          "latex": "\\text{Longer identifiers} \\Rightarrow \\text{same # tokens, same compile time (lexer hashes them)}",
+          "plain": "Longer identifiers => same number of tokens, effectively same compile time",
+          "whenToUse": "When asked whether longer identifiers slow down compilation or change program correctness",
+          "terms": [
+            { "symbol": "hash", "means": "lexer uses hashing to look up identifiers in symbol table in O(1)" }
+          ],
+          "trap": "Longer identifiers do NOT necessarily slow compilation and do NOT make a program incorrect; they may improve readability",
+          "reference": "Compiler Design / Lexical Analysis"
+        },
+        {
+          "formulaId": "con_054-regex-to-dfa",
+          "name": "Regular Expression -> NFA -> DFA Pipeline",
+          "latex": "\\text{RegEx} \\xrightarrow{\\text{Thompson}} \\text{NFA} \\xrightarrow{\\text{Subset}} \\text{DFA} \\xrightarrow{\\text{Minimize}} \\text{Min-DFA}",
+          "plain": "RegEx --Thompson--> NFA --Subset construction--> DFA --Minimization--> Min-DFA",
+          "whenToUse": "When question involves constructing a lexer from token patterns specified as regular expressions",
+          "terms": [
+            { "symbol": "NFA", "means": "Nondeterministic Finite Automaton — may have epsilon transitions" },
+            { "symbol": "DFA", "means": "Deterministic Finite Automaton — one transition per symbol per state" },
+            { "symbol": "Min-DFA", "means": "Minimized DFA — fewest states, used in efficient lexers" }
+          ],
+          "trap": "NFA and DFA recognise the SAME class (regular languages); minimisation reduces states but not expressive power",
+          "reference": "Compiler Design / Lexical Analysis"
+        },
+        {
+          "formulaId": "con_054-regular-language-tokens",
+          "name": "Tokens Are Regular Languages",
+          "latex": "\\text{Token patterns} \\in \\mathcal{L}(\\text{Regular}) \\Rightarrow \\text{recognisable by Finite Automaton}",
+          "plain": "Token patterns are regular languages => recognisable by Finite Automaton",
+          "whenToUse": "When question asks why lexer uses FA and not PDA or TM",
+          "terms": [
+            { "symbol": "Regular language", "means": "described by a regular expression; no counting/nesting needed" }
+          ],
+          "trap": "Nested constructs (balanced parentheses) are NOT regular and require a PDA — they belong to the parser, not lexer",
+          "reference": "Compiler Design / Lexical Analysis"
+        }
+      ]
+    },
+    {
+      "groupId": "macros",
+      "groupTitle": "Macros & Macro Expansion",
+      "formulas": [
+        {
+          "formulaId": "con_054-macro-definition",
+          "name": "Macro Definition Structure",
+          "latex": "\\underbrace{\\texttt{MACRO}}_\\text{keyword}\\ \\textit{name}\\ \\underbrace{p_1, p_2, \\ldots, p_n}_\\text{formal parameters} \\\\ \\vdots \\\\ \\texttt{ENDM}",
+          "plain": "MACRO name p1, p2, ..., pn  <body>  ENDM  — p1..pn are formal parameters",
+          "whenToUse": "When asked to identify formal vs. actual parameters in a macro definition",
+          "terms": [
+            { "symbol": "formal parameter", "means": "placeholder variable in macro definition (x, y in 'macro Add x, y')" },
+            { "symbol": "actual parameter", "means": "value/expression supplied at macro call site" }
+          ],
+          "trap": "Macro parameters are FORMAL in the definition; they become actual only at the call site — unlike function arguments the substitution is textual (call by name)",
+          "reference": "Compiler Design / Macros"
+        },
+        {
+          "formulaId": "con_054-macro-expansion",
+          "name": "Macro Expansion — Call by Name (Textual Substitution)",
+          "latex": "\\text{Macro call} \\xrightarrow{\\text{preprocessor}} \\text{textual substitution of body with actual args}",
+          "plain": "Macro call => preprocessor substitutes body with actual arguments (textual, not evaluated)",
+          "whenToUse": "When question distinguishes macro expansion from function call",
+          "terms": [
+            { "symbol": "textual substitution", "means": "actual argument text replaces formal parameter — not evaluated first" }
+          ],
+          "trap": "Macros are expanded by preprocessor/assembler, NOT at run time; side-effects in actual args may be evaluated multiple times",
+          "reference": "Compiler Design / Macros"
+        },
+        {
+          "formulaId": "con_054-macro-pass1",
+          "name": "Two-Pass Assembler: Macro Expansion in Pass 1",
+          "latex": "\\text{Pass 1: build macro def table + expand all calls} \\Rightarrow \\text{Pass 2 sees pure assembly (no macros)}",
+          "plain": "Pass 1: build macro definition table + expand all macro calls => Pass 2: only pure assembly instructions",
+          "whenToUse": "When asked why macro expansion is done in pass 1, not pass 2, of a two-pass assembler",
+          "terms": [
+            { "symbol": "Pass 1", "means": "first scan: collects labels and macro definitions, expands macro calls" },
+            { "symbol": "Pass 2", "means": "second scan: resolves addresses, generates object code" }
+          ],
+          "trap": "If expansion were left to pass 2, the expanded code would introduce new labels that pass 1 already missed, causing forward-reference errors",
+          "reference": "Compiler Design / Macros"
+        },
+        {
+          "formulaId": "con_054-recursive-macro",
+          "name": "Recursive Macro — Infinite Loop Condition",
+          "latex": "\\text{Recursive macro} M \\text{ with no base case} \\Rightarrow \\text{infinite expansion loop}",
+          "plain": "Recursive macro M with no terminating base case => infinite macro expansion loop",
+          "whenToUse": "When question asks which macro definition can cause an infinite loop in a macro assembler",
+          "terms": [
+            { "symbol": "base case", "means": "conditional branch that stops recursion when a termination condition is met" }
+          ],
+          "trap": "A macro that calls itself conditionally is safe only if the condition is guaranteed to become false; if the condition is never false the assembler loops infinitely",
+          "reference": "Compiler Design / Macros"
+        }
+      ]
+    },
+    {
+      "groupId": "symbol-table",
+      "groupTitle": "Symbol Table",
+      "formulas": [
+        {
+          "formulaId": "con_054-symbol-table-role",
+          "name": "Symbol Table — Purpose & Contents",
+          "latex": "\\text{Symbol Table entry: } \\langle \\textit{name},\\ \\textit{type},\\ \\textit{scope},\\ \\textit{size},\\ \\textit{address} \\rangle",
+          "plain": "Symbol Table entry: <name, type, scope, size, address>",
+          "whenToUse": "When question asks what information the symbol table stores or which data structure manages variable attributes",
+          "terms": [
+            { "symbol": "scope", "means": "block/function in which the identifier is visible" },
+            { "symbol": "type", "means": "int, float, pointer, array, etc." },
+            { "symbol": "address", "means": "memory location assigned during code generation" }
+          ],
+          "trap": "The symbol table is NOT only used by the lexer; it is read and written across multiple phases (lexer, parser, semantic analyser, code generator)",
+          "reference": "Compiler Design / Frontend Phases"
+        },
+        {
+          "formulaId": "con_054-symbol-table-impl",
+          "name": "Symbol Table — Implementation Choices",
+          "latex": "\\text{Hash Table: } O(1)\\text{ avg} \\quad \\text{BST: } O(\\log n) \\quad \\text{Linked List: } O(n)",
+          "plain": "Hash Table: O(1) avg | BST: O(log n) | Linked List: O(n)",
+          "whenToUse": "When question asks about valid or efficient implementations of the symbol table",
+          "terms": [
+            { "symbol": "n", "means": "number of identifiers declared in the program" }
+          ],
+          "trap": "The symbol table can be implemented with BST or hash table; the statement 'only hash tables are valid' is FALSE — BSTs and linked lists also work",
+          "reference": "Compiler Design / Frontend Phases"
+        },
+        {
+          "formulaId": "con_054-scope-management",
+          "name": "Scope Management with Symbol Table Stack",
+          "latex": "\\text{Enter scope} \\to \\text{push new table}; \\quad \\text{Exit scope} \\to \\text{pop table}",
+          "plain": "Enter scope => push new symbol table; Exit scope => pop symbol table",
+          "whenToUse": "When question involves nested scopes, block-structured languages, or shadowing of variable names",
+          "terms": [
+            { "symbol": "scope stack", "means": "stack of symbol tables, innermost on top; lookup searches from top downward" }
+          ],
+          "trap": "Destroying the symbol table after compilation is optional; some compilers retain it for debugging information",
+          "reference": "Compiler Design / Frontend Phases"
+        }
+      ]
+    },
+    {
+      "groupId": "regex-patterns",
+      "groupTitle": "Regular Expressions for Common Tokens",
+      "formulas": [
+        {
+          "formulaId": "con_054-regex-identifier",
+          "name": "Identifier Pattern (C-style)",
+          "latex": "\\text{identifier} = [a\\text{-}zA\\text{-}Z\\_][a\\text{-}zA\\text{-}Z\\_0\\text{-}9]^*",
+          "plain": "identifier = [a-zA-Z_][a-zA-Z_0-9]*  (starts with letter or underscore, followed by letters/digits/underscores)",
+          "whenToUse": "When asked to write or evaluate a regex for a valid C identifier",
+          "terms": [
+            { "symbol": "[a-zA-Z_]", "means": "first character: any letter or underscore" },
+            { "symbol": "[a-zA-Z_0-9]*", "means": "subsequent characters: zero or more letters, digits, or underscores" }
+          ],
+          "trap": "Identifiers cannot START with a digit; '2var' is not a valid identifier — lexer would tokenise '2' as a numeric literal and 'var' as a separate identifier",
+          "reference": "Compiler Design / Lexical Analysis"
+        },
+        {
+          "formulaId": "con_054-regex-integer-literal",
+          "name": "Integer Literal Pattern",
+          "latex": "\\text{integer} = [0\\text{-}9]^+",
+          "plain": "integer = [0-9]+  (one or more decimal digits)",
+          "whenToUse": "When constructing NFA/DFA for integer constants in lexer design questions",
+          "terms": [
+            { "symbol": "[0-9]+", "means": "one or more decimal digit characters" }
+          ],
+          "trap": "An integer literal pattern must be [0-9]+ (one or more), NOT [0-9]* (zero or more would match the empty string)",
+          "reference": "Compiler Design / Lexical Analysis"
+        }
+      ]
+    }
+  ]
+}

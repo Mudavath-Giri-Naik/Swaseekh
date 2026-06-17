@@ -1,0 +1,323 @@
+{
+  "_id": "con_036",
+  "conceptId": "con_036",
+  "conceptTitle": "Recursion",
+  "reference": "GATE CS — Programming and Data Structures / Programming",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Counting recursive calls of naive Fibonacci fib(n)",
+        "use": "\\text{calls}(n) = 2\\,\\text{fib}(n+1) - 1"
+      },
+      {
+        "condition": "Recurrence of the form T(n) = aT(n/b) + f(n)",
+        "use": "\\text{Master Theorem: compare } f(n) \\text{ with } n^{\\log_b a}"
+      },
+      {
+        "condition": "Recurrence T(n) = T(n-1) + O(1) (linear recursion)",
+        "use": "T(n) = O(n)"
+      },
+      {
+        "condition": "Maximum recursion depth (stack frames needed)",
+        "use": "\\text{depth} = n \\text{ for linear; } \\log_2 n \\text{ for divide-and-conquer}"
+      },
+      {
+        "condition": "Memoized / DP version of exponential recursion",
+        "use": "T(n) = O(n) \\text{ (each sub-problem solved once)}"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "fibonacci-analysis",
+      "groupTitle": "Fibonacci Recursion Analysis",
+      "formulas": [
+        {
+          "formulaId": "con_036-fib-definition",
+          "name": "Fibonacci Recurrence Definition",
+          "latex": "\\text{fib}(n) = \\begin{cases} 1 & n = 0 \\text{ or } n = 1 \\\\ \\text{fib}(n-1) + \\text{fib}(n-2) & n \\geq 2 \\end{cases}",
+          "plain": "fib(0)=1, fib(1)=1, fib(n)=fib(n-1)+fib(n-2) for n>=2",
+          "whenToUse": "Base definition needed when tracing fib values or counting calls",
+          "terms": [
+            { "symbol": "n", "means": "index of the Fibonacci number" }
+          ],
+          "trap": "GATE uses fib(0)=1, fib(1)=1 (not 0,1); verify the base cases in the given code before computing",
+          "reference": "Programming and Data Structures / Recursion"
+        },
+        {
+          "formulaId": "con_036-fib-call-count",
+          "name": "Naive Fibonacci Total Call Count",
+          "latex": "\\text{calls}(\\text{fib}(n)) = 2\\,\\text{fib}(n+1) - 1",
+          "plain": "Total calls for fib(n) = 2*fib(n+1) - 1",
+          "whenToUse": "Counting total number of times fib is invoked (including the initial call) for naive recursive implementation",
+          "terms": [
+            { "symbol": "fib(n+1)", "means": "the (n+1)-th Fibonacci number using same base-case convention" }
+          ],
+          "trap": "Off-by-one is common; the formula uses fib(n+1), not fib(n). For fib(7) with base fib(0)=fib(1)=1: fib(8)=34, calls=2*34-1=67",
+          "reference": "Programming and Data Structures / Recursion"
+        },
+        {
+          "formulaId": "con_036-fib-time-complexity",
+          "name": "Time Complexity of Naive Fibonacci",
+          "latex": "T(n) = T(n-1) + T(n-2) + O(1) \\Rightarrow T(n) = O\\!\\left(\\phi^n\\right), \\quad \\phi = \\frac{1+\\sqrt{5}}{2} \\approx 1.618",
+          "plain": "T(n) = O(phi^n) where phi = golden ratio ~1.618 (exponential)",
+          "whenToUse": "Stating time complexity of naive (un-memoized) recursive Fibonacci",
+          "terms": [
+            { "symbol": "\\phi", "means": "golden ratio (1+sqrt(5))/2 ≈ 1.618" }
+          ],
+          "trap": "Often approximated as O(2^n) in GATE options — both are acceptable; phi^n is tighter",
+          "reference": "Programming and Data Structures / Recursion"
+        },
+        {
+          "formulaId": "con_036-fib-memoized-complexity",
+          "name": "Memoized Fibonacci Complexity",
+          "latex": "T_{\\text{memo}}(n) = O(n), \\quad \\text{Space} = O(n)",
+          "plain": "Memoized fib: Time O(n), Space O(n) for the cache array",
+          "whenToUse": "When fib uses a lookup array (f[]) to cache already-computed values",
+          "terms": [
+            { "symbol": "f[]", "means": "memoization array, initialized to 0 or -1" }
+          ],
+          "trap": "The memoization check must come BEFORE the recursive calls; if placed after, no speedup occurs",
+          "reference": "Programming and Data Structures / Recursion"
+        },
+        {
+          "formulaId": "con_036-fib-stack-depth",
+          "name": "Recursion Stack Depth for Fibonacci",
+          "latex": "\\text{max stack depth for fib}(n) = n \\text{ frames}",
+          "plain": "Maximum stack depth = n (the call chain goes fib(n)->fib(n-1)->...->fib(0))",
+          "whenToUse": "Estimating stack memory needed or whether a stack overflow occurs for fib(n)",
+          "terms": [
+            { "symbol": "n", "means": "argument to fib" },
+            { "symbol": "\\text{frame size}", "means": "bytes per activation record (local vars + return address)" }
+          ],
+          "trap": "Stack depth is n, NOT the total number of calls; multiply depth by frame size to get stack bytes needed",
+          "reference": "Programming and Data Structures / Recursion"
+        }
+      ]
+    },
+    {
+      "groupId": "recurrence-relations",
+      "groupTitle": "Recurrence Relations & Master Theorem",
+      "formulas": [
+        {
+          "formulaId": "con_036-master-theorem",
+          "name": "Master Theorem (Divide and Conquer)",
+          "latex": "T(n) = aT\\!\\left(\\tfrac{n}{b}\\right) + f(n), \\quad a \\geq 1,\\, b > 1 \\\\[4pt] \\text{Case 1: } f(n) = O(n^{\\log_b a - \\varepsilon}) \\Rightarrow T(n) = \\Theta(n^{\\log_b a}) \\\\[2pt] \\text{Case 2: } f(n) = \\Theta(n^{\\log_b a}) \\Rightarrow T(n) = \\Theta(n^{\\log_b a}\\log n) \\\\[2pt] \\text{Case 3: } f(n) = \\Omega(n^{\\log_b a + \\varepsilon}) \\Rightarrow T(n) = \\Theta(f(n))",
+          "plain": "T(n)=aT(n/b)+f(n): Case1 f smaller -> Theta(n^log_b(a)); Case2 f equal -> Theta(n^log_b(a) log n); Case3 f larger -> Theta(f(n))",
+          "whenToUse": "Solving recurrences of divide-and-conquer recursive algorithms where subproblem size is n/b",
+          "terms": [
+            { "symbol": "a", "means": "number of recursive subproblems" },
+            { "symbol": "b", "means": "factor by which input shrinks" },
+            { "symbol": "f(n)", "means": "cost of work done outside recursive calls" },
+            { "symbol": "\\varepsilon", "means": "a small positive constant" }
+          ],
+          "trap": "Master theorem does NOT apply when subproblems have different sizes (e.g., T(n)=T(n/3)+T(2n/3)+n) — use recursion tree instead",
+          "reference": "Programming and Data Structures / Recursion"
+        },
+        {
+          "formulaId": "con_036-linear-recurrence",
+          "name": "Linear Decrease Recurrence",
+          "latex": "T(n) = T(n-1) + c \\Rightarrow T(n) = O(n)",
+          "plain": "T(n) = T(n-1) + constant => O(n)",
+          "whenToUse": "Tail-recursive or simple recursive functions that reduce argument by 1 each call (e.g., factorial, linear search)",
+          "terms": [
+            { "symbol": "c", "means": "constant work done at each level" }
+          ],
+          "trap": "If work at each level is O(n) instead of O(1), result becomes O(n^2), not O(n)",
+          "reference": "Programming and Data Structures / Recursion"
+        },
+        {
+          "formulaId": "con_036-merge-sort-recurrence",
+          "name": "Merge Sort / Binary Search Recurrence",
+          "latex": "T(n) = 2T\\!\\left(\\tfrac{n}{2}\\right) + O(n) \\Rightarrow O(n \\log n)",
+          "plain": "T(n) = 2T(n/2) + O(n) => O(n log n)",
+          "whenToUse": "Merge sort, or any algorithm that splits into 2 equal halves and does O(n) merge work",
+          "terms": [
+            { "symbol": "n", "means": "input size" }
+          ],
+          "trap": "Master theorem Case 2 applies here (f(n)=n = n^log_2(2)=n^1); result has the extra log factor",
+          "reference": "Programming and Data Structures / Recursion"
+        },
+        {
+          "formulaId": "con_036-binary-search-recurrence",
+          "name": "Binary Search Recurrence",
+          "latex": "T(n) = T\\!\\left(\\tfrac{n}{2}\\right) + O(1) \\Rightarrow O(\\log n)",
+          "plain": "T(n) = T(n/2) + O(1) => O(log n)",
+          "whenToUse": "Recursive binary search, or halving with constant work per call",
+          "terms": [
+            { "symbol": "n", "means": "size of the search space" }
+          ],
+          "trap": "Master theorem Case 1 applies (f(n)=1 = O(n^0), log_2(1)=0 gives n^0=1); easy to mix up with Case 2",
+          "reference": "Programming and Data Structures / Recursion"
+        },
+        {
+          "formulaId": "con_036-tower-of-hanoi-recurrence",
+          "name": "Tower of Hanoi Recurrence",
+          "latex": "T(n) = 2T(n-1) + 1 \\Rightarrow T(n) = O(2^n)",
+          "plain": "T(n) = 2T(n-1) + 1 => O(2^n)",
+          "whenToUse": "Tower of Hanoi and any recursion that doubles sub-calls while decreasing n by 1",
+          "terms": [
+            { "symbol": "n", "means": "number of discs" }
+          ],
+          "trap": "Exponential growth — 2^n moves needed for n discs; even 64 discs is astronomically large",
+          "reference": "Programming and Data Structures / Recursion"
+        }
+      ]
+    },
+    {
+      "groupId": "recursion-concepts",
+      "groupTitle": "Key Recursion Concepts & Rules",
+      "formulas": [
+        {
+          "formulaId": "con_036-tail-recursion",
+          "name": "Tail Recursion Definition",
+          "latex": "\\text{A function is tail-recursive if the recursive call is the } \\textbf{last operation} \\text{ in every execution path.}",
+          "plain": "Tail recursion: recursive call is the very last action (no pending computation after return)",
+          "whenToUse": "Determining if compiler can optimize recursion into iteration (tail-call optimization)",
+          "terms": [
+            { "symbol": "\\text{TCO}", "means": "Tail-Call Optimization — converts tail recursion to a loop, O(1) stack space" }
+          ],
+          "trap": "fib(n-1)+fib(n-2) is NOT tail-recursive because addition happens after the recursive calls return",
+          "reference": "Programming and Data Structures / Recursion"
+        },
+        {
+          "formulaId": "con_036-stack-frame-size",
+          "name": "Stack Memory for Recursion",
+          "latex": "\\text{Stack memory} = \\text{max depth} \\times \\text{frame size (bytes)}",
+          "plain": "Stack memory = max_depth * bytes_per_frame",
+          "whenToUse": "Checking if recursion causes stack overflow given a fixed stack size",
+          "terms": [
+            { "symbol": "\\text{max depth}", "means": "deepest level of recursion reached" },
+            { "symbol": "\\text{frame size}", "means": "bytes per activation record (locals + return address + saved registers)" }
+          ],
+          "trap": "Each recursive call creates a NEW frame; total stack = depth * frame, not just frame size",
+          "reference": "Programming and Data Structures / Recursion"
+        },
+        {
+          "formulaId": "con_036-mutual-recursion",
+          "name": "Mutual Recursion",
+          "latex": "f(n) \\text{ calls } g(n) \\text{ and } g(n) \\text{ calls } f(n) \\Rightarrow \\text{both must have a common base case to terminate}",
+          "plain": "f calls g and g calls f; termination requires a shared base case",
+          "whenToUse": "Identifying and tracing programs where two functions call each other",
+          "terms": [
+            { "symbol": "f, g", "means": "two mutually recursive functions" }
+          ],
+          "trap": "Missing or wrong base case in mutual recursion causes infinite recursion / stack overflow",
+          "reference": "Programming and Data Structures / Recursion"
+        },
+        {
+          "formulaId": "con_036-call-tree-nodes",
+          "name": "Recursive Call Tree Node Count",
+          "latex": "\\text{For binary recursion with depth } d: \\text{ nodes} \\leq 2^{d+1} - 1",
+          "plain": "Binary recursion tree of depth d has at most 2^(d+1)-1 nodes (calls)",
+          "whenToUse": "Upper-bounding total calls when exact count formula is unknown",
+          "terms": [
+            { "symbol": "d", "means": "maximum depth of the recursion tree" }
+          ],
+          "trap": "This is an UPPER bound for balanced binary recursion; actual count may be less if branches terminate early",
+          "reference": "Programming and Data Structures / Recursion"
+        }
+      ]
+    },
+    {
+      "groupId": "function-identification",
+      "groupTitle": "Identify Function / Program Tracing",
+      "formulas": [
+        {
+          "formulaId": "con_036-bit-flip-identity",
+          "name": "Boolean / Bit Toggle Identities",
+          "latex": "x \\in \\{0,1\\}: \\quad x = 1 - x \\equiv x \\oplus 1 \\equiv 1 + x \\pmod{2}",
+          "plain": "For x in {0,1}: toggle x using 1-x, or XOR with 1, or (1+x) mod 2",
+          "whenToUse": "Identifying equivalent Boolean-toggle statements in program tracing questions",
+          "terms": [
+            { "symbol": "x", "means": "integer variable taking only 0 or 1" },
+            { "symbol": "\\oplus", "means": "bitwise XOR" }
+          ],
+          "trap": "x=1+x without mod 2 does NOT toggle: if x=1, result is 2, not 0. The equivalence holds only under mod 2 or XOR context",
+          "reference": "Programming and Data Structures / Programming"
+        },
+        {
+          "formulaId": "con_036-side-effect-call-order",
+          "name": "Side Effects in Expression Evaluation",
+          "latex": "\\text{If } f(x) \\text{ modifies } x \\text{, then } f(x) * f(x) \\neq [f(x)]^2 \\text{ in general}",
+          "plain": "f(x)*f(x) with side effects on x: second call sees modified x, result differs from squaring one call",
+          "whenToUse": "Tracing programs where a function has side effects (modifies a pass-by-reference argument)",
+          "terms": [
+            { "symbol": "f(x)", "means": "function that modifies its argument x as a side effect" }
+          ],
+          "trap": "In Pascal/C pass-by-reference, f(x)*f(x) evaluates left-to-right; x is incremented by first call, so second call uses incremented x",
+          "reference": "Programming and Data Structures / Programming"
+        },
+        {
+          "formulaId": "con_036-factorial-definition",
+          "name": "Factorial via Recursion",
+          "latex": "n! = \\begin{cases} 1 & n = 0 \\\\ n \\cdot (n-1)! & n \\geq 1 \\end{cases}",
+          "plain": "n! = n*(n-1)! with base 0!=1",
+          "whenToUse": "Tracing factorial recursive programs or computing exact call counts / output values",
+          "terms": [
+            { "symbol": "n", "means": "non-negative integer" }
+          ],
+          "trap": "Stack depth for factorial(n) is n+1 frames (includes the base-case frame); n frames of non-trivial work",
+          "reference": "Programming and Data Structures / Recursion"
+        },
+        {
+          "formulaId": "con_036-gcd-recursion",
+          "name": "GCD via Euclidean Recursion",
+          "latex": "\\gcd(a, b) = \\begin{cases} a & b = 0 \\\\ \\gcd(b,\\, a \\bmod b) & b \\neq 0 \\end{cases}",
+          "plain": "gcd(a,b): if b=0 return a, else return gcd(b, a mod b)",
+          "whenToUse": "Tracing recursive GCD programs or counting calls made by Euclidean algorithm",
+          "terms": [
+            { "symbol": "a, b", "means": "two non-negative integers" }
+          ],
+          "trap": "Number of recursive calls is O(log(min(a,b))); do NOT assume O(a) or O(b) calls",
+          "reference": "Programming and Data Structures / Recursion"
+        },
+        {
+          "formulaId": "con_036-power-recursion",
+          "name": "Fast Exponentiation (Recursive)",
+          "latex": "\\text{power}(x, n) = \\begin{cases} 1 & n = 0 \\\\ x^{n/2} \\cdot x^{n/2} & n \\text{ even} \\\\ x \\cdot x^{(n-1)/2} \\cdot x^{(n-1)/2} & n \\text{ odd} \\end{cases} \\Rightarrow O(\\log n)",
+          "plain": "power(x,n): halve exponent each time => O(log n) multiplications",
+          "whenToUse": "Tracing or analyzing recursive fast exponentiation (square-and-multiply) programs",
+          "terms": [
+            { "symbol": "x", "means": "base" },
+            { "symbol": "n", "means": "exponent" }
+          ],
+          "trap": "Naive recursion power(x,n)=x*power(x,n-1) is O(n), not O(log n); the halving trick is needed for the speedup",
+          "reference": "Programming and Data Structures / Recursion"
+        }
+      ]
+    },
+    {
+      "groupId": "complexity-common",
+      "groupTitle": "Common Recursive Algorithm Complexities",
+      "formulas": [
+        {
+          "formulaId": "con_036-common-complexities-table",
+          "name": "Standard Recursive Complexity Summary",
+          "latex": "\\begin{array}{ll} \\text{Algorithm} & T(n) \\\\ \\hline \\text{Factorial / linear search} & O(n) \\\\ \\text{Binary search} & O(\\log n) \\\\ \\text{Merge sort} & O(n \\log n) \\\\ \\text{Naive Fibonacci} & O(\\phi^n) \\\\ \\text{Tower of Hanoi} & O(2^n) \\end{array}",
+          "plain": "Factorial O(n), Binary search O(log n), Merge sort O(n log n), Naive Fib O(phi^n), Hanoi O(2^n)",
+          "whenToUse": "Quick reference for time complexity of classic recursive algorithms in GATE MCQs",
+          "terms": [
+            { "symbol": "\\phi", "means": "golden ratio ≈ 1.618" }
+          ],
+          "trap": "Naive fib is sometimes listed as O(2^n) in GATE options — this is an acceptable upper bound even though phi^n is tighter",
+          "reference": "Programming and Data Structures / Recursion"
+        },
+        {
+          "formulaId": "con_036-recursion-tree-method",
+          "name": "Recursion Tree Method",
+          "latex": "T(n) = \\sum_{\\text{level}=0}^{\\log_b n} a^{\\text{level}} \\cdot f\\!\\left(\\frac{n}{b^{\\text{level}}}\\right)",
+          "plain": "T(n) = sum over all levels of (number of nodes at that level) * (work per node)",
+          "whenToUse": "When Master Theorem does not apply or you need to verify/derive the complexity",
+          "terms": [
+            { "symbol": "a^{\\text{level}}", "means": "number of subproblems at a given tree level" },
+            { "symbol": "f(n/b^{\\text{level}})", "means": "work done at each node of that level" }
+          ],
+          "trap": "Must sum ALL levels including the base-case leaf level; forgetting leaves underestimates by O(n^log_b(a))",
+          "reference": "Programming and Data Structures / Recursion"
+        }
+      ]
+    }
+  ]
+}

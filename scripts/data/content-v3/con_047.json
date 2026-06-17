@@ -1,0 +1,270 @@
+{
+  "_id": "con_047",
+  "conceptId": "con_047",
+  "conceptTitle": "Shortest Paths",
+  "reference": "GATE CS — Algorithms / Graph Algorithms",
+  "decisionGuide": {
+    "title": "Which result do I use?",
+    "map": [
+      {
+        "condition": "Unweighted graph, single-source shortest path",
+        "use": "\\text{BFS from source} \\Rightarrow O(V+E)"
+      },
+      {
+        "condition": "Non-negative weights, single-source",
+        "use": "\\text{Dijkstra: } O((V+E)\\log V) \\text{ with binary heap}"
+      },
+      {
+        "condition": "Negative weights or detect negative cycles, single-source",
+        "use": "\\text{Bellman-Ford: } O(VE)"
+      },
+      {
+        "condition": "All-pairs shortest path, dense graph",
+        "use": "\\text{Floyd-Warshall: } O(V^3)"
+      },
+      {
+        "condition": "DAG shortest path",
+        "use": "\\text{Topological sort + relax: } O(V+E)"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "dijkstra",
+      "groupTitle": "Dijkstra's Algorithm",
+      "formulas": [
+        {
+          "formulaId": "con_047-dijkstra-naive",
+          "name": "Dijkstra's Time Complexity (Naive / Array)",
+          "latex": "O(V^2)",
+          "plain": "O(V^2)",
+          "whenToUse": "When Dijkstra is implemented with a simple array (linear scan) for the priority queue",
+          "terms": [
+            { "symbol": "V", "means": "number of vertices" }
+          ],
+          "trap": "This is the complexity for dense graphs or when a simple array is used — do NOT quote O(V^2) when a binary heap is specified.",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_047-dijkstra-binary-heap",
+          "name": "Dijkstra's Time Complexity (Binary Heap)",
+          "latex": "O((V + E) \\log V)",
+          "plain": "O((V + E) log V)",
+          "whenToUse": "When Dijkstra is implemented using a binary min-heap (standard efficient implementation)",
+          "terms": [
+            { "symbol": "V", "means": "number of vertices" },
+            { "symbol": "E", "means": "number of edges" }
+          ],
+          "trap": "Often simplified to O(E log V) for connected graphs since E >= V-1. Do not confuse with O(E log E).",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_047-dijkstra-fibonacci-heap",
+          "name": "Dijkstra's Time Complexity (Fibonacci Heap)",
+          "latex": "O(E + V \\log V)",
+          "plain": "O(E + V log V)",
+          "whenToUse": "When Dijkstra is implemented with a Fibonacci heap (theoretically optimal)",
+          "terms": [
+            { "symbol": "V", "means": "number of vertices" },
+            { "symbol": "E", "means": "number of edges" }
+          ],
+          "trap": "Fibonacci heap gives better asymptotic complexity but high constant factors; rarely used in practice. GATE may ask which heap achieves O(E + V log V).",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_047-dijkstra-correctness",
+          "name": "Dijkstra Correctness Condition",
+          "latex": "\\text{Dijkstra is correct} \\iff \\text{all edge weights} \\geq 0",
+          "plain": "Dijkstra is correct if and only if all edge weights >= 0",
+          "whenToUse": "When asked whether Dijkstra can be applied to a given graph",
+          "terms": [],
+          "trap": "Dijkstra FAILS with negative edge weights — it may not relax edges correctly once a vertex is finalized. Use Bellman-Ford instead.",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_047-dijkstra-complete-graph",
+          "name": "Dijkstra on Complete Graph",
+          "latex": "E = \\Theta(V^2) \\Rightarrow O((V+E)\\log V) = O(V^2 \\log V)",
+          "plain": "On complete graph E = Theta(V^2), so heap-based Dijkstra is O(V^2 log V); array-based is O(V^2)",
+          "whenToUse": "When the graph is complete or dense and you need Dijkstra's complexity",
+          "terms": [
+            { "symbol": "V", "means": "number of vertices" },
+            { "symbol": "E", "means": "number of edges; E = V(V-1)/2 for complete undirected" }
+          ],
+          "trap": "For complete graphs, simple array-based Dijkstra O(V^2) is better than heap-based O(V^2 log V).",
+          "reference": "Algorithms / Graph Algorithms"
+        }
+      ]
+    },
+    {
+      "groupId": "bellman-ford",
+      "groupTitle": "Bellman-Ford Algorithm",
+      "formulas": [
+        {
+          "formulaId": "con_047-bellman-ford-complexity",
+          "name": "Bellman-Ford Time Complexity",
+          "latex": "O(V \\cdot E)",
+          "plain": "O(V * E)",
+          "whenToUse": "Any single-source shortest path problem where negative weights may exist",
+          "terms": [
+            { "symbol": "V", "means": "number of vertices" },
+            { "symbol": "E", "means": "number of edges" }
+          ],
+          "trap": "Bellman-Ford runs V-1 iterations of edge relaxation. On a complete graph E = V(V-1), so complexity becomes O(V^3).",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_047-bellman-ford-complete-graph",
+          "name": "Bellman-Ford on Complete Graph",
+          "latex": "E = \\Theta(V^2) \\Rightarrow O(V \\cdot E) = O(V^3)",
+          "plain": "On complete graph E = Theta(V^2), Bellman-Ford is O(V^3)",
+          "whenToUse": "When asked Bellman-Ford complexity on a complete graph of n vertices",
+          "terms": [
+            { "symbol": "V", "means": "number of vertices" },
+            { "symbol": "E", "means": "number of edges; V(V-1) for complete directed graph" }
+          ],
+          "trap": "A complete directed graph on n vertices has n(n-1) edges, giving O(n * n^2) = O(n^3). Option Theta(n^2) is wrong.",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_047-bellman-ford-relaxation",
+          "name": "Bellman-Ford Edge Relaxation (V-1 passes)",
+          "latex": "\\text{Repeat } (V-1) \\text{ times: } d[v] = \\min(d[v],\\, d[u] + w(u,v)) \\text{ for all edges } (u,v)",
+          "plain": "Repeat (V-1) times: d[v] = min(d[v], d[u] + w(u,v)) for all edges (u,v)",
+          "whenToUse": "Understanding the core relaxation loop of Bellman-Ford",
+          "terms": [
+            { "symbol": "d[v]", "means": "current shortest distance estimate to vertex v" },
+            { "symbol": "w(u,v)", "means": "weight of edge from u to v" },
+            { "symbol": "V-1", "means": "maximum number of edges on any simple shortest path" }
+          ],
+          "trap": "After V-1 passes, if any distance can still be reduced, a negative-weight cycle is reachable from the source.",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_047-bellman-ford-neg-cycle",
+          "name": "Bellman-Ford Negative-Cycle Detection",
+          "latex": "\\text{If } d[v] > d[u] + w(u,v) \\text{ after } (V-1) \\text{ passes} \\Rightarrow \\text{negative cycle reachable from source}",
+          "plain": "If after (V-1) passes any edge (u,v) still satisfies d[v] > d[u] + w(u,v), a negative cycle is reachable from source",
+          "whenToUse": "When asked what Bellman-Ford reports about negative cycles",
+          "terms": [
+            { "symbol": "d[u], d[v]", "means": "shortest distance estimates" }
+          ],
+          "trap": "Bellman-Ford detects only negative cycles REACHABLE from the source. It does NOT find all negative cycles in the graph.",
+          "reference": "Algorithms / Graph Algorithms"
+        }
+      ]
+    },
+    {
+      "groupId": "floyd-warshall",
+      "groupTitle": "Floyd-Warshall (All-Pairs Shortest Path)",
+      "formulas": [
+        {
+          "formulaId": "con_047-floyd-warshall-complexity",
+          "name": "Floyd-Warshall Time Complexity",
+          "latex": "O(V^3)",
+          "plain": "O(V^3)",
+          "whenToUse": "All-pairs shortest path on a dense graph; recurrence iterates over all intermediate vertices",
+          "terms": [
+            { "symbol": "V", "means": "number of vertices" }
+          ],
+          "trap": "Floyd-Warshall handles negative edges but NOT negative cycles. It gives incorrect results if a negative cycle exists.",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_047-floyd-warshall-recurrence",
+          "name": "Floyd-Warshall Recurrence",
+          "latex": "d^{(k)}[i][j] = \\min\\!\\left(d^{(k-1)}[i][j],\\; d^{(k-1)}[i][k] + d^{(k-1)}[k][j]\\right)",
+          "plain": "d_k[i][j] = min(d_{k-1}[i][j], d_{k-1}[i][k] + d_{k-1}[k][j])",
+          "whenToUse": "Fill-in-the-blank or code-completion questions about Floyd-Warshall template",
+          "terms": [
+            { "symbol": "d^{(k)}[i][j]", "means": "shortest path from i to j using only vertices 1..k as intermediates" },
+            { "symbol": "k", "means": "current intermediate vertex index (outer loop)" }
+          ],
+          "trap": "The outer loop must be over k (intermediate vertex), not i or j. Getting loop order wrong is a classic GATE trap.",
+          "reference": "Algorithms / Graph Algorithms"
+        }
+      ]
+    },
+    {
+      "groupId": "bfs-dag",
+      "groupTitle": "BFS & DAG Shortest Path",
+      "formulas": [
+        {
+          "formulaId": "con_047-bfs-unweighted",
+          "name": "BFS for Unweighted Shortest Path",
+          "latex": "O(V + E)",
+          "plain": "O(V + E)",
+          "whenToUse": "Finding shortest path (fewest edges) in an unweighted or 0-1 weight graph",
+          "terms": [
+            { "symbol": "V", "means": "number of vertices" },
+            { "symbol": "E", "means": "number of edges" }
+          ],
+          "trap": "BFS gives shortest paths only for unweighted (or unit-weight) graphs. For weighted graphs, BFS distance is NOT the shortest path.",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_047-dag-shortest-path",
+          "name": "DAG Shortest Path via Topological Sort",
+          "latex": "O(V + E) \\text{ — topological sort then single-pass edge relaxation}",
+          "plain": "O(V + E) — topological sort then single-pass edge relaxation",
+          "whenToUse": "Shortest (or longest) path in a DAG, even with negative edge weights",
+          "terms": [
+            { "symbol": "V", "means": "number of vertices" },
+            { "symbol": "E", "means": "number of edges" }
+          ],
+          "trap": "DAG shortest path works with negative edges (no cycles so no negative cycle possible). Much faster than Bellman-Ford for DAGs.",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_047-zero-one-bfs",
+          "name": "0-1 BFS (Deque) for 0/1 Weighted Graph",
+          "latex": "O(V + E) \\text{ using deque; 0-weight edges push front, 1-weight edges push back}",
+          "plain": "O(V + E) using deque; push front for 0-weight edges, push back for 1-weight edges",
+          "whenToUse": "Shortest path when edge weights are only 0 or 1 (e.g. subgraph E1 weight 0, rest weight 1)",
+          "terms": [],
+          "trap": "Do not use Dijkstra (O(E log V)) when BFS or 0-1 BFS suffices in O(V+E) — the question may test choosing the most efficient algorithm.",
+          "reference": "Algorithms / Graph Algorithms"
+        }
+      ]
+    },
+    {
+      "groupId": "complexity-comparison",
+      "groupTitle": "Algorithm Complexity Comparison",
+      "formulas": [
+        {
+          "formulaId": "con_047-complexity-table",
+          "name": "Shortest Path Algorithm Summary",
+          "latex": "\\begin{array}{ll} \\text{BFS (unweighted)} & O(V+E) \\\\ \\text{DAG (topo + relax)} & O(V+E) \\\\ \\text{Dijkstra (array)} & O(V^2) \\\\ \\text{Dijkstra (bin heap)} & O((V+E)\\log V) \\\\ \\text{Dijkstra (Fib heap)} & O(E + V\\log V) \\\\ \\text{Bellman-Ford} & O(VE) \\\\ \\text{Floyd-Warshall} & O(V^3) \\end{array}",
+          "plain": "BFS: O(V+E) | DAG: O(V+E) | Dijkstra array: O(V^2) | Dijkstra heap: O((V+E)logV) | Dijkstra Fib: O(E+VlogV) | Bellman-Ford: O(VE) | Floyd-Warshall: O(V^3)",
+          "whenToUse": "Comparing algorithms to pick the most efficient for given constraints",
+          "terms": [],
+          "trap": "Warshall's algorithm (transitive closure) is NOT the same as Floyd-Warshall shortest path — they are different algorithms despite similar structure.",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_047-apsp-via-sssp",
+          "name": "All-Pairs via Repeated Single-Source",
+          "latex": "\\text{Repeat Dijkstra } V \\text{ times} \\Rightarrow O(V(V+E)\\log V)",
+          "plain": "Repeat Dijkstra V times => O(V*(V+E)*log V)",
+          "whenToUse": "When comparing Floyd-Warshall O(V^3) vs repeated Dijkstra for all-pairs shortest path",
+          "terms": [
+            { "symbol": "V", "means": "number of vertices" },
+            { "symbol": "E", "means": "number of edges" }
+          ],
+          "trap": "For sparse graphs, repeated Dijkstra is faster than Floyd-Warshall; for dense graphs, Floyd-Warshall (O(V^3)) may be comparable or preferred.",
+          "reference": "Algorithms / Graph Algorithms"
+        },
+        {
+          "formulaId": "con_047-negative-weight-handling",
+          "name": "Algorithm Capability with Negative Weights",
+          "latex": "\\text{Dijkstra: NO} \\quad \\text{Bellman-Ford: YES (detects neg cycle)} \\quad \\text{Floyd-Warshall: YES (no neg cycle)}",
+          "plain": "Dijkstra: cannot handle negative weights. Bellman-Ford: YES, detects negative cycles. Floyd-Warshall: YES, but incorrect if negative cycle exists.",
+          "whenToUse": "When asked which algorithm handles negative edge weights correctly",
+          "terms": [],
+          "trap": "Bellman-Ford handles negative edge weights and DETECTS negative cycles; Floyd-Warshall handles negative edges but FAILS if a negative cycle exists.",
+          "reference": "Algorithms / Graph Algorithms"
+        }
+      ]
+    }
+  ]
+}

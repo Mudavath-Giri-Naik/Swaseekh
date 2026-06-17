@@ -1,0 +1,36 @@
+{
+ "_id": "con_081",
+ "conceptId": "con_081",
+ "conceptTitle": "UDP, TCP and Sockets",
+ "reference": "GATE CS — Computer Networks / Transport Layer",
+ "decisionGuide": {
+  "title": "Which result do I use?",
+  "map": [
+   {"condition": "Window for full link", "use": "W = B \\times RTT"},
+   {"condition": "Throughput", "use": "\\approx W/RTT"},
+   {"condition": "Header sizes", "use": "\\text{TCP }20B,\\ \\text{UDP }8B"},
+   {"condition": "Connection identity", "use": "4\\text{-tuple}"}
+  ]
+ },
+ "groups": [
+  {
+   "groupId": "tcp-throughput",
+   "groupTitle": "TCP Throughput & Windows",
+   "formulas": [
+    {"formulaId": "con_081-bdp", "name": "Bandwidth-Delay Product", "latex": "W = B \\times RTT", "plain": "Window (bits) needed to keep a pipe full = bandwidth x round-trip time", "whenToUse": "Sizing the window for 100% link utilization.", "terms": [{"symbol": "B", "means": "bottleneck bandwidth"}, {"symbol": "RTT", "means": "round-trip time"}], "trap": "If window < BDP, throughput is window/RTT, not bandwidth.", "reference": "BDP"},
+    {"formulaId": "con_081-throughput", "name": "TCP Throughput", "latex": "\\text{Throughput} \\approx \\frac{W}{RTT}", "plain": "Steady-state throughput approx = window size / RTT (when window-limited)", "whenToUse": "Window-limited transfer rate.", "terms": [{"symbol": "W", "means": "usable window (min of cwnd and rwnd)"}], "trap": "Effective window = min(congestion window, receiver advertised window).", "reference": "TCP performance"},
+    {"formulaId": "con_081-seqno", "name": "Sequence-Number Wraparound", "latex": "T_{wrap} = \\frac{2^{32}}{\\text{data rate (Bps)}}", "plain": "TCP's 32-bit byte sequence number wraps after 2^32 bytes; fast links wrap quickly", "whenToUse": "Reasoning about seq-number reuse on high-speed links.", "terms": [{"symbol": "2^{32}", "means": "sequence number space (bytes)"}], "trap": "TCP sequence numbers count BYTES, not segments.", "reference": "TCP seq numbers"}
+   ]
+  },
+  {
+   "groupId": "headers-sockets",
+   "groupTitle": "Headers, MSS & Sockets",
+   "formulas": [
+    {"formulaId": "con_081-headers", "name": "TCP vs UDP Header", "latex": "\\text{TCP} = 20\\text{–}60\\,B,\\quad \\text{UDP} = 8\\,B", "plain": "TCP header 20 bytes (up to 60 with options); UDP header fixed 8 bytes", "whenToUse": "Overhead and payload calculations.", "terms": [{"symbol": "UDP", "means": "connectionless, no flow/congestion control"}], "trap": "UDP is unreliable/connectionless; TCP adds reliability, ordering, flow & congestion control.", "reference": "Transport headers"},
+    {"formulaId": "con_081-mss", "name": "Maximum Segment Size", "latex": "MSS = MTU - 40 \\ (\\text{IP }20 + \\text{TCP }20)", "plain": "MSS = MTU - IP header - TCP header (typically MTU - 40 bytes)", "whenToUse": "Sizing TCP segments to avoid IP fragmentation.", "terms": [{"symbol": "MTU", "means": "path MTU"}], "trap": "MSS is payload only (excludes headers); negotiated in the SYN.", "reference": "MSS"},
+    {"formulaId": "con_081-socket-tuple", "name": "Connection 4-Tuple", "latex": "(\\text{srcIP}, \\text{srcPort}, \\text{dstIP}, \\text{dstPort})", "plain": "A TCP connection is uniquely identified by the 4-tuple of source/dest IP and port", "whenToUse": "Counting/distinguishing simultaneous connections.", "terms": [{"symbol": "socket", "means": "(IP, port) endpoint"}], "trap": "One listening server port can host many connections, each distinguished by the client side of the tuple.", "reference": "Sockets"},
+    {"formulaId": "con_081-handshake", "name": "Three-Way Handshake", "latex": "SYN \\rightarrow SYN\\text{+}ACK \\rightarrow ACK", "plain": "TCP setup takes 3 segments (1.5 RTT before data); teardown uses FIN/ACK (4-way)", "whenToUse": "Connection-setup latency questions.", "terms": [{"symbol": "SYN", "means": "synchronize sequence numbers"}], "trap": "Data can piggyback on the third (ACK) segment; setup adds ~1 RTT before useful data.", "reference": "TCP handshake"}
+   ]
+  }
+ ]
+}
