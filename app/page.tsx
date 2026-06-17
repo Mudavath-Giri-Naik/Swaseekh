@@ -90,9 +90,9 @@ export default function HomePage() {
           </div>
 
           {/* Headline */}
-          <h1 className="text-[#1A1A2E] leading-[1.1] tracking-[-0.02em] mb-[16px] w-full">
-            <span className="font-normal text-[clamp(2rem,7vw,52px)] block md:inline md:mr-2">Your Ultimate LMS for</span>
-            <span className="font-extrabold text-[clamp(2rem,7vw,52px)] block md:inline">Seamless Learning & Growth</span>
+          <h1 className="flex flex-col items-center text-[#1A1A2E] leading-[1.1] tracking-[-0.02em] mb-[16px] w-full text-center">
+            <span className="font-normal text-[clamp(2rem,7vw,52px)]">Your Ultimate LMS for</span>
+            <span className="font-extrabold text-[clamp(2rem,7vw,52px)] mt-1">Seamless Learning & Growth</span>
           </h1>
 
           {/* Subtext */}
