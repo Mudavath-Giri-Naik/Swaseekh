@@ -6,17 +6,17 @@ import { ChevronsRight, ArrowUpRight, Star } from 'lucide-react'
 const inter = Inter({ subsets: ['latin'], display: 'swap' })
 
 const PerformanceCard = () => (
-  <div className="relative bg-white/85 backdrop-blur-[8px] rounded-[24px] p-5 shadow-[8px_8px_24px_rgba(0,0,0,0.12)] border border-white/60 flex flex-col items-center w-[160px] h-[190px]">
-    {/* Top Right Orange Button overlapping the edge */}
-    <div className="absolute top-0 right-0 translate-x-[50%] -translate-y-[50%] w-6 h-6 rounded-full border border-orange-100 bg-white flex items-center justify-center text-[#F26419] shadow-sm z-10">
+  <div className="relative bg-white/85 backdrop-blur-[8px] rounded-[24px] p-5 shadow-[8px_8px_24px_rgba(0,0,0,0.12)] border border-[#1A1A2E]/10 flex flex-col items-center w-[190px] h-[210px]">
+    {/* Top Right Orange Button INSIDE the card */}
+    <div className="absolute top-3 right-3 w-6 h-6 rounded-full border border-orange-100 bg-white flex items-center justify-center text-[#F26419] shadow-sm z-10">
       <ArrowUpRight size={14} strokeWidth={2.5} />
     </div>
 
-    <div className="w-full flex justify-start mb-2">
+    <div className="w-full flex justify-start mb-2 mt-1">
       <span className="text-[#888888] font-medium text-[11px]">Performance</span>
     </div>
     
-    <div className="relative w-[90px] h-[90px] my-1">
+    <div className="relative w-[95px] h-[95px] my-1">
       <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
         <circle cx="50" cy="50" r="40" stroke="#F0F0F0" strokeWidth="8" fill="none" strokeDasharray="4 6" />
         <circle cx="50" cy="50" r="40" stroke="#F26419" strokeWidth="8" fill="none" strokeDasharray="4 6" strokeDashoffset="50.24" strokeLinecap="round" />
@@ -34,13 +34,13 @@ const PerformanceCard = () => (
 )
 
 const TimeSpentCard = () => (
-  <div className="relative bg-white/75 backdrop-blur-[8px] rounded-[24px] p-5 shadow-[-8px_8px_24px_rgba(0,0,0,0.10)] border border-white/60 flex flex-col w-[200px] h-[190px]">
-    {/* Top Right Orange Button overlapping the edge */}
-    <div className="absolute top-0 right-0 translate-x-[50%] -translate-y-[50%] w-6 h-6 rounded-full border border-orange-100 bg-white flex items-center justify-center text-[#F26419] shadow-sm z-10">
+  <div className="relative bg-white/75 backdrop-blur-[8px] rounded-[24px] p-5 shadow-[-8px_8px_24px_rgba(0,0,0,0.10)] border border-[#1A1A2E]/10 flex flex-col w-[190px] h-[210px]">
+    {/* Top Right Orange Button INSIDE the card */}
+    <div className="absolute top-3 right-3 w-6 h-6 rounded-full border border-orange-100 bg-white flex items-center justify-center text-[#F26419] shadow-sm z-10">
       <ArrowUpRight size={14} strokeWidth={2.5} />
     </div>
     
-    <div className="flex flex-col mb-3">
+    <div className="flex flex-col mb-4 mt-1">
       <span className="text-[#888888] font-medium text-[11px] mb-0.5">Time Spent</span>
       <span className="text-[20px] font-bold text-[#1A1A2E] tracking-tight">13.6 Hours</span>
       <div className="flex items-center gap-3 mt-1 text-[10px] font-medium text-[#666666]">
@@ -55,7 +55,7 @@ const TimeSpentCard = () => (
         <div className="absolute -bottom-[3px] left-1/2 -translate-x-1/2 border-[3px] border-transparent border-t-[#1A1A2E]"></div>
       </div>
       {[30, 45, 60, 40, 80, 50, 70, 45, 60, 40, 30].map((h, i) => (
-        <div key={i} className="flex flex-col items-center gap-2 flex-1 h-full relative">
+        <div key={i} className="flex flex-col items-center gap-[2px] flex-1 h-full relative">
           <div className="w-full bg-[#F3F4F6] rounded-t-[2px] relative h-full flex items-end">
             <div className={`w-full rounded-t-[2px] ${i === 4 ? 'bg-[#F26419]' : 'bg-[#1A1A2E]'}`} style={{ height: `${h}%` }}></div>
             {i === 4 && <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-[4px] h-[4px] rounded-full bg-[#F26419]"></div>}
@@ -63,7 +63,7 @@ const TimeSpentCard = () => (
         </div>
       ))}
     </div>
-    <div className="flex justify-between text-[7px] font-bold text-[#9CA3AF] mt-1.5 uppercase">
+    <div className="flex justify-between text-[6.5px] font-bold text-[#9CA3AF] mt-2 uppercase px-1">
       <span>J</span><span>F</span><span>M</span><span>A</span><span>M</span><span>J</span><span>J</span><span>A</span><span>S</span><span>O</span><span>N</span>
     </div>
   </div>
@@ -137,12 +137,12 @@ export default function HomePage() {
         </div>
 
         {/* Floating cards (Absolute to the sides) */}
-        {/* We use a max-width container to position them at the edges of the 1100px layout */}
-        <div className="absolute inset-0 max-w-[1100px] mx-auto pointer-events-none hidden min-[900px]:block">
-          <div className="absolute left-4 xl:left-0 top-[50%] -translate-y-[50%] pointer-events-auto" style={{ transform: 'translateY(-50%) rotate(-12deg)' }}>
+        {/* We use a wider max-width container to push them to the very edges */}
+        <div className="absolute inset-0 max-w-[1250px] mx-auto pointer-events-none hidden min-[900px]:block">
+          <div className="absolute left-2 xl:left-0 top-[50%] -translate-y-[50%] pointer-events-auto" style={{ transform: 'translateY(-50%) rotate(-12deg)' }}>
             <PerformanceCard />
           </div>
-          <div className="absolute right-4 xl:right-0 top-[50%] -translate-y-[50%] pointer-events-auto" style={{ transform: 'translateY(-50%) rotate(10deg)' }}>
+          <div className="absolute right-2 xl:right-0 top-[50%] -translate-y-[50%] pointer-events-auto" style={{ transform: 'translateY(-50%) rotate(10deg)' }}>
             <TimeSpentCard />
           </div>
         </div>
