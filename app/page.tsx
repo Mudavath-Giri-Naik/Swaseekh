@@ -104,12 +104,12 @@ export default function HomePage() {
           {/* CTA */}
           <Link 
             href="/dashboard"
-            className="group flex items-center gap-3 bg-[#F26419] hover:bg-[#d95815] text-white rounded-[50px] pl-2 pr-[32px] py-[16px] transition-transform hover:scale-105 shadow-[0_10px_25px_rgba(242,100,25,0.2)]"
+            className="group flex items-center gap-4 bg-[#F26419] hover:bg-[#1A1A2E] text-white rounded-[50px] pl-[32px] pr-[8px] py-[8px] transition-all duration-300 shadow-[0_10px_25px_rgba(242,100,25,0.2)] hover:shadow-[0_10px_25px_rgba(26,26,46,0.2)]"
           >
-            <div className="bg-white text-[#F26419] rounded-full w-8 h-8 flex items-center justify-center">
-              <ChevronsRight size={20} strokeWidth={3} />
-            </div>
             <span className="text-[18px] font-medium">Get Started for Free</span>
+            <div className="bg-white group-hover:bg-[#F26419] text-[#F26419] group-hover:text-white rounded-full w-[44px] h-[44px] flex items-center justify-center transition-all duration-300 transform group-hover:translate-x-1">
+              <ChevronsRight size={24} strokeWidth={3} />
+            </div>
           </Link>
 
           {/* Review Badges */}
