@@ -6,50 +6,51 @@ import { ChevronsRight, ArrowUpRight, Star } from 'lucide-react'
 const inter = Inter({ subsets: ['latin'], display: 'swap' })
 
 const PerformanceCard = () => (
-  <div className="bg-white rounded-[24px] p-5 shadow-[0_15px_40px_rgb(0,0,0,0.08)] flex flex-col items-center w-[180px] h-[220px]">
-    <div className="w-full flex justify-between items-start mb-2">
-      <span className="text-[#666666] font-medium text-[13px]">Performance</span>
-      <div className="w-6 h-6 rounded-full border border-orange-100 flex items-center justify-center text-[#F26419]">
-        <ArrowUpRight size={14} strokeWidth={2.5} />
-      </div>
+  <div className="relative bg-white/85 backdrop-blur-[8px] rounded-[24px] p-5 shadow-[8px_8px_24px_rgba(0,0,0,0.12)] border border-white/60 flex flex-col items-center w-[160px] h-[190px]">
+    {/* Top Right Orange Button overlapping the edge */}
+    <div className="absolute top-0 right-0 translate-x-[50%] -translate-y-[50%] w-6 h-6 rounded-full border border-orange-100 bg-white flex items-center justify-center text-[#F26419] shadow-sm z-10">
+      <ArrowUpRight size={14} strokeWidth={2.5} />
+    </div>
+
+    <div className="w-full flex justify-start mb-2">
+      <span className="text-[#888888] font-medium text-[11px]">Performance</span>
     </div>
     
-    <div className="relative w-[100px] h-[100px] my-3">
+    <div className="relative w-[90px] h-[90px] my-1">
       <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-        <circle cx="50" cy="50" r="40" stroke="#F0F0F0" strokeWidth="8" fill="none" />
-        <circle cx="50" cy="50" r="40" stroke="#F26419" strokeWidth="8" fill="none" strokeDasharray="251.2" strokeDashoffset="50.24" strokeLinecap="round" />
+        <circle cx="50" cy="50" r="40" stroke="#F0F0F0" strokeWidth="8" fill="none" strokeDasharray="4 6" />
+        <circle cx="50" cy="50" r="40" stroke="#F26419" strokeWidth="8" fill="none" strokeDasharray="4 6" strokeDashoffset="50.24" strokeLinecap="round" />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-[22px] font-bold text-[#1A1A2E] leading-tight">80%</span>
+        <span className="text-[20px] font-bold text-[#1A1A2E] leading-tight">80%</span>
         <span className="text-[9px] text-[#666666] font-medium">Performance</span>
       </div>
     </div>
 
-    <p className="text-[12px] font-medium text-[#666666] text-center w-full mt-auto">
+    <p className="text-[11px] font-medium text-[#555555] italic text-center w-full mt-auto">
       You did a great job!
     </p>
   </div>
 )
 
 const TimeSpentCard = () => (
-  <div className="bg-white rounded-[24px] p-5 shadow-[0_15px_40px_rgb(0,0,0,0.08)] flex flex-col w-[220px] h-[220px]">
-    <div className="w-full flex justify-end mb-1">
-      <div className="w-6 h-6 rounded-full border border-orange-100 flex items-center justify-center text-[#F26419]">
-        <ArrowUpRight size={14} strokeWidth={2.5} />
-      </div>
+  <div className="relative bg-white/75 backdrop-blur-[8px] rounded-[24px] p-5 shadow-[-8px_8px_24px_rgba(0,0,0,0.10)] border border-white/60 flex flex-col w-[200px] h-[190px]">
+    {/* Top Right Orange Button overlapping the edge */}
+    <div className="absolute top-0 right-0 translate-x-[50%] -translate-y-[50%] w-6 h-6 rounded-full border border-orange-100 bg-white flex items-center justify-center text-[#F26419] shadow-sm z-10">
+      <ArrowUpRight size={14} strokeWidth={2.5} />
     </div>
     
-    <div className="flex flex-col mb-4">
-      <span className="text-[#666666] font-medium text-[13px] mb-0.5">Time Spent</span>
-      <span className="text-[24px] font-bold text-[#1A1A2E] tracking-tight">13.6 Hours</span>
-      <div className="flex items-center gap-3 mt-1.5 text-[11px] font-medium text-[#666666]">
+    <div className="flex flex-col mb-3">
+      <span className="text-[#888888] font-medium text-[11px] mb-0.5">Time Spent</span>
+      <span className="text-[20px] font-bold text-[#1A1A2E] tracking-tight">13.6 Hours</span>
+      <div className="flex items-center gap-3 mt-1 text-[10px] font-medium text-[#666666]">
         <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-sm bg-[#F26419]"></div>Study</div>
         <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-sm bg-[#E5E7EB]"></div>Exams</div>
       </div>
     </div>
 
-    <div className="flex items-end justify-between h-[50px] gap-1.5 mt-auto relative">
-      <div className="absolute -top-[28px] left-[60%] -translate-x-1/2 bg-[#1A1A2E] text-white text-[10px] font-bold py-1 px-2.5 rounded-full whitespace-nowrap z-10">
+    <div className="flex items-end justify-between h-[45px] gap-[3px] mt-auto relative">
+      <div className="absolute -top-[24px] left-[60%] -translate-x-1/2 bg-[#1A1A2E] text-white text-[10px] font-bold py-[2px] px-2 rounded-full whitespace-nowrap z-10">
         12.5 H
         <div className="absolute -bottom-[3px] left-1/2 -translate-x-1/2 border-[3px] border-transparent border-t-[#1A1A2E]"></div>
       </div>
@@ -57,12 +58,12 @@ const TimeSpentCard = () => (
         <div key={i} className="flex flex-col items-center gap-2 flex-1 h-full relative">
           <div className="w-full bg-[#F3F4F6] rounded-t-[2px] relative h-full flex items-end">
             <div className={`w-full rounded-t-[2px] ${i === 4 ? 'bg-[#F26419]' : 'bg-[#1A1A2E]'}`} style={{ height: `${h}%` }}></div>
-            {i === 4 && <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[#F26419]"></div>}
+            {i === 4 && <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-[4px] h-[4px] rounded-full bg-[#F26419]"></div>}
           </div>
         </div>
       ))}
     </div>
-    <div className="flex justify-between text-[8px] font-bold text-[#9CA3AF] mt-1.5 uppercase">
+    <div className="flex justify-between text-[7px] font-bold text-[#9CA3AF] mt-1.5 uppercase">
       <span>J</span><span>F</span><span>M</span><span>A</span><span>M</span><span>J</span><span>J</span><span>A</span><span>S</span><span>O</span><span>N</span>
     </div>
   </div>
@@ -70,27 +71,22 @@ const TimeSpentCard = () => (
 
 export default function HomePage() {
   return (
-    <div className={`relative min-h-screen bg-[#F7F3EE] ${inter.className} overflow-hidden flex flex-col`}>
+    <div className={`relative min-h-screen bg-[#F5F0EA] ${inter.className} overflow-hidden flex flex-col`}>
       <Navbar />
 
       {/* Main Container */}
-      <main className="relative flex-1 flex flex-col items-center justify-center w-full max-w-[1100px] mx-auto px-4 pt-32 pb-20">
+      <main className="relative flex-1 flex flex-col items-center justify-center w-full mx-auto px-4 pt-[160px] pb-20">
         
-        {/* Floating cards (Absolute to the sides) */}
-        <div className="absolute left-4 xl:-left-12 top-1/2 -translate-y-[60%] hidden lg:block z-10" style={{ transform: 'translateY(-60%) rotate(-9deg)' }}>
-          <PerformanceCard />
-        </div>
-        <div className="absolute right-4 xl:-right-12 top-1/2 -translate-y-[60%] hidden lg:block z-10" style={{ transform: 'translateY(-60%) rotate(9deg)' }}>
-          <TimeSpentCard />
-        </div>
-
-        {/* Content Column */}
-        <div className="relative z-20 flex flex-col items-center text-center">
+        {/* Content Column (Restricted Width) */}
+        <div className="relative z-20 flex flex-col items-center text-center max-w-[640px] w-full mx-auto">
           
           {/* Trust Badge */}
-          <div className="inline-flex items-center gap-2 bg-white/60 border border-[#EBE5DE] rounded-full px-4 py-1.5 mb-8">
-            <span className="text-lg">🏅</span>
-            <span className="text-[13px] font-medium text-[#666666]">Trusted by over 50,000+ students</span>
+          <div className="inline-flex items-center gap-2 bg-white border border-[#e8e0d8] rounded-[20px] px-[16px] py-[6px] mb-[48px]">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="#F26419"/>
+              <path d="M9 12l2 2 4-4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <span className="text-[13px] font-medium text-[#444]">Trusted by over 50,000+ students</span>
           </div>
 
           {/* Headline */}
@@ -100,7 +96,7 @@ export default function HomePage() {
           </h1>
 
           {/* Subtext */}
-          <p className="text-[#666666] text-[16px] max-w-[580px] leading-[1.6] mb-10">
+          <p className="text-[#666666] text-[16px] max-w-[580px] leading-[1.6] mb-[48px]">
             Transform the way you teach and learn with our AI-driven Learning Management System. 
             Manage courses, track progress, and engage learners like never before.
           </p>
@@ -108,16 +104,16 @@ export default function HomePage() {
           {/* CTA */}
           <Link 
             href="/dashboard"
-            className="group flex items-center gap-3 bg-[#F26419] hover:bg-[#d95815] text-white rounded-full pl-2 pr-8 py-2.5 transition-transform hover:scale-105 shadow-[0_10px_25px_rgba(242,100,25,0.2)]"
+            className="group flex items-center gap-3 bg-[#F26419] hover:bg-[#d95815] text-white rounded-[50px] pl-2 pr-[32px] py-[16px] transition-transform hover:scale-105 shadow-[0_10px_25px_rgba(242,100,25,0.2)]"
           >
-            <div className="bg-white text-[#F26419] rounded-full p-2.5 flex items-center justify-center">
+            <div className="bg-white text-[#F26419] rounded-full w-8 h-8 flex items-center justify-center">
               <ChevronsRight size={20} strokeWidth={3} />
             </div>
-            <span className="text-[18px] font-semibold">Get Started for Free</span>
+            <span className="text-[18px] font-medium">Get Started for Free</span>
           </Link>
 
           {/* Review Badges */}
-          <div className="flex items-center justify-center gap-6 mt-14">
+          <div className="flex items-center justify-center gap-6 mt-[48px]">
             <div className="flex items-center gap-2">
               <span className="font-black text-xl text-[#1A1A2E] tracking-tight">Clutch</span>
               <div className="flex items-center gap-0.5 text-[#F26419]">
@@ -140,11 +136,17 @@ export default function HomePage() {
 
         </div>
 
-        {/* Mobile stacking for cards */}
-        <div className="flex flex-col sm:flex-row items-center gap-6 mt-16 lg:hidden relative z-20">
-          <PerformanceCard />
-          <TimeSpentCard />
+        {/* Floating cards (Absolute to the sides) */}
+        {/* We use a max-width container to position them at the edges of the 1100px layout */}
+        <div className="absolute inset-0 max-w-[1100px] mx-auto pointer-events-none hidden min-[900px]:block">
+          <div className="absolute left-4 xl:left-0 top-[50%] -translate-y-[50%] pointer-events-auto" style={{ transform: 'translateY(-50%) rotate(-12deg)' }}>
+            <PerformanceCard />
+          </div>
+          <div className="absolute right-4 xl:right-0 top-[50%] -translate-y-[50%] pointer-events-auto" style={{ transform: 'translateY(-50%) rotate(10deg)' }}>
+            <TimeSpentCard />
+          </div>
         </div>
+
       </main>
 
       {/* SVG Definitions for half star */}
