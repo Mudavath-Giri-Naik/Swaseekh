@@ -21,7 +21,7 @@ export default function Navbar() {
   return (
     <header className={`absolute top-[24px] left-0 right-0 z-50 flex justify-center px-4 ${inter.className}`}>
       {/* ─── Desktop & Tablet navbar ─────────────────────────────────────── */}
-      <div className="hidden md:flex items-center justify-between bg-white rounded-[50px] shadow-[0_4px_20px_rgba(0,0,0,0.08)] px-[24px] py-[12px] w-full max-w-[820px] mx-auto">
+      <div className="hidden md:flex items-center justify-between bg-white rounded-[50px] border border-[#EBE5DE] px-[24px] py-[18px] w-full max-w-[820px] mx-auto">
         
         {/* Left: Logo */}
         <Link href="/" className="flex items-center gap-2">
@@ -63,7 +63,7 @@ export default function Navbar() {
       </div>
 
       {/* ─── Mobile navbar ───────────────────────────────────────────────── */}
-      <div className="flex md:hidden flex-col w-full bg-white rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] p-3">
+      <div className="flex md:hidden flex-col w-full bg-white rounded-3xl border border-[#EBE5DE] p-4">
         <div className="flex items-center justify-between w-full pl-2 pr-1">
           <Link href="/" className="flex items-center gap-2">
             <div className="flex items-center justify-center text-[#F26419]">
