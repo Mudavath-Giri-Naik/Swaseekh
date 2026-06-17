@@ -148,7 +148,6 @@ export default function HomePage() {
       {/* Dashboard Preview Section */}
       <section className="relative w-full max-w-[1200px] mx-auto px-4 pb-24 md:pb-32 z-20 mt-4 md:mt-8">
         <div className="relative rounded-[24px] md:rounded-[32px] border-[8px] md:border-[12px] border-[#333333] shadow-2xl overflow-hidden bg-white">
-          {/* Top Bar for App look (optional but adds a nice touch like the reference) */}
           <img 
             src="/dashboard.png" 
             alt="Swaseekh Dashboard Preview" 
@@ -156,6 +155,150 @@ export default function HomePage() {
           />
         </div>
       </section>
+
+      {/* Newsletter Section */}
+      <section className="relative w-full max-w-[1200px] mx-auto px-4 pb-24 z-20">
+        <div className="relative bg-[#FFF7F0] rounded-[40px] overflow-hidden py-16 md:py-24 px-4 md:px-12 flex flex-col items-center text-center">
+          {/* Background Grid Pattern */}
+          <div 
+            className="absolute inset-0 opacity-20"
+            style={{
+              backgroundImage: 'radial-gradient(#F26419 1px, transparent 1px)',
+              backgroundSize: '32px 32px'
+            }}
+          ></div>
+
+          {/* Floating Elements (CSS only to mimic) */}
+          <div className="absolute top-12 left-12 hidden md:flex items-center gap-2">
+            <div className="bg-[#B9FF66] text-[#1A1A2E] text-xs font-bold px-3 py-1.5 rounded-full rotate-[-10deg]">Richards</div>
+            <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[10px] border-b-[#1A1A2E] rotate-[30deg]"></div>
+          </div>
+          <div className="absolute bottom-16 right-24 hidden md:flex items-center gap-2">
+            <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[10px] border-t-[#1A1A2E] rotate-[-20deg]"></div>
+            <div className="bg-[#9D71FD] text-white text-xs font-bold px-4 py-1.5 rounded-full rounded-tr-none rotate-[5deg]">You</div>
+          </div>
+
+          <div className="relative z-10 max-w-[700px]">
+            <h2 className="text-[#1A1A2E] text-3xl md:text-[44px] font-extrabold leading-[1.1] mb-5 tracking-tight">
+              Stay Ahead in Education with Swaseekh and Unlock Your Full Potential!
+            </h2>
+            <p className="text-[#666] text-sm md:text-base leading-[1.6] mb-10 max-w-[600px] mx-auto">
+              Want to stay updated on the latest trends in online learning? Join the Swaseekh newsletter and receive expert insights, new course launches, and exclusive offers—all in one place!
+            </p>
+
+            <div className="relative flex items-center w-full max-w-[480px] mx-auto">
+              <input 
+                type="email" 
+                placeholder="Enter your email" 
+                className="w-full bg-white rounded-full h-[56px] pl-6 pr-36 outline-none text-[#1A1A2E] shadow-sm border border-[#EBE5DE]"
+              />
+              <button className="absolute right-1.5 top-1.5 bottom-1.5 bg-[#FFF5F0] border border-[#F26419]/30 text-[#1A1A2E] rounded-full px-4 flex items-center gap-2 hover:bg-[#FFF0E5] transition-colors font-semibold text-sm">
+                <div className="w-8 h-8 rounded-full bg-[#F26419] text-white flex items-center justify-center">
+                  <ChevronsRight size={18} strokeWidth={3} />
+                </div>
+                Subscribe
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="relative w-full bg-[#17171F] text-white pt-20 pb-12 overflow-hidden mt-auto">
+        <div className="relative z-10 w-full max-w-[1200px] mx-auto px-4 md:px-8 grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8 mb-20">
+          {/* Col 1 */}
+          <div className="md:col-span-4 flex flex-col">
+            <Link href="/" className="flex items-center gap-2 mb-6">
+              <div className="flex items-center justify-center text-[#F26419]">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2L2 12L12 22L22 12L12 2Z" fill="currentColor"/>
+                  <path d="M12 7L7 12L12 17L17 12L12 7Z" fill="white"/>
+                </svg>
+              </div>
+              <span className="font-bold text-[24px] tracking-tight">Swaseekh</span>
+            </Link>
+            <p className="text-[#A0A0A0] text-[15px] leading-[1.6] mb-8 max-w-[300px]">
+              Transform your teaching with our AI-driven Learning Management System. Effortlessly manage courses and engage learners.
+            </p>
+            <p className="text-[#A0A0A0] text-sm mt-auto">
+              © Copyrights 2025 Swaseekh. All rights reserved.
+            </p>
+          </div>
+
+          <div className="md:col-span-1"></div>
+
+          {/* Col 2 */}
+          <div className="md:col-span-2">
+            <h4 className="text-white font-bold mb-6 text-[15px]">Useful Links</h4>
+            <ul className="flex flex-col gap-4 text-[15px] text-[#A0A0A0]">
+              <li><Link href="#" className="text-[#F26419] font-medium hover:underline">Home</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">Features</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">About Us</Link></li>
+              <li><Link href="/pricing" className="hover:text-white transition-colors">Pricing Plan</Link></li>
+            </ul>
+          </div>
+
+          {/* Col 3 */}
+          <div className="md:col-span-2">
+            <h4 className="text-white font-bold mb-6 text-[15px]">Quick Links</h4>
+            <ul className="flex flex-col gap-4 text-[15px] text-[#A0A0A0]">
+              <li><Link href="#" className="hover:text-white transition-colors">Contact Us</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">Blog & Articles</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">Terms of Use</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">Privacy Policy</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">404</Link></li>
+            </ul>
+          </div>
+
+          {/* Col 4 */}
+          <div className="md:col-span-3">
+            <h4 className="text-white font-bold mb-6 text-[15px]">Let's Connect</h4>
+            <ul className="flex flex-col gap-4 text-[15px] text-[#A0A0A0]">
+              <li>
+                <Link href="#" className="flex items-center gap-3 hover:text-white transition-colors">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                  </svg>
+                  Instagram
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="flex items-center gap-3 hover:text-white transition-colors">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg> 
+                  x.com
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="flex items-center gap-3 hover:text-white transition-colors">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                    <rect x="2" y="9" width="4" height="12"></rect>
+                    <circle cx="4" cy="4" r="2"></circle>
+                  </svg>
+                  LinkedIn
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="flex items-center gap-3 hover:text-white transition-colors">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                  </svg>
+                  Facebook
+                </Link>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Big Background Text */}
+        <div className="absolute bottom-[-8%] left-1/2 -translate-x-1/2 w-full overflow-hidden flex justify-center pointer-events-none select-none z-0">
+          <span className="text-[22vw] md:text-[20vw] font-black text-white/[0.03] leading-[0.8] tracking-tighter whitespace-nowrap">
+            SWASEEKH
+          </span>
+        </div>
+      </footer>
 
       {/* SVG Definitions for half star */}
       <svg width="0" height="0" className="absolute">
