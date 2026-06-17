@@ -72,9 +72,9 @@ export default function Navbar() {
             {session?.user ? (
               <Link 
                 href="/dashboard"
-                className="group flex items-center gap-3 bg-[#F26419] hover:bg-[#d95815] text-white rounded-[50px] pl-1.5 pr-6 py-2 transition-all"
+                className="group flex items-center gap-3 bg-[#F26419] hover:bg-[#d95815] text-white rounded-[50px] pl-2.5 pr-6 py-2 transition-all"
               >
-                <div className="bg-white rounded-full flex items-center justify-center w-[30px] h-[30px] overflow-hidden">
+                <div className="bg-white rounded-full flex items-center justify-center w-[30px] h-[30px] overflow-hidden shrink-0">
                   {session.user.image ? (
                     <Image 
                       src={session.user.image} 
@@ -89,7 +89,7 @@ export default function Navbar() {
                     </span>
                   )}
                 </div>
-                <span className="text-[16px] font-medium">
+                <span className="text-[16px] font-medium text-[#1A1A2E]">
                   {session.user.name 
                     ? (session.user.name.length > 15 ? session.user.name.slice(0, 15) + '...' : session.user.name) 
                     : 'Dashboard'}
@@ -150,9 +150,9 @@ export default function Navbar() {
                   <Link 
                     href="/dashboard"
                     onClick={() => setMobileOpen(false)}
-                    className="flex items-center gap-3 bg-[#F26419] text-white rounded-[50px] pl-1.5 pr-6 py-2 transition-all"
+                    className="flex items-center gap-3 bg-[#F26419] text-white rounded-[50px] pl-2.5 pr-6 py-2 transition-all"
                   >
-                    <div className="bg-white rounded-full flex items-center justify-center w-[30px] h-[30px] overflow-hidden">
+                    <div className="bg-white rounded-full flex items-center justify-center w-[30px] h-[30px] overflow-hidden shrink-0">
                       {session.user.image ? (
                         <Image 
                           src={session.user.image} 
@@ -167,7 +167,7 @@ export default function Navbar() {
                         </span>
                       )}
                     </div>
-                    <span className="text-[18px] font-medium">
+                    <span className="text-[18px] font-medium text-[#1A1A2E]">
                       {session.user.name 
                         ? (session.user.name.length > 15 ? session.user.name.slice(0, 15) + '...' : session.user.name) 
                         : 'Dashboard'}

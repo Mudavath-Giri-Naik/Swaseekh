@@ -91,14 +91,13 @@ export default function HomePage() {
 
           {/* Headline */}
           <h1 className="flex flex-col items-center text-[#1A1A2E] leading-[1.1] tracking-[-0.02em] mb-[16px] w-full text-center">
-            <span className="font-normal text-[clamp(1.75rem,6vw,52px)] sm:whitespace-nowrap">Your Ultimate LMS for</span>
-            <span className="font-extrabold text-[clamp(1.75rem,6vw,52px)] mt-1 sm:whitespace-nowrap">Seamless Learning & Growth</span>
+            <span className="font-normal text-[clamp(1.75rem,6vw,52px)] sm:whitespace-nowrap">Don't Study More.</span>
+            <span className="font-extrabold text-[clamp(1.75rem,6vw,52px)] mt-1 sm:whitespace-nowrap">Study What Matters.</span>
           </h1>
 
           {/* Subtext */}
           <p className="text-[#666666] text-[16px] max-w-[580px] leading-[1.6] mb-[28px] px-2">
-            Transform the way you teach and learn with our AI-driven Learning Management System. 
-            Manage courses, track progress, and engage learners like never before.
+            Built around years of previous-year questions and exam patterns, Swaseekh helps you identify high-impact concepts, eliminate wasted effort, and prepare with confidence.
           </p>
 
           {/* CTA */}
