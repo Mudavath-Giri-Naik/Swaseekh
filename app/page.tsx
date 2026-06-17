@@ -81,7 +81,7 @@ export default function HomePage() {
         <div className="relative z-20 flex flex-col items-center text-center max-w-[640px] w-full mx-auto">
           
           {/* Trust Badge */}
-          <div className="inline-flex items-center gap-2 bg-white border border-[#e8e0d8] rounded-[20px] px-[16px] py-[6px] mb-[48px]">
+          <div className="inline-flex items-center gap-2 bg-white border border-[#e8e0d8] rounded-[20px] px-[16px] py-[6px] mb-[20px]">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="#F26419"/>
               <path d="M9 12l2 2 4-4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -90,13 +90,13 @@ export default function HomePage() {
           </div>
 
           {/* Headline */}
-          <h1 className="flex flex-col items-center text-[#1A1A2E] leading-[1.1] tracking-[-0.02em] mb-6 whitespace-nowrap">
+          <h1 className="flex flex-col items-center text-[#1A1A2E] leading-[1.1] tracking-[-0.02em] mb-[16px] whitespace-nowrap">
             <span className="font-normal text-[clamp(2.5rem,5vw,56px)]">Your Ultimate LMS for</span>
             <span className="font-extrabold text-[clamp(2.5rem,5vw,56px)]">Seamless Learning & Growth</span>
           </h1>
 
           {/* Subtext */}
-          <p className="text-[#666666] text-[16px] max-w-[580px] leading-[1.6] mb-[48px]">
+          <p className="text-[#666666] text-[16px] max-w-[580px] leading-[1.6] mb-[28px]">
             Transform the way you teach and learn with our AI-driven Learning Management System. 
             Manage courses, track progress, and engage learners like never before.
           </p>
