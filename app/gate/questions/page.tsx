@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useState, useMemo, Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useEffect, useState, useMemo, Suspense, useCallback, useRef } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useSidebarData } from '@/components/sidebar-context'
 import MathRenderer from '@/components/MathRenderer'
@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { CheckCircle2, Circle, Search, ChevronDown, FlaskConical } from "lucide-react"
+import { CheckCircle2, Circle, Search, ChevronDown, FlaskConical, ChevronLeft, ChevronRight } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -53,6 +53,14 @@ interface FormulaInfo {
   formulaId: string
   name: string
 }
+
+// ─── Module-level cache ─────────────────────────────────────────────
+// Survives component unmount so back-navigation is instant.
+let _cachedQuestions: Question[] | null = null
+let _cachedFormulaNameMap: Record<string, string> | null = null
+let _cachedFormulaInfoMap: Record<string, { name?: string; latex?: string; plain?: string }> | null = null
+
+const ITEMS_PER_PAGE = 20
 
 // Helpers
 function slugify(str: string) {
@@ -95,32 +103,68 @@ export default function QuestionsListPage() {
 function QuestionsListPageInner() {
   const sidebarData = useSidebarData()
   const searchParams = useSearchParams()
-  const [questions, setQuestions] = useState<Question[]>([])
-  const [loading, setLoading] = useState(true)
+  const router = useRouter()
+  const [questions, setQuestions] = useState<Question[]>(_cachedQuestions ?? [])
+  const [loading, setLoading] = useState(!_cachedQuestions)
   const [solvedStatuses, setSolvedStatuses] = useState<Record<string, boolean>>({})
-  const [searchQuery, setSearchQuery] = useState('')
 
-  // Filters
-  const [selectedSubject, setSelectedSubject] = useState('')
-  const [selectedTopic, setSelectedTopic] = useState('')
-  const [selectedConcept, setSelectedConcept] = useState('')
-  const [selectedYear, setSelectedYear] = useState('')
-  const [selectedDifficulty, setSelectedDifficulty] = useState('')
-  const [selectedType, setSelectedType] = useState('')
-  const [selectedFormula, setSelectedFormula] = useState('')
+  // ─── Read initial state from URL search params ──────────────────────
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') ?? '')
+  const [selectedSubject, setSelectedSubject] = useState(searchParams.get('subject') ?? '')
+  const [selectedTopic, setSelectedTopic] = useState(searchParams.get('topic') ?? '')
+  const [selectedConcept, setSelectedConcept] = useState(searchParams.get('concept') ?? '')
+  const [selectedYear, setSelectedYear] = useState(searchParams.get('year') ?? '')
+  const [selectedDifficulty, setSelectedDifficulty] = useState(searchParams.get('difficulty') ?? '')
+  const [selectedType, setSelectedType] = useState(searchParams.get('type') ?? '')
+  const [selectedFormula, setSelectedFormula] = useState(searchParams.get('formula') ?? '')
+  const [currentPage, setCurrentPage] = useState(Number(searchParams.get('page')) || 1)
 
-  // Formula name map — built from content API or derived from IDs
-  const [formulaNameMap, setFormulaNameMap] = useState<Record<string, string>>({})
-  // Richer info for hover-card previews ({ name, latex, plain } per ID)
-  const [formulaInfoMap, setFormulaInfoMap] = useState<
-    Record<string, { name?: string; latex?: string; plain?: string }>
-  >({})
-
-  // Unified sort state — tracks which column is active and the direction
+  // Unified sort state
   const [sort, setSort] = useState<{
     by: 'year' | 'marks' | 'difficulty'
     order: 'asc' | 'desc'
-  }>({ by: 'year', order: 'desc' })
+  }>({
+    by: (searchParams.get('sortBy') as 'year' | 'marks' | 'difficulty') || 'year',
+    order: (searchParams.get('sortOrder') as 'asc' | 'desc') || 'desc',
+  })
+
+  // Formula name map — built from content API or derived from IDs
+  const [formulaNameMap, setFormulaNameMap] = useState<Record<string, string>>(_cachedFormulaNameMap ?? {})
+  // Richer info for hover-card previews ({ name, latex, plain } per ID)
+  const [formulaInfoMap, setFormulaInfoMap] = useState<
+    Record<string, { name?: string; latex?: string; plain?: string }>
+  >(_cachedFormulaInfoMap ?? {})
+
+  // ─── Track if this is the initial mount (skip URL sync on first render) ─
+  const isInitialMount = useRef(true)
+
+  // ─── Sync state to URL search params ────────────────────────────────
+  const syncToUrl = useCallback(() => {
+    const params = new URLSearchParams()
+    if (selectedSubject) params.set('subject', selectedSubject)
+    if (selectedTopic) params.set('topic', selectedTopic)
+    if (selectedConcept) params.set('concept', selectedConcept)
+    if (selectedYear) params.set('year', selectedYear)
+    if (selectedDifficulty) params.set('difficulty', selectedDifficulty)
+    if (selectedType) params.set('type', selectedType)
+    if (selectedFormula) params.set('formula', selectedFormula)
+    if (searchQuery) params.set('search', searchQuery)
+    if (currentPage > 1) params.set('page', String(currentPage))
+    if (sort.by !== 'year') params.set('sortBy', sort.by)
+    if (sort.order !== 'desc') params.set('sortOrder', sort.order)
+
+    const qs = params.toString()
+    const newUrl = qs ? `/gate/questions?${qs}` : '/gate/questions'
+    router.replace(newUrl, { scroll: false })
+  }, [selectedSubject, selectedTopic, selectedConcept, selectedYear, selectedDifficulty, selectedType, selectedFormula, searchQuery, currentPage, sort, router])
+
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false
+      return
+    }
+    syncToUrl()
+  }, [syncToUrl])
 
   const toggleSort = (col: 'year' | 'marks' | 'difficulty') => {
     setSort((prev) =>
@@ -128,6 +172,7 @@ function QuestionsListPageInner() {
         ? { by: col, order: prev.order === 'desc' ? 'asc' : 'desc' }
         : { by: col, order: 'desc' }
     )
+    setCurrentPage(1)
   }
 
   // Difficulty rank for ordering: easy < medium < hard
@@ -136,14 +181,6 @@ function QuestionsListPageInner() {
     medium: 2,
     hard: 3,
   }
-
-  // Read formula filter from URL search params (for deep-linking from concept page)
-  useEffect(() => {
-    const formulaParam = searchParams.get('formula')
-    if (formulaParam) {
-      setSelectedFormula(formulaParam)
-    }
-  }, [searchParams])
 
   // Set sidebar state
   useEffect(() => {
@@ -155,8 +192,14 @@ function QuestionsListPageInner() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Fetch all questions
+  // Fetch all questions (use cache if available)
   useEffect(() => {
+    if (_cachedQuestions) {
+      setQuestions(_cachedQuestions)
+      setLoading(false)
+      return
+    }
+
     setLoading(true)
     const qs = new URLSearchParams()
     qs.set('limit', '5000')
@@ -170,6 +213,7 @@ function QuestionsListPageInner() {
           if (!Array.isArray(q.formulaIds)) q.formulaIds = []
           if (!q.formulaId) q.formulaId = null
         })
+        _cachedQuestions = qs
         setQuestions(qs)
         setLoading(false)
       })
@@ -180,6 +224,11 @@ function QuestionsListPageInner() {
   // Try to fetch names from the content API, fall back to humanized IDs
   useEffect(() => {
     if (questions.length === 0) return
+    if (_cachedFormulaNameMap) {
+      setFormulaNameMap(_cachedFormulaNameMap)
+      setFormulaInfoMap(_cachedFormulaInfoMap ?? {})
+      return
+    }
 
     // Collect all unique formula IDs across questions
     const allIds = new Set<string>()
@@ -204,6 +253,8 @@ function QuestionsListPageInner() {
         allIds.forEach((id) => {
           if (!nameMap[id]) nameMap[id] = formulaIdToName(id)
         })
+        _cachedFormulaNameMap = nameMap
+        _cachedFormulaInfoMap = info ?? {}
         setFormulaNameMap(nameMap)
         setFormulaInfoMap(info ?? {})
       })
@@ -293,6 +344,44 @@ function QuestionsListPageInner() {
       })
   }, [questions, selectedSubject, selectedTopic, selectedConcept, selectedYear, selectedDifficulty, selectedType, selectedFormula, searchQuery, sort])
 
+  // ─── Pagination ─────────────────────────────────────────────────────
+  const totalPages = Math.max(1, Math.ceil(filteredQuestions.length / ITEMS_PER_PAGE))
+
+  // Clamp currentPage if filters change and reduce the total
+  const safePage = Math.min(currentPage, totalPages)
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages)
+    }
+  }, [currentPage, totalPages])
+
+  const paginatedQuestions = useMemo(() => {
+    const start = (safePage - 1) * ITEMS_PER_PAGE
+    return filteredQuestions.slice(start, start + ITEMS_PER_PAGE)
+  }, [filteredQuestions, safePage])
+
+  // ─── Filter change helpers (reset page to 1) ───────────────────────
+  const handleSubjectChange = useCallback((val: string) => {
+    setSelectedSubject(val)
+    setSelectedTopic('')
+    setSelectedConcept('')
+    setCurrentPage(1)
+  }, [])
+  const handleTopicChange = useCallback((val: string) => {
+    setSelectedTopic(val)
+    setSelectedConcept('')
+    setCurrentPage(1)
+  }, [])
+  const handleConceptChange = useCallback((val: string) => { setSelectedConcept(val); setCurrentPage(1) }, [])
+  const handleYearChange = useCallback((val: string) => { setSelectedYear(val); setCurrentPage(1) }, [])
+  const handleDifficultyChange = useCallback((val: string) => { setSelectedDifficulty(val); setCurrentPage(1) }, [])
+  const handleTypeChange = useCallback((val: string) => { setSelectedType(val); setCurrentPage(1) }, [])
+  const handleFormulaChange = useCallback((val: string) => { setSelectedFormula(val); setCurrentPage(1) }, [])
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value)
+    setCurrentPage(1)
+  }, [])
+
   // Filter trigger style — compact pill that opens the DropdownMenu.
   // In dark mode we drop the border entirely (any border reads as a
   // white line on the deep-blue body) and rely on a soft bg tint for
@@ -327,11 +416,7 @@ function QuestionsListPageInner() {
               { value: '', label: 'All Subjects' },
               ...subjects.map((s) => ({ value: s.id, label: s.name })),
             ]}
-            onChange={(val) => {
-              setSelectedSubject(val)
-              setSelectedTopic('')
-              setSelectedConcept('')
-            }}
+            onChange={handleSubjectChange}
           />
           <FilterMenu
             label="Topic"
@@ -341,10 +426,7 @@ function QuestionsListPageInner() {
               { value: '', label: 'All Topics' },
               ...topics.map((t) => ({ value: t.id, label: t.name })),
             ]}
-            onChange={(val) => {
-              setSelectedTopic(val)
-              setSelectedConcept('')
-            }}
+            onChange={handleTopicChange}
           />
           <FilterMenu
             label="Concept"
@@ -354,7 +436,7 @@ function QuestionsListPageInner() {
               { value: '', label: 'All Concepts' },
               ...concepts.map((c) => ({ value: c.id, label: c.name })),
             ]}
-            onChange={setSelectedConcept}
+            onChange={handleConceptChange}
           />
           <FilterMenu
             label="Year"
@@ -367,7 +449,7 @@ function QuestionsListPageInner() {
                 label: `GATE ${y}`,
               })),
             ]}
-            onChange={setSelectedYear}
+            onChange={handleYearChange}
           />
           <FilterMenu
             label="Difficulty"
@@ -379,7 +461,7 @@ function QuestionsListPageInner() {
               { value: 'medium', label: 'Medium' },
               { value: 'hard', label: 'Hard' },
             ]}
-            onChange={setSelectedDifficulty}
+            onChange={handleDifficultyChange}
           />
           <FilterMenu
             label="Type"
@@ -391,7 +473,7 @@ function QuestionsListPageInner() {
               { value: 'MSQ', label: 'MSQ' },
               { value: 'NAT', label: 'NAT' },
             ]}
-            onChange={setSelectedType}
+            onChange={handleTypeChange}
           />
           {formulaOptions.length > 0 && (
             <FilterMenu
@@ -406,7 +488,7 @@ function QuestionsListPageInner() {
                   label: f.name,
                 })),
               ]}
-              onChange={setSelectedFormula}
+              onChange={handleFormulaChange}
             />
           )}
         </div>
@@ -422,7 +504,7 @@ function QuestionsListPageInner() {
             type="text"
             placeholder="Search questions..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={handleSearchChange}
           />
           <InputGroupAddon align="inline-end">
             {filteredQuestions.length} result
@@ -432,15 +514,16 @@ function QuestionsListPageInner() {
 
         {/* ─── Mobile card list (< md) ─────────────────────────────── */}
         <ul className="space-y-4 md:hidden">
-          {filteredQuestions.length === 0 ? (
+          {paginatedQuestions.length === 0 ? (
             <li className="rounded-2xl border bg-card px-4 py-16 text-center text-base text-muted-foreground">
               No questions found for this selection.
             </li>
           ) : (
-            filteredQuestions.map((q, idx) => {
+            paginatedQuestions.map((q, idx) => {
               const dColor = diffColors[q.difficulty] || diffColors.medium
               const questionUrl = `/gate/questions/${slugify(q.subjectName)}/${slugify(q.topicName)}/${slugify(q.conceptName)}/${q._id}`
               const isSolved = !!solvedStatuses[q._id]
+              const globalIdx = (safePage - 1) * ITEMS_PER_PAGE + idx
               return (
                 <li key={q._id}>
                   <Link
@@ -451,7 +534,7 @@ function QuestionsListPageInner() {
                     <div className="mb-4 flex items-start justify-between gap-3">
                       <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
                         <span className="text-base font-extrabold text-slate-300 dark:text-slate-600">
-                          #{idx + 1}
+                          #{globalIdx + 1}
                         </span>
                         <span className="rounded-lg bg-slate-100 px-3 py-1.5 text-[15px] font-bold tracking-wide text-slate-700 dark:bg-slate-800 dark:text-slate-200">
                           GATE {q.year}
@@ -511,6 +594,7 @@ function QuestionsListPageInner() {
                                 e.preventDefault()
                                 e.stopPropagation()
                                 setSelectedFormula((prev) => prev === fId ? '' : fId)
+                                setCurrentPage(1)
                               }}
                             />
                           )
@@ -573,16 +657,17 @@ function QuestionsListPageInner() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredQuestions.length === 0 ? (
+              {paginatedQuestions.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={10} className="text-center py-12 text-muted-foreground">
                     No questions found for this selection.
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredQuestions.map((q, idx) => {
+                paginatedQuestions.map((q, idx) => {
                   const dColor = diffColors[q.difficulty] || diffColors.medium
                   const questionUrl = `/gate/questions/${slugify(q.subjectName)}/${slugify(q.topicName)}/${slugify(q.conceptName)}/${q._id}`
+                  const globalIdx = (safePage - 1) * ITEMS_PER_PAGE + idx
 
                   return (
                     <TableRow
@@ -590,7 +675,7 @@ function QuestionsListPageInner() {
                       className="cursor-pointer hover:bg-muted/60 dark:hover:bg-white/[0.045] group transition-colors"
                     >
                       <TableCell className="text-center text-muted-foreground font-medium">
-                        {idx + 1}
+                        {globalIdx + 1}
                       </TableCell>
 
                       <TableCell>
@@ -639,6 +724,7 @@ function QuestionsListPageInner() {
                                   onClick={(e) => {
                                     e.stopPropagation()
                                     setSelectedFormula((prev) => prev === fId ? '' : fId)
+                                    setCurrentPage(1)
                                   }}
                                 />
                               )
@@ -675,6 +761,34 @@ function QuestionsListPageInner() {
           </Table>
           </div>
         </div>
+
+        {/* ─── Pagination ──────────────────────────────────────────── */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-2 mt-6 mb-4">
+            <button
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={safePage === 1}
+              className="inline-flex items-center gap-1 text-sm px-4 py-2 rounded-lg border border-border bg-card disabled:opacity-40 hover:border-foreground/20 transition-colors"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Prev
+            </button>
+            <span className="text-sm text-muted-foreground px-2">
+              Page {safePage} of {totalPages}
+              <span className="hidden sm:inline text-muted-foreground/60 ml-2">
+                ({filteredQuestions.length} questions)
+              </span>
+            </span>
+            <button
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={safePage === totalPages}
+              className="inline-flex items-center gap-1 text-sm px-4 py-2 rounded-lg border border-border bg-card disabled:opacity-40 hover:border-foreground/20 transition-colors"
+            >
+              Next
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )

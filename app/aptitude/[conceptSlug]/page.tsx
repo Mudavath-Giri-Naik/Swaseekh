@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect, useState, useCallback } from 'react'
-import { useParams } from 'next/navigation'
+import { Suspense, useEffect, useState, useCallback, useRef } from 'react'
+import { useParams, useSearchParams, useRouter } from 'next/navigation'
 import { AptitudeFormulaCheatsheet } from '@/components/aptitude/AptitudeFormulaCheatsheet'
 import { AptitudeQuestionViewer } from '@/components/aptitude/AptitudeQuestionViewer'
 import { AptitudeModelCard } from '@/components/aptitude/AptitudeModelCard'
@@ -38,59 +38,155 @@ const SOURCE_LABELS: Record<string, string> = {
   all: 'All', rs_agarwal: 'R.S. Agarwal', indiabix: 'IndiaBix', ppt: 'Lecture'
 }
 
+/* ─── Module-Level Caches ───────────────────────────────────────────── */
+const metaCache: Record<string, { concept: Concept; formulas: Formula[]; models: AptModel[] }> = {}
+const questionsCache: Record<string, { questions: Question[]; totalPages: number; totalQ: number }> = {}
+
+function buildQCacheKey(slug: string, model: string, diff: string, source: string, pg: number): string {
+  return `${slug}|${model}|${diff}|${source}|${pg}`
+}
+
+/* ─── Default export with Suspense boundary (required by useSearchParams) */
 export default function ConceptSlugPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-6 w-6 animate-spin text-indigo-500" />
+      </div>
+    }>
+      <ConceptSlugInner />
+    </Suspense>
+  )
+}
+
+function ConceptSlugInner() {
   const params = useParams()
   const slug = params.conceptSlug as string
+  const searchParams = useSearchParams()
+  const router = useRouter()
 
-  const [concept, setConcept] = useState<Concept | null>(null)
-  const [formulas, setFormulas] = useState<Formula[]>([])
-  const [models, setModels] = useState<AptModel[]>([])
-  const [questions, setQuestions] = useState<Question[]>([])
-  const [loading, setLoading] = useState(true)
-  const [qLoading, setQLoading] = useState(false)
+  /* ─── Read initial state from URL search params ─────────────────── */
+  const initialModel = searchParams.get('model') ?? 'all'
+  const initialDiff = (searchParams.get('difficulty') ?? 'all') as typeof DIFF_TABS[number]
+  const initialSource = (searchParams.get('source') ?? 'all') as typeof SOURCE_TABS[number]
+  const initialSearch = searchParams.get('search') ?? ''
+  const initialPage = Math.max(1, Number(searchParams.get('page')) || 1)
+  const initialTab = (searchParams.get('tab') === 'formulas' ? 'formulas' : 'questions') as 'questions' | 'formulas'
+
+  /* ─── State ──────────────────────────────────────────────────────── */
+  const [concept, setConcept] = useState<Concept | null>(metaCache[slug]?.concept ?? null)
+  const [formulas, setFormulas] = useState<Formula[]>(metaCache[slug]?.formulas ?? [])
+  const [models, setModels] = useState<AptModel[]>(metaCache[slug]?.models ?? [])
+
+  // Pre-populate questions from cache if available
+  const initQKey = buildQCacheKey(slug, initialModel, initialDiff, initialSource, initialPage)
+  const cachedQ = questionsCache[initQKey]
+
+  const [questions, setQuestions] = useState<Question[]>(cachedQ?.questions ?? [])
+  const [loading, setLoading] = useState(!metaCache[slug])
+  const [qLoading, setQLoading] = useState(!cachedQ)
   const [error, setError] = useState<string | null>(null)
 
-  // Filters
-  const [activeModel, setActiveModel] = useState<string>('all')
-  const [activeDiff, setActiveDiff] = useState<typeof DIFF_TABS[number]>('all')
-  const [activeSource, setActiveSource] = useState<typeof SOURCE_TABS[number]>('all')
-  const [searchText, setSearchText] = useState('')
-  const [page, setPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
-  const [totalQ, setTotalQ] = useState(0)
-  const [activeTab, setActiveTab] = useState<'questions' | 'formulas'>('questions')
+  // Filters — initialised from URL
+  const [activeModel, setActiveModel] = useState<string>(initialModel)
+  const [activeDiff, setActiveDiff] = useState<typeof DIFF_TABS[number]>(initialDiff)
+  const [activeSource, setActiveSource] = useState<typeof SOURCE_TABS[number]>(initialSource)
+  const [searchText, setSearchText] = useState(initialSearch)
+  const [page, setPage] = useState(initialPage)
+  const [totalPages, setTotalPages] = useState(cachedQ?.totalPages ?? 1)
+  const [totalQ, setTotalQ] = useState(cachedQ?.totalQ ?? 0)
+  const [activeTab, setActiveTab] = useState<'questions' | 'formulas'>(initialTab)
 
-  // Fetch concept meta
+  // Ref to prevent the URL-sync effect from running on first mount
+  // (we already read from the URL; no need to write back the same values)
+  const isInitialMount = useRef(true)
+
+  /* ─── Sync state → URL search params ────────────────────────────── */
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false
+      return
+    }
+
+    const sp = new URLSearchParams()
+    if (activeModel !== 'all') sp.set('model', activeModel)
+    if (activeDiff !== 'all') sp.set('difficulty', activeDiff)
+    if (activeSource !== 'all') sp.set('source', activeSource)
+    if (searchText.trim()) sp.set('search', searchText.trim())
+    if (page > 1) sp.set('page', String(page))
+    if (activeTab !== 'questions') sp.set('tab', activeTab)
+
+    const qs = sp.toString()
+    const newUrl = qs ? `?${qs}` : window.location.pathname
+    router.replace(newUrl, { scroll: false })
+  }, [activeModel, activeDiff, activeSource, searchText, page, activeTab, router])
+
+  /* ─── Fetch concept meta ─────────────────────────────────────────── */
   useEffect(() => {
     if (!slug) return
-    setLoading(true)
+
+    // If we have cached meta, use it but still refresh in background
+    if (metaCache[slug]) {
+      setConcept(metaCache[slug].concept)
+      setFormulas(metaCache[slug].formulas)
+      setModels(metaCache[slug].models)
+      setLoading(false)
+    } else {
+      setLoading(true)
+    }
+
     fetch(`/api/aptitude/concepts/${slug}`)
       .then((r) => r.json())
       .then((d) => {
         if (d.error) { setError(d.error); return }
-        setConcept(d.concept)
-        setFormulas(d.formulas ?? [])
-        setModels(d.models ?? [])
+        const meta = {
+          concept: d.concept,
+          formulas: d.formulas ?? [],
+          models: d.models ?? []
+        }
+        metaCache[slug] = meta
+        setConcept(meta.concept)
+        setFormulas(meta.formulas)
+        setModels(meta.models)
       })
       .catch(() => setError('Failed to load'))
       .finally(() => setLoading(false))
   }, [slug])
 
-  // Fetch questions
+  /* ─── Fetch questions ────────────────────────────────────────────── */
   const fetchQuestions = useCallback((pg: number) => {
     if (!slug) return
-    setQLoading(true)
-    const params = new URLSearchParams({ concept: slug, page: String(pg), limit: '15' })
-    if (activeModel !== 'all') params.set('model', activeModel)
-    if (activeDiff !== 'all') params.set('difficulty', activeDiff)
-    if (activeSource !== 'all') params.set('source', activeSource)
 
-    fetch(`/api/aptitude/questions?${params}`)
+    const cacheKey = buildQCacheKey(slug, activeModel, activeDiff, activeSource, pg)
+
+    // If cached data exists, show it immediately
+    if (questionsCache[cacheKey]) {
+      const cached = questionsCache[cacheKey]
+      setQuestions(cached.questions)
+      setTotalPages(cached.totalPages)
+      setTotalQ(cached.totalQ)
+      setQLoading(false)
+    } else {
+      setQLoading(true)
+    }
+
+    const qp = new URLSearchParams({ concept: slug, page: String(pg), limit: '15' })
+    if (activeModel !== 'all') qp.set('model', activeModel)
+    if (activeDiff !== 'all') qp.set('difficulty', activeDiff)
+    if (activeSource !== 'all') qp.set('source', activeSource)
+
+    fetch(`/api/aptitude/questions?${qp}`)
       .then((r) => r.json())
       .then((d) => {
-        setQuestions(d.questions ?? [])
-        setTotalPages(d.totalPages ?? 1)
-        setTotalQ(d.total ?? 0)
+        const result = {
+          questions: d.questions ?? [],
+          totalPages: d.totalPages ?? 1,
+          totalQ: d.total ?? 0
+        }
+        questionsCache[cacheKey] = result
+        setQuestions(result.questions)
+        setTotalPages(result.totalPages)
+        setTotalQ(result.totalQ)
       })
       .catch(() => {})
       .finally(() => setQLoading(false))
