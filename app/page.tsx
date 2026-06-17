@@ -6,9 +6,9 @@ import { ChevronsRight, ArrowUpRight, Star } from 'lucide-react'
 const inter = Inter({ subsets: ['latin'], display: 'swap' })
 
 const PerformanceCard = () => (
-  <div className="relative bg-white/85 backdrop-blur-[8px] rounded-[24px] p-5 shadow-[8px_8px_24px_rgba(0,0,0,0.12)] border border-[#1A1A2E]/10 flex flex-col items-center w-[190px] h-[210px]">
+  <div className="relative bg-white/85 backdrop-blur-[8px] rounded-[24px] p-5 border border-[#1A1A2E]/15 flex flex-col items-center w-[190px] h-[210px]">
     {/* Top Right Orange Button INSIDE the card */}
-    <div className="absolute top-3 right-3 w-6 h-6 rounded-full border border-orange-100 bg-white flex items-center justify-center text-[#F26419] shadow-sm z-10">
+    <div className="absolute top-3 right-3 w-6 h-6 rounded-full border border-orange-100 bg-white flex items-center justify-center text-[#F26419] z-10">
       <ArrowUpRight size={14} strokeWidth={2.5} />
     </div>
 
@@ -34,9 +34,9 @@ const PerformanceCard = () => (
 )
 
 const TimeSpentCard = () => (
-  <div className="relative bg-white/75 backdrop-blur-[8px] rounded-[24px] p-5 shadow-[-8px_8px_24px_rgba(0,0,0,0.10)] border border-[#1A1A2E]/10 flex flex-col w-[190px] h-[210px]">
+  <div className="relative bg-white/75 backdrop-blur-[8px] rounded-[24px] p-5 border border-[#1A1A2E]/15 flex flex-col w-[190px] h-[210px]">
     {/* Top Right Orange Button INSIDE the card */}
-    <div className="absolute top-3 right-3 w-6 h-6 rounded-full border border-orange-100 bg-white flex items-center justify-center text-[#F26419] shadow-sm z-10">
+    <div className="absolute top-3 right-3 w-6 h-6 rounded-full border border-orange-100 bg-white flex items-center justify-center text-[#F26419] z-10">
       <ArrowUpRight size={14} strokeWidth={2.5} />
     </div>
     
@@ -139,10 +139,10 @@ export default function HomePage() {
         {/* Floating cards (Absolute to the sides) */}
         {/* We use a wider max-width container to push them to the very edges */}
         <div className="absolute inset-0 w-full max-w-[1440px] px-4 lg:px-12 mx-auto pointer-events-none hidden lg:block">
-          <div className="absolute left-4 lg:left-12 top-[50%] -translate-y-[50%] pointer-events-auto" style={{ transform: 'translateY(-50%) rotate(-12deg)' }}>
+          <div className="absolute left-4 lg:left-12 top-[50%] -translate-y-[50%] pointer-events-auto" style={{ transform: 'translateY(-50%) rotate(-16deg)' }}>
             <PerformanceCard />
           </div>
-          <div className="absolute right-4 lg:right-12 top-[50%] -translate-y-[50%] pointer-events-auto" style={{ transform: 'translateY(-50%) rotate(10deg)' }}>
+          <div className="absolute right-4 lg:right-12 top-[50%] -translate-y-[50%] pointer-events-auto" style={{ transform: 'translateY(-50%) rotate(14deg)' }}>
             <TimeSpentCard />
           </div>
         </div>
