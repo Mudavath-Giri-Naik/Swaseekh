@@ -138,11 +138,11 @@ export default function HomePage() {
 
         {/* Floating cards (Absolute to the sides) */}
         {/* We use a wider max-width container to push them to the very edges */}
-        <div className="absolute inset-0 max-w-[1250px] mx-auto pointer-events-none hidden min-[900px]:block">
-          <div className="absolute left-2 xl:left-0 top-[50%] -translate-y-[50%] pointer-events-auto" style={{ transform: 'translateY(-50%) rotate(-12deg)' }}>
+        <div className="absolute inset-0 w-full max-w-[1440px] px-4 lg:px-12 mx-auto pointer-events-none hidden lg:block">
+          <div className="absolute left-4 lg:left-12 top-[50%] -translate-y-[50%] pointer-events-auto" style={{ transform: 'translateY(-50%) rotate(-12deg)' }}>
             <PerformanceCard />
           </div>
-          <div className="absolute right-2 xl:right-0 top-[50%] -translate-y-[50%] pointer-events-auto" style={{ transform: 'translateY(-50%) rotate(10deg)' }}>
+          <div className="absolute right-4 lg:right-12 top-[50%] -translate-y-[50%] pointer-events-auto" style={{ transform: 'translateY(-50%) rotate(10deg)' }}>
             <TimeSpentCard />
           </div>
         </div>
