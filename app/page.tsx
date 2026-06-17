@@ -78,7 +78,7 @@ export default function HomePage() {
       <main className="relative flex-1 flex flex-col items-center justify-center w-full mx-auto px-4 pt-[140px] md:pt-[220px] pb-20">
         
         {/* Content Column (Restricted Width) */}
-        <div className="relative z-20 flex flex-col items-center text-center max-w-[640px] w-full mx-auto">
+        <div className="relative z-20 flex flex-col items-center text-center max-w-[800px] w-full mx-auto">
           
           {/* Trust Badge */}
           <div className="inline-flex items-center gap-2 bg-white border border-[#e8e0d8] rounded-[20px] px-[16px] py-[6px] mb-[20px]">
@@ -91,8 +91,8 @@ export default function HomePage() {
 
           {/* Headline */}
           <h1 className="flex flex-col items-center text-[#1A1A2E] leading-[1.1] tracking-[-0.02em] mb-[16px] w-full text-center">
-            <span className="font-normal text-[clamp(2rem,7vw,52px)]">Your Ultimate LMS for</span>
-            <span className="font-extrabold text-[clamp(2rem,7vw,52px)] mt-1">Seamless Learning & Growth</span>
+            <span className="font-normal text-[clamp(1.75rem,6vw,52px)] sm:whitespace-nowrap">Your Ultimate LMS for</span>
+            <span className="font-extrabold text-[clamp(1.75rem,6vw,52px)] mt-1 sm:whitespace-nowrap">Seamless Learning & Growth</span>
           </h1>
 
           {/* Subtext */}
