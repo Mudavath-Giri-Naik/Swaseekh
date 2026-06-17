@@ -86,7 +86,7 @@ export default function HomePage() {
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="#F26419"/>
               <path d="M9 12l2 2 4-4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            <span className="text-[13px] font-medium text-[#444]">Trusted by over 50,000+ students</span>
+            <span className="text-[13px] font-medium text-[#444]">Trusted by over 500+ students</span>
           </div>
 
           {/* Headline */}
