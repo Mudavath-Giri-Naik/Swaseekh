@@ -26,7 +26,7 @@ function readSidebarCookie(): boolean {
 }
 
 export default function AptitudeLayout({ children }: { children: React.ReactNode }) {
-  const defaultOpen = true // On server, we default to true. The client will sync with cookie.
+  const defaultOpen = readSidebarCookie()
   
   return (
     <SidebarDataProvider>
