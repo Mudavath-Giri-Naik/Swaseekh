@@ -66,11 +66,7 @@ interface FormulaInfo {
   name: string
 }
 
-// ─── Module-level cache ─────────────────────────────────────────────
-// Survives component unmount so back-navigation is instant.
-let _cachedQuestions: Question[] | null = null
-let _cachedFormulaNameMap: Record<string, string> | null = null
-let _cachedFormulaInfoMap: Record<string, { name?: string; latex?: string; plain?: string }> | null = null
+import { globalCache } from '@/lib/global-cache'
 
 const ITEMS_PER_PAGE = 20
 
@@ -127,8 +123,19 @@ function QuestionsListPageInner() {
   const sidebarData = useSidebarData()
   const searchParams = useSearchParams()
   const router = useRouter()
-  const [questions, setQuestions] = useState<Question[]>(_cachedQuestions ?? [])
-  const [loading, setLoading] = useState(!_cachedQuestions)
+  
+  const getInitialQuestions = useCallback(() => {
+    const raw = globalCache.data.gateQuestions?.questions ?? [];
+    const qs = [...raw] as Question[]
+    qs.forEach((q) => {
+      if (!Array.isArray(q.formulaIds)) q.formulaIds = []
+      if (!q.formulaId) q.formulaId = null
+    })
+    return qs
+  }, [])
+
+  const [questions, setQuestions] = useState<Question[]>(() => getInitialQuestions())
+  const [loading, setLoading] = useState(!globalCache.data.gateQuestions)
   const [solvedStatuses, setSolvedStatuses] = useState<Record<string, boolean>>({})
 
   // ─── Read initial state from URL search params ──────────────────────
@@ -152,11 +159,11 @@ function QuestionsListPageInner() {
   })
 
   // Formula name map — built from content API or derived from IDs
-  const [formulaNameMap, setFormulaNameMap] = useState<Record<string, string>>(_cachedFormulaNameMap ?? {})
+  const [formulaNameMap, setFormulaNameMap] = useState<Record<string, string>>({})
   // Richer info for hover-card previews ({ name, latex, plain } per ID)
   const [formulaInfoMap, setFormulaInfoMap] = useState<
     Record<string, { name?: string; latex?: string; plain?: string }>
-  >(_cachedFormulaInfoMap ?? {})
+  >({})
 
   // ─── Track if this is the initial mount (skip URL sync on first render) ─
   const isInitialMount = useRef(true)
@@ -216,10 +223,17 @@ function QuestionsListPageInner() {
 
   // Fetch all questions (use cache if available)
   useEffect(() => {
-    if (_cachedQuestions) {
-      setQuestions(_cachedQuestions)
+    const unsubscribe = globalCache.subscribe(() => {
+      if (globalCache.data.gateQuestions) {
+        setQuestions(getInitialQuestions())
+        setLoading(false)
+      }
+    })
+
+    if (globalCache.data.gateQuestions) {
+      setQuestions(getInitialQuestions())
       setLoading(false)
-      return
+      return unsubscribe
     }
 
     setLoading(true)
@@ -229,58 +243,61 @@ function QuestionsListPageInner() {
     fetch(`/api/questions?${qs.toString()}`)
       .then((res) => res.json())
       .then((data) => {
-        const qs = (data.questions ?? []) as Question[]
-        // Ensure formulaIds is always an array
-        qs.forEach((q) => {
-          if (!Array.isArray(q.formulaIds)) q.formulaIds = []
-          if (!q.formulaId) q.formulaId = null
-        })
-        _cachedQuestions = qs
-        setQuestions(qs)
+        globalCache.data.gateQuestions = data
+        setQuestions(getInitialQuestions())
         setLoading(false)
       })
       .catch(() => setLoading(false))
-  }, [])
+
+    return unsubscribe
+  }, [getInitialQuestions])
 
   // Build formula name map from all unique formula IDs across questions
-  // Try to fetch names from the content API, fall back to humanized IDs
   useEffect(() => {
     if (questions.length === 0) return
-    if (_cachedFormulaNameMap) {
-      setFormulaNameMap(_cachedFormulaNameMap)
-      setFormulaInfoMap(_cachedFormulaInfoMap ?? {})
-      return
+
+    const buildMaps = (info: any) => {
+      const allIds = new Set<string>()
+      questions.forEach((q) => {
+        if (q.formulaId) allIds.add(q.formulaId)
+        q.formulaIds?.forEach((id) => allIds.add(id))
+      })
+
+      if (allIds.size === 0) return
+
+      const nameMap: Record<string, string> = {}
+      Object.entries(info ?? {}).forEach(([id, v]: [string, any]) => {
+        if (v?.name) nameMap[id] = v.name
+      })
+      // Fill any remaining IDs with humanized fallbacks
+      allIds.forEach((id) => {
+        if (!nameMap[id]) nameMap[id] = formulaIdToName(id)
+      })
+      setFormulaNameMap(nameMap)
+      setFormulaInfoMap(info ?? {})
     }
 
-    // Collect all unique formula IDs across questions
-    const allIds = new Set<string>()
-    questions.forEach((q) => {
-      if (q.formulaId) allIds.add(q.formulaId)
-      q.formulaIds?.forEach((id) => allIds.add(id))
+    if (globalCache.data.gateFormulaInfoMap) {
+      buildMaps(globalCache.data.gateFormulaInfoMap)
+    }
+
+    const unsubscribe = globalCache.subscribe(() => {
+      if (globalCache.data.gateFormulaInfoMap) {
+        buildMaps(globalCache.data.gateFormulaInfoMap)
+      }
     })
 
-    if (allIds.size === 0) return
+    if (!globalCache.data.gateFormulaInfoMap) {
+      fetch('/api/formulas/info')
+        .then((res) => (res.ok ? res.json() : {}))
+        .then((info) => {
+          globalCache.data.gateFormulaInfoMap = info
+          buildMaps(info)
+        })
+        .catch(() => {})
+    }
 
-    // Fetch the single, app-wide formula info map. Cheaper + more reliable
-    // than scanning per-concept content docs (the new schema doesn't carry
-    // a conceptId on questions, so per-concept lookups would 404).
-    fetch('/api/formulas/info')
-      .then((res) => (res.ok ? res.json() : {}))
-      .then((info: Record<string, { name?: string; latex?: string; plain?: string }>) => {
-        const nameMap: Record<string, string> = {}
-        Object.entries(info ?? {}).forEach(([id, v]) => {
-          if (v?.name) nameMap[id] = v.name
-        })
-        // Fill any remaining IDs with humanized fallbacks
-        allIds.forEach((id) => {
-          if (!nameMap[id]) nameMap[id] = formulaIdToName(id)
-        })
-        _cachedFormulaNameMap = nameMap
-        _cachedFormulaInfoMap = info ?? {}
-        setFormulaNameMap(nameMap)
-        setFormulaInfoMap(info ?? {})
-      })
-      .catch(() => {})
+    return unsubscribe
   }, [questions])
 
   // Derived filter options

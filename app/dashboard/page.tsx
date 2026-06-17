@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { globalCache } from '@/lib/global-cache'
 import Link from 'next/link'
 import {
   BookOpen,
@@ -35,21 +36,30 @@ interface Stats {
   subjectList: { name: string; count: number }[]
 }
 
-let _cachedDashboard: Stats | null = null
-
 export default function DashboardPage() {
-  const [data, setData] = useState<Stats | null>(_cachedDashboard)
-  const [loading, setLoading] = useState(!_cachedDashboard)
+  const [data, setData] = useState<Stats | null>(globalCache.data.dashboardStats)
+  const [loading, setLoading] = useState(!globalCache.data.dashboardStats)
 
   useEffect(() => {
-    fetch('/api/dashboard/stats')
-      .then((r) => r.json())
-      .then((d) => {
-        _cachedDashboard = d
-        setData(d)
-      })
-      .catch(() => setData(null))
-      .finally(() => setLoading(false))
+    const unsubscribe = globalCache.subscribe(() => {
+      if (globalCache.data.dashboardStats) {
+        setData(globalCache.data.dashboardStats)
+        setLoading(false)
+      }
+    })
+
+    if (!globalCache.data.dashboardStats) {
+      fetch('/api/dashboard/stats')
+        .then((r) => r.json())
+        .then((d) => {
+          globalCache.data.dashboardStats = d
+          setData(d)
+        })
+        .catch(() => setData(null))
+        .finally(() => setLoading(false))
+    }
+
+    return unsubscribe
   }, [])
 
   if (loading) {

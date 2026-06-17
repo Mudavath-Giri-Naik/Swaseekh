@@ -4,6 +4,7 @@ import './globals.css'
 import AuthProvider from '@/components/auth-provider'
 import { ThemeProvider } from '@/components/theme-provider'
 import { AppSettingsProvider } from '@/components/app-settings'
+import { GlobalPrefetch } from '@/components/global-prefetch'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -59,6 +60,7 @@ export default function RootLayout({
       <body className="min-h-screen bg-background text-foreground font-sans antialiased">
         <ThemeProvider>
           <AppSettingsProvider>
+            <GlobalPrefetch />
             <AuthProvider>
               <main>{children}</main>
             </AuthProvider>

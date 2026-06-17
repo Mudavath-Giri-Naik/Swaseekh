@@ -44,6 +44,7 @@ import { Badge } from "@/components/ui/badge"
 import { AptitudeQuestionViewer } from '@/components/aptitude/AptitudeQuestionViewer'
 import React from 'react'
 import { SlidersHorizontal } from "lucide-react"
+import { globalCache } from '@/lib/global-cache'
 
 interface SolutionStep {
   stepNumber: number
@@ -136,16 +137,13 @@ export default function AptitudePage() {
   )
 }
 
-let _cachedQuestions: Question[] | null = null
-let _cachedConcepts: Concept[] | null = null
-
 function AptitudePageInner() {
   const sidebarData = useSidebarData()
   const searchParams = useSearchParams()
   
-  const [questions, setQuestions] = useState<Question[]>(_cachedQuestions ?? [])
-  const [concepts, setConcepts] = useState<Concept[]>(_cachedConcepts ?? [])
-  const [loading, setLoading] = useState(!_cachedQuestions || !_cachedConcepts)
+  const [questions, setQuestions] = useState<Question[]>(globalCache.data.aptitudeQuestions?.questions ?? [])
+  const [concepts, setConcepts] = useState<Concept[]>(globalCache.data.aptitudeConcepts?.concepts ?? [])
+  const [loading, setLoading] = useState(!globalCache.data.aptitudeQuestions || !globalCache.data.aptitudeConcepts)
   const [searchQuery, setSearchQuery] = useState('')
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
 
@@ -167,21 +165,41 @@ function AptitudePageInner() {
 
   // Fetch all questions & concepts
   useEffect(() => {
+    const checkAndSet = () => {
+      const q = globalCache.data.aptitudeQuestions?.questions
+      const c = globalCache.data.aptitudeConcepts?.concepts
+      if (q && c) {
+        setQuestions(q)
+        setConcepts(c)
+        setLoading(false)
+      }
+    }
+
+    const unsubscribe = globalCache.subscribe(() => {
+      checkAndSet()
+    })
+
+    if (globalCache.data.aptitudeQuestions && globalCache.data.aptitudeConcepts) {
+      checkAndSet()
+      return unsubscribe
+    }
+
+    setLoading(true)
     Promise.all([
       fetch('/api/aptitude/questions?limit=5000').then((res) => res.json()),
       fetch('/api/aptitude/concepts').then((res) => res.json())
     ])
       .then(([qData, cData]) => {
-        _cachedQuestions = (qData.questions ?? []) as Question[]
-        _cachedConcepts = (cData.concepts ?? []) as Concept[]
-        setQuestions(_cachedQuestions)
-        setConcepts(_cachedConcepts)
-        setLoading(false)
+        globalCache.data.aptitudeQuestions = qData
+        globalCache.data.aptitudeConcepts = cData
+        checkAndSet()
       })
       .catch((err) => {
         console.error("Failed to load aptitude data:", err)
         setLoading(false)
       })
+
+    return unsubscribe
   }, [])
 
   // Maps & Derived Options

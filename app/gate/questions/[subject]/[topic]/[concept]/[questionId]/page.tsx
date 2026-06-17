@@ -356,12 +356,12 @@ export default function QuestionDetailPage() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
         <p className="text-base text-muted-foreground">Question not found.</p>
-        <Link
-          href="/gate/questions"
+        <button
+          onClick={() => router.back()}
           className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline"
         >
           <ArrowLeft className="h-4 w-4" /> Back to all questions
-        </Link>
+        </button>
       </div>
     )
   }
@@ -385,13 +385,13 @@ export default function QuestionDetailPage() {
     <article className="mx-auto max-w-3xl px-4 pb-12 sm:px-6 sm:pb-16 w-full max-w-[100vw] overflow-x-hidden">
       {/* Sticky top bar */}
       <div className="sticky top-0 z-30 -mx-4 flex items-center justify-between border-b border-border/60 bg-background/85 px-4 py-2.5 backdrop-blur dark:border-transparent sm:-mx-6 sm:px-6">
-        <Link
-          href="/gate/questions"
+        <button
+          onClick={() => router.back()}
           className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
           All questions
-        </Link>
+        </button>
 
         <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
           <DrawerTrigger asChild>
