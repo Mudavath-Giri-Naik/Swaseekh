@@ -103,8 +103,8 @@ export default function HomePage() {
           {/* CTA with Flanking Plants */}
           <div className="flex items-center justify-center gap-4 md:gap-6 mt-2">
             {/* Left Plant */}
-            <div className="w-[32px] md:w-[42px] opacity-80 pointer-events-none rotate-[-15deg] animate-[float_6s_ease-in-out_infinite]">
-              <img src="/plant-illustration.svg" alt="" className="w-full h-auto drop-shadow-sm" />
+            <div className="w-[32px] md:w-[42px] opacity-80 pointer-events-none animate-[float_6s_ease-in-out_infinite]">
+              <img src="/plant-illustration.svg" alt="" className="w-full h-auto drop-shadow-sm -rotate-[100deg]" />
             </div>
             
             <Link 
@@ -115,8 +115,8 @@ export default function HomePage() {
             </Link>
 
             {/* Right Plant */}
-            <div className="w-[32px] md:w-[42px] opacity-80 pointer-events-none rotate-[15deg] scale-x-[-1] animate-[float_8s_ease-in-out_infinite_reverse]">
-              <img src="/plant-illustration.svg" alt="" className="w-full h-auto drop-shadow-sm" />
+            <div className="w-[32px] md:w-[42px] opacity-80 pointer-events-none animate-[float_8s_ease-in-out_infinite_reverse]">
+              <img src="/plant-illustration.svg" alt="" className="w-full h-auto drop-shadow-sm rotate-[100deg] -scale-x-100" />
             </div>
           </div>
 
@@ -171,14 +171,12 @@ export default function HomePage() {
       {/* Newsletter Section */}
       <section className="relative w-full max-w-[1200px] mx-auto px-4 pb-24 z-20">
         <div className="relative bg-[#FFF7F0] rounded-[40px] overflow-hidden py-16 md:py-24 px-4 md:px-12 flex flex-col items-center text-center">
-          {/* Background Grid Pattern */}
-          <div 
-            className="absolute inset-0 opacity-20"
-            style={{
-              backgroundImage: 'radial-gradient(#F26419 1px, transparent 1px)',
-              backgroundSize: '32px 32px'
-            }}
-          ></div>
+          {/* Background Illustration */}
+          <img 
+            src="/free-time-bg.svg" 
+            alt="Background Illustration" 
+            className="absolute inset-0 w-full h-full object-cover opacity-10 pointer-events-none mix-blend-multiply"
+          />
 
           {/* Floating Elements (CSS only to mimic) */}
           <div className="absolute top-12 left-12 hidden md:flex items-center gap-2">
