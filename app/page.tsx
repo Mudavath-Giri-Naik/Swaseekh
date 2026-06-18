@@ -91,7 +91,16 @@ export default function HomePage() {
 
           {/* Headline */}
           <h1 className="flex flex-col items-center text-[#1A1A2E] leading-[1.1] tracking-[-0.02em] mb-[16px] w-full text-center">
-            <span className="font-normal text-[clamp(1.75rem,6vw,52px)] sm:whitespace-nowrap">Don't Study More.</span>
+            <span className="font-normal text-[clamp(1.75rem,6vw,52px)] sm:whitespace-nowrap">
+              Don't Study <span className="relative inline-block">
+                More.
+                <img 
+                  src="/078.svg" 
+                  alt="Decorative lines" 
+                  className="absolute -top-6 -right-6 md:-top-10 md:-right-10 w-[40px] md:w-[60px] h-auto object-contain pointer-events-none animate-[float_4s_ease-in-out_infinite]"
+                />
+              </span>
+            </span>
             <span className="font-extrabold text-[clamp(1.75rem,6vw,52px)] mt-1 sm:whitespace-nowrap">Study What Matters.</span>
           </h1>
 
