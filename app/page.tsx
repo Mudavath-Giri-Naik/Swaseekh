@@ -176,7 +176,7 @@ export default function HomePage() {
             <img 
               src="/free-time-bg.svg" 
               alt="Background Illustration" 
-              className="w-[150vw] h-[150vw] md:w-[100vw] md:h-[100vw] object-cover -rotate-90 max-w-none"
+              className="h-[150vw] md:h-[100vw] lg:h-[1200px] w-auto object-contain -rotate-90 max-w-none"
             />
           </div>
 
