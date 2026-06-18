@@ -101,22 +101,22 @@ export default function HomePage() {
           </p>
 
           {/* CTA with Flanking Plants */}
-          <div className="relative inline-flex items-center justify-center">
+          <div className="flex items-center justify-center gap-4 md:gap-6 mt-2">
             {/* Left Plant */}
-            <div className="absolute right-[100%] mr-3 top-1/2 -translate-y-1/2 w-[45px] md:w-[55px] opacity-90 pointer-events-none rotate-[-55deg] origin-bottom-right z-0 animate-[float_6s_ease-in-out_infinite]">
-              <img src="/plant-illustration.svg" alt="" className="w-full h-auto drop-shadow-md" />
+            <div className="w-[32px] md:w-[42px] opacity-80 pointer-events-none rotate-[-15deg] scale-x-[-1] animate-[float_6s_ease-in-out_infinite]">
+              <img src="/plant-illustration.svg" alt="" className="w-full h-auto drop-shadow-sm" />
             </div>
             
             <Link 
               href="/dashboard"
-              className="relative z-10 inline-flex items-center justify-center bg-[#1A1A1A] hover:bg-[#2C2C2C] active:bg-[#3D3D3D] text-[#FAFAFA] rounded-md px-6 py-2.5 text-[15px] font-medium transition-colors shadow-sm border border-transparent"
+              className="inline-flex items-center justify-center bg-[#1A1A1A] hover:bg-[#2C2C2C] active:bg-[#3D3D3D] text-[#FAFAFA] rounded-md px-6 py-2.5 text-[15px] font-medium transition-colors shadow-sm border border-transparent"
             >
               Get Started for Free
             </Link>
 
             {/* Right Plant */}
-            <div className="absolute left-[100%] ml-3 top-1/2 -translate-y-1/2 w-[45px] md:w-[55px] opacity-90 pointer-events-none rotate-[55deg] origin-bottom-left scale-x-[-1] z-0 animate-[float_8s_ease-in-out_infinite_reverse]">
-              <img src="/plant-illustration.svg" alt="" className="w-full h-auto drop-shadow-md" />
+            <div className="w-[32px] md:w-[42px] opacity-80 pointer-events-none rotate-[15deg] animate-[float_8s_ease-in-out_infinite_reverse]">
+              <img src="/plant-illustration.svg" alt="" className="w-full h-auto drop-shadow-sm" />
             </div>
           </div>
 
