@@ -97,7 +97,7 @@ export default function HomePage() {
                 <img 
                   src="/078.svg" 
                   alt="Decorative lines" 
-                  className="absolute -top-6 -right-6 md:-top-10 md:-right-10 w-[40px] md:w-[60px] h-auto object-contain pointer-events-none animate-[float_4s_ease-in-out_infinite]"
+                  className="absolute -top-4 -right-4 md:-top-6 md:-right-6 w-[28px] md:w-[38px] h-auto object-contain pointer-events-none animate-[float_4s_ease-in-out_infinite] -rotate-12 md:-rotate-12"
                 />
               </span>
             </span>
