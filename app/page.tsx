@@ -181,13 +181,13 @@ export default function HomePage() {
           </div>
 
           {/* Floating Elements (CSS only to mimic) */}
-          <div className="absolute top-12 left-12 hidden md:flex items-center gap-2">
-            <div className="bg-[#B9FF66] text-[#1A1A2E] text-xs font-bold px-3 py-1.5 rounded-full rotate-[-10deg]">Richards</div>
-            <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[10px] border-b-[#1A1A2E] rotate-[30deg]"></div>
+          <div className="absolute top-12 left-12 hidden md:flex items-center gap-2 animate-[float_6s_ease-in-out_infinite]">
+            <div className="bg-[#B9FF66] text-[#1A1A2E] text-xs font-bold px-3 py-1.5 rounded-full rotate-[-10deg] shadow-sm">Richards</div>
+            <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[10px] border-b-[#1A1A2E] rotate-[30deg] drop-shadow-sm"></div>
           </div>
-          <div className="absolute bottom-16 right-24 hidden md:flex items-center gap-2">
-            <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[10px] border-t-[#1A1A2E] rotate-[-20deg]"></div>
-            <div className="bg-[#9D71FD] text-white text-xs font-bold px-4 py-1.5 rounded-full rounded-tr-none rotate-[5deg]">You</div>
+          <div className="absolute bottom-16 right-24 hidden md:flex items-center gap-2 animate-[float_8s_ease-in-out_infinite_reverse]">
+            <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[10px] border-t-[#1A1A2E] rotate-[-20deg] drop-shadow-sm"></div>
+            <div className="bg-[#9D71FD] text-white text-xs font-bold px-4 py-1.5 rounded-full rounded-tr-none rotate-[5deg] shadow-sm">You</div>
           </div>
 
           <div className="relative z-10 max-w-[700px]">
