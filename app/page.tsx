@@ -103,7 +103,7 @@ export default function HomePage() {
           {/* CTA with Flanking Plants */}
           <div className="flex items-center justify-center gap-4 md:gap-6 mt-2">
             {/* Left Plant */}
-            <div className="w-[32px] md:w-[42px] opacity-80 pointer-events-none rotate-[-15deg] scale-x-[-1] animate-[float_6s_ease-in-out_infinite]">
+            <div className="w-[32px] md:w-[42px] opacity-80 pointer-events-none rotate-[-15deg] animate-[float_6s_ease-in-out_infinite]">
               <img src="/plant-illustration.svg" alt="" className="w-full h-auto drop-shadow-sm" />
             </div>
             
@@ -115,7 +115,7 @@ export default function HomePage() {
             </Link>
 
             {/* Right Plant */}
-            <div className="w-[32px] md:w-[42px] opacity-80 pointer-events-none rotate-[15deg] animate-[float_8s_ease-in-out_infinite_reverse]">
+            <div className="w-[32px] md:w-[42px] opacity-80 pointer-events-none rotate-[15deg] scale-x-[-1] animate-[float_8s_ease-in-out_infinite_reverse]">
               <img src="/plant-illustration.svg" alt="" className="w-full h-auto drop-shadow-sm" />
             </div>
           </div>
