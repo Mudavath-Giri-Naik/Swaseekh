@@ -77,14 +77,6 @@ export default function HomePage() {
       {/* Main Container */}
       <main className="relative flex-1 flex flex-col items-center justify-center w-full mx-auto px-4 pt-[140px] md:pt-[220px] pb-20">
         
-        {/* Decorative Plants */}
-        <div className="absolute top-[10%] left-[-5%] md:left-[5%] w-[150px] md:w-[220px] opacity-70 pointer-events-none rotate-[-20deg] z-0 animate-[float_6s_ease-in-out_infinite]">
-          <img src="/plant-illustration.svg" alt="" className="w-full h-auto drop-shadow-2xl" />
-        </div>
-        <div className="absolute bottom-[20%] right-[-5%] md:right-[5%] w-[120px] md:w-[180px] opacity-60 pointer-events-none rotate-[15deg] scale-x-[-1] z-0 animate-[float_8s_ease-in-out_infinite_reverse]">
-          <img src="/plant-illustration.svg" alt="" className="w-full h-auto drop-shadow-2xl" />
-        </div>
-
         {/* Content Column (Restricted Width) */}
         <div className="relative z-20 flex flex-col items-center text-center max-w-[800px] w-full mx-auto">
           
@@ -108,13 +100,25 @@ export default function HomePage() {
             Built around years of previous-year questions and exam patterns, Swaseekh helps you identify high-impact concepts, eliminate wasted effort, and prepare with confidence.
           </p>
 
-          {/* CTA */}
-          <Link 
-            href="/dashboard"
-            className="inline-flex items-center justify-center bg-[#1A1A1A] hover:bg-[#2C2C2C] active:bg-[#3D3D3D] text-[#FAFAFA] rounded-md px-6 py-2.5 text-[15px] font-medium transition-colors shadow-sm border border-transparent"
-          >
-            Get Started for Free
-          </Link>
+          {/* CTA with Flanking Plants */}
+          <div className="relative inline-flex items-center justify-center">
+            {/* Left Plant */}
+            <div className="absolute right-[100%] mr-4 md:mr-8 top-1/2 -translate-y-1/2 w-[80px] md:w-[100px] opacity-90 pointer-events-none rotate-[-15deg] z-0 animate-[float_6s_ease-in-out_infinite]">
+              <img src="/plant-illustration.svg" alt="" className="w-full h-auto drop-shadow-md" />
+            </div>
+            
+            <Link 
+              href="/dashboard"
+              className="relative z-10 inline-flex items-center justify-center bg-[#1A1A1A] hover:bg-[#2C2C2C] active:bg-[#3D3D3D] text-[#FAFAFA] rounded-md px-6 py-2.5 text-[15px] font-medium transition-colors shadow-sm border border-transparent"
+            >
+              Get Started for Free
+            </Link>
+
+            {/* Right Plant */}
+            <div className="absolute left-[100%] ml-4 md:ml-8 top-1/2 -translate-y-1/2 w-[80px] md:w-[100px] opacity-90 pointer-events-none rotate-[15deg] scale-x-[-1] z-0 animate-[float_8s_ease-in-out_infinite_reverse]">
+              <img src="/plant-illustration.svg" alt="" className="w-full h-auto drop-shadow-md" />
+            </div>
+          </div>
 
           {/* Review Badges */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 mt-[48px]">
