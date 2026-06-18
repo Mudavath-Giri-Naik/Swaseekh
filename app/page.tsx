@@ -94,11 +94,13 @@ export default function HomePage() {
             <span className="font-normal text-[clamp(1.75rem,6vw,52px)] sm:whitespace-nowrap">
               Don't Study <span className="relative inline-block">
                 More.
-                <img 
-                  src="/078.svg" 
-                  alt="Decorative lines" 
-                  className="absolute -top-4 -right-4 md:-top-6 md:-right-6 w-[28px] md:w-[38px] h-auto object-contain pointer-events-none animate-[float_4s_ease-in-out_infinite] -rotate-45"
-                />
+                <div className="absolute -top-4 -right-6 md:-top-6 md:-right-8 w-[28px] md:w-[38px] h-auto pointer-events-none animate-[float_4s_ease-in-out_infinite]">
+                  <img 
+                    src="/078.svg" 
+                    alt="Decorative lines" 
+                    className="w-full h-full object-contain -rotate-45"
+                  />
+                </div>
               </span>
             </span>
             <span className="font-extrabold text-[clamp(1.75rem,6vw,52px)] mt-1 sm:whitespace-nowrap">Study What Matters.</span>
