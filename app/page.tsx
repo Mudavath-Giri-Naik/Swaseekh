@@ -94,7 +94,7 @@ export default function HomePage() {
             <span className="font-normal text-[clamp(1.75rem,6vw,52px)] sm:whitespace-nowrap">
               Don't Study <span className="relative inline-block">
                 More.
-                <div className="absolute -top-4 -right-6 md:-top-6 md:-right-8 w-[28px] md:w-[38px] h-auto pointer-events-none animate-[float_4s_ease-in-out_infinite]">
+                <div className="absolute -top-4 -right-6 md:-top-6 md:-right-8 w-[28px] md:w-[38px] h-auto pointer-events-none animate-pulse duration-[3000ms]">
                   <img 
                     src="/078.svg" 
                     alt="Decorative lines" 
