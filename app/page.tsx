@@ -103,7 +103,7 @@ export default function HomePage() {
           {/* CTA with Flanking Plants */}
           <div className="relative inline-flex items-center justify-center">
             {/* Left Plant */}
-            <div className="absolute right-[100%] mr-4 md:mr-8 top-1/2 -translate-y-1/2 w-[80px] md:w-[100px] opacity-90 pointer-events-none rotate-[-15deg] z-0 animate-[float_6s_ease-in-out_infinite]">
+            <div className="absolute right-[100%] mr-3 top-1/2 -translate-y-1/2 w-[45px] md:w-[55px] opacity-90 pointer-events-none rotate-[-55deg] origin-bottom-right z-0 animate-[float_6s_ease-in-out_infinite]">
               <img src="/plant-illustration.svg" alt="" className="w-full h-auto drop-shadow-md" />
             </div>
             
@@ -115,7 +115,7 @@ export default function HomePage() {
             </Link>
 
             {/* Right Plant */}
-            <div className="absolute left-[100%] ml-4 md:ml-8 top-1/2 -translate-y-1/2 w-[80px] md:w-[100px] opacity-90 pointer-events-none rotate-[15deg] scale-x-[-1] z-0 animate-[float_8s_ease-in-out_infinite_reverse]">
+            <div className="absolute left-[100%] ml-3 top-1/2 -translate-y-1/2 w-[45px] md:w-[55px] opacity-90 pointer-events-none rotate-[55deg] origin-bottom-left scale-x-[-1] z-0 animate-[float_8s_ease-in-out_infinite_reverse]">
               <img src="/plant-illustration.svg" alt="" className="w-full h-auto drop-shadow-md" />
             </div>
           </div>
