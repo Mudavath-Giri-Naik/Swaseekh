@@ -172,11 +172,13 @@ export default function HomePage() {
       <section className="relative w-full max-w-[1200px] mx-auto px-4 pb-24 z-20">
         <div className="relative bg-[#FFF7F0] rounded-[40px] overflow-hidden py-16 md:py-24 px-4 md:px-12 flex flex-col items-center text-center">
           {/* Background Illustration */}
-          <img 
-            src="/free-time-bg.svg" 
-            alt="Background Illustration" 
-            className="absolute inset-0 w-full h-full object-cover opacity-10 pointer-events-none mix-blend-multiply"
-          />
+          <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-10 mix-blend-multiply flex items-center justify-center">
+            <img 
+              src="/free-time-bg.svg" 
+              alt="Background Illustration" 
+              className="w-[150vw] h-[150vw] md:w-[100vw] md:h-[100vw] object-cover -rotate-90 max-w-none"
+            />
+          </div>
 
           {/* Floating Elements (CSS only to mimic) */}
           <div className="absolute top-12 left-12 hidden md:flex items-center gap-2">
