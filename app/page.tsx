@@ -83,7 +83,7 @@ export default function HomePage() {
         <GateCountdown />
 
         {/* Content Column (Restricted Width) */}
-        <div className="relative z-20 flex flex-col items-center text-center max-w-[800px] w-full mx-auto">
+        <div className="relative z-20 flex flex-col items-center text-center max-w-[800px] w-full mx-auto mt-8 md:mt-12">
           
           {/* Trust Badge */}
           <div className="inline-flex items-center gap-2 bg-white border border-[#e8e0d8] rounded-[20px] px-[16px] py-[6px] mb-[20px]">
