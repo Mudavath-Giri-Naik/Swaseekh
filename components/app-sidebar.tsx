@@ -255,12 +255,24 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                     <SidebarMenuItem>
                       <SidebarMenuButton
                         asChild
-                        isActive={pathname.startsWith("/admin")}
-                        tooltip="Admin"
+                        isActive={pathname === "/admin"}
+                        tooltip="Overview"
                       >
                         <Link href="/admin">
                           <Sparkles className="h-4 w-4" />
-                          <span>Admin</span>
+                          <span>Overview</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={pathname.startsWith("/admin/users")}
+                        tooltip="Users"
+                      >
+                        <Link href="/admin/users">
+                          <UserIcon className="h-4 w-4" />
+                          <span>Users</span>
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
