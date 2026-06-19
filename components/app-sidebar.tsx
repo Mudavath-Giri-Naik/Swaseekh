@@ -264,18 +264,6 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
-                    <SidebarMenuItem>
-                      <SidebarMenuButton
-                        asChild
-                        isActive={pathname.startsWith("/admin/users")}
-                        tooltip="Users"
-                      >
-                        <Link href="/admin/users">
-                          <UserIcon className="h-4 w-4" />
-                          <span>Users</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
                   </SidebarMenu>
                 </SidebarGroupContent>
               </SidebarGroup>

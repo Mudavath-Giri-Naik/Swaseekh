@@ -34,6 +34,16 @@ interface RecentSale {
   user: { name: string; email: string; image: string }
 }
 
+interface UserInfo {
+  id: string
+  name: string
+  email: string
+  image: string
+  plan: string
+  createdAt: string | null
+  lastLoginAt: string | null
+}
+
 interface Stats {
   totals: {
     revenue: number
@@ -54,6 +64,7 @@ interface Stats {
   planBreakdown: Record<string, number>
   monthlyRevenue: { name: string; total: number }[]
   recentSales: RecentSale[]
+  allUsers: UserInfo[]
 }
 
 /* ─── Helpers ────────────────────────────────────────────────────────── */
@@ -69,6 +80,18 @@ function pctDelta(curr: number, prev: number): string {
   const delta = ((curr - prev) / prev) * 100
   const sign = delta >= 0 ? '+' : ''
   return `${sign}${delta.toFixed(1)}%`
+}
+
+function formatDate(dateStr: string | null) {
+  if (!dateStr) return 'N/A'
+  const date = new Date(dateStr)
+  return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(date)
+}
+
+function formatDateTime(dateStr: string | null) {
+  if (!dateStr) return 'N/A'
+  const date = new Date(dateStr)
+  return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric' }).format(date)
 }
 
 /* ─── Page ───────────────────────────────────────────────────────────── */
@@ -251,6 +274,64 @@ export default function AdminDashboardPage() {
               hint={`${((freeCount / Math.max(1, t.users)) * 100).toFixed(1)}% of users`}
               icon={<Users className="h-4 w-4 text-muted-foreground" />}
             />
+          </div>
+
+          <div className="rounded-md border bg-white shadow-sm overflow-hidden mt-6">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm text-left">
+                <thead className="bg-slate-50 border-b border-slate-200">
+                  <tr>
+                    <th className="h-12 px-4 align-middle font-medium text-slate-500">Name</th>
+                    <th className="h-12 px-4 align-middle font-medium text-slate-500">Email</th>
+                    <th className="h-12 px-4 align-middle font-medium text-slate-500">Plan</th>
+                    <th className="h-12 px-4 align-middle font-medium text-slate-500 hidden md:table-cell">Joined</th>
+                    <th className="h-12 px-4 align-middle font-medium text-slate-500 hidden lg:table-cell">Last Login</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200">
+                  {data.allUsers.map((user) => (
+                    <tr key={user.id} className="transition-colors hover:bg-slate-50/50">
+                      <td className="p-4 align-middle">
+                        <div className="flex items-center gap-3">
+                          <div className="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0 overflow-hidden border">
+                            {user.image ? (
+                              <img src={user.image} alt={user.name} className="h-full w-full object-cover" />
+                            ) : (
+                              <span className="text-xs font-semibold text-slate-500">
+                                {user.name.charAt(0).toUpperCase()}
+                              </span>
+                            )}
+                          </div>
+                          <span className="font-medium text-slate-900">{user.name}</span>
+                        </div>
+                      </td>
+                      <td className="p-4 align-middle text-slate-600">
+                        {user.email}
+                      </td>
+                      <td className="p-4 align-middle">
+                        <div className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold border ${user.plan === 'pro' ? 'border-orange-200 bg-orange-100 text-[#F26419]' : 'border-slate-200 bg-slate-100 text-slate-700'}`}>
+                          {user.plan === 'pro' ? 'Pro' : 'Free'}
+                        </div>
+                      </td>
+                      <td className="p-4 align-middle text-slate-500 hidden md:table-cell">
+                        {formatDate(user.createdAt)}
+                      </td>
+                      <td className="p-4 align-middle text-slate-500 hidden lg:table-cell">
+                        {formatDateTime(user.lastLoginAt)}
+                      </td>
+                    </tr>
+                  ))}
+                  
+                  {data.allUsers.length === 0 && (
+                    <tr>
+                      <td colSpan={5} className="p-8 text-center text-slate-500">
+                        No users found.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </TabsContent>
       </Tabs>
