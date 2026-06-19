@@ -73,7 +73,7 @@ const TimeSpentCard = () => (
 
 export default function HomePage() {
   return (
-    <div className={`relative min-h-screen bg-[#FCFBF9] ${inter.className} overflow-hidden flex flex-col`}>
+    <div className={`relative min-h-screen bg-[#FCFBF9] ${inter.className} flex flex-col overflow-clip`}>
       <Navbar />
 
       {/* Main Container */}
