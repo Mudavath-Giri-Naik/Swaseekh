@@ -15,6 +15,7 @@ import {
   ArrowUpDown,
   MoreHorizontal,
   Trash,
+  RefreshCw,
 } from 'lucide-react'
 import {
   Card,
@@ -127,7 +128,8 @@ export default function AdminDashboardPage() {
   const [sortField, setSortField] = useState<SortField>('createdAt')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
 
-  useEffect(() => {
+  const fetchData = () => {
+    setLoading(true)
     fetch('/api/admin/stats')
       .then(async (res) => {
         if (!res.ok) {
@@ -138,6 +140,10 @@ export default function AdminDashboardPage() {
       .then(setData)
       .catch((e: Error) => setError(e.message))
       .finally(() => setLoading(false))
+  }
+
+  useEffect(() => {
+    fetchData()
   }, [])
 
   if (loading) {
@@ -362,6 +368,7 @@ export default function AdminDashboardPage() {
               icon={<Activity className="h-4 w-4 text-muted-foreground" />}
               isActive={userFilter === 'active_now'}
               onClick={() => handleFilterClick('active_now')}
+              onRefresh={(e) => { e.stopPropagation(); fetchData() }}
               compactOnMobile
             />
             <StatCard
@@ -504,6 +511,7 @@ function StatCard({
   isActive = false,
   onClick,
   compactOnMobile = false,
+  onRefresh,
 }: {
   title: string
   value: string
@@ -512,17 +520,29 @@ function StatCard({
   isActive?: boolean
   onClick?: () => void
   compactOnMobile?: boolean
+  onRefresh?: (e: React.MouseEvent) => void
 }) {
   return (
     <Card 
       onClick={onClick} 
-      className={`${onClick ? 'cursor-pointer transition-colors hover:border-[#F26419]/50' : ''} ${isActive ? 'border-[#F26419] ring-1 ring-[#F26419]' : ''} ${compactOnMobile ? 'p-1.5 sm:p-0' : ''}`}
+      className={`relative ${onClick ? 'cursor-pointer transition-colors hover:border-[#F26419]/50' : ''} ${isActive ? 'border-[#F26419] ring-1 ring-[#F26419]' : ''} ${compactOnMobile ? 'p-1.5 sm:p-0' : ''}`}
     >
       <CardHeader className={`flex flex-row items-center space-y-0 ${compactOnMobile ? 'p-0 sm:p-6 sm:pb-2 pb-1 justify-center sm:justify-between' : 'pb-2 justify-between'}`}>
         <CardTitle className={`font-medium ${compactOnMobile ? 'text-[10px] leading-[1.1] sm:text-sm text-center sm:text-left truncate w-full sm:w-auto' : 'text-sm'} ${isActive ? 'text-[#F26419]' : ''}`}>
           {title}
         </CardTitle>
-        <div className={compactOnMobile ? 'hidden sm:block' : ''}>{icon}</div>
+        <div className={`flex items-center gap-1 sm:gap-2 ${compactOnMobile ? 'absolute top-1 right-1 sm:static sm:flex' : ''}`}>
+          {onRefresh && (
+            <button 
+              onClick={onRefresh}
+              className="p-1 sm:p-1.5 rounded-full hover:bg-slate-100 text-muted-foreground hover:text-slate-900 transition-colors z-10 bg-white shadow-sm sm:bg-transparent sm:shadow-none border sm:border-transparent"
+              title="Refresh Data"
+            >
+              <RefreshCw className="h-2.5 w-2.5 sm:h-3.5 sm:w-3.5" />
+            </button>
+          )}
+          <div className={compactOnMobile ? 'hidden sm:block' : ''}>{icon}</div>
+        </div>
       </CardHeader>
       <CardContent className={compactOnMobile ? 'p-0 sm:p-6 sm:pt-0 text-center sm:text-left' : ''}>
         <div className={`font-bold ${compactOnMobile ? 'text-sm sm:text-2xl' : 'text-2xl'} ${isActive ? 'text-[#F26419]' : ''}`}>{value}</div>
