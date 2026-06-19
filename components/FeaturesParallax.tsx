@@ -108,13 +108,13 @@ export default function FeaturesParallax() {
   return (
     <>
       <ReactLenis root options={{ autoRaf: false }} ref={lenisRef} />
-      <div ref={containerRef} className="relative z-20 pb-32 pt-24 mt-12 w-[calc(100%-1rem)] md:w-[calc(100%-2rem)] lg:w-[calc(100%-4rem)] mx-auto bg-[#F9E6D0] rounded-[40px] md:rounded-[64px] overflow-clip">
+      <div ref={containerRef} className="relative z-20 pb-20 pt-16 mt-8 w-[calc(100%-1rem)] md:w-[calc(100%-2rem)] lg:w-[calc(100%-4rem)] mx-auto bg-[#F9E6D0] rounded-[40px] md:rounded-[64px] overflow-clip">
         
         {/* Sticky decorative image container */}
         <div className="absolute inset-0 z-30 pointer-events-none hidden md:block">
-          <div className="sticky top-0 h-screen w-full flex items-end justify-between px-0 pb-0">
-            <img src="/object two.svg" alt="Decorative objects left" className="w-[150px] md:w-[220px] lg:w-[320px] h-auto object-contain opacity-90 translate-y-4" />
-            <img src="/objects.svg" alt="Decorative objects right" className="w-[200px] md:w-[300px] lg:w-[450px] h-auto object-contain opacity-90 translate-y-4" />
+          <div className="sticky top-0 h-[60vh] lg:h-[70vh] w-full flex items-end justify-between px-0 pb-0">
+            <img src="/object two.svg" alt="Decorative objects left" className="w-[120px] md:w-[180px] lg:w-[260px] h-auto object-contain opacity-90 translate-y-2" />
+            <img src="/objects.svg" alt="Decorative objects right" className="w-[150px] md:w-[220px] lg:w-[320px] h-auto object-contain opacity-90 translate-y-2" />
           </div>
         </div>
 

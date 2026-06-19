@@ -24,7 +24,7 @@ export default function ParallaxCardEffect({
   const scale = useTransform(progress, range, [1, targetScale]);
 
   return (
-    <div className="sticky top-0 flex h-screen items-start justify-center pt-24 md:pt-[15vh]">
+    <div className="sticky top-0 flex h-[60vh] lg:h-[70vh] items-start justify-center pt-16 md:pt-[12vh]">
       <motion.div
         style={{
           scale,
