@@ -295,7 +295,12 @@ export default function AdminDashboardPage() {
                         <div className="flex items-center gap-3">
                           <div className="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0 overflow-hidden border">
                             {user.image ? (
-                              <img src={user.image} alt={user.name} className="h-full w-full object-cover" />
+                              <img 
+                                src={user.image} 
+                                alt={user.name} 
+                                className="h-full w-full object-cover"
+                                referrerPolicy="no-referrer"
+                              />
                             ) : (
                               <span className="text-xs font-semibold text-slate-500">
                                 {user.name.charAt(0).toUpperCase()}
