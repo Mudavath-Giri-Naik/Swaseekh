@@ -180,50 +180,21 @@ export default function HomePage() {
       </section>
 
       {/* Smart People Community Section */}
-      <section className="relative w-full max-w-[1200px] mx-auto px-4 pb-24 md:pb-32 z-20">
-        <div className="relative bg-gradient-to-br from-[#E6E6FA] via-[#FFF0F5] to-[#E0FFFF] rounded-[40px] overflow-hidden py-16 md:py-24 px-4 flex flex-col items-center justify-center text-center shadow-sm border border-white/50">
-          
-          {/* Decorative Animated Background Elements */}
-          <div className="absolute top-10 left-[10%] w-24 h-24 bg-[#FFB6C1]/40 rounded-full blur-2xl animate-[float_8s_ease-in-out_infinite]"></div>
-          <div className="absolute bottom-10 right-[10%] w-32 h-32 bg-[#98FB98]/40 rounded-full blur-2xl animate-[float_6s_ease-in-out_infinite_reverse]"></div>
-          <div className="absolute top-1/2 left-1/4 w-16 h-16 bg-[#FFE4B5]/50 rounded-full blur-xl animate-[float_5s_ease-in-out_infinite]"></div>
-          
-          {/* Floating Geometric Shapes */}
-          <div className="absolute top-16 right-[15%] hidden md:block animate-[float_5s_ease-in-out_infinite]">
-            <div className="w-8 h-8 bg-[#FF6B6B] rounded-lg rotate-12 shadow-lg opacity-80"></div>
-          </div>
-          <div className="absolute bottom-20 left-[15%] hidden md:block animate-[float_7s_ease-in-out_infinite_reverse]">
-            <div className="w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-b-[20px] border-b-[#4ECDC4] -rotate-12 drop-shadow-lg opacity-80"></div>
-          </div>
-          <div className="absolute top-1/3 left-[8%] hidden lg:block animate-[float_6s_ease-in-out_infinite]">
-             <div className="w-6 h-6 rounded-full bg-[#FFE66D] shadow-lg opacity-80"></div>
-          </div>
-          <div className="absolute bottom-1/3 right-[8%] hidden lg:block animate-[float_8s_ease-in-out_infinite]">
-             <div className="relative w-8 h-8 opacity-80 drop-shadow-lg rotate-45">
-                <div className="absolute top-1/2 left-0 w-full h-1.5 bg-[#9D71FD] -translate-y-1/2 rounded-full"></div>
-                <div className="absolute top-0 left-1/2 w-1.5 h-full bg-[#9D71FD] -translate-x-1/2 rounded-full"></div>
-             </div>
-          </div>
-
-          <div className="relative z-10 flex flex-col items-center">
-            <div className="relative w-[180px] h-[180px] md:w-[220px] md:h-[220px] bg-white rounded-[40px] md:rounded-[50px] shadow-2xl flex items-center justify-center mb-10 border-4 border-white/80 animate-[float_6s_ease-in-out_infinite]">
-              {/* Subtle pulsing glow behind the SVG */}
-              <div className="absolute inset-0 rounded-[40px] md:rounded-[50px] bg-gradient-to-r from-[#9D71FD]/20 to-[#F26419]/20 blur-xl animate-pulse"></div>
-              <img 
-                src="/smart-people.svg" 
-                alt="Smart People Community" 
-                className="w-[100px] h-[100px] md:w-[130px] md:h-[130px] object-contain relative z-10"
-              />
-            </div>
-            
-            <h2 className="text-[#1A1A2E] text-2xl md:text-4xl font-extrabold leading-[1.2] tracking-tight max-w-[600px] mb-4">
-              Join a Community of Smart Learners
-            </h2>
-            <p className="text-[#666] text-sm md:text-base leading-[1.6] max-w-[500px]">
-              Surround yourself with driven individuals. Elevate your skills and reach your full potential together.
-            </p>
-          </div>
+      <section className="relative w-full max-w-[1200px] mx-auto px-4 pb-24 md:pb-32 z-20 flex flex-col items-center justify-center text-center">
+        <div className="w-full flex justify-center mb-8">
+          <img 
+            src="/smart-people.svg" 
+            alt="Smart People Community" 
+            className="w-[280px] sm:w-[350px] md:w-[450px] h-auto object-contain"
+          />
         </div>
+        
+        <h2 className="text-[#1A1A2E] text-2xl md:text-4xl font-extrabold leading-[1.2] tracking-tight max-w-[600px] mb-4">
+          Join a Community of Smart Learners
+        </h2>
+        <p className="text-[#666] text-sm md:text-base leading-[1.6] max-w-[500px]">
+          Surround yourself with driven individuals. Elevate your skills and reach your full potential together.
+        </p>
       </section>
 
       {/* Newsletter Section */}
