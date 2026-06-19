@@ -4,10 +4,6 @@ import Link from "next/link"
 import { cn } from "@/lib/utils"
 
 export interface ShimmerButtonProps extends ComponentPropsWithoutRef<"button"> {
-  shimmerColor?: string
-  shimmerSize?: string
-  borderRadius?: string
-  shimmerDuration?: string
   background?: string
   className?: string
   children?: React.ReactNode
@@ -20,10 +16,6 @@ export const ShimmerButton = React.forwardRef<
 >(
   (
     {
-      shimmerColor = "#ffffff",
-      shimmerSize = "0.05em",
-      shimmerDuration = "3s",
-      borderRadius = "100px",
       background = "rgba(0, 0, 0, 1)",
       className,
       children,
@@ -32,56 +24,36 @@ export const ShimmerButton = React.forwardRef<
     },
     ref
   ) => {
-    const style = {
-      "--spread": "90deg",
-      "--shimmer-color": shimmerColor,
-      "--radius": borderRadius,
-      "--speed": shimmerDuration,
-      "--cut": shimmerSize,
-      "--bg": background,
-    } as CSSProperties
-    
     const classes = cn(
-      "group relative z-0 flex cursor-pointer items-center justify-center overflow-hidden [border-radius:var(--radius)] border border-white/10 px-6 py-3 whitespace-nowrap text-white [background:var(--bg)]",
+      "group relative flex cursor-pointer items-center justify-center overflow-hidden rounded-full border border-white/10 px-6 py-3 whitespace-nowrap text-white",
       "transform-gpu transition-transform duration-300 ease-in-out active:translate-y-px",
       className
     )
 
     const innerContent = (
       <>
-        {/* spark container */}
+        {/* Background */}
         <div
-          className={cn(
-            "-z-30 blur-[2px]",
-            "@container-[size] absolute inset-0 overflow-visible"
-          )}
-        >
-          {/* spark */}
-          <div className="animate-shimmer-slide absolute inset-0 aspect-[1] h-[100cqh] rounded-none [mask:none]">
-            {/* spark before */}
-            <div className="animate-spin-around absolute -inset-full w-auto [translate:0_0] rotate-0 [background:conic-gradient(from_calc(270deg-(var(--spread)*0.5)),transparent_0,var(--shimmer-color)_var(--spread),transparent_var(--spread))]" />
-          </div>
-        </div>
+          className="absolute inset-0 -z-20"
+          style={{ background }}
+        />
         
+        {/* Shimmer Sweep Animation */}
+        <div className="absolute inset-0 -z-10 animate-shimmer-sweep bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+
+        {/* Content */}
         <div className="relative z-10 flex items-center gap-3">
           {children}
         </div>
 
-        {/* Highlight */}
+        {/* Highlight on hover/active */}
         <div
           className={cn(
-            "absolute inset-0 size-full",
-            "rounded-2xl px-4 py-1.5 text-sm font-medium shadow-[inset_0_-8px_10px_#ffffff1f]",
+            "absolute inset-0 size-full pointer-events-none",
+            "rounded-full px-4 py-1.5 shadow-[inset_0_-8px_10px_#ffffff1f]",
             "transform-gpu transition-all duration-300 ease-in-out",
             "group-hover:shadow-[inset_0_-6px_10px_#ffffff3f]",
             "group-active:shadow-[inset_0_-10px_10px_#ffffff3f]"
-          )}
-        />
-
-        {/* backdrop */}
-        <div
-          className={cn(
-            "absolute inset-(--cut) -z-20 [border-radius:var(--radius)] [background:var(--bg)]"
           )}
         />
       </>
@@ -89,14 +61,14 @@ export const ShimmerButton = React.forwardRef<
 
     if (href) {
       return (
-        <Link href={href} style={style} className={classes} {...(props as any)}>
+        <Link href={href} className={classes} {...(props as any)}>
           {innerContent}
         </Link>
       )
     }
 
     return (
-      <button style={style} className={classes} ref={ref} {...props}>
+      <button className={classes} ref={ref} {...props}>
         {innerContent}
       </button>
     )
