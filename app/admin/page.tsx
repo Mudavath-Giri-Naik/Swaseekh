@@ -61,6 +61,7 @@ interface UserInfo {
   plan: string
   createdAt: string | null
   lastLoginAt: string | null
+  isAdmin?: boolean
 }
 
 interface Stats {
@@ -439,9 +440,15 @@ export default function AdminDashboardPage() {
                     </TableCell>
                     <TableCell className="text-slate-600">{user.email}</TableCell>
                     <TableCell>
-                      <div className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold border ${user.plan === 'pro' ? 'border-orange-200 bg-orange-100 text-[#F26419]' : 'border-slate-200 bg-slate-100 text-slate-700'}`}>
-                        {user.plan === 'pro' ? 'Pro' : 'Free'}
-                      </div>
+                      {user.isAdmin ? (
+                        <div className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold border border-blue-200 bg-blue-100 text-blue-700">
+                          Admin
+                        </div>
+                      ) : (
+                        <div className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold border ${user.plan === 'pro' ? 'border-orange-200 bg-orange-100 text-[#F26419]' : 'border-slate-200 bg-slate-100 text-slate-700'}`}>
+                          {user.plan === 'pro' ? 'Pro' : 'Free'}
+                        </div>
+                      )}
                     </TableCell>
                     <TableCell className="text-slate-500 hidden md:table-cell">{formatDate(user.createdAt)}</TableCell>
                     <TableCell className="text-slate-500 hidden lg:table-cell">{formatDateTime(user.lastLoginAt)}</TableCell>
