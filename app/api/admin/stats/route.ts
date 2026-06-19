@@ -31,6 +31,7 @@ export async function GET(_req: NextRequest) {
     const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1)
     const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1)
     const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000)
+    const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000)
 
     const [
       totalUsers,
@@ -41,6 +42,7 @@ export async function GET(_req: NextRequest) {
       paidThisMonth,
       paidLastMonth,
       activeNow,
+      dailyActive,
       totalQuestions,
       totalSubjects,
       totalTopics,
@@ -74,6 +76,7 @@ export async function GET(_req: NextRequest) {
         { $group: { _id: null, total: { $sum: '$amount' }, count: { $sum: 1 } } },
       ]),
       UserModel.countDocuments({ lastLoginAt: { $gte: oneHourAgo } }),
+      UserModel.countDocuments({ lastLoginAt: { $gte: oneDayAgo } }),
       QuestionModel.countDocuments({}),
       SubjectModel.countDocuments({}),
       TopicModel.countDocuments({}),
@@ -205,6 +208,7 @@ export async function GET(_req: NextRequest) {
           salesThisMonth,
           salesLastMonth,
           activeNow,
+          dailyActive,
           questions: totalQuestions,
           subjects: totalSubjects,
           topics: totalTopics,

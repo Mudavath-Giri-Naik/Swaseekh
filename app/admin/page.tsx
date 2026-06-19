@@ -56,6 +56,7 @@ interface Stats {
     salesThisMonth: number
     salesLastMonth: number
     activeNow: number
+    dailyActive: number
     questions: number
     subjects: number
     topics: number
@@ -100,6 +101,7 @@ export default function AdminDashboardPage() {
   const [data, setData] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [userFilter, setUserFilter] = useState<'all' | 'pro' | 'free' | 'active_now' | 'daily_active'>('all')
 
   useEffect(() => {
     fetch('/api/admin/stats')
@@ -139,6 +141,30 @@ export default function AdminDashboardPage() {
   const t = data.totals
   const proCount = data.planBreakdown.pro ?? 0
   const freeCount = data.planBreakdown.free ?? 0
+
+  const handleFilterClick = (filter: 'all' | 'pro' | 'free' | 'active_now' | 'daily_active') => {
+    setUserFilter((prev) => (prev === filter ? 'all' : filter))
+  }
+
+  const nowTime = new Date().getTime()
+  const oneHourMs = 60 * 60 * 1000
+  const oneDayMs = 24 * 60 * 60 * 1000
+
+  const filteredUsers = data.allUsers.filter((u) => {
+    if (userFilter === 'all') return true
+    if (userFilter === 'pro') return u.plan === 'pro'
+    if (userFilter === 'free') return u.plan !== 'pro'
+    
+    if (userFilter === 'active_now') {
+      if (!u.lastLoginAt) return false
+      return nowTime - new Date(u.lastLoginAt).getTime() <= oneHourMs
+    }
+    if (userFilter === 'daily_active') {
+      if (!u.lastLoginAt) return false
+      return nowTime - new Date(u.lastLoginAt).getTime() <= oneDayMs
+    }
+    return true
+  })
 
   return (
     <div className="flex flex-col">
@@ -255,24 +281,46 @@ export default function AdminDashboardPage() {
 
         {/* ─── User breakdown ──────────────────────────────────── */}
         <TabsContent value="users" className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             <StatCard
               title="Total Users"
               value={String(t.users)}
               hint="across all plans"
               icon={<Users className="h-4 w-4 text-muted-foreground" />}
+              isActive={userFilter === 'all'}
+              onClick={() => handleFilterClick('all')}
             />
             <StatCard
               title="Pro"
               value={String(proCount)}
               hint={`${((proCount / Math.max(1, t.users)) * 100).toFixed(1)}% of users`}
               icon={<CircleDollarSign className="h-4 w-4 text-muted-foreground" />}
+              isActive={userFilter === 'pro'}
+              onClick={() => handleFilterClick('pro')}
             />
             <StatCard
               title="Free"
               value={String(freeCount)}
               hint={`${((freeCount / Math.max(1, t.users)) * 100).toFixed(1)}% of users`}
               icon={<Users className="h-4 w-4 text-muted-foreground" />}
+              isActive={userFilter === 'free'}
+              onClick={() => handleFilterClick('free')}
+            />
+            <StatCard
+              title="Active Now"
+              value={String(t.activeNow)}
+              hint="logged in < 1h ago"
+              icon={<Activity className="h-4 w-4 text-muted-foreground" />}
+              isActive={userFilter === 'active_now'}
+              onClick={() => handleFilterClick('active_now')}
+            />
+            <StatCard
+              title="Daily Active"
+              value={String(t.dailyActive)}
+              hint="logged in < 24h ago"
+              icon={<Activity className="h-4 w-4 text-muted-foreground" />}
+              isActive={userFilter === 'daily_active'}
+              onClick={() => handleFilterClick('daily_active')}
             />
           </div>
 
@@ -289,7 +337,7 @@ export default function AdminDashboardPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200">
-                  {data.allUsers.map((user) => (
+                  {filteredUsers.map((user) => (
                     <tr key={user.id} className="transition-colors hover:bg-slate-50/50">
                       <td className="p-4 align-middle">
                         <div className="flex items-center gap-3">
@@ -327,7 +375,7 @@ export default function AdminDashboardPage() {
                     </tr>
                   ))}
                   
-                  {data.allUsers.length === 0 && (
+                  {filteredUsers.length === 0 && (
                     <tr>
                       <td colSpan={5} className="p-8 text-center text-slate-500">
                         No users found.
@@ -352,22 +400,29 @@ function StatCard({
   value,
   hint,
   icon,
+  isActive = false,
+  onClick,
 }: {
   title: string
   value: string
   hint: string
   icon: React.ReactNode
+  isActive?: boolean
+  onClick?: () => void
 }) {
   return (
-    <Card>
+    <Card 
+      onClick={onClick} 
+      className={`${onClick ? 'cursor-pointer transition-colors hover:border-[#F26419]/50' : ''} ${isActive ? 'border-[#F26419] ring-1 ring-[#F26419]' : ''}`}
+    >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">
+        <CardTitle className={`text-sm font-medium ${isActive ? 'text-[#F26419]' : ''}`}>
           {title}
         </CardTitle>
         {icon}
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
+        <div className={`text-2xl font-bold ${isActive ? 'text-[#F26419]' : ''}`}>{value}</div>
         <p className="mt-1 text-xs text-muted-foreground">{hint}</p>
       </CardContent>
     </Card>
