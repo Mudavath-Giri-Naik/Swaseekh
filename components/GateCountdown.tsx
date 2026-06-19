@@ -41,13 +41,13 @@ export default function GateCountdown() {
 
   return (
     <div className="w-full max-w-[800px] mx-auto mt-6 md:mt-8 mb-8 md:mb-12 px-4 z-20 flex justify-center">
-      <div className="flex items-center gap-1.5 sm:gap-2 text-2xl sm:text-3xl md:text-4xl font-bold text-[#1A1A2E] tracking-tighter">
+      <div className="flex items-center gap-1 sm:gap-1.5 text-xl sm:text-2xl md:text-3xl font-bold text-[#1A1A2E] tracking-tighter">
         <Countdown value={timeLeft.days} padStart={true} />
-        <span className="text-[#A1A1AA] font-normal mx-0.5 sm:mx-1 relative -top-0.5">:</span>
+        <span className="text-[#A1A1AA] font-normal mx-0.5 relative -top-[1px]">:</span>
         <Countdown value={timeLeft.hours} padStart={true} />
-        <span className="text-[#A1A1AA] font-normal mx-0.5 sm:mx-1 relative -top-0.5">:</span>
+        <span className="text-[#A1A1AA] font-normal mx-0.5 relative -top-[1px]">:</span>
         <Countdown value={timeLeft.minutes} padStart={true} />
-        <span className="text-[#A1A1AA] font-normal mx-0.5 sm:mx-1 relative -top-0.5">:</span>
+        <span className="text-[#A1A1AA] font-normal mx-0.5 relative -top-[1px]">:</span>
         <Countdown value={timeLeft.seconds} padStart={true} />
       </div>
     </div>
