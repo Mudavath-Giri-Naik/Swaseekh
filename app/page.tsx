@@ -4,7 +4,7 @@ import GateCountdown from '@/components/GateCountdown'
 import FeaturesParallax from '@/components/FeaturesParallax'
 import { Inter } from 'next/font/google'
 import { ChevronsRight, ArrowUpRight, Star } from 'lucide-react'
-import { RainbowButton } from '@/components/magicui/rainbow-button'
+import { RainbowButton } from '@/components/ui/rainbow-button'
 
 const inter = Inter({ subsets: ['latin'], display: 'swap' })
 
@@ -123,11 +123,10 @@ export default function HomePage() {
               <img src="/plant-illustration.svg" alt="" className="w-full h-auto drop-shadow-sm -rotate-[100deg]" />
             </div>
             
-            <RainbowButton 
-              href="/dashboard"
-              className="px-6 py-2.5 text-[15px] h-auto rounded-md"
-            >
-              Get Started for Free
+            <RainbowButton asChild className="px-6 py-2.5 text-[15px] h-auto rounded-md">
+              <Link href="/dashboard">
+                Get Started for Free
+              </Link>
             </RainbowButton>
 
             {/* Right Plant */}
