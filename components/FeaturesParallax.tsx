@@ -108,16 +108,16 @@ export default function FeaturesParallax() {
   return (
     <>
       <ReactLenis root options={{ autoRaf: false }} ref={lenisRef} />
-      <div ref={containerRef} className="relative z-20 pb-32 pt-24 mt-12 w-full max-w-[1440px] mx-auto">
+      <div ref={containerRef} className="relative z-20 pb-32 pt-24 mt-12 w-full">
         
         {/* Sticky decorative image container */}
         <div className="absolute inset-0 z-30 pointer-events-none hidden md:block">
           <div className="sticky top-0 h-screen w-full flex items-end justify-end pb-12 pr-0">
-            <img src="/objects.svg" alt="Decorative objects" className="w-[200px] md:w-[300px] lg:w-[450px] h-auto object-contain opacity-90" />
+            <img src="/objects.svg" alt="Decorative objects" className="w-[200px] md:w-[300px] lg:w-[450px] h-auto object-contain opacity-90 translate-x-[5%]" />
           </div>
         </div>
 
-        <div className="mx-auto flex flex-col items-center relative z-10">
+        <div className="mx-auto flex flex-col items-center relative z-10 w-full max-w-[1440px]">
           {cardItems.map((cardItem, i) => (
             <ParallaxCardItem item={cardItem} key={i} id={i} />
           ))}
