@@ -4,6 +4,7 @@ import GateCountdown from '@/components/GateCountdown'
 import FeaturesParallax from '@/components/FeaturesParallax'
 import { Inter } from 'next/font/google'
 import { ChevronsRight, ArrowUpRight, Star } from 'lucide-react'
+import { RainbowButton } from '@/components/magicui/rainbow-button'
 
 const inter = Inter({ subsets: ['latin'], display: 'swap' })
 
@@ -122,12 +123,12 @@ export default function HomePage() {
               <img src="/plant-illustration.svg" alt="" className="w-full h-auto drop-shadow-sm -rotate-[100deg]" />
             </div>
             
-            <Link 
+            <RainbowButton 
               href="/dashboard"
-              className="inline-flex items-center justify-center bg-[#1A1A1A] hover:bg-[#2C2C2C] active:bg-[#3D3D3D] text-[#FAFAFA] rounded-md px-6 py-2.5 text-[15px] font-medium transition-colors shadow-sm border border-transparent"
+              className="px-6 py-2.5 text-[15px] h-auto rounded-md"
             >
               Get Started for Free
-            </Link>
+            </RainbowButton>
 
             {/* Right Plant */}
             <div className="w-[32px] md:w-[42px] opacity-80 pointer-events-none animate-[float_8s_ease-in-out_infinite_reverse]">
