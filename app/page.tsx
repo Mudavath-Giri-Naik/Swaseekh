@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Navbar from '@/components/Navbar'
+import GateCountdown from '@/components/GateCountdown'
 import { Inter } from 'next/font/google'
 import { ChevronsRight, ArrowUpRight, Star } from 'lucide-react'
 
@@ -75,8 +76,10 @@ export default function HomePage() {
       <Navbar />
 
       {/* Main Container */}
-      <main className="relative flex-1 flex flex-col items-center justify-center w-full mx-auto px-4 pt-[140px] md:pt-[220px] pb-20">
+      <main className="relative flex-1 flex flex-col items-center justify-center w-full mx-auto px-4 pt-[100px] md:pt-[120px] pb-20">
         
+        <GateCountdown />
+
         {/* Content Column (Restricted Width) */}
         <div className="relative z-20 flex flex-col items-center text-center max-w-[800px] w-full mx-auto">
           
