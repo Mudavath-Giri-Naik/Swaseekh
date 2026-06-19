@@ -89,6 +89,13 @@ export default function SubjectDashboard({ params }: { params: { subjectId: stri
       })
   }, [params.subjectId])
 
+  // Set initial topic id if from cache
+  useEffect(() => {
+    if (data && !selectedTopicId && data.topics && data.topics.length > 0) {
+      setSelectedTopicId(data.topics[0]._id)
+    }
+  }, [data, selectedTopicId])
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[80vh]">
@@ -109,13 +116,6 @@ export default function SubjectDashboard({ params }: { params: { subjectId: stri
   const { subject, topics, userProgress, totalConcepts, totalPyqs } = data
   const topicsCompleted = topics.filter(t => t.stats.totalConcepts > 0 && t.userProgress.conceptsReadCount === t.stats.totalConcepts).length
   const overallProgress = topics.length > 0 ? Math.round((topicsCompleted / topics.length) * 100) : 0
-
-  // Set initial topic id if from cache
-  useEffect(() => {
-    if (data && !selectedTopicId && data.topics.length > 0) {
-      setSelectedTopicId(data.topics[0]._id)
-    }
-  }, [data, selectedTopicId])
 
   // Calculate weakest topic
   const topicsWithAttempts = topics.filter(t => t.userProgress.pyqsAttemptedCount > 0)
