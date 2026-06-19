@@ -99,4 +99,8 @@ export const ShimmerButton = React.forwardRef<
       <button style={style} className={classes} ref={ref} {...props}>
         {innerContent}
       </button>
+    )
+  }
+)
+
 ShimmerButton.displayName = "ShimmerButton"
