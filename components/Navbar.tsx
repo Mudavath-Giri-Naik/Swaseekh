@@ -7,6 +7,7 @@ import { signIn, useSession } from 'next-auth/react'
 import { Menu, X, ChevronsRight } from 'lucide-react'
 import { Inter } from 'next/font/google'
 import Image from 'next/image'
+import { ShimmerButton } from '@/components/ui/shimmer-button'
 
 const inter = Inter({ subsets: ['latin'], display: 'swap' })
 
@@ -70,9 +71,11 @@ export default function Navbar() {
           {/* Right: CTA */}
           <div className="shrink-0">
             {session?.user ? (
-              <Link 
+              <ShimmerButton 
                 href="/dashboard"
-                className="group flex items-center gap-3 bg-[#F26419] hover:bg-[#d95815] text-white rounded-[50px] pl-2.5 pr-6 py-2 transition-all"
+                background="#F26419"
+                shimmerColor="#ffffff"
+                className="pl-2.5 pr-6 py-2 rounded-[50px] shadow-sm"
               >
                 <div className="bg-white rounded-full flex items-center justify-center w-[30px] h-[30px] overflow-hidden shrink-0">
                   {session.user.image ? (
@@ -89,22 +92,24 @@ export default function Navbar() {
                     </span>
                   )}
                 </div>
-                <span className="text-[16px] font-medium text-[#1A1A2E]">
+                <span className="text-[16px] font-medium text-white">
                   {session.user.name 
                     ? (session.user.name.length > 15 ? session.user.name.slice(0, 15) + '...' : session.user.name) 
                     : 'Dashboard'}
                 </span>
-              </Link>
+              </ShimmerButton>
             ) : (
-              <button 
+              <ShimmerButton 
                 onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
-                className="group flex items-center gap-3 bg-[#F26419] hover:bg-[#d95815] text-white rounded-[50px] pl-1.5 pr-6 py-2 transition-all"
+                background="#F26419"
+                shimmerColor="#ffffff"
+                className="pl-1.5 pr-6 py-2 rounded-[50px] shadow-sm"
               >
                 <div className="bg-white text-[#F26419] rounded-full p-1.5 flex items-center justify-center w-[30px] h-[30px]">
                   <ChevronsRight size={18} strokeWidth={3} />
                 </div>
-                <span className="text-[16px] font-medium">Sign in</span>
-              </button>
+                <span className="text-[16px] font-medium text-white">Sign in</span>
+              </ShimmerButton>
             )}
           </div>
         </div>
@@ -147,10 +152,12 @@ export default function Navbar() {
               
               <div className="mt-3">
                 {session?.user ? (
-                  <Link 
+                  <ShimmerButton 
                     href="/dashboard"
                     onClick={() => setMobileOpen(false)}
-                    className="flex items-center gap-3 bg-[#F26419] text-white rounded-[50px] pl-2.5 pr-6 py-2 transition-all"
+                    background="#F26419"
+                    shimmerColor="#ffffff"
+                    className="pl-2.5 pr-6 py-2 rounded-[50px] shadow-sm w-full"
                   >
                     <div className="bg-white rounded-full flex items-center justify-center w-[30px] h-[30px] overflow-hidden shrink-0">
                       {session.user.image ? (
@@ -167,22 +174,24 @@ export default function Navbar() {
                         </span>
                       )}
                     </div>
-                    <span className="text-[18px] font-medium text-[#1A1A2E]">
+                    <span className="text-[18px] font-medium text-white">
                       {session.user.name 
                         ? (session.user.name.length > 15 ? session.user.name.slice(0, 15) + '...' : session.user.name) 
                         : 'Dashboard'}
                     </span>
-                  </Link>
+                  </ShimmerButton>
                 ) : (
-                  <button 
+                  <ShimmerButton 
                     onClick={() => { setMobileOpen(false); signIn('google', { callbackUrl: '/dashboard' }); }}
-                    className="flex items-center gap-3 bg-[#F26419] text-white rounded-full pl-1.5 pr-6 py-2"
+                    background="#F26419"
+                    shimmerColor="#ffffff"
+                    className="pl-1.5 pr-6 py-2 rounded-[50px] shadow-sm w-full"
                   >
                     <div className="bg-white text-[#F26419] rounded-full p-1.5 flex items-center justify-center w-[30px] h-[30px]">
                       <ChevronsRight size={18} strokeWidth={3} />
                     </div>
-                    <span className="text-[18px] font-medium">Sign in</span>
-                  </button>
+                    <span className="text-[18px] font-medium text-white">Sign in</span>
+                  </ShimmerButton>
                 )}
               </div>
             </nav>
