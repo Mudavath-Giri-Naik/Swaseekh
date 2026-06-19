@@ -12,7 +12,7 @@ import { ShimmerButton } from '@/components/ui/shimmer-button'
 const inter = Inter({ subsets: ['latin'], display: 'swap' })
 
 const NAV_LINKS = [
-  { label: 'Dashboard', href: '/dashboard' },
+  { label: 'Syllabus', href: '/dashboard' },
   { label: 'PYQs', href: '/gate/questions' },
   { label: 'Aptitude', href: '/aptitude' },
   { label: 'Mock Tests', href: '/mock-tests' },
