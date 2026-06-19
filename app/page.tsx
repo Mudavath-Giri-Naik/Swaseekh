@@ -181,20 +181,13 @@ export default function HomePage() {
 
       {/* Smart People Community Section */}
       <section className="relative w-full max-w-[1200px] mx-auto px-4 pb-24 md:pb-32 z-20 flex flex-col items-center justify-center text-center">
-        <div className="w-full flex justify-center mb-8">
+        <div className="w-full flex justify-center">
           <img 
             src="/smart-people.svg" 
             alt="Smart People Community" 
             className="w-[280px] sm:w-[350px] md:w-[450px] h-auto object-contain"
           />
         </div>
-        
-        <h2 className="text-[#1A1A2E] text-2xl md:text-4xl font-extrabold leading-[1.2] tracking-tight max-w-[600px] mb-4">
-          Join a Community of Smart Learners
-        </h2>
-        <p className="text-[#666] text-sm md:text-base leading-[1.6] max-w-[500px]">
-          Surround yourself with driven individuals. Elevate your skills and reach your full potential together.
-        </p>
       </section>
 
       {/* Newsletter Section */}
