@@ -41,44 +41,44 @@ export default function GateCountdown() {
 
   const TimeBlock = ({ value, label }: { value: number, label: string }) => (
     <div className="flex flex-col items-center">
-      <div className="bg-white/80 backdrop-blur-md border border-[#E8E0D8] rounded-xl w-14 h-16 sm:w-16 sm:h-20 flex items-center justify-center shadow-sm">
-        <span className="text-2xl sm:text-3xl font-bold text-[#1A1A2E] tabular-nums tracking-tight">
+      <div className="bg-white/80 backdrop-blur-md border border-[#E8E0D8] rounded-xl w-12 h-14 sm:w-14 sm:h-16 flex items-center justify-center shadow-sm">
+        <span className="text-xl sm:text-2xl font-bold text-[#1A1A2E] tabular-nums tracking-tight">
           {value.toString().padStart(2, '0')}
         </span>
       </div>
-      <span className="text-[10px] sm:text-xs font-medium text-[#666] mt-2 uppercase tracking-wider">{label}</span>
+      <span className="text-[9px] sm:text-[10px] font-medium text-[#666] mt-2 uppercase tracking-wider">{label}</span>
     </div>
   )
 
   return (
-    <div className="w-full max-w-[800px] mx-auto mb-8 md:mb-12 px-4 z-20 flex flex-col items-center relative">
+    <div className="w-full max-w-[800px] mx-auto mb-8 md:mb-10 px-4 z-20 flex flex-col items-center relative">
       
       {/* Small floating elements to make it premium */}
-      <div className="absolute -left-4 top-4 text-[#F26419]/20 animate-pulse">
-        <CalendarDays size={24} />
+      <div className="absolute -left-2 top-2 text-[#F26419]/20 animate-pulse">
+        <CalendarDays size={20} />
       </div>
-      <div className="absolute -right-2 -top-2 text-[#4ECDC4]/20 animate-pulse" style={{ animationDelay: '1s' }}>
-        <Clock size={20} />
+      <div className="absolute -right-1 -top-1 text-[#4ECDC4]/20 animate-pulse" style={{ animationDelay: '1s' }}>
+        <Clock size={16} />
       </div>
 
-      <div className="flex flex-col items-center p-6 sm:p-8 rounded-[32px] bg-gradient-to-b from-white/60 to-transparent backdrop-blur-sm border border-white/40 shadow-[0_8px_32px_-12px_rgba(0,0,0,0.08)] relative overflow-hidden">
+      <div className="flex flex-col items-center p-4 sm:p-6 rounded-[24px] bg-gradient-to-b from-white/60 to-transparent backdrop-blur-sm border border-white/40 shadow-[0_8px_32px_-12px_rgba(0,0,0,0.08)] relative overflow-hidden">
         {/* Subtle decorative glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-24 bg-gradient-to-b from-[#F26419]/5 to-transparent blur-2xl"></div>
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-20 bg-gradient-to-b from-[#F26419]/5 to-transparent blur-xl"></div>
         
-        <div className="flex items-center gap-2 mb-6">
-          <div className="h-1.5 w-1.5 rounded-full bg-[#F26419] animate-ping"></div>
-          <span className="text-xs sm:text-sm font-semibold text-[#F26419] uppercase tracking-widest">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="h-1 w-1 rounded-full bg-[#F26419] animate-ping"></div>
+          <span className="text-[10px] sm:text-xs font-semibold text-[#F26419] uppercase tracking-widest">
             GATE 2027 Countdown
           </span>
         </div>
 
-        <div className="flex items-center gap-3 sm:gap-4 md:gap-6 z-10">
+        <div className="flex items-center gap-2 sm:gap-4 md:gap-5 z-10">
           <TimeBlock value={timeLeft.days} label="Days" />
-          <span className="text-xl sm:text-2xl font-bold text-[#CCC] -mt-6">:</span>
+          <span className="text-lg sm:text-xl font-bold text-[#CCC] -mt-5">:</span>
           <TimeBlock value={timeLeft.hours} label="Hours" />
-          <span className="text-xl sm:text-2xl font-bold text-[#CCC] -mt-6">:</span>
+          <span className="text-lg sm:text-xl font-bold text-[#CCC] -mt-5">:</span>
           <TimeBlock value={timeLeft.minutes} label="Mins" />
-          <span className="text-xl sm:text-2xl font-bold text-[#CCC] -mt-6">:</span>
+          <span className="text-lg sm:text-xl font-bold text-[#CCC] -mt-5">:</span>
           <TimeBlock value={timeLeft.seconds} label="Secs" />
         </div>
       </div>
