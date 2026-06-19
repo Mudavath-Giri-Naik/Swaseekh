@@ -326,7 +326,7 @@ export default function AdminDashboardPage() {
 
         {/* ─── User breakdown ──────────────────────────────────── */}
         <TabsContent value="users" className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="grid grid-cols-5 gap-2 sm:gap-4">
             <StatCard
               title="Total Users"
               value={String(t.users)}
@@ -334,6 +334,7 @@ export default function AdminDashboardPage() {
               icon={<Users className="h-4 w-4 text-muted-foreground" />}
               isActive={userFilter === 'all'}
               onClick={() => handleFilterClick('all')}
+              compactOnMobile
             />
             <StatCard
               title="Pro"
@@ -342,6 +343,7 @@ export default function AdminDashboardPage() {
               icon={<CircleDollarSign className="h-4 w-4 text-muted-foreground" />}
               isActive={userFilter === 'pro'}
               onClick={() => handleFilterClick('pro')}
+              compactOnMobile
             />
             <StatCard
               title="Free"
@@ -350,6 +352,7 @@ export default function AdminDashboardPage() {
               icon={<Users className="h-4 w-4 text-muted-foreground" />}
               isActive={userFilter === 'free'}
               onClick={() => handleFilterClick('free')}
+              compactOnMobile
             />
             <StatCard
               title="Active Now"
@@ -358,6 +361,7 @@ export default function AdminDashboardPage() {
               icon={<Activity className="h-4 w-4 text-muted-foreground" />}
               isActive={userFilter === 'active_now'}
               onClick={() => handleFilterClick('active_now')}
+              compactOnMobile
             />
             <StatCard
               title="Daily Active"
@@ -366,6 +370,7 @@ export default function AdminDashboardPage() {
               icon={<Activity className="h-4 w-4 text-muted-foreground" />}
               isActive={userFilter === 'daily_active'}
               onClick={() => handleFilterClick('daily_active')}
+              compactOnMobile
             />
           </div>
 
@@ -491,6 +496,7 @@ function StatCard({
   icon,
   isActive = false,
   onClick,
+  compactOnMobile = false,
 }: {
   title: string
   value: string
@@ -498,21 +504,22 @@ function StatCard({
   icon: React.ReactNode
   isActive?: boolean
   onClick?: () => void
+  compactOnMobile?: boolean
 }) {
   return (
     <Card 
       onClick={onClick} 
-      className={`${onClick ? 'cursor-pointer transition-colors hover:border-[#F26419]/50' : ''} ${isActive ? 'border-[#F26419] ring-1 ring-[#F26419]' : ''}`}
+      className={`${onClick ? 'cursor-pointer transition-colors hover:border-[#F26419]/50' : ''} ${isActive ? 'border-[#F26419] ring-1 ring-[#F26419]' : ''} ${compactOnMobile ? 'p-1.5 sm:p-0' : ''}`}
     >
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className={`text-sm font-medium ${isActive ? 'text-[#F26419]' : ''}`}>
+      <CardHeader className={`flex flex-row items-center space-y-0 ${compactOnMobile ? 'p-0 sm:p-6 sm:pb-2 pb-1 justify-center sm:justify-between' : 'pb-2 justify-between'}`}>
+        <CardTitle className={`font-medium ${compactOnMobile ? 'text-[10px] leading-[1.1] sm:text-sm text-center sm:text-left truncate w-full sm:w-auto' : 'text-sm'} ${isActive ? 'text-[#F26419]' : ''}`}>
           {title}
         </CardTitle>
-        {icon}
+        <div className={compactOnMobile ? 'hidden sm:block' : ''}>{icon}</div>
       </CardHeader>
-      <CardContent>
-        <div className={`text-2xl font-bold ${isActive ? 'text-[#F26419]' : ''}`}>{value}</div>
-        <p className="mt-1 text-xs text-muted-foreground">{hint}</p>
+      <CardContent className={compactOnMobile ? 'p-0 sm:p-6 sm:pt-0 text-center sm:text-left' : ''}>
+        <div className={`font-bold ${compactOnMobile ? 'text-sm sm:text-2xl' : 'text-2xl'} ${isActive ? 'text-[#F26419]' : ''}`}>{value}</div>
+        <p className={`text-xs text-muted-foreground ${compactOnMobile ? 'hidden sm:block mt-1' : 'mt-1'}`}>{hint}</p>
       </CardContent>
     </Card>
   )
