@@ -236,6 +236,7 @@ function QuestionsListPageInner() {
       return unsubscribe
     }
 
+    globalCache.pauseBackgroundSync()
     setLoading(true)
     const qs = new URLSearchParams()
     qs.set('limit', '5000')

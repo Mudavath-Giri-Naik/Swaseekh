@@ -17,13 +17,13 @@ export function enrichQuestion(q: any) {
       : formulaIds[0] ?? null
 
   return {
-    ...q,
+    _id: q._id,
     // Backwards-compatible flattened fields
     year: meta.year,
     marks: meta.marks,
     difficulty: meta.difficulty,
     questionType: meta.type,
-    questionText: q.question,
+    questionText: q.question ?? `Question on ${meta.topic || meta.subtopic || meta.subject || 'GATE Exam'}`,
     correctAnswer: q.answer,
     formulaId: primaryFormulaId,
     formulaIds,
