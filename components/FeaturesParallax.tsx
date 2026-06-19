@@ -108,10 +108,10 @@ export default function FeaturesParallax() {
   return (
     <>
       <ReactLenis root options={{ autoRaf: false }} ref={lenisRef} />
-      <div ref={containerRef} className="relative z-20 mt-12 mb-24 w-[calc(100%-1rem)] md:w-[calc(100%-2rem)] lg:w-[calc(100%-4rem)] mx-auto">
+      <div ref={containerRef} className="relative z-20 mt-12 mb-24 w-[calc(100%-1rem)] md:w-[calc(100%-2rem)] lg:w-[calc(100%-4rem)] mx-auto grid grid-cols-1 grid-rows-1">
         
         {/* Sticky Background Island */}
-        <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="col-start-1 row-start-1 pointer-events-none z-0 w-full h-full pb-[15vh]">
           <div className="sticky top-[25vh] md:top-8 h-[50vh] md:h-[90vh] w-full bg-[#F9E6D0] rounded-[32px] md:rounded-[64px] overflow-clip shadow-sm">
             <div className="absolute bottom-0 left-0 w-full flex justify-between items-end px-0 pb-0">
               <img src="/object two.svg" alt="Decorative objects left" className="w-[80px] md:w-[180px] lg:w-[260px] h-auto object-contain opacity-90 translate-y-2" />
@@ -120,7 +120,7 @@ export default function FeaturesParallax() {
           </div>
         </div>
 
-        <div className="mx-auto flex flex-col items-center relative z-10 w-full max-w-[1440px] pb-[15vh]">
+        <div className="col-start-1 row-start-1 z-10 w-full mx-auto flex flex-col items-center pb-[15vh]">
           {cardItems.map((cardItem, i) => (
             <ParallaxCardItem item={cardItem} key={i} id={i} />
           ))}
