@@ -112,9 +112,9 @@ export default function FeaturesParallax() {
         
         {/* Sticky decorative image container */}
         <div className="absolute inset-0 z-30 pointer-events-none hidden md:block">
-          <div className="sticky top-0 h-screen w-full flex items-end justify-between pb-2 px-0">
-            <img src="/object two.svg" alt="Decorative objects left" className="w-[150px] md:w-[220px] lg:w-[320px] h-auto object-contain opacity-90" />
-            <img src="/objects.svg" alt="Decorative objects right" className="w-[200px] md:w-[300px] lg:w-[450px] h-auto object-contain opacity-90" />
+          <div className="sticky top-0 h-screen w-full flex items-end justify-between px-0 pb-0">
+            <img src="/object two.svg" alt="Decorative objects left" className="w-[150px] md:w-[220px] lg:w-[320px] h-auto object-contain opacity-90 translate-y-4" />
+            <img src="/objects.svg" alt="Decorative objects right" className="w-[200px] md:w-[300px] lg:w-[450px] h-auto object-contain opacity-90 translate-y-4" />
           </div>
         </div>
 
