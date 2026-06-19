@@ -183,7 +183,7 @@ export default function HomePage() {
       <section className="relative w-full max-w-[1200px] mx-auto px-4 pb-24 md:pb-32 z-20 flex flex-col items-center justify-center text-center">
         <div className="w-full flex justify-center">
           <img 
-            src="/smart-people.svg?v=3" 
+            src="/smart-people.svg?v=4" 
             alt="Smart People Community" 
             className="w-[280px] sm:w-[350px] md:w-[450px] h-auto object-contain"
           />
