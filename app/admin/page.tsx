@@ -12,6 +12,9 @@ import {
   GraduationCap,
   Layers,
   ListChecks,
+  ArrowUpDown,
+  MoreHorizontal,
+  Trash,
 } from 'lucide-react'
 import {
   Card,
@@ -24,6 +27,22 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { AppHeader } from '@/components/app-header'
 import RevenueChart from './_components/revenue-chart'
 import RecentSales from './_components/recent-sales'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { Button } from '@/components/ui/button'
 
 /* ─── Stat types — match the shape returned by /api/admin/stats ──────── */
 
@@ -102,6 +121,10 @@ export default function AdminDashboardPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [userFilter, setUserFilter] = useState<'all' | 'pro' | 'free' | 'active_now' | 'daily_active'>('all')
+  
+  type SortField = 'name' | 'email' | 'plan' | 'createdAt' | 'lastLoginAt'
+  const [sortField, setSortField] = useState<SortField>('createdAt')
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
 
   useEffect(() => {
     fetch('/api/admin/stats')
@@ -165,6 +188,28 @@ export default function AdminDashboardPage() {
     }
     return true
   })
+
+  const sortedUsers = [...filteredUsers].sort((a, b) => {
+    let valA = a[sortField]
+    let valB = b[sortField]
+    
+    // Handle nulls
+    if (valA === null) valA = ''
+    if (valB === null) valB = ''
+
+    if (valA < valB) return sortDirection === 'asc' ? -1 : 1
+    if (valA > valB) return sortDirection === 'asc' ? 1 : -1
+    return 0
+  })
+
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortField(field)
+      setSortDirection('asc')
+    }
+  }
 
   return (
     <div className="flex flex-col">
@@ -324,67 +369,107 @@ export default function AdminDashboardPage() {
             />
           </div>
 
-          <div className="rounded-md border bg-white shadow-sm overflow-hidden mt-6">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left">
-                <thead className="bg-slate-50 border-b border-slate-200">
-                  <tr>
-                    <th className="h-12 px-4 align-middle font-medium text-slate-500">Name</th>
-                    <th className="h-12 px-4 align-middle font-medium text-slate-500">Email</th>
-                    <th className="h-12 px-4 align-middle font-medium text-slate-500">Plan</th>
-                    <th className="h-12 px-4 align-middle font-medium text-slate-500 hidden md:table-cell">Joined</th>
-                    <th className="h-12 px-4 align-middle font-medium text-slate-500 hidden lg:table-cell">Last Login</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-200">
-                  {filteredUsers.map((user) => (
-                    <tr key={user.id} className="transition-colors hover:bg-slate-50/50">
-                      <td className="p-4 align-middle">
-                        <div className="flex items-center gap-3">
-                          <div className="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0 overflow-hidden border">
-                            {user.image ? (
-                              <img 
-                                src={user.image} 
-                                alt={user.name} 
-                                className="h-full w-full object-cover"
-                                referrerPolicy="no-referrer"
-                              />
-                            ) : (
-                              <span className="text-xs font-semibold text-slate-500">
-                                {user.name.charAt(0).toUpperCase()}
-                              </span>
-                            )}
-                          </div>
-                          <span className="font-medium text-slate-900">{user.name}</span>
+          <div className="rounded-md border bg-white shadow-sm overflow-hidden mt-6 [&>div]:border-none">
+            <Table>
+              <TableHeader className="bg-slate-50">
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="w-[300px] bg-slate-50 sticky left-0 z-10">
+                    <Button variant="ghost" className="-ml-4 h-8 data-[state=open]:bg-accent" onClick={() => handleSort('name')}>
+                      Name
+                      <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </Button>
+                  </TableHead>
+                  <TableHead>
+                    <Button variant="ghost" className="-ml-4 h-8 data-[state=open]:bg-accent" onClick={() => handleSort('email')}>
+                      Email
+                      <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </Button>
+                  </TableHead>
+                  <TableHead>
+                    <Button variant="ghost" className="-ml-4 h-8 data-[state=open]:bg-accent" onClick={() => handleSort('plan')}>
+                      Plan
+                      <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </Button>
+                  </TableHead>
+                  <TableHead className="hidden md:table-cell">
+                    <Button variant="ghost" className="-ml-4 h-8 data-[state=open]:bg-accent" onClick={() => handleSort('createdAt')}>
+                      Joined
+                      <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </Button>
+                  </TableHead>
+                  <TableHead className="hidden lg:table-cell">
+                    <Button variant="ghost" className="-ml-4 h-8 data-[state=open]:bg-accent" onClick={() => handleSort('lastLoginAt')}>
+                      Last Login
+                      <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </Button>
+                  </TableHead>
+                  <TableHead className="w-[80px] text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {sortedUsers.map((user) => (
+                  <TableRow key={user.id} className="hover:bg-slate-50/50">
+                    <TableCell className="bg-white sticky left-0 font-medium">
+                      <div className="flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0 overflow-hidden border">
+                          {user.image ? (
+                            <img 
+                              src={user.image} 
+                              alt={user.name} 
+                              className="h-full w-full object-cover"
+                              referrerPolicy="no-referrer"
+                            />
+                          ) : (
+                            <span className="text-xs font-semibold text-slate-500">
+                              {user.name.charAt(0).toUpperCase()}
+                            </span>
+                          )}
                         </div>
-                      </td>
-                      <td className="p-4 align-middle text-slate-600">
-                        {user.email}
-                      </td>
-                      <td className="p-4 align-middle">
-                        <div className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold border ${user.plan === 'pro' ? 'border-orange-200 bg-orange-100 text-[#F26419]' : 'border-slate-200 bg-slate-100 text-slate-700'}`}>
-                          {user.plan === 'pro' ? 'Pro' : 'Free'}
-                        </div>
-                      </td>
-                      <td className="p-4 align-middle text-slate-500 hidden md:table-cell">
-                        {formatDate(user.createdAt)}
-                      </td>
-                      <td className="p-4 align-middle text-slate-500 hidden lg:table-cell">
-                        {formatDateTime(user.lastLoginAt)}
-                      </td>
-                    </tr>
-                  ))}
-                  
-                  {filteredUsers.length === 0 && (
-                    <tr>
-                      <td colSpan={5} className="p-8 text-center text-slate-500">
-                        No users found.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+                        <span className="font-medium text-slate-900">{user.name}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-slate-600">{user.email}</TableCell>
+                    <TableCell>
+                      <div className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold border ${user.plan === 'pro' ? 'border-orange-200 bg-orange-100 text-[#F26419]' : 'border-slate-200 bg-slate-100 text-slate-700'}`}>
+                        {user.plan === 'pro' ? 'Pro' : 'Free'}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-slate-500 hidden md:table-cell">{formatDate(user.createdAt)}</TableCell>
+                    <TableCell className="text-slate-500 hidden lg:table-cell">{formatDateTime(user.lastLoginAt)}</TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Open menu</span>
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuItem onClick={() => navigator.clipboard.writeText(user.email)}>
+                            Copy email
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => navigator.clipboard.writeText(user.id)}>
+                            Copy User ID
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="text-red-600 focus:text-red-600 focus:bg-red-50">
+                            <Trash className="mr-2 h-4 w-4" /> Delete user
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                
+                {sortedUsers.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={6} className="h-24 text-center text-slate-500">
+                      No users found.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
           </div>
         </TabsContent>
       </Tabs>
