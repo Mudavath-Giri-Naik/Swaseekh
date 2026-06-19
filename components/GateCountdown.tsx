@@ -40,7 +40,7 @@ export default function GateCountdown() {
   if (!isMounted) return null
 
   return (
-    <div className="w-full max-w-[800px] mx-auto mt-6 md:mt-8 mb-8 md:mb-12 px-4 z-20 flex justify-center">
+    <div className="w-full max-w-[800px] mx-auto mt-6 md:mt-2 mb-8 md:mb-4 px-4 z-20 flex justify-center">
       <div className="flex items-center gap-1 sm:gap-1.5 text-base sm:text-lg md:text-xl font-bold text-[#1A1A2E] tracking-tighter">
         <Countdown value={timeLeft.days} padStart={true} />
         <span className="text-[#A1A1AA] font-normal mx-0.5 relative -top-[1px]">:</span>
