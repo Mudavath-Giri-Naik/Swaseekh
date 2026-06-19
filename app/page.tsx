@@ -168,9 +168,6 @@ export default function HomePage() {
           <div className="absolute right-4 lg:right-12 top-[50%] -translate-y-[50%] pointer-events-auto" style={{ transform: 'translateY(-50%) rotate(14deg)' }}>
             <TimeSpentCard />
           </div>
-          <div className="absolute right-4 lg:right-12 bottom-0 pointer-events-auto">
-            <img src="/objects.svg" alt="Decorative objects" className="w-[120px] md:w-[160px] lg:w-[200px] h-auto object-contain" />
-          </div>
         </div>
 
       </main>

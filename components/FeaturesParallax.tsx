@@ -108,7 +108,10 @@ export default function FeaturesParallax() {
   return (
     <>
       <ReactLenis root options={{ autoRaf: false }} ref={lenisRef} />
-      <div ref={containerRef} className="relative z-20 pb-32 pt-24 mt-12">
+      <div ref={containerRef} className="relative z-20 pb-32 pt-24 mt-12 w-full max-w-[1440px] mx-auto">
+        <div className="absolute bottom-12 right-4 lg:right-16 z-30 pointer-events-none opacity-90 hidden md:block">
+          <img src="/objects.svg" alt="Decorative objects" className="w-[200px] md:w-[300px] lg:w-[450px] h-auto object-contain" />
+        </div>
         <div className="mx-auto flex flex-col items-center">
           {cardItems.map((cardItem, i) => (
             <ParallaxCardItem item={cardItem} key={i} id={i} />
