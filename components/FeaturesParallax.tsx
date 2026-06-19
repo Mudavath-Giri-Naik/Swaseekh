@@ -84,14 +84,14 @@ export default function FeaturesParallax() {
         range={[id * 0.15, 1]}
         targetScale={targetScale}
         className={cn(
-          "relative flex flex-col justify-center rounded-xl md:rounded-2xl px-8 py-12 md:px-16 md:py-16 w-[90vw] max-w-[800px] min-h-[350px]",
+          "relative flex flex-col justify-center rounded-xl md:rounded-2xl px-5 py-8 md:px-12 md:py-12 w-[92vw] max-w-[700px] min-h-[260px] md:min-h-[300px]",
           item.className
         )}>
         <div className="flex flex-col items-center justify-center text-center space-y-4 md:space-y-6 h-full">
-          <h3 className="text-3xl sm:text-4xl font-bold tracking-tight">
+          <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">
             {item.title}
           </h3>
-          <p className="text-base sm:text-lg opacity-80 max-w-[600px] leading-relaxed">
+          <p className="text-sm sm:text-base md:text-lg opacity-80 max-w-[600px] leading-relaxed">
             <strong className="font-semibold block mb-1">{item.headline}</strong>
             {item.description}
           </p>
@@ -112,10 +112,10 @@ export default function FeaturesParallax() {
         
         {/* Sticky Background Island */}
         <div className="absolute inset-0 z-0 pointer-events-none">
-          <div className="sticky top-4 md:top-8 h-[85vh] md:h-[90vh] w-full bg-[#F9E6D0] rounded-[40px] md:rounded-[64px] overflow-clip shadow-sm">
+          <div className="sticky top-4 md:top-8 h-[85vh] md:h-[90vh] w-full bg-[#F9E6D0] rounded-[32px] md:rounded-[64px] overflow-clip shadow-sm">
             <div className="absolute bottom-0 left-0 w-full flex justify-between items-end px-0 pb-0">
-              <img src="/object two.svg" alt="Decorative objects left" className="w-[120px] md:w-[180px] lg:w-[260px] h-auto object-contain opacity-90 translate-y-2" />
-              <img src="/objects.svg" alt="Decorative objects right" className="w-[150px] md:w-[220px] lg:w-[320px] h-auto object-contain opacity-90 translate-y-2" />
+              <img src="/object two.svg" alt="Decorative objects left" className="w-[80px] md:w-[180px] lg:w-[260px] h-auto object-contain opacity-40 md:opacity-90 translate-y-2" />
+              <img src="/objects.svg" alt="Decorative objects right" className="w-[100px] md:w-[220px] lg:w-[320px] h-auto object-contain opacity-40 md:opacity-90 translate-y-2" />
             </div>
           </div>
         </div>
