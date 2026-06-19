@@ -15,42 +15,42 @@ const cardItems = [
     headline: "Stop memorizing. Start decoding.",
     description: "Every concept is broken down to its root — etymology, intuition, and the \"why\" behind it. No more cramming definitions you'll forget in a week. Once you decode a concept, it stays decoded.",
     cta: "Decode a concept",
-    className: "bg-[#FFD6D6] text-[#1A1A2E]" // Soft red/pink
+    className: "bg-[#FFC4C4] text-[#1A1A2E]" // Pink
   },
   {
     title: "PYQ Intelligence",
     headline: "Every PYQ, tagged with intent.",
     description: "2000+ previous year questions tagged by cognitive type and distractor pattern. Don't just solve the question — know exactly why each wrong option was placed there to trap you.",
     cta: "Explore tagged PYQs",
-    className: "bg-[#D6E4FF] text-[#1A1A2E]" // Soft blue
+    className: "bg-[#C4FFCE] text-[#1A1A2E]" // Green
   },
   {
     title: "Built for GATE CSE 2027",
     headline: "Not generic. Not recycled. Built for your exam.",
     description: "No bloated content dump copied from 10 different sources. Every topic, every PYQ, every layer is structured specifically around the GATE CSE pattern — nothing you don't need.",
     cta: "See the syllabus map",
-    className: "bg-[#D6FFDB] text-[#1A1A2E]" // Soft green
+    className: "bg-[#FFE4C4] text-[#1A1A2E]" // Peach/Orange
   },
   {
     title: "Weak Area Tracking",
     headline: "Know exactly where you're bleeding marks.",
     description: "Your dashboard tracks performance across topics and cognitive tags, so you stop guessing what to revise next and start fixing your actual gaps.",
     cta: "View your dashboard",
-    className: "bg-[#FFEBD6] text-[#1A1A2E]" // Soft orange
+    className: "bg-[#C4D7FF] text-[#1A1A2E]" // Blue
   },
   {
     title: "Peer-Validated Community",
     headline: "500+ aspirants already trust this.",
     description: "Swaseekh isn't a solo experiment — it's been tested and validated inside a 500+ member GATE CSE peer community before it ever reached you.",
     cta: "Join the community",
-    className: "bg-[#EBD6FF] text-[#1A1A2E]" // Soft purple
+    className: "bg-[#EAC4FF] text-[#1A1A2E]" // Purple
   },
   {
     title: "Pricing",
     headline: "Less than one coaching test series.",
     description: "₹999/year. Unlimited decode layers, full PYQ bank, complete tracking. No hidden tiers, no surprise upsells.",
     cta: "Start at ₹999/year",
-    className: "bg-[#E0E0E0] text-[#1A1A2E]" // Soft gray
+    className: "bg-[#FFF9C4] text-[#1A1A2E]" // Yellow
   }
 ];
 

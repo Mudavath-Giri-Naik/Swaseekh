@@ -28,7 +28,8 @@ export default function ParallaxCardEffect({
       <motion.div
         style={{
           scale,
-          top: `calc(-5vh + ${id * 30}px)`
+          top: `calc(-5vh + ${id * 30}px)`,
+          transformOrigin: "top center"
         }}
         className={className}>
         {children}
