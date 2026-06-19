@@ -112,7 +112,7 @@ export default function FeaturesParallax() {
         
         {/* Sticky Background Island */}
         <div className="absolute inset-0 z-0 pointer-events-none">
-          <div className="sticky top-4 md:top-8 h-[65vh] md:h-[90vh] w-full bg-[#F9E6D0] rounded-[32px] md:rounded-[64px] overflow-clip shadow-sm">
+          <div className="sticky top-4 md:top-8 h-[50vh] md:h-[90vh] w-full bg-[#F9E6D0] rounded-[32px] md:rounded-[64px] overflow-clip shadow-sm">
             <div className="absolute bottom-0 left-0 w-full flex justify-between items-end px-0 pb-0">
               <img src="/object two.svg" alt="Decorative objects left" className="w-[80px] md:w-[180px] lg:w-[260px] h-auto object-contain opacity-90 translate-y-2" />
               <img src="/objects.svg" alt="Decorative objects right" className="w-[100px] md:w-[220px] lg:w-[320px] h-auto object-contain opacity-90 translate-y-2" />
