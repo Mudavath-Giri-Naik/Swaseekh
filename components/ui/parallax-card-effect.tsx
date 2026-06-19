@@ -24,11 +24,11 @@ export default function ParallaxCardEffect({
   const scale = useTransform(progress, range, [1, targetScale]);
 
   return (
-    <div className="sticky top-0 flex h-screen items-center justify-center">
+    <div className="sticky top-0 flex h-screen items-start justify-center pt-24 md:pt-[15vh]">
       <motion.div
         style={{
           scale,
-          top: `calc(-5vh + ${id * 30}px)`,
+          top: `${id * 24}px`,
           transformOrigin: "top center"
         }}
         className={className}>
