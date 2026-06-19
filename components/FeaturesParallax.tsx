@@ -108,7 +108,7 @@ export default function FeaturesParallax() {
   return (
     <>
       <ReactLenis root options={{ autoRaf: false }} ref={lenisRef} />
-      <div ref={containerRef} className="relative z-20 pb-32 pt-24 mt-12 w-full">
+      <div ref={containerRef} className="relative z-20 pb-32 pt-24 mt-12 w-[calc(100%-1rem)] md:w-[calc(100%-2rem)] lg:w-[calc(100%-4rem)] mx-auto bg-[#F9E6D0] rounded-[40px] md:rounded-[64px]">
         
         {/* Sticky decorative image container */}
         <div className="absolute inset-0 z-30 pointer-events-none hidden md:block">
