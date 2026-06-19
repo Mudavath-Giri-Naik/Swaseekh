@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button'
 import { ExternalLink, BookOpen, Target, PieChart as PieChartIcon, Sidebar } from 'lucide-react'
 import { useSidebar } from '@/components/ui/sidebar'
 
+import { globalCache } from '@/lib/global-cache'
+
 // Remove module-level Map, we will use sessionStorage for reliable cross-navigation caching.
 
 export default function SubjectAnalyticsDashboard({ params }: { params: { subjectId: string } }) {
@@ -31,6 +33,9 @@ export default function SubjectAnalyticsDashboard({ params }: { params: { subjec
 
   useEffect(() => {
     if (data) return // Already loaded synchronously from sessionStorage
+
+    // Pause any massive background prefetching to give this request priority
+    globalCache.pauseBackgroundSync()
 
     fetch(`/api/dashboard/subject/${params.subjectId}/analytics`)
       .then(res => res.json())

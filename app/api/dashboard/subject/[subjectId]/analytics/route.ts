@@ -23,12 +23,17 @@ export async function GET(
 
     const subjectName = subject.name
 
-    // 1. Fetch all PYQs for this subject
-    const pyqs = await Question.find({ 'meta.subject': subjectName }).lean()
-    const totalSubjectPyqs = pyqs.length
+    // Fetch Subject PYQs, Total PYQs, and User Attempts concurrently for maximum speed
+    const [pyqs, totalOverallPyqs, conceptsInDB, attempts] = await Promise.all([
+      Question.find({ 'meta.subject': subjectName })
+        .select('meta.difficulty meta.subtopic meta.year solution.steps id question')
+        .lean(),
+      Question.countDocuments(),
+      Concept.find({ 'meta.subject': subjectName }).select('meta.subject').lean(),
+      userId ? UserQuestionAttempt.find({ userId, subjectId: params.subjectId }).select('questionId isCorrect').lean() : Promise.resolve([])
+    ])
 
-    // 2. Fetch total PYQs across all subjects
-    const totalOverallPyqs = await Question.countDocuments()
+    const totalSubjectPyqs = pyqs.length
     const subjectWeightage = totalOverallPyqs > 0 ? (totalSubjectPyqs / totalOverallPyqs) * 100 : 0
 
     // 3. Difficulty Split
@@ -41,7 +46,6 @@ export async function GET(
     })
     
     // 4. Concepts tracking
-    const conceptsInDB = await Concept.find({ 'meta.subject': subjectName }).lean()
     // Subtopics from PYQs as fallback if concepts table is empty
     const uniqueConcepts = new Set(pyqs.map(q => q.meta?.subtopic).filter(Boolean))
     const totalConcepts = Math.max(conceptsInDB.length, uniqueConcepts.size)
@@ -50,12 +54,7 @@ export async function GET(
     let attemptedConcepts = new Set<string>()
     let userAttemptsMap = new Map<string, any[]>() // conceptName -> attempts
     
-    if (userId) {
-      const attempts = await UserQuestionAttempt.find({ 
-        userId, 
-        subjectId: params.subjectId 
-      }).lean()
-      
+    if (userId && attempts.length > 0) {
       attempts.forEach(a => {
         // Find corresponding question to get concept
         const q = pyqs.find(p => p.id === a.questionId)

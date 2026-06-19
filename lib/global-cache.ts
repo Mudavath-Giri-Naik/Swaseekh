@@ -18,6 +18,8 @@ class CacheManager {
   private listeners = new Set<() => void>();
   private initialized = false;
   private intervalId: any = null;
+  private abortController: AbortController | null = null;
+  private isFetching = false;
 
   subscribe(listener: () => void) {
     this.listeners.add(listener);
@@ -57,7 +59,10 @@ class CacheManager {
     this.initialized = true;
 
     this.loadFromLocal();
-    this.fetchAll();
+    // Delay initial fetch slightly to let the critical page load finish first
+    setTimeout(() => {
+      this.fetchAll();
+    }, 2000);
 
     // Refetch every 5 minutes (300,000 ms) in the background
     this.intervalId = setInterval(() => {
@@ -65,52 +70,52 @@ class CacheManager {
     }, 300000);
   }
 
+  public pauseBackgroundSync() {
+    if (this.abortController) {
+      this.abortController.abort();
+      this.abortController = null;
+    }
+  }
+
   private async fetchAll() {
+    if (this.isFetching) return;
+    this.isFetching = true;
+    this.abortController = new AbortController();
+    const signal = this.abortController.signal;
+
     try {
-      // Fetch in parallel
-      const [
-        dashRes,
-        gateQRes,
-        gateFRes,
-        aptQRes,
-        aptCRes
-      ] = await Promise.all([
-        fetch('/api/dashboard/stats').catch(() => null),
-        fetch('/api/questions?limit=5000').catch(() => null),
-        fetch('/api/formulas/info').catch(() => null),
-        fetch('/api/aptitude/questions?limit=5000').catch(() => null),
-        fetch('/api/aptitude/concepts').catch(() => null),
-      ]);
+      const endpoints = [
+        { key: 'dashboardStats', url: '/api/dashboard/stats' },
+        { key: 'gateQuestions', url: '/api/questions?limit=5000' },
+        { key: 'gateFormulaInfoMap', url: '/api/formulas/info' },
+        { key: 'aptitudeQuestions', url: '/api/aptitude/questions?limit=5000' },
+        { key: 'aptitudeConcepts', url: '/api/aptitude/concepts' },
+      ];
 
-      let updated = false;
+      for (const ep of endpoints) {
+        if (signal.aborted) {
+          console.log(`[GlobalCache] Background sync aborted to prioritize user action.`);
+          break;
+        }
 
-      if (dashRes && dashRes.ok) {
-        this.data.dashboardStats = await dashRes.json();
-        updated = true;
+        try {
+          const res = await fetch(ep.url, { signal });
+          if (res.ok) {
+            this.data[ep.key as keyof GlobalCacheData] = await res.json();
+            this.saveToLocal();
+            this.notify();
+          }
+        } catch (e: any) {
+          if (e.name === 'AbortError') {
+            console.log(`[GlobalCache] Background sync aborted during ${ep.key}.`);
+            break;
+          } else {
+            console.warn(`[GlobalCache] Failed to fetch ${ep.key}`, e);
+          }
+        }
       }
-      if (gateQRes && gateQRes.ok) {
-        this.data.gateQuestions = await gateQRes.json();
-        updated = true;
-      }
-      if (gateFRes && gateFRes.ok) {
-        this.data.gateFormulaInfoMap = await gateFRes.json();
-        updated = true;
-      }
-      if (aptQRes && aptQRes.ok) {
-        this.data.aptitudeQuestions = await aptQRes.json();
-        updated = true;
-      }
-      if (aptCRes && aptCRes.ok) {
-        this.data.aptitudeConcepts = await aptCRes.json();
-        updated = true;
-      }
-
-      if (updated) {
-        this.saveToLocal();
-        this.notify();
-      }
-    } catch (e) {
-      console.error('Failed to fetch global cache', e);
+    } finally {
+      this.isFetching = false;
     }
   }
 }
