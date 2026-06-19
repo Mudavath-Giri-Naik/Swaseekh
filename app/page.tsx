@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import Navbar from '@/components/Navbar'
 import GateCountdown from '@/components/GateCountdown'
+import FeaturesParallax from '@/components/FeaturesParallax'
 import { Inter } from 'next/font/google'
 import { ChevronsRight, ArrowUpRight, Star } from 'lucide-react'
 
@@ -172,7 +173,7 @@ export default function HomePage() {
       </main>
 
       {/* Dashboard Preview Section */}
-      <section className="relative w-full max-w-[1200px] mx-auto px-4 pb-24 md:pb-32 z-20 mt-4 md:mt-8">
+      <section className="relative w-full max-w-[1200px] mx-auto px-4 pb-12 md:pb-16 z-20 mt-4 md:mt-8">
         <div className="relative rounded-[24px] md:rounded-[32px] border-[8px] md:border-[12px] border-[#333333] shadow-2xl overflow-hidden bg-white">
           <img 
             src="/dashboard.png" 
@@ -181,6 +182,9 @@ export default function HomePage() {
           />
         </div>
       </section>
+
+      {/* Features Parallax Section */}
+      <FeaturesParallax />
 
 
       {/* Newsletter Section */}
