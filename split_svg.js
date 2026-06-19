@@ -85,10 +85,7 @@ newSvg += `<style>
   path.anim-2 { animation: pulse 5s ease-in-out infinite; }
 </style>\n`;
 
-const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#9D71FD', '#F26419', '#FF9F1C', '#2EC4B6'];
 let colorIdx = 0;
-
-// Combine all character paths into ONE path so SVG winding rules (holes) work perfectly
 let characterD = '';
 
 clusters.forEach((cluster) => {
@@ -97,16 +94,14 @@ clusters.forEach((cluster) => {
     if (cluster.name.startsWith('Character')) {
         characterD += cluster.paths.map(sub => sub.d).join('');
     } else {
-        const color = colors[colorIdx++ % colors.length];
-        const animClass = `class="anim-${colorIdx % 3}"`;
+        const animClass = `class="anim-${colorIdx++ % 3}"`;
         const combinedD = cluster.paths.map(sub => sub.d).join('');
-        // Render floating items
-        newSvg += `  <path ${animClass} fill="${color}" d="${combinedD}"/>\n`;
+        // Render floating items completely black as requested
+        newSvg += `  <path ${animClass} fill="black" d="${combinedD}"/>\n`;
     }
 });
 
 // Render the single unified character path.
-// Removing fill-rule="evenodd" to restore default nonzero behavior which the original likely used.
 if (characterD) {
     newSvg += `  <path fill="black" d="${characterD}"/>\n`;
 }
