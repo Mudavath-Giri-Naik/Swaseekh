@@ -235,7 +235,7 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="relative w-full bg-[#17171F]/95 text-white pt-20 pb-12 overflow-hidden mt-auto opacity-80 hover:opacity-100 transition-opacity duration-300">
+      <footer className="relative w-full bg-[#17171F] text-white pt-20 pb-12 overflow-hidden mt-auto">
         <div className="relative z-10 w-full max-w-[1200px] mx-auto px-4 md:px-8 grid grid-cols-2 md:grid-cols-12 gap-y-10 gap-x-6 md:gap-8 mb-6 md:mb-8">
           {/* Col 1 */}
           <div className="col-span-2 md:col-span-4 flex flex-col">
