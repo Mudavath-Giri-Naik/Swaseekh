@@ -4,8 +4,9 @@ const content = fs.readFileSync('public/smart-people.svg', 'utf8');
 const svgHeaderMatch = content.match(/<svg[^>]+>/);
 const svgHeader = svgHeaderMatch ? svgHeaderMatch[0] : '<svg viewBox="0 0 151 151">';
 
+// Extract all subpaths
 let allSubpaths = [];
-const pathMatches = [...content.matchAll(/<path d=\"([^\"]+)\"[^>]*>/g)];
+const pathMatches = [...content.matchAll(/d=\"([^\"]+)\"/g)];
 
 pathMatches.forEach((match) => {
     const subD = match[1].split(/(?=[Mm])/);
@@ -26,51 +27,82 @@ pathMatches.forEach((match) => {
             const maxX = Math.max(...xs);
             const minY = Math.min(...ys);
             const maxY = Math.max(...ys);
-            const area = (maxX - minX) * (maxY - minY);
             allSubpaths.push({
                 d: sub,
-                area: area
+                bbox: { minX, maxX, minY, maxY }
             });
         }
     });
 });
 
+function isInside(b1, b2) {
+    return (b1.minX >= b2.minX && b1.maxX <= b2.maxX && 
+            b1.minY >= b2.minY && b1.maxY <= b2.maxY);
+}
+
+let clusters = [];
+allSubpaths.forEach((subpath) => {
+    let touchingClusterIndices = new Set();
+    
+    for (let i = 0; i < clusters.length; i++) {
+        for (let j = 0; j < clusters[i].length; j++) {
+            if (isInside(subpath.bbox, clusters[i][j].bbox) || isInside(clusters[i][j].bbox, subpath.bbox)) {
+                touchingClusterIndices.add(i);
+                break;
+            }
+        }
+    }
+    
+    let touchingArr = Array.from(touchingClusterIndices);
+    
+    if (touchingArr.length === 0) {
+        clusters.push([subpath]);
+    } else if (touchingArr.length === 1) {
+        clusters[touchingArr[0]].push(subpath);
+    } else {
+        let mergedCluster = [subpath];
+        touchingArr.sort((a,b)=>b-a).forEach(cIdx => {
+            mergedCluster = mergedCluster.concat(clusters[cIdx]);
+            clusters.splice(cIdx, 1);
+        });
+        clusters.push(mergedCluster);
+    }
+});
+
 let newSvg = svgHeader + '\n';
 newSvg += `<style>
-  @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-8px); } }
-  @keyframes floatRev { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(8px); } }
-  @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(0.9); } }
-  g.anim-0 { animation: float 5s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
-  g.anim-1 { animation: floatRev 4s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
-  g.anim-2 { animation: pulse 3s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+  @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-5px); } }
+  @keyframes floatRev { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(5px); } }
+  @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(0.95); } }
+  path.anim-0 { animation: float 4s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+  path.anim-1 { animation: floatRev 5s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+  path.anim-2 { animation: pulse 3s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
 </style>\n`;
+
+clusters.sort((a,b) => b.length - a.length);
 
 const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#9D71FD', '#F26419', '#FF9F1C', '#2EC4B6'];
 let colorIdx = 0;
 
-allSubpaths.forEach((sub, idx) => {
-    // Subpaths with very large areas are the character and outlines.
-    // The viewBox is 151x151, so total area is ~22500.
-    // The book is around 40x40 = 1600.
-    // Lightbulb is around 30x30 = 900.
-    // Let's say if area > 3500, it's the main character/outline (black, static).
-    // If area <= 3500, it's a floating object (colored, animated).
+clusters.forEach((cluster, idx) => {
+    let minX = Math.min(...cluster.map(c => c.bbox.minX));
+    let maxX = Math.max(...cluster.map(c => c.bbox.maxX));
+    let minY = Math.min(...cluster.map(c => c.bbox.minY));
+    let maxY = Math.max(...cluster.map(c => c.bbox.maxY));
+    let area = (maxX - minX) * (maxY - minY);
     
-    // Also, tiny paths (area < 50) might be facial features inside the main character!
-    // We shouldn't colorize or animate them if they are facial features.
-    // But how to tell? We'll just assume very small paths are also black and static.
+    // Main character outlines are huge. Book is ~1500. So anything > 3500 is character outline.
+    // Also tiny facial details (area < 100) should be black.
+    const isMainCharacter = area > 3500 || area < 100; 
     
-    let isMain = sub.area > 2000 || sub.area < 100;
+    const color = isMainCharacter ? 'black' : colors[colorIdx++ % colors.length];
+    const animClass = isMainCharacter ? '' : `class="anim-${idx % 3}"`;
     
-    const color = isMain ? 'black' : colors[colorIdx++ % colors.length];
-    const animClass = isMain ? '' : `class="anim-${idx % 3}"`;
-    
-    newSvg += `<g ${animClass} fill="${color}">\n`;
-    newSvg += `  <path d="${sub.d}"/>\n`;
-    newSvg += `</g>\n`;
+    const combinedD = cluster.map(sub => sub.d).join('');
+    newSvg += `  <path ${animClass} fill="${color}" d="${combinedD}" fill-rule="evenodd" clip-rule="evenodd"/>\n`;
 });
 
 newSvg += '</svg>';
 
 fs.writeFileSync('public/smart-people-fixed.svg', newSvg);
-console.log(`Generated smart-people-fixed.svg with ${allSubpaths.length} subpaths.`);
+console.log(`Successfully split into ${clusters.length} distinct elements/clusters.`);
