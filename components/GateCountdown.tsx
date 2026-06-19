@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { CalendarDays, Clock } from 'lucide-react'
+import { Countdown } from './ui/countdown'
 
 export default function GateCountdown() {
   const [timeLeft, setTimeLeft] = useState({
@@ -41,10 +42,10 @@ export default function GateCountdown() {
 
   const TimeBlock = ({ value, label }: { value: number, label: string }) => (
     <div className="flex flex-col items-center">
-      <div className="bg-white/80 backdrop-blur-md border border-[#E8E0D8] rounded-[10px] w-10 h-12 sm:w-12 sm:h-14 flex items-center justify-center shadow-sm">
-        <span className="text-lg sm:text-xl font-bold text-[#1A1A2E] tabular-nums tracking-tight">
-          {value.toString().padStart(2, '0')}
-        </span>
+      <div className="bg-white/80 backdrop-blur-md border border-[#E8E0D8] rounded-[10px] w-10 h-12 sm:w-12 sm:h-14 flex items-center justify-center shadow-sm text-[#1A1A2E]">
+        <div className="text-lg sm:text-xl font-bold tracking-tight">
+          <Countdown value={value} padStart={true} />
+        </div>
       </div>
       <span className="text-[8px] sm:text-[9px] font-semibold text-[#666] mt-1.5 uppercase tracking-wider">{label}</span>
     </div>
