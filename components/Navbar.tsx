@@ -73,9 +73,7 @@ export default function Navbar() {
             {session?.user ? (
               <ShimmerButton 
                 href="/dashboard"
-                background="#F26419"
-                shimmerColor="#ffffff"
-                className="pl-2.5 pr-6 py-2 rounded-[50px] shadow-sm"
+                className="pl-2.5 pr-6 py-2 shadow-2xl"
               >
                 <div className="bg-white rounded-full flex items-center justify-center w-[30px] h-[30px] overflow-hidden shrink-0">
                   {session.user.image ? (
@@ -87,7 +85,7 @@ export default function Navbar() {
                       className="rounded-full object-cover w-full h-full"
                     />
                   ) : (
-                    <span className="font-bold text-[#F26419] text-sm">
+                    <span className="font-bold text-black text-sm">
                       {session.user.name?.[0]?.toUpperCase() || 'S'}
                     </span>
                   )}
@@ -101,11 +99,9 @@ export default function Navbar() {
             ) : (
               <ShimmerButton 
                 onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
-                background="#F26419"
-                shimmerColor="#ffffff"
-                className="pl-1.5 pr-6 py-2 rounded-[50px] shadow-sm"
+                className="pl-1.5 pr-6 py-2 shadow-2xl"
               >
-                <div className="bg-white text-[#F26419] rounded-full p-1.5 flex items-center justify-center w-[30px] h-[30px]">
+                <div className="bg-white text-black rounded-full p-1.5 flex items-center justify-center w-[30px] h-[30px]">
                   <ChevronsRight size={18} strokeWidth={3} />
                 </div>
                 <span className="text-[16px] font-medium text-white">Sign in</span>
@@ -155,9 +151,7 @@ export default function Navbar() {
                   <ShimmerButton 
                     href="/dashboard"
                     onClick={() => setMobileOpen(false)}
-                    background="#F26419"
-                    shimmerColor="#ffffff"
-                    className="pl-2.5 pr-6 py-2 rounded-[50px] shadow-sm w-full"
+                    className="pl-2.5 pr-6 py-2 shadow-2xl w-full"
                   >
                     <div className="bg-white rounded-full flex items-center justify-center w-[30px] h-[30px] overflow-hidden shrink-0">
                       {session.user.image ? (
@@ -169,7 +163,7 @@ export default function Navbar() {
                           className="rounded-full object-cover w-full h-full"
                         />
                       ) : (
-                        <span className="font-bold text-[#F26419] text-sm">
+                        <span className="font-bold text-black text-sm">
                           {session.user.name?.[0]?.toUpperCase() || 'S'}
                         </span>
                       )}
@@ -183,11 +177,9 @@ export default function Navbar() {
                 ) : (
                   <ShimmerButton 
                     onClick={() => { setMobileOpen(false); signIn('google', { callbackUrl: '/dashboard' }); }}
-                    background="#F26419"
-                    shimmerColor="#ffffff"
-                    className="pl-1.5 pr-6 py-2 rounded-[50px] shadow-sm w-full"
+                    className="pl-1.5 pr-6 py-2 shadow-2xl w-full"
                   >
-                    <div className="bg-white text-[#F26419] rounded-full p-1.5 flex items-center justify-center w-[30px] h-[30px]">
+                    <div className="bg-white text-black rounded-full p-1.5 flex items-center justify-center w-[30px] h-[30px]">
                       <ChevronsRight size={18} strokeWidth={3} />
                     </div>
                     <span className="text-[18px] font-medium text-white">Sign in</span>
