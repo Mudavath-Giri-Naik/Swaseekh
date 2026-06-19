@@ -1,435 +1,453 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { Button } from '@/components/ui/button'
-import { 
-  ChevronLeft, BookOpen, Target, Activity, Flame, Clock, 
-  BarChart3, PlayCircle, LibraryBig, Layers
-} from 'lucide-react'
+import { ExternalLink, BookOpen, Target, PieChart as PieChartIcon, Sidebar } from 'lucide-react'
+import { useSidebar } from '@/components/ui/sidebar'
 
-interface SubjectStats {
-  subject: {
-    _id: string
-    name: string
-    weightage: number
-  }
-  totalConcepts: number
-  totalPyqs: number
-  topics: Array<{
-    _id: string
-    name: string
-    weightage: number
-    stats: { totalConcepts: number; totalPyqs: number }
-    userProgress: {
-      conceptsReadCount: number
-      pyqsAttemptedCount: number
-      pyqsCorrectCount: number
-      accuracy: number
-    }
-    concepts: Array<{
-      _id: string
-      title: string
-      pyqs: Array<{
-        _id: string
-        qid: string
-        question: string
-        meta: {
-          year: number
-          marks: number
-          type: string
-          difficulty: string
-          subject: string
-          topic: string
-          subtopic: string
-        }
-      }>
-    }>
-  }>
-  userProgress: {
-    overallAccuracy: number
-    attemptedPyqs: number
-    conceptsDecodeViewed: number
-    timeSpentSeconds: number
-    currentStreak: number
-    lastViewedTopicId: string | null
-    commonDistractor: string | null
-    yearWisePyqs: Record<number, number>
-  }
-}
+// Remove module-level Map, we will use sessionStorage for reliable cross-navigation caching.
 
-const dashboardCache = new Map<string, SubjectStats>()
-
-export default function SubjectDashboard({ params }: { params: { subjectId: string } }) {
+export default function SubjectAnalyticsDashboard({ params }: { params: { subjectId: string } }) {
   const router = useRouter()
-  const [data, setData] = useState<SubjectStats | null>(dashboardCache.get(params.subjectId) || null)
-  const [loading, setLoading] = useState(!dashboardCache.has(params.subjectId))
-  const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null)
+  const { toggleSidebar } = useSidebar()
+  const [data, setData] = useState<any>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = sessionStorage.getItem(`analytics_${params.subjectId}`)
+        if (cached) return JSON.parse(cached)
+      } catch (e) {}
+    }
+    return null
+  })
+  const [loading, setLoading] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return !sessionStorage.getItem(`analytics_${params.subjectId}`)
+    }
+    return true
+  })
+  const [selectedConcept, setSelectedConcept] = useState<string | null>(null)
 
   useEffect(() => {
-    if (dashboardCache.has(params.subjectId)) return;
+    if (data) return // Already loaded synchronously from sessionStorage
 
-    fetch(`/api/dashboard/subject/${params.subjectId}`)
+    fetch(`/api/dashboard/subject/${params.subjectId}/analytics`)
       .then(res => res.json())
       .then(d => {
-        dashboardCache.set(params.subjectId, d)
+        sessionStorage.setItem(`analytics_${params.subjectId}`, JSON.stringify(d))
         setData(d)
         setLoading(false)
-        if (d.topics && d.topics.length > 0) {
-          setSelectedTopicId(d.topics[0]._id)
-        }
       })
       .catch(e => {
         console.error(e)
         setLoading(false)
       })
-  }, [params.subjectId])
+  }, [params.subjectId, data])
 
-  // Set initial topic id if from cache
   useEffect(() => {
-    if (data && !selectedTopicId && data.topics && data.topics.length > 0) {
-      setSelectedTopicId(data.topics[0]._id)
+    if (data && !selectedConcept && data.rankings && data.rankings.length > 0) {
+      setSelectedConcept(data.rankings[0].name)
     }
-  }, [data, selectedTopicId])
+  }, [data, selectedConcept])
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[80vh]">
-        <div className="w-8 h-8 border-2 border-t-[#4A235A] rounded-full animate-spin" />
+      <div className="flex items-center justify-center h-full min-h-[80vh]">
+        <div className="w-6 h-6 border-2 border-t-[#5D3FD3] rounded-full animate-spin" />
       </div>
     )
   }
 
   if (!data || !data.subject) {
     return (
-      <div className="p-8 text-center">
-        <h2 className="text-xl font-bold text-red-600">Subject Not Found</h2>
-        <Button onClick={() => router.push('/gate')} className="mt-4">Back to Syllabus</Button>
+      <div className="p-4 text-center">
+        <h2 className="text-lg font-bold text-red-600">Subject Not Found</h2>
+        <Button onClick={() => router.push('/gate')} className="mt-3 bg-[#5D3FD3] h-8 text-xs">Back to Syllabus</Button>
       </div>
     )
   }
 
-  const { subject, topics, userProgress, totalConcepts, totalPyqs } = data
-  const topicsCompleted = topics.filter(t => t.stats.totalConcepts > 0 && t.userProgress.conceptsReadCount === t.stats.totalConcepts).length
-  const overallProgress = topics.length > 0 ? Math.round((topicsCompleted / topics.length) * 100) : 0
+  const { stats, rankings, patternExamples, quickWins, grindZone, masteryGaps } = data
+  const hasDifficultyTags = stats.difficulty.total > 0
 
-  // Calculate weakest topic
-  const topicsWithAttempts = topics.filter(t => t.userProgress.pyqsAttemptedCount > 0)
-  const weakestTopic = topicsWithAttempts.length > 0 
-    ? topicsWithAttempts.reduce((prev, curr) => (curr.userProgress.accuracy < prev.userProgress.accuracy ? curr : prev))
-    : null
+  const activeConceptData = rankings.find((r: any) => r.name === selectedConcept)
 
-  const formatTime = (seconds: number) => {
-    const hrs = Math.floor(seconds / 3600)
-    const mins = Math.floor((seconds % 3600) / 60)
-    if (hrs > 0) return `${hrs}h ${mins}m`
-    return `${mins}m`
+  const getRepeatLabel = (score: number) => {
+    if (score > 70) return { label: 'Very High', color: 'text-[#5D3FD3]', desc: 'Strong repetition' }
+    if (score >= 40) return { label: 'Moderate', color: 'text-[#F26419]', desc: 'Moderate repetition' }
+    return { label: 'Low', color: 'text-[#888]', desc: 'Low repetition' }
   }
+  const repeatInfo = getRepeatLabel(stats.repeatPatternScore)
 
   return (
-    <div className="max-w-5xl mx-auto p-4 md:p-6 space-y-6 pb-20">
+    <div className="max-w-[1400px] mx-auto p-3 lg:space-y-3 space-y-4 bg-[#FAFAFA] min-h-screen lg:h-[calc(100vh-2rem)] flex flex-col text-[#1A1A2E] overflow-y-auto lg:overflow-hidden">
       
-      {/* 1. Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+      {/* 1. HEADER - COMPACT */}
+      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between bg-white rounded-xl p-3 shadow-sm border border-[#EBEBEB] shrink-0 gap-3 lg:gap-0">
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => router.push('/gate')}>
-            <ChevronLeft className="w-5 h-5" />
-          </Button>
+          <button onClick={toggleSidebar} className="w-8 h-8 flex items-center justify-center text-[#888] hover:text-[#1A1A2E] hover:bg-[#F5F5F5] transition-colors rounded-md border border-transparent hover:border-[#EBEBEB]" title="Toggle Sidebar">
+            <Sidebar size={16} />
+          </button>
+          <div className="w-10 h-10 rounded-lg bg-[#5D3FD3] text-white flex items-center justify-center text-lg font-serif italic shadow-sm shadow-[#5D3FD3]/20">
+            f(x)
+          </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl md:text-3xl font-bold text-[#1A1A2E]">{subject.name}</h1>
-              {subject.weightage > 0 && (
-                <Badge variant="secondary" className="bg-[#4A235A]/10 text-[#4A235A]">
-                  {subject.weightage} Marks Weightage
-                </Badge>
-              )}
-            </div>
-            <p className="text-muted-foreground mt-1">
-              {topicsCompleted} of {topics.length} topics completed
-            </p>
+            <h1 className="text-lg font-bold tracking-tight leading-tight">{data.subject.name}</h1>
+            <p className="text-[#666] text-[10px]">Subject Analytics Dashboard</p>
           </div>
         </div>
-        
-        {/* Progress Ring (simplified to progress bar for alignment) */}
-        <div className="flex items-center gap-3 bg-white p-3 rounded-xl border shadow-sm min-w-[200px]">
-          <div className="flex-1">
-            <div className="flex justify-between text-sm mb-1">
-              <span className="font-medium text-[#4A235A]">Mastery</span>
-              <span className="font-bold">{overallProgress}%</span>
+
+        <div className="flex flex-wrap lg:flex-nowrap gap-3 w-full lg:w-auto">
+          <div className="flex items-center gap-3 border border-[#EBEBEB] rounded-lg px-3 py-1.5 flex-1 lg:flex-none">
+            <div className="w-7 h-7 rounded-md bg-[#F5F3FF] text-[#5D3FD3] flex items-center justify-center">
+              <BookOpen size={14} />
             </div>
-            <Progress value={overallProgress} className="h-2" />
+            <div>
+              <div className="text-lg font-bold leading-none">{stats.totalPyqs}</div>
+              <div className="text-[#666] text-[9px]">Questions Analyzed</div>
+            </div>
+            <a href="#" className="text-[#5D3FD3] text-[9px] font-medium ml-2 hover:underline flex items-center gap-0.5">Proof <ExternalLink size={10} /></a>
+          </div>
+
+          <div className="flex items-center gap-3 border border-[#EBEBEB] rounded-lg px-3 py-1.5 flex-1 lg:flex-none">
+            <div className="relative w-8 h-8 flex items-center justify-center">
+              <svg viewBox="0 0 36 36" className="w-full h-full transform -rotate-90">
+                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#F5F3FF" strokeWidth="4" />
+                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#5D3FD3" strokeWidth="4" strokeDasharray={`${stats.overallMastery}, 100`} />
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center text-[10px] font-bold">{Math.round(stats.overallMastery)}%</div>
+            </div>
+            <div>
+              <div className="text-xs font-bold leading-tight">Overall Mastery</div>
+              <div className="text-[#666] text-[9px] max-w-[100px] leading-tight">Mastered {Math.round(stats.overallMastery)}%</div>
+            </div>
+            <a href="#" className="text-[#5D3FD3] text-[9px] font-medium hover:underline flex items-center gap-0.5">Proof <ExternalLink size={10} /></a>
           </div>
         </div>
       </div>
 
-      {/* 6. Quick Actions */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Button 
-          variant="outline" 
-          className="h-auto py-4 flex flex-col items-center justify-center gap-2 bg-white hover:bg-slate-50 border-[#EBE5DE]"
-          onClick={() => {
-            if (userProgress.lastViewedTopicId) {
-              const t = topics.find(t => t._id === userProgress.lastViewedTopicId)
-              if (t) router.push(`/gate/questions?subject=${encodeURIComponent(subject.name)}&topic=${encodeURIComponent(t.name)}`)
-            } else {
-              router.push('/gate') // fallback
-            }
-          }}
-          disabled={!userProgress.lastViewedTopicId}
-        >
-          <PlayCircle className="w-5 h-5 text-[#F26419]" />
-          <span className="font-semibold text-[#1A1A2E]">Resume Session</span>
-        </Button>
-        <Button 
-          variant="outline" 
-          className="h-auto py-4 flex flex-col items-center justify-center gap-2 bg-white hover:bg-slate-50 border-[#EBE5DE]"
-          onClick={() => {
-            if (weakestTopic) {
-              router.push(`/gate/questions?subject=${encodeURIComponent(subject.name)}&topic=${encodeURIComponent(weakestTopic.name)}`)
-            }
-          }}
-          disabled={!weakestTopic}
-        >
-          <Target className="w-5 h-5 text-red-500" />
-          <span className="font-semibold text-[#1A1A2E]">Practice Weakest Topic</span>
-        </Button>
-        <Button 
-          variant="outline" 
-          className="h-auto py-4 flex flex-col items-center justify-center gap-2 bg-white hover:bg-slate-50 border-[#EBE5DE]"
-          onClick={() => router.push(`/gate/questions?subject=${encodeURIComponent(subject.name)}`)}
-        >
-          <LibraryBig className="w-5 h-5 text-[#4A235A]" />
-          <span className="font-semibold text-[#1A1A2E]">Full Subject Mock</span>
-        </Button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        
-        {/* 3. PYQ Intelligence Panel */}
-        <Card className="md:col-span-2 border-[#EBE5DE] shadow-sm">
-          <CardHeader className="pb-3 border-b">
-            <CardTitle className="text-lg flex items-center gap-2 text-[#1A1A2E]">
-              <BarChart3 className="w-5 h-5 text-[#F26419]" /> PYQ Intelligence
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-4">
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
-                <p className="text-sm text-muted-foreground mb-1">PYQs Attempted</p>
-                <p className="text-2xl font-bold text-[#1A1A2E]">
-                  {userProgress.attemptedPyqs} <span className="text-sm font-normal text-muted-foreground">/ {totalPyqs}</span>
-                </p>
+      {/* 2. TOP STATS STRIP - COMPACT */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 shrink-0">
+        {/* Concepts Covered */}
+        <div className="bg-white rounded-xl p-3 shadow-sm border border-[#EBEBEB] flex flex-col justify-center">
+          <div className="flex justify-between items-start mb-1.5">
+            <h3 className="font-semibold text-[11px]">Concepts Covered</h3>
+            <a href="#" className="text-[#5D3FD3] text-[9px] flex items-center gap-0.5 hover:underline">Proof <ExternalLink size={8} /></a>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-[#F5F3FF] text-[#5D3FD3] flex items-center justify-center"><BookOpen size={14} /></div>
+            <div>
+              <div className="text-lg font-bold tracking-tight leading-none">
+                {stats.conceptsCovered} <span className="text-xs text-[#888] font-medium">/ {stats.totalConcepts}</span>
               </div>
-              <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
-                <p className="text-sm text-muted-foreground mb-1">Overall Accuracy</p>
-                <p className="text-2xl font-bold text-[#1A1A2E]">{userProgress.overallAccuracy}%</p>
+              <div className="text-[9px] text-[#666] mt-0.5">{stats.totalConcepts > 0 ? Math.round((stats.conceptsCovered/stats.totalConcepts)*100) : 0}% of concepts</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Difficulty Split */}
+        <div className="bg-white rounded-xl p-3 shadow-sm border border-[#EBEBEB] flex flex-col justify-center">
+           <div className="flex justify-between items-start mb-1">
+            <h3 className="font-semibold text-[11px]">Difficulty Split</h3>
+            <a href="#" className="text-[#5D3FD3] text-[9px] flex items-center gap-0.5 hover:underline">Proof <ExternalLink size={8} /></a>
+          </div>
+          {hasDifficultyTags ? (
+            <div className="flex items-center gap-2 h-[36px]">
+              <div className="w-[36px] h-[36px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={[
+                      { name: 'Easy', value: stats.difficulty.easy, color: '#00B67A' },
+                      { name: 'Medium', value: stats.difficulty.medium, color: '#F26419' },
+                      { name: 'Hard', value: stats.difficulty.hard, color: '#EF4444' }
+                    ]} dataKey="value" innerRadius={12} outerRadius={18} paddingAngle={2}>
+                      {[
+                        { name: 'Easy', value: stats.difficulty.easy, color: '#00B67A' },
+                        { name: 'Medium', value: stats.difficulty.medium, color: '#F26419' },
+                        { name: 'Hard', value: stats.difficulty.hard, color: '#EF4444' }
+                      ].map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex flex-col justify-center text-[9px] gap-0.5 flex-1">
+                <div className="flex justify-between items-center"><div className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-[#00B67A]" /> Easy</div><span className="text-[#666]">{Math.round((stats.difficulty.easy/stats.difficulty.total)*100)}%</span></div>
+                <div className="flex justify-between items-center"><div className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-[#F26419]" /> Med</div><span className="text-[#666]">{Math.round((stats.difficulty.medium/stats.difficulty.total)*100)}%</span></div>
+                <div className="flex justify-between items-center"><div className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-[#EF4444]" /> Hard</div><span className="text-[#666]">{Math.round((stats.difficulty.hard/stats.difficulty.total)*100)}%</span></div>
               </div>
             </div>
+          ) : (
+            <div className="flex items-center justify-center h-[36px] text-[9px] text-[#888] bg-[#F5F5F5] rounded">
+              Needs difficulty tags
+            </div>
+          )}
+        </div>
 
-            {userProgress.commonDistractor && (
-              <div className="bg-red-50 text-red-800 p-4 rounded-xl border border-red-100 mb-6">
-                <div className="flex items-start gap-2">
-                  <Activity className="w-5 h-5 mt-0.5 text-red-600" />
-                  <div>
-                    <h4 className="font-semibold mb-1">Common Trap Pattern</h4>
-                    <p className="text-sm">You frequently fall for <strong>{userProgress.commonDistractor}</strong> distractors in this subject. Pay extra attention to these during practice.</p>
+        {/* Repeat Pattern Score */}
+        <div className="bg-white rounded-xl p-3 shadow-sm border border-[#EBEBEB] flex flex-col justify-center">
+          <div className="flex justify-between items-start mb-1.5">
+            <h3 className="font-semibold text-[11px]">Repeat Pattern Score</h3>
+            <a href="#" className="text-[#5D3FD3] text-[9px] flex items-center gap-0.5 hover:underline">Proof <ExternalLink size={8} /></a>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-[#F5F3FF] text-[#5D3FD3] flex items-center justify-center"><Target size={14} /></div>
+            <div>
+              <div className="text-lg font-bold tracking-tight leading-none">
+                {Math.round(stats.repeatPatternScore)} <span className="text-xs text-[#888] font-medium">/ 100</span>
+              </div>
+              <div className={`text-[10px] font-bold mt-0.5 leading-tight ${repeatInfo.color}`}>{repeatInfo.label}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Subject Weightage */}
+        <div className="bg-white rounded-xl p-3 shadow-sm border border-[#EBEBEB] flex flex-col justify-center">
+          <div className="flex justify-between items-start mb-1.5">
+            <h3 className="font-semibold text-[11px]">Subject Weightage</h3>
+            <a href="#" className="text-[#5D3FD3] text-[9px] flex items-center gap-0.5 hover:underline">Proof <ExternalLink size={8} /></a>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-[#F5F3FF] text-[#5D3FD3] flex items-center justify-center"><PieChartIcon size={14} /></div>
+            <div>
+              <div className="text-lg font-bold tracking-tight leading-none">
+                {stats.subjectWeightage.toFixed(1)}%
+              </div>
+              <div className="text-[9px] text-[#666] mt-0.5">of total weightage</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. MIDDLE SECTION: Weightage Ranking + Year Trend - FLUID HEIGHT */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 flex-none lg:flex-1 lg:min-h-0">
+        
+        {/* Left: Concept Ranking */}
+        <div className="bg-white rounded-xl p-3 shadow-sm border border-[#EBEBEB] flex flex-col h-full overflow-hidden min-h-[250px] lg:min-h-0">
+          <div className="flex justify-between items-center mb-2 shrink-0">
+            <div className="flex items-center gap-1.5">
+              <h3 className="font-bold text-xs">Concept Weightage Ranking</h3>
+              <span className="text-[9px] text-[#888] font-medium">(By frequency)</span>
+            </div>
+            <a href="#" className="text-[#5D3FD3] text-[9px] font-medium hover:underline flex items-center gap-0.5">Proof <ExternalLink size={8} /></a>
+          </div>
+
+          <div className="flex text-[9px] text-[#888] mb-1.5 px-1 shrink-0">
+            <div className="w-6">#</div>
+            <div className="flex-1"></div>
+            <div className="w-16 text-right">% of Qs</div>
+            <div className="w-16"></div>
+          </div>
+
+          <div className="flex-1 overflow-hidden space-y-1.5 pr-1">
+            {rankings.slice(0, 5).map((r: any, idx: number) => {
+              const maxWeightage = rankings[0]?.weightage || 100
+              const barWidth = `${(r.weightage / maxWeightage) * 100}%`
+              const isSelected = selectedConcept === r.name
+              return (
+                <div 
+                  key={r.name} 
+                  className={`flex items-center px-1.5 py-1 -mx-1.5 rounded-md cursor-pointer transition-colors ${isSelected ? 'bg-[#F5F3FF]' : 'hover:bg-[#F9F9F9]'}`}
+                  onClick={() => setSelectedConcept(r.name)}
+                >
+                  <div className="w-6">
+                    <div className="w-4 h-4 rounded-full bg-[#F5F3FF] text-[#5D3FD3] flex items-center justify-center text-[9px] font-bold">
+                      {idx + 1}
+                    </div>
+                  </div>
+                  <div className="flex-1 pr-2 min-w-0">
+                    <div className="font-semibold text-[11px] mb-0.5 truncate">{r.name}</div>
+                    <div className="w-full h-1.5 bg-[#F0F0F0] rounded-full overflow-hidden">
+                      <div className="h-full bg-[#5D3FD3] rounded-full transition-all duration-500" style={{ width: barWidth }} />
+                    </div>
+                  </div>
+                  <div className="w-16 text-right flex flex-col items-end justify-center">
+                    <span className="font-bold text-[11px] leading-tight">{r.weightage.toFixed(1)}%</span>
+                    <span className="text-[8px] text-[#888] leading-tight">{r.count} Qs</span>
+                  </div>
+                  <div className="w-16 flex justify-end">
+                    <a href="#" className="text-[#5D3FD3] text-[9px] font-medium hover:underline flex items-center gap-0.5" onClick={e => e.stopPropagation()}>Proof <ExternalLink size={8} /></a>
                   </div>
                 </div>
-              </div>
-            )}
+              )
+            })}
+          </div>
+        </div>
 
-            {/* Year-wise sparkline (simplified representation) */}
+        {/* Right: Year-wise Trend */}
+        <div className="bg-white rounded-xl p-3 shadow-sm border border-[#EBEBEB] flex flex-col h-full overflow-hidden min-h-[250px] lg:min-h-0">
+          <div className="flex justify-between items-start mb-1.5 shrink-0">
             <div>
-              <p className="text-sm font-semibold mb-3">PYQ Year Distribution</p>
-              <div className="flex items-end gap-1 h-16">
-                {Object.entries(userProgress.yearWisePyqs).sort(([a],[b]) => Number(a) - Number(b)).slice(-15).map(([year, count]) => {
-                  const maxCount = Math.max(...Object.values(userProgress.yearWisePyqs))
-                  const height = maxCount > 0 ? `${(count / maxCount) * 100}%` : '0%'
-                  return (
-                    <div key={year} className="flex-1 flex flex-col justify-end group relative">
-                      <div className="bg-[#4A235A]/20 hover:bg-[#4A235A] transition-colors rounded-t-sm w-full" style={{ height }} />
-                      <div className="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-xs py-1 px-2 rounded z-10 whitespace-nowrap pointer-events-none">
-                        {year}: {count} Qs
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
+              <h3 className="font-bold text-xs leading-tight">Year-wise Frequency Trend</h3>
+              <p className="text-[10px] font-medium text-[#5D3FD3] leading-tight truncate max-w-[200px]">Top Concept: <span className="text-[#1A1A2E]">{selectedConcept}</span></p>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Right Column: Stats Strip & Decode */}
-        <div className="space-y-6">
-          
-          {/* 7. Stats Strip */}
-          <div className="grid grid-cols-2 gap-4">
-            <Card className="border-[#EBE5DE] shadow-sm bg-gradient-to-br from-white to-orange-50/50">
-              <CardContent className="p-4 flex flex-col items-center justify-center text-center">
-                <Flame className="w-6 h-6 text-[#F26419] mb-2" />
-                <p className="text-2xl font-bold text-[#1A1A2E]">{userProgress.currentStreak}</p>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Day Streak</p>
-              </CardContent>
-            </Card>
-            <Card className="border-[#EBE5DE] shadow-sm bg-gradient-to-br from-white to-purple-50/50">
-              <CardContent className="p-4 flex flex-col items-center justify-center text-center">
-                <Clock className="w-6 h-6 text-[#4A235A] mb-2" />
-                <p className="text-2xl font-bold text-[#1A1A2E]">{formatTime(userProgress.timeSpentSeconds)}</p>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Time Spent</p>
-              </CardContent>
-            </Card>
+            <div className="bg-[#F5F3FF] border border-[#5D3FD3]/20 text-[#5D3FD3] text-[9px] font-semibold px-2 py-0.5 rounded flex items-center gap-1">
+              Proof: {activeConceptData?.yearsAppeared || 0}/10 yrs
+            </div>
           </div>
 
-          {/* 4. Decode Layer Engagement */}
-          <Card className="border-[#EBE5DE] shadow-sm">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-muted-foreground uppercase tracking-wider font-bold flex items-center gap-2">
-                <Layers className="w-4 h-4" /> Decode Insights
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-baseline gap-2 mb-2">
-                <span className="text-3xl font-bold text-[#4A235A]">{userProgress.conceptsDecodeViewed}</span>
-                <span className="text-muted-foreground">/ {totalConcepts}</span>
-              </div>
-              <Progress value={totalConcepts > 0 ? (userProgress.conceptsDecodeViewed / totalConcepts) * 100 : 0} className="h-1.5" />
-              <p className="text-xs text-muted-foreground mt-3 leading-relaxed">
-                Concepts where you've viewed the etymology and intuition layer. 
-              </p>
-            </CardContent>
-          </Card>
+          <div className="flex-1 w-full min-h-0 pt-2 pb-1">
+            {activeConceptData && activeConceptData.yearTrend.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={activeConceptData.yearTrend} margin={{ top: 10, right: 0, left: -30, bottom: 0 }}>
+                  <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#888' }} dy={5} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#888' }} />
+                  <Tooltip 
+                    cursor={{ fill: '#F9F9F9' }}
+                    contentStyle={{ borderRadius: '6px', border: 'none', boxShadow: '0 2px 4px -1px rgb(0 0 0 / 0.1)', fontSize: '10px', padding: '4px 8px' }}
+                  />
+                  <Bar dataKey="count" fill="#9D84F5" radius={[2, 2, 0, 0]} barSize={20} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+               <div className="flex h-full items-center justify-center text-[10px] text-[#888]">No trend data</div>
+            )}
+          </div>
+        </div>
+
+      </div>
+
+      {/* 4. REPEATING PATTERNS - COMPACT */}
+      <div className="bg-white rounded-xl p-3 shadow-sm border border-[#EBEBEB] shrink-0">
+        <div className="flex justify-between items-center mb-2">
+          <div className="flex items-center gap-1.5">
+            <h3 className="font-bold text-xs">Repeating Pattern Detected</h3>
+            <a href="#" className="text-[#5D3FD3] text-[9px] font-medium hover:underline flex items-center gap-0.5">Proof <ExternalLink size={8} /></a>
+          </div>
+          <a href="#" className="text-[#5D3FD3] text-[9px] font-medium hover:underline flex items-center gap-0.5">View More <ExternalLink size={8} /></a>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          {patternExamples.length > 0 ? patternExamples.slice(0,3).map((pattern: any, idx: number) => (
+             <div key={idx} className="border border-[#EBEBEB] rounded-lg p-2 flex flex-col hover:border-[#5D3FD3]/30 transition-colors">
+               <div className="flex items-start gap-2 mb-1.5">
+                 <div className="bg-[#5D3FD3] text-white text-[9px] font-bold px-1.5 py-0.5 rounded leading-none mt-0.5">
+                   {pattern.questions[0].year}
+                 </div>
+                 <p className="text-[10px] text-[#333] leading-snug line-clamp-2">
+                   {pattern.questions[0].text}
+                 </p>
+               </div>
+               <div className="mt-auto pt-1 flex items-center text-[#5D3FD3] text-[9px] font-medium hover:underline cursor-pointer gap-1">
+                 Similar Pattern ({pattern.questions[1].year})
+               </div>
+             </div>
+          )) : (
+             <div className="col-span-3 text-center p-3 text-[10px] text-[#888] bg-[#F9F9F9] rounded-lg">
+                No patterns detected.
+             </div>
+          )}
         </div>
       </div>
 
-      {/* 5. Topic Explorer */}
-      <h2 className="text-xl font-bold text-[#1A1A2E] mt-10 mb-4 flex items-center gap-2">
-        <Target className="w-5 h-5 text-[#8B0000]" /> Explore Topics & Concepts
-      </h2>
-      
-      {/* Topic Badges */}
-      <div className="flex flex-wrap gap-2 mb-6">
-        {topics.map(topic => (
-          <button
-            key={topic._id}
-            onClick={() => setSelectedTopicId(topic._id)}
-            className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors border ${
-              selectedTopicId === topic._id
-                ? 'bg-[#4A235A] text-white border-[#4A235A]'
-                : 'bg-white text-muted-foreground border-slate-200 hover:border-[#4A235A] hover:text-[#4A235A]'
-            }`}
-          >
-            {topic.name} <span className="opacity-70 font-normal ml-1 text-xs">({topic.weightage}%)</span>
-          </button>
-        ))}
-      </div>
-
-      {/* Selected Topic Content */}
-      {selectedTopicId && (() => {
-        const selectedTopic = topics.find(t => t._id === selectedTopicId)
-        if (!selectedTopic) return null
-
-        return (
-          <div className="bg-white border border-[#EBE5DE] rounded-xl overflow-hidden shadow-sm">
-            <div className="bg-slate-50 border-b px-5 py-4 flex items-center justify-between">
-              <div>
-                <h3 className="font-bold text-[#1A1A2E]">{selectedTopic.name}</h3>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {selectedTopic.stats.totalConcepts} Concepts • {selectedTopic.stats.totalPyqs} Questions • {selectedTopic.userProgress.accuracy}% Accuracy
-                </p>
-              </div>
-              <Button 
-                size="sm" 
-                variant="outline"
-                className="border-[#4A235A] text-[#4A235A] hover:bg-[#4A235A] hover:text-white transition-colors"
-                onClick={() => router.push(`/gate/questions?subject=${encodeURIComponent(subject.name)}&topic=${encodeURIComponent(selectedTopic.name)}`)}
-              >
-                Practice Entire Topic
-              </Button>
+      {/* 5. BOTTOM ROW: Quick Wins, Grind Zone, Mastery Gap - COMPACT */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 shrink-0">
+        
+        {/* Quick Win Concepts */}
+        <div className="bg-white rounded-xl p-3 shadow-sm border border-[#EBEBEB]">
+          <div className="flex justify-between items-center mb-2">
+            <div className="flex items-center gap-1.5">
+              <h3 className="font-bold text-[11px] text-[#00B67A]">Quick Win Concepts</h3>
+              <span className="text-[8px] bg-[#E5F7F1] text-[#00B67A] px-1 py-0.5 rounded border border-[#00B67A]/20 leading-none">Low Effort</span>
             </div>
-            
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm whitespace-nowrap">
-                <thead className="bg-slate-50 text-slate-500 border-b">
-                  <tr>
-                    <th className="px-5 py-3 font-semibold">Concept & Questions</th>
-                    <th className="px-5 py-3 font-semibold text-center">Type</th>
-                    <th className="px-5 py-3 font-semibold text-center">Marks</th>
-                    <th className="px-5 py-3 font-semibold text-center">Year</th>
-                    <th className="px-5 py-3 text-right font-semibold">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {selectedTopic.concepts && selectedTopic.concepts.length > 0 ? (
-                    selectedTopic.concepts.map(concept => (
-                      <React.Fragment key={concept._id}>
-                        {/* Concept Header Row */}
-                        <tr className="bg-slate-50/50">
-                          <td colSpan={5} className="px-5 py-3 font-semibold text-[#1A1A2E] text-[15px] border-b border-slate-200">
-                            <div className="flex items-center gap-2">
-                              <BookOpen className="w-4 h-4 text-[#4A235A]" />
-                              {concept.title}
-                              <Badge variant="secondary" className="ml-2 font-normal text-xs bg-slate-200 text-slate-600">
-                                {concept.pyqs?.length || 0} PYQs
-                              </Badge>
-                            </div>
-                          </td>
-                        </tr>
-                        
-                        {/* PYQs rows for this concept */}
-                        {concept.pyqs && concept.pyqs.length > 0 ? (
-                          concept.pyqs.map(pyq => (
-                            <tr key={pyq._id} className="hover:bg-slate-50/30 transition-colors text-sm group">
-                              <td className="px-5 py-4 text-[#1A1A2E] max-w-[400px] truncate">
-                                {/* Strip HTML tags for preview and show just a snippet */}
-                                <div className="truncate text-muted-foreground text-xs font-serif" dangerouslySetInnerHTML={{ __html: pyq.question.replace(/<[^>]+>/g, '').substring(0, 100) + '...' }} />
-                              </td>
-                              <td className="px-5 py-4 text-center">
-                                <span className="text-xs font-semibold bg-blue-50 text-blue-700 px-2 py-0.5 rounded">{pyq.meta.type || 'MCQ'}</span>
-                              </td>
-                              <td className="px-5 py-4 text-center">
-                                <span className="text-xs font-medium bg-slate-100 text-slate-700 px-2 py-0.5 rounded">{pyq.meta.marks || 1} M</span>
-                              </td>
-                              <td className="px-5 py-4 text-center">
-                                <span className="text-xs font-semibold">{pyq.meta.year || 'N/A'}</span>
-                              </td>
-                              <td className="px-5 py-4 text-right">
-                                <Button 
-                                  size="sm" 
-                                  variant="ghost"
-                                  className="h-8 opacity-0 group-hover:opacity-100 transition-opacity text-[#4A235A] hover:text-[#4A235A] hover:bg-[#4A235A]/10"
-                                  onClick={() => router.push(`/gate/questions?subject=${encodeURIComponent(subject.name)}&topic=${encodeURIComponent(selectedTopic.name)}&concept=${encodeURIComponent(concept.title)}&qid=${pyq.qid}`)}
-                                >
-                                  Solve
-                                </Button>
-                              </td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td colSpan={5} className="px-5 py-4 text-sm text-muted-foreground italic pl-10 border-b border-slate-50">
-                              No PYQs available for this concept yet.
-                            </td>
-                          </tr>
-                        )}
-                      </React.Fragment>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={5} className="px-5 py-8 text-center text-muted-foreground">
-                        No concepts defined for this topic yet.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+            <a href="#" className="text-[#5D3FD3] text-[8px] hover:underline flex items-center gap-0.5">Proof <ExternalLink size={8} /></a>
+          </div>
+
+          <div className="flex text-[8px] text-[#888] mb-1.5 border-b border-[#F0F0F0] pb-1">
+            <div className="flex-1">Concept</div>
+            <div className="w-12 text-center">Wt.</div>
+            <div className="w-12 text-right">Acc.</div>
+          </div>
+
+          <div className="space-y-1.5">
+            {quickWins.length > 0 ? quickWins.slice(0,3).map((c: any) => (
+              <div key={c.name} className="flex items-center justify-between text-[10px]">
+                <div className="flex-1 font-semibold truncate pr-1" title={c.name}>{c.name}</div>
+                <div className="w-12 flex items-center gap-1">
+                  <span className="font-bold text-[9px] w-6">{c.weightage.toFixed(1)}%</span>
+                  <div className="w-4 h-1 bg-[#F0F0F0] rounded-full overflow-hidden">
+                    <div className="h-full bg-[#00B67A]" style={{ width: `${Math.min(c.weightage * 3, 100)}%` }} />
+                  </div>
+                </div>
+                <div className="w-12 text-right font-bold text-[9px]">{Math.round(c.accuracy)}%</div>
+              </div>
+            )) : <div className="text-[9px] text-[#888]">No data.</div>}
+          </div>
+        </div>
+
+        {/* Grind Zone Concepts */}
+        <div className="bg-white rounded-xl p-3 shadow-sm border border-[#EBEBEB]">
+          <div className="flex justify-between items-center mb-2">
+            <div className="flex items-center gap-1.5">
+              <h3 className="font-bold text-[11px] text-[#F26419]">Grind Zone</h3>
+              <span className="text-[8px] bg-[#FEF0E8] text-[#F26419] px-1 py-0.5 rounded border border-[#F26419]/20 leading-none">High Effort</span>
+            </div>
+            <a href="#" className="text-[#5D3FD3] text-[8px] hover:underline flex items-center gap-0.5">Proof <ExternalLink size={8} /></a>
+          </div>
+
+          <div className="flex text-[8px] text-[#888] mb-1.5 border-b border-[#F0F0F0] pb-1">
+            <div className="flex-1">Concept</div>
+            <div className="w-12 text-center">Wt.</div>
+            <div className="w-12 text-right">Acc.</div>
+          </div>
+
+          <div className="space-y-1.5">
+             {grindZone.length > 0 ? grindZone.slice(0,3).map((c: any) => (
+              <div key={c.name} className="flex items-center justify-between text-[10px]">
+                <div className="flex-1 font-semibold truncate pr-1" title={c.name}>{c.name}</div>
+                <div className="w-12 flex items-center gap-1">
+                  <span className="font-bold text-[9px] w-6">{c.weightage.toFixed(1)}%</span>
+                  <div className="w-4 h-1 bg-[#F0F0F0] rounded-full overflow-hidden">
+                    <div className="h-full bg-[#F26419]" style={{ width: `${Math.min(c.weightage * 3, 100)}%` }} />
+                  </div>
+                </div>
+                <div className="w-12 text-right font-bold text-[9px]">{Math.round(c.accuracy)}%</div>
+              </div>
+            )) : <div className="text-[9px] text-[#888]">No data.</div>}
+          </div>
+        </div>
+
+        {/* Mastery Gap */}
+        <div className="bg-white rounded-xl p-3 shadow-sm border border-[#EBEBEB]">
+          <div className="flex justify-between items-center mb-2">
+            <h3 className="font-bold text-[11px] text-[#EF4444]">Mastery Gap</h3>
+            <div className="flex items-center gap-2">
+               <div className="flex items-center gap-0.5 text-[8px] text-[#666]"><div className="w-1 h-1 rounded-full bg-[#5D3FD3]"></div> Wt.</div>
+               <div className="flex items-center gap-0.5 text-[8px] text-[#666]"><div className="w-1 h-1 rounded-full bg-[#EF4444]"></div> Acc.</div>
             </div>
           </div>
-        )
-      })()}
+
+          <div className="flex text-[8px] text-[#888] mb-1.5 border-b border-[#F0F0F0] pb-1">
+            <div className="w-20">Concept</div>
+            <div className="flex-1"></div>
+            <div className="w-8"></div>
+          </div>
+
+          <div className="space-y-1.5">
+             {masteryGaps.length > 0 ? masteryGaps.slice(0,3).map((c: any) => {
+               const maxW = masteryGaps[0]?.weightage || 100
+               return (
+                <div key={c.name} className="flex items-center text-[10px]">
+                  <div className="w-20 font-semibold truncate pr-1 text-[9px]" title={c.name}>{c.name}</div>
+                  <div className="flex-1 flex flex-col gap-0.5 pl-1">
+                    <div className="w-full h-1 bg-[#F0F0F0] rounded-full overflow-hidden">
+                      <div className="h-full bg-[#5D3FD3] rounded-full" style={{ width: `${(c.weightage / maxW) * 100}%` }} />
+                    </div>
+                    <div className="w-full h-1 bg-[#F0F0F0] rounded-full overflow-hidden">
+                      <div className="h-full bg-[#EF4444]" style={{ width: `${c.accuracy}%` }} />
+                    </div>
+                  </div>
+                  <div className="w-8 flex flex-col items-end text-[8px] font-bold gap-px">
+                    <span className="text-[#5D3FD3] leading-none">{c.weightage.toFixed(1)}%</span>
+                    <span className="text-[#EF4444] leading-none">{Math.round(c.accuracy)}%</span>
+                  </div>
+                </div>
+               )
+             }) : <div className="text-[9px] text-[#888]">No data.</div>}
+          </div>
+        </div>
+
+      </div>
 
     </div>
   )
