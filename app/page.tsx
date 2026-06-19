@@ -194,7 +194,7 @@ export default function HomePage() {
           <img 
             src="/free-time-bg.svg" 
             alt="Background Illustration" 
-            className="absolute inset-0 w-full h-full object-cover opacity-10 pointer-events-none mix-blend-multiply"
+            className="absolute inset-0 w-full h-full object-cover opacity-5 pointer-events-none mix-blend-multiply"
           />
 
           {/* Floating Elements (CSS only to mimic) */}
