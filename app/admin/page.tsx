@@ -373,8 +373,8 @@ export default function AdminDashboardPage() {
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
-                  <TableHead className="bg-background sticky left-0 z-20 w-[60px]">ID</TableHead>
-                  <TableHead className="bg-background sticky left-[60px] z-20 w-[300px]">
+                  <TableHead className="bg-background md:sticky left-0 z-20 w-[50px] md:w-[60px]">ID</TableHead>
+                  <TableHead className="bg-background md:sticky md:left-[60px] z-20 w-[200px] md:w-[300px]">
                     <Button variant="ghost" className="-ml-4 h-8 data-[state=open]:bg-accent" onClick={() => handleSort('name')}>
                       Name
                       <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -410,10 +410,10 @@ export default function AdminDashboardPage() {
               <TableBody>
                 {sortedUsers.map((user, index) => (
                   <TableRow key={user.id} className="hover:bg-transparent">
-                    <TableCell className="bg-background sticky left-0 z-10 font-medium border-r border-transparent">
+                    <TableCell className="bg-background md:sticky left-0 z-10 font-medium border-r border-transparent">
                       {index + 1}
                     </TableCell>
-                    <TableCell className="bg-background sticky left-[60px] z-10 font-medium">
+                    <TableCell className="bg-background md:sticky md:left-[60px] z-10 font-medium">
                       <div className="flex items-center gap-3">
                         <div className="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0 overflow-hidden border">
                           {user.image ? (
