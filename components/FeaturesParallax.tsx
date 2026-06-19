@@ -48,8 +48,8 @@ const cardItems = [
   {
     title: "Pricing",
     headline: "Less than one coaching test series.",
-    description: "₹999/year. Unlimited decode layers, full PYQ bank, complete tracking. No hidden tiers, no surprise upsells.",
-    cta: "Start at ₹999/year",
+    description: "For free. Unlimited decode layers, full PYQ bank, complete tracking. No hidden tiers, no surprise upsells.",
+    cta: "Start for free",
     className: "bg-[#FFF9C4] text-[#1A1A2E]" // Yellow
   }
 ];

@@ -7,6 +7,7 @@ export interface ITopic extends Document<string> {
   subjectId: string
   name: string
   order: number
+  weightage: number
   createdAt: Date
   updatedAt: Date
 }
@@ -19,6 +20,7 @@ const TopicSchema = new Schema<ITopic>(
     subjectId: { type: String, required: true, index: true },
     name: { type: String, required: true },
     order: { type: Number, required: true },
+    weightage: { type: Number, default: 0 },
   },
   {
     timestamps: true,
