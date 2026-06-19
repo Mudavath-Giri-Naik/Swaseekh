@@ -76,29 +76,40 @@ allSubpaths.forEach((sub) => {
 
 let newSvg = svgHeader + '\n';
 newSvg += `<style>
-  @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-5px); } }
-  @keyframes floatRev { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(5px); } }
-  @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(0.95); } }
-  path.anim-0 { animation: float 4s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
-  path.anim-1 { animation: floatRev 5s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
-  path.anim-2 { animation: pulse 3s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+  @keyframes float { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-3px) rotate(1deg); } }
+  @keyframes floatRev { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(3px) rotate(-1deg); } }
+  @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(0.98); } }
+  path { transform-origin: center; transform-box: fill-box; }
+  path.anim-0 { animation: float 6s ease-in-out infinite; }
+  path.anim-1 { animation: floatRev 7s ease-in-out infinite; }
+  path.anim-2 { animation: pulse 5s ease-in-out infinite; }
 </style>\n`;
 
 const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#9D71FD', '#F26419', '#FF9F1C', '#2EC4B6'];
 let colorIdx = 0;
 
-clusters.forEach((cluster, idx) => {
+// Combine all character paths into ONE path so SVG winding rules (holes) work perfectly
+let characterD = '';
+
+clusters.forEach((cluster) => {
     if (cluster.paths.length === 0) return;
     
-    const isMainCharacter = cluster.name.startsWith('Character');
-    
-    const color = isMainCharacter ? 'black' : colors[colorIdx++ % colors.length];
-    const animClass = isMainCharacter ? '' : `class="anim-${idx % 3}"`;
-    
-    const combinedD = cluster.paths.map(sub => sub.d).join('');
-    newSvg += `  <path ${animClass} fill="${color}" d="${combinedD}" fill-rule="evenodd" clip-rule="evenodd"/>\n`;
-    console.log(`Cluster ${cluster.name} assigned ${cluster.paths.length} subpaths.`);
+    if (cluster.name.startsWith('Character')) {
+        characterD += cluster.paths.map(sub => sub.d).join('');
+    } else {
+        const color = colors[colorIdx++ % colors.length];
+        const animClass = `class="anim-${colorIdx % 3}"`;
+        const combinedD = cluster.paths.map(sub => sub.d).join('');
+        // Render floating items
+        newSvg += `  <path ${animClass} fill="${color}" d="${combinedD}"/>\n`;
+    }
 });
+
+// Render the single unified character path.
+// Removing fill-rule="evenodd" to restore default nonzero behavior which the original likely used.
+if (characterD) {
+    newSvg += `  <path fill="black" d="${characterD}"/>\n`;
+}
 
 newSvg += '</svg>';
 fs.writeFileSync('public/smart-people-fixed.svg', newSvg);
