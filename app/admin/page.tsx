@@ -369,11 +369,12 @@ export default function AdminDashboardPage() {
             />
           </div>
 
-          <div className="rounded-md border bg-white shadow-sm overflow-hidden mt-6 [&>div]:border-none">
+          <div className="mt-6 w-full mx-auto [&>div]:rounded-sm [&>div]:border">
             <Table>
-              <TableHeader className="bg-slate-50">
+              <TableHeader>
                 <TableRow className="hover:bg-transparent">
-                  <TableHead className="w-[300px] bg-slate-50 sticky left-0 z-10">
+                  <TableHead className="bg-background sticky left-0 z-20 w-[60px]">ID</TableHead>
+                  <TableHead className="bg-background sticky left-[60px] z-20 w-[300px]">
                     <Button variant="ghost" className="-ml-4 h-8 data-[state=open]:bg-accent" onClick={() => handleSort('name')}>
                       Name
                       <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -407,9 +408,12 @@ export default function AdminDashboardPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {sortedUsers.map((user) => (
-                  <TableRow key={user.id} className="hover:bg-slate-50/50">
-                    <TableCell className="bg-white sticky left-0 font-medium">
+                {sortedUsers.map((user, index) => (
+                  <TableRow key={user.id} className="hover:bg-transparent">
+                    <TableCell className="bg-background sticky left-0 z-10 font-medium border-r border-transparent">
+                      {index + 1}
+                    </TableCell>
+                    <TableCell className="bg-background sticky left-[60px] z-10 font-medium">
                       <div className="flex items-center gap-3">
                         <div className="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0 overflow-hidden border">
                           {user.image ? (
