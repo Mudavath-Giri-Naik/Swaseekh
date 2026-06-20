@@ -207,7 +207,7 @@ export default function HomePage() {
             </div>
             
             <RainbowButton asChild className="px-6 py-2.5 text-[15px] h-auto rounded-md">
-              <Link href="/dashboard">
+              <Link href="/gate/questions">
                 Get Started for Free
               </Link>
             </RainbowButton>
