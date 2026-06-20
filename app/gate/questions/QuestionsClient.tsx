@@ -242,11 +242,15 @@ function QuestionsListPageInner() {
     globalCache.pauseBackgroundSync()
     setLoading(true)
     const qs = new URLSearchParams()
-    qs.set('limit', '20000')
-
-    fetch(`/api/questions?${qs.toString()}`)
-      .then((res) => res.json())
-      .then((data) => {
+    Promise.all([
+      fetch(`/api/questions?page=1&limit=5000&${qs.toString()}`).then((res) => res.json()),
+      fetch(`/api/questions?page=2&limit=5000&${qs.toString()}`).then((res) => res.json()),
+      fetch(`/api/questions?page=3&limit=5000&${qs.toString()}`).then((res) => res.json()),
+      fetch(`/api/questions?page=4&limit=5000&${qs.toString()}`).then((res) => res.json()),
+    ])
+      .then(([r1, r2, r3, r4]) => {
+        const combined = [...(r1.questions || []), ...(r2.questions || []), ...(r3.questions || []), ...(r4.questions || [])]
+        const data = { questions: combined, total: r1.total }
         globalCache.data.gateQuestions = data
         setQuestions(getInitialQuestions())
         setLoading(false)

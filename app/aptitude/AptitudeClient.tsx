@@ -188,11 +188,13 @@ function AptitudePageInner() {
 
     setLoading(true)
     Promise.all([
-      fetch('/api/aptitude/questions?limit=20000').then((res) => res.json()),
+      fetch('/api/aptitude/questions?page=1&limit=5000').then((res) => res.json()),
+      fetch('/api/aptitude/questions?page=2&limit=5000').then((res) => res.json()),
       fetch('/api/aptitude/concepts').then((res) => res.json())
     ])
-      .then(([qData, cData]) => {
-        globalCache.data.aptitudeQuestions = qData
+      .then(([qData1, qData2, cData]) => {
+        const combinedQuestions = [...(qData1.questions || []), ...(qData2.questions || [])]
+        globalCache.data.aptitudeQuestions = { questions: combinedQuestions, total: qData1.total }
         globalCache.data.aptitudeConcepts = cData
         checkAndSet()
       })
