@@ -126,6 +126,10 @@ function QuestionsListPageInner() {
   
   const getInitialQuestions = useCallback(() => {
     const raw = globalCache.data.gateQuestions?.questions ?? [];
+    if (raw.length < 1000 && globalCache.data.gateQuestions) {
+      // If we somehow cached a partial response or error fallback, ignore it
+      return [];
+    }
     const qs = [...raw] as Question[]
     qs.forEach((q) => {
       if (!Array.isArray(q.formulaIds)) q.formulaIds = []
@@ -134,8 +138,9 @@ function QuestionsListPageInner() {
     return qs
   }, [])
 
-  const [questions, setQuestions] = useState<Question[]>(() => getInitialQuestions())
-  const [loading, setLoading] = useState(!globalCache.data.gateQuestions)
+  const initialQs = getInitialQuestions()
+  const [questions, setQuestions] = useState<Question[]>(initialQs)
+  const [loading, setLoading] = useState(initialQs.length === 0 || !globalCache.data.gateQuestions)
   const [solvedStatuses, setSolvedStatuses] = useState<Record<string, boolean>>({})
 
   // ΓöÇΓöÇΓöÇ Read initial state from URL search params ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
@@ -164,6 +169,8 @@ function QuestionsListPageInner() {
   const [formulaInfoMap, setFormulaInfoMap] = useState<
     Record<string, { name?: string; latex?: string; plain?: string }>
   >({})
+
+  const [isMounted, setIsMounted] = useState(false)
 
   // ΓöÇΓöÇΓöÇ Track if this is the initial mount (skip URL sync on first render) ΓöÇ
   const isInitialMount = useRef(true)
@@ -213,6 +220,7 @@ function QuestionsListPageInner() {
 
   // Set sidebar state
   useEffect(() => {
+    setIsMounted(true)
     sidebarData.setIsQuestionsMode(true)
     sidebarData.setConceptName('Questions')
     return () => {
@@ -224,13 +232,15 @@ function QuestionsListPageInner() {
   // Fetch all questions (use cache if available)
   useEffect(() => {
     const unsubscribe = globalCache.subscribe(() => {
-      if (globalCache.data.gateQuestions) {
+      const q = globalCache.data.gateQuestions?.questions
+      if (q && q.length >= 1000) {
         setQuestions(getInitialQuestions())
         setLoading(false)
       }
     })
 
-    if (globalCache.data.gateQuestions) {
+    const hasValidQ = globalCache.data.gateQuestions?.questions && globalCache.data.gateQuestions.questions.length >= 1000
+    if (hasValidQ) {
       setQuestions(getInitialQuestions())
       setLoading(false)
       return unsubscribe
@@ -239,7 +249,7 @@ function QuestionsListPageInner() {
     globalCache.pauseBackgroundSync()
     setLoading(true)
     const qs = new URLSearchParams()
-    qs.set('limit', '5000')
+    qs.set('limit', '10000')
 
     fetch(`/api/questions?${qs.toString()}`)
       .then((res) => res.json())
@@ -433,7 +443,7 @@ function QuestionsListPageInner() {
   const filterTriggerClass =
     'inline-flex h-10 shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-lg border bg-card px-3.5 text-[15px] font-medium text-foreground/80 transition-colors hover:bg-accent hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring/30 data-[state=open]:bg-accent data-[state=open]:text-foreground sm:h-8 sm:px-2.5 sm:text-sm dark:border-transparent dark:bg-white/[0.04] dark:hover:bg-white/[0.07] dark:data-[state=open]:bg-white/[0.07]'
 
-  if (loading) {
+  if (!isMounted || loading) {
     return (
       <div className="flex items-center justify-center h-[80vh]">
         <div className="w-8 h-8 border-2 border border-t-[#4A235A] rounded-full animate-spin" />

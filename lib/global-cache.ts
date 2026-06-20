@@ -86,9 +86,7 @@ class CacheManager {
     try {
       const endpoints = [
         { key: 'dashboardStats', url: '/api/dashboard/stats' },
-        { key: 'gateQuestions', url: '/api/questions?limit=5000' },
         { key: 'gateFormulaInfoMap', url: '/api/formulas/info' },
-        { key: 'aptitudeQuestions', url: '/api/aptitude/questions?limit=5000' },
         { key: 'aptitudeConcepts', url: '/api/aptitude/concepts' },
       ];
 
