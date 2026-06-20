@@ -239,7 +239,7 @@ function QuestionsListPageInner() {
     globalCache.pauseBackgroundSync()
     setLoading(true)
     const qs = new URLSearchParams()
-    qs.set('limit', '5000')
+    qs.set('limit', '20000')
 
     fetch(`/api/questions?${qs.toString()}`)
       .then((res) => res.json())
