@@ -184,7 +184,7 @@ export default function GateSyllabusPage() {
                   
                   {/* Subject name link — always black */}
                   <Link
-                    href={`/gate/${slugify(subject.name)}`}
+                    href={`/dashboard/subject/${subject._id}`}
                     className="font-semibold text-foreground hover:underline"
                     style={{ textDecorationColor: '#4A235A' }}
                   >
