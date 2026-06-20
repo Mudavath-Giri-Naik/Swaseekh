@@ -269,7 +269,10 @@ function AptitudePageInner() {
   }, [concepts])
 
   const conceptOptions = useMemo(() => {
-    return concepts.map(c => ({ value: c.slug, label: c.name })).sort((a, b) => a.label.localeCompare(b.label))
+    return concepts
+      .map(c => ({ value: c.slug, label: c.name }))
+      .sort((a, b) => a.label.localeCompare(b.label))
+      .map((opt, idx) => ({ ...opt, label: `${idx + 1}. ${opt.label}` }))
   }, [concepts])
 
   // Model options derived from all models, filtered by selected concept
