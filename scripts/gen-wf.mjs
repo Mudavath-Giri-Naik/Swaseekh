@@ -6,7 +6,8 @@ import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync } from 
 const RSA = 'e:/Swaseekh-main/Swaseekh-main/scripts/data/rsa'
 const OUTDIR = `${RSA}/out`
 mkdirSync(OUTDIR, { recursive: true })
-const chunks = JSON.parse(readFileSync(`${RSA}/chunk-manifest.json`, 'utf-8'))
+const MANIFEST = process.env.MANIFEST || `${RSA}/chunk-manifest.json`
+const chunks = JSON.parse(readFileSync(MANIFEST, 'utf-8'))
 
 // Build set of completed chunk ids (file exists AND parses to a JSON array)
 const done = new Set()

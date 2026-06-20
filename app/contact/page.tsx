@@ -1,3 +1,12 @@
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Contact Swaseekh — GATE CS Prep Support',
+  description:
+    'Get in touch with the Swaseekh team for help with GATE CS preparation, accounts, payments and Pro access.',
+  alternates: { canonical: '/contact' },
+}
+
 export default function ContactPage() {
   return (
     <div className="min-h-screen bg-background">

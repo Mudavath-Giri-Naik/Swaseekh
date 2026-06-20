@@ -1,3 +1,12 @@
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Refund Policy',
+  description:
+    'Swaseekh refund and cancellation policy for GATE CS Pro subscriptions.',
+  alternates: { canonical: '/refund-policy' },
+}
+
 export default function RefundPolicyPage() {
   return (
     <div className="min-h-screen bg-white">

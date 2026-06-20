@@ -71,17 +71,15 @@ function mapAnswer(answer, opts) {
   // Excluded / bonus questions in official keys are marked "X"
   const excluded = /^x[\.\)\s]/i.test(a) || /excluded|marked as bonus|bonus in the official/i.test(a)
 
-  // Multi-letter answer like "A, C" or "A and C" or "B, C, D"
-  const upperTokens = a.match(/\b([A-H])\b/g) || []
-  const leadMulti = a.match(/^\(?([A-H])[\.\)\:,\s]+\(?([A-H])\b/)
-  if (leadMulti) {
-    const keys = [...new Set((a.match(/^[\sA-H,()\.and ]+/i)?.[0] || a)
-      .split(/[^A-H]+/).filter((x) => /^[A-H]$/.test(x)))]
+  // Group (a): a PURE list of option letters ("A, B" / "B, C, D" / "A and C").
+  // Must be ONLY letters + separators — no trailing descriptive text.
+  if (/^\(?[A-H]\)?(\s*(,|and|&)\s*\(?[A-H]\)?)+$/i.test(a)) {
+    const keys = [...new Set((a.match(/[A-H]/gi) || []).map((s) => s.toUpperCase()))]
     if (keys.length >= 2) return { keys, method: 'multi-letter', excluded }
   }
-  // Leading single letter: "A. 2", "C. P = Q", "(B)"
+  // Leading single letter: "A. 2", "C. P = Q", "(B)", "B. D Latch" -> take ONLY the lead.
   const lead = a.match(/^\(?([A-H])[\.\)\:]/)
-  if (lead) return { keys: [lead[1]], method: 'lead-letter', excluded }
+  if (lead) return { keys: [lead[1].toUpperCase()], method: 'lead-letter', excluded }
   // Bare single letter
   if (/^\(?[A-H]\)?$/.test(a)) return { keys: [a.replace(/[()]/g, '')], method: 'bare-letter', excluded }
   // Exact value match against an option's text

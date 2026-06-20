@@ -1,3 +1,12 @@
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Terms of Service',
+  description:
+    'Terms governing use of Swaseekh, the GATE CS preparation platform.',
+  alternates: { canonical: '/terms' },
+}
+
 export default function TermsPage() {
   return (
     <div className="min-h-screen bg-white">

@@ -163,26 +163,27 @@ console.log(`ID ranges -> Q: APT-Q-${pad(startQ)}..APT-Q-${pad(qN-1)} | CON: APT
 writeFileSync(`${RSA}/build.json`, JSON.stringify({ concepts, models, formulas, questions }, null, 1))
 console.log(`\nWrote build.json (${questions.length} questions).`)
 
-// ---- insert ----
+// ---- insert (idempotent clean-replace of the new chapters; never touches number-system) ----
 if (DO_INSERT) {
   console.log('\nConnecting to MongoDB to insert...')
   await mongoose.connect(E['MONGODB_URI'], { dbName: 'swaseekh' })
   const db = mongoose.connection.db
-  // safety: only insert concepts whose slug does not already exist
-  const existingSlugs = new Set(await db.collection('aptitude_concepts').distinct('slug'))
-  const newConcepts = concepts.filter(c => !existingSlugs.has(c.slug))
-  const newSlugs = new Set(newConcepts.map(c => c.slug))
-  const newQuestions = questions.filter(q => newSlugs.has(q.conceptSlug))
-  const newModels = models.filter(m => newSlugs.has(m.conceptSlug))
-  const newFormulas = formulas.filter(f => newSlugs.has(f.conceptSlug))
-  console.log(`Inserting: ${newConcepts.length} concepts, ${newQuestions.length} questions, ${newModels.length} models, ${newFormulas.length} formulas (skipped existing slugs: ${[...existingSlugs].join(', ')})`)
+  // target slugs = every chapter in this build (ch1/number-system is never in build)
+  const targetSlugs = [...new Set(concepts.map(c => c.slug))].filter(s => s !== 'number-system')
+  // clean-replace: remove any prior docs for these chapters so re-runs don't duplicate
+  await db.collection('aptitude_questions').deleteMany({ conceptSlug: { $in: targetSlugs } })
+  await db.collection('aptitude_models').deleteMany({ conceptSlug: { $in: targetSlugs } })
+  await db.collection('aptitude_formulas').deleteMany({ conceptSlug: { $in: targetSlugs } })
+  await db.collection('aptitude_concepts').deleteMany({ slug: { $in: targetSlugs } })
+  console.log(`Clean-replace for ${targetSlugs.length} chapters. Inserting: ${concepts.length} concepts, ${questions.length} questions, ${models.length} models, ${formulas.length} formulas`)
   const batch = async (col, arr) => { for (let i = 0; i < arr.length; i += 200) await db.collection(col).insertMany(arr.slice(i, i + 200)) }
-  if (newFormulas.length) await batch('aptitude_formulas', newFormulas)
-  if (newModels.length) await batch('aptitude_models', newModels)
-  if (newQuestions.length) await batch('aptitude_questions', newQuestions)
-  if (newConcepts.length) await batch('aptitude_concepts', newConcepts)
+  if (formulas.length) await batch('aptitude_formulas', formulas)
+  if (models.length) await batch('aptitude_models', models)
+  if (questions.length) await batch('aptitude_questions', questions)
+  if (concepts.length) await batch('aptitude_concepts', concepts)
   await db.collection('aptitude_meta').updateOne({ _id: 'counters' }, { $set: {
     lastQuestionNumber: qN - 1, lastFormulaNumber: forN - 1, lastModelNumber: modN - 1, lastConceptNumber: conN - 1, updatedAt: new Date() } }, { upsert: true })
-  console.log('Insert complete. Meta counters updated.')
+  const grand = await db.collection('aptitude_questions').countDocuments()
+  console.log(`Insert complete. aptitude_questions total now: ${grand}`)
   await mongoose.connection.close()
 }

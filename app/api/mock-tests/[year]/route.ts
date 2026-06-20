@@ -31,8 +31,12 @@ export async function GET(
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mapped = docs.map((d: any) => {
-      const type = d.meta?.type || 'MCQ'
+      const rawType = d.meta?.type || 'MCQ'
       const options = Array.isArray(d.options) ? d.options : []
+      const correctOptions = Array.isArray(d.correctOptions) ? d.correctOptions : []
+      // A choice question with >1 correct option behaves as a multiple-select
+      // (MSQ): checkboxes, set-match scoring, no negative marking.
+      const type = options.length && correctOptions.length > 1 ? 'MSQ' : rawType
       return {
         id: d.id,
         type,
@@ -42,8 +46,8 @@ export async function GET(
         topic: d.meta?.subtopic || d.meta?.topic || '',
         stem: (d.stem && d.stem.length ? d.stem : d.question) || '',
         options,
-        correctOptions: Array.isArray(d.correctOptions) ? d.correctOptions : [],
-        isNat: !!d.isNat || type === 'NAT' || (options.length === 0 && type !== 'MSQ'),
+        correctOptions,
+        isNat: !d.subjective && (!!d.isNat || rawType === 'NAT' || (options.length === 0 && type !== 'MSQ')),
         subjective: !!d.subjective,
         excluded: !!d.excluded,
         answer: d.answer || '',
