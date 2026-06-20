@@ -119,6 +119,20 @@ function formatDateTime(dateStr: string | null) {
 /* ─── Page ───────────────────────────────────────────────────────────── */
 
 export default function AdminDashboardPage() {
+  const [activeTab, setActiveTab] = useState('overview')
+
+  useEffect(() => {
+    const hash = window.location.hash.replace('#', '')
+    if (['overview', 'content', 'users'].includes(hash)) {
+      setActiveTab(hash)
+    }
+  }, [])
+
+  const handleTabChange = (val: string) => {
+    setActiveTab(val)
+    window.history.replaceState(null, '', `#${val}`)
+  }
+
   const [data, setData] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -241,7 +255,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* ── Tabs ────────────────────────────────────────────────── */}
-      <Tabs defaultValue="overview" className="mt-6 space-y-4">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="mt-6 space-y-4">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="content">Content</TabsTrigger>
