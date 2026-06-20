@@ -177,12 +177,21 @@ function AptitudePageInner() {
     sidebarData.setIsQuestionsMode(true)
     sidebarData.setConceptName('Aptitude')
 
-    if (!globalCache.data.aptitudeConcepts) {
-      fetch('/api/aptitude/concepts').then(r => r.json()).then(c => {
+    if (!globalCache.data.aptitudeConcepts || !globalCache.data.aptitudeModels) {
+      Promise.all([
+        fetch('/api/aptitude/concepts').then(r => r.json()),
+        fetch('/api/aptitude/models').then(r => r.json())
+      ]).then(([c, m]) => {
         globalCache.data.aptitudeConcepts = c
+        globalCache.data.aptitudeModels = m.models
         setConcepts(c.concepts || [])
+        setAllModels(m.models || [])
         setLoading(false)
       })
+    } else {
+      setConcepts(globalCache.data.aptitudeConcepts.concepts || [])
+      setAllModels(globalCache.data.aptitudeModels || [])
+      setLoading(false)
     }
     return () => sidebarData.clearSubjectData()
   }, [])
@@ -263,12 +272,25 @@ function AptitudePageInner() {
     return concepts.map(c => ({ value: c.slug, label: c.name })).sort((a, b) => a.label.localeCompare(b.label))
   }, [concepts])
 
-  // Fake model options derived from current page questions
+  // Model options derived from all models, filtered by selected concept
   const modelOptions = useMemo(() => {
-    const set = new Set<string>()
-    questions.forEach(q => set.add(q.modelId))
-    return Array.from(set).map(m => ({ value: m, label: formatModelId(m) })).sort((a, b) => a.label.localeCompare(b.label))
-  }, [questions])
+    let filtered = allModels;
+    if (selectedConcept) {
+      filtered = allModels.filter(m => m.conceptSlug === selectedConcept);
+    }
+    return filtered
+      .map(m => ({ value: m.modelId, label: m.name || formatModelId(m.modelId) }))
+      .sort((a, b) => {
+         const numA = parseInt(a.value.split('-').pop() || '0', 10);
+         const numB = parseInt(b.value.split('-').pop() || '0', 10);
+         return numA - numB;
+      });
+  }, [allModels, selectedConcept]);
+  
+  const selectedModelData = useMemo(() => {
+    if (!selectedModel) return null;
+    return allModels.find(m => m.modelId === selectedModel) || null;
+  }, [allModels, selectedModel]);
 
   const filteredQuestions = questions
 
@@ -436,6 +458,21 @@ function AptitudePageInner() {
       </header>
 
       <div className="max-w-[1100px] mx-auto px-2 py-3 sm:px-4 sm:py-6">
+        
+        {/* Model Info Banner */}
+        {selectedModelData && (
+          <div className="mb-6 rounded-2xl border border-violet-200 bg-violet-50/50 p-5 sm:p-6 dark:border-violet-900/30 dark:bg-violet-900/10 shadow-sm transition-all">
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2 tracking-tight">
+              {selectedModelData.name}
+            </h2>
+            {selectedModelData.description && (
+              <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
+                {selectedModelData.description}
+              </p>
+            )}
+          </div>
+        )}
+
         <InputGroup className="mb-4 w-full sm:mb-5">
           <InputGroupAddon>
             <Search />
