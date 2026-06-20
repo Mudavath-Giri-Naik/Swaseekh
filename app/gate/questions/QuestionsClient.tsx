@@ -232,13 +232,15 @@ function QuestionsListPageInner() {
   // Fetch all questions (use cache if available)
   useEffect(() => {
     const unsubscribe = globalCache.subscribe(() => {
-      if (globalCache.data.gateQuestions) {
+      const q = globalCache.data.gateQuestions?.questions
+      if (q && q.length >= 1000) {
         setQuestions(getInitialQuestions())
         setLoading(false)
       }
     })
 
-    if (globalCache.data.gateQuestions) {
+    const hasValidQ = globalCache.data.gateQuestions?.questions && globalCache.data.gateQuestions.questions.length >= 1000
+    if (hasValidQ) {
       setQuestions(getInitialQuestions())
       setLoading(false)
       return unsubscribe

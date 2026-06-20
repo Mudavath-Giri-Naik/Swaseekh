@@ -174,6 +174,7 @@ function AptitudePageInner() {
       const q = globalCache.data.aptitudeQuestions?.questions
       const c = globalCache.data.aptitudeConcepts?.concepts
       if (q && c) {
+        if (q.length < 1000) return // Ignore stale or partial cache
         setQuestions(q)
         setConcepts(c)
         setLoading(false)
@@ -184,7 +185,8 @@ function AptitudePageInner() {
       checkAndSet()
     })
 
-    if (globalCache.data.aptitudeQuestions && globalCache.data.aptitudeConcepts) {
+    const hasValidQ = globalCache.data.aptitudeQuestions?.questions && globalCache.data.aptitudeQuestions.questions.length >= 1000
+    if (hasValidQ && globalCache.data.aptitudeConcepts) {
       checkAndSet()
       return unsubscribe
     }
