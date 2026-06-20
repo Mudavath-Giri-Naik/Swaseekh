@@ -165,6 +165,8 @@ function QuestionsListPageInner() {
     Record<string, { name?: string; latex?: string; plain?: string }>
   >({})
 
+  const [isMounted, setIsMounted] = useState(false)
+
   // ΓöÇΓöÇΓöÇ Track if this is the initial mount (skip URL sync on first render) ΓöÇ
   const isInitialMount = useRef(true)
 
@@ -213,6 +215,7 @@ function QuestionsListPageInner() {
 
   // Set sidebar state
   useEffect(() => {
+    setIsMounted(true)
     sidebarData.setIsQuestionsMode(true)
     sidebarData.setConceptName('Questions')
     return () => {
@@ -433,7 +436,7 @@ function QuestionsListPageInner() {
   const filterTriggerClass =
     'inline-flex h-10 shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-lg border bg-card px-3.5 text-[15px] font-medium text-foreground/80 transition-colors hover:bg-accent hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring/30 data-[state=open]:bg-accent data-[state=open]:text-foreground sm:h-8 sm:px-2.5 sm:text-sm dark:border-transparent dark:bg-white/[0.04] dark:hover:bg-white/[0.07] dark:data-[state=open]:bg-white/[0.07]'
 
-  if (loading) {
+  if (!isMounted || loading) {
     return (
       <div className="flex items-center justify-center h-[80vh]">
         <div className="w-8 h-8 border-2 border border-t-[#4A235A] rounded-full animate-spin" />
