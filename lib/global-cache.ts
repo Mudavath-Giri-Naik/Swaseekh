@@ -4,6 +4,7 @@ export interface GlobalCacheData {
   gateFormulaInfoMap: any;
   aptitudeQuestions: any;
   aptitudeConcepts: any;
+  aptitudeModels: any;
 }
 
 class CacheManager {
@@ -13,6 +14,7 @@ class CacheManager {
     gateFormulaInfoMap: null,
     aptitudeQuestions: null,
     aptitudeConcepts: null,
+    aptitudeModels: null,
   };
 
   private listeners = new Set<() => void>();

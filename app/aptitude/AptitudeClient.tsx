@@ -150,6 +150,7 @@ function AptitudePageInner() {
   const searchParams = useSearchParams()
   
   const [concepts, setConcepts] = useState<Concept[]>(globalCache.data.aptitudeConcepts?.concepts ?? [])
+  const [allModels, setAllModels] = useState<any[]>(globalCache.data.aptitudeModels ?? [])
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
   const [isMounted, setIsMounted] = useState(false)
 
