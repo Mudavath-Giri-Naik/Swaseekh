@@ -446,7 +446,7 @@ function AptitudePageInner() {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
           <InputGroupAddon align="inline-end">
-            {totalQ} result\n            {totalQ !== 1 ? 's' : ''}
+            {totalQ} Results
           </InputGroupAddon>
         </InputGroup>
 
