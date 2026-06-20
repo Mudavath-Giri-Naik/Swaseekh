@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import Navbar from '@/components/Navbar'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 
 import JsonLd from '@/components/JsonLd'
 import { websiteSchema, organizationSchema } from '@/lib/seo'
@@ -154,7 +156,9 @@ const TimeSpentCard = () => (
   </div>
 )
 
-export default function HomePage() {
+export default async function HomePage() {
+  const session = await getServerSession(authOptions)
+  const ctaHref = session ? '/gate/questions' : '/login?callbackUrl=/gate/questions'
   return (
     <div className={`relative min-h-screen bg-[#FCFBF9] ${inter.className} flex flex-col overflow-clip`}>
 <JsonLd data={[websiteSchema(), organizationSchema(), faqSchema]} />
@@ -207,7 +211,7 @@ export default function HomePage() {
             </div>
             
             <RainbowButton asChild className="px-6 py-2.5 text-[15px] h-auto rounded-md">
-              <Link href="/gate/questions">
+              <Link href={ctaHref}>
                 Get Started for Free
               </Link>
             </RainbowButton>

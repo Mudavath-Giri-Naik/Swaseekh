@@ -1,19 +1,21 @@
 'use client'
 
 import { signIn, useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Suspense, useEffect } from 'react'
 
-export default function LoginPage() {
+function LoginContent() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const callbackUrl = searchParams.get('callbackUrl') || '/gate'
 
-  // If already authenticated, redirect to /gate
+  // If already authenticated, redirect
   useEffect(() => {
     if (status === 'authenticated') {
-      router.replace('/gate')
+      router.replace(callbackUrl)
     }
-  }, [status, router])
+  }, [status, router, callbackUrl])
 
   if (status === 'loading') {
     return (
@@ -41,7 +43,7 @@ export default function LoginPage() {
 
         {/* Google Sign-in Button */}
         <button
-          onClick={() => signIn('google', { callbackUrl: '/gate' })}
+          onClick={() => signIn('google', { callbackUrl })}
           className="w-full flex items-center justify-center gap-3 px-4 py-3 
                      border-2 border-gray-200 rounded-xl bg-white 
                      hover:border-gray-300 hover:shadow-md 
@@ -65,5 +67,17 @@ export default function LoginPage() {
         </p>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-gray-200 border-t-[#4A235A] rounded-full animate-spin" />
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
   )
 }
