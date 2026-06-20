@@ -1,5 +1,18 @@
 import { AptitudeConceptCard } from '@/components/aptitude/AptitudeConceptCard'
 import { BookOpen, TrendingUp, Hash } from 'lucide-react'
+import type { Metadata } from 'next'
+import JsonLd from '@/components/JsonLd'
+import { itemListSchema, getSeoAptitudeConcepts } from '@/lib/seo'
+
+// Always read fresh from the DB this server is connected to (no cached HTTP self-fetch).
+export const dynamic = 'force-dynamic'
+
+export const metadata: Metadata = {
+  title: 'Quantitative Aptitude Practice — Questions with Solutions for GATE & Placements',
+  description:
+    'Practice quantitative aptitude with step-by-step solutions, key formulas and time-saving shortcuts. Solved RS Agarwal and IndiaBix questions for GATE and placements.',
+  alternates: { canonical: '/aptitude' },
+}
 
 interface AptitudeConcept {
   conceptId: string
@@ -12,17 +25,10 @@ interface AptitudeConcept {
 }
 
 async function getConcepts(): Promise<AptitudeConcept[]> {
-  try {
-    const base = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
-    const res = await fetch(`${base}/api/aptitude/concepts`, {
-      next: { revalidate: 300 },
-    })
-    if (!res.ok) return []
-    const data = await res.json()
-    return data.concepts ?? []
-  } catch {
-    return []
-  }
+  // Query the database directly (server component) — avoids the NEXT_PUBLIC_APP_URL
+  // self-fetch which can point at a different instance/DB and serve stale data.
+  const rows = await getSeoAptitudeConcepts()
+  return rows as unknown as AptitudeConcept[]
 }
 
 export default async function AptitudePage() {
@@ -33,6 +39,12 @@ export default async function AptitudePage() {
 
   return (
     <div className="min-h-screen">
+      <JsonLd
+        data={itemListSchema(
+          'Quantitative Aptitude Chapters',
+          concepts.map((c) => ({ name: c.name, path: '/aptitude/' + c.slug }))
+        )}
+      />
       {/* Hero */}
       <div className="border-b border-border bg-gradient-to-br from-indigo-500/5 via-purple-500/5 to-pink-500/5">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-14">

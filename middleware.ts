@@ -2,10 +2,16 @@ import { withAuth } from 'next-auth/middleware'
 
 /**
  * Route protection:
- *  - Top-level browse pages (/gate, /gate/questions) are public — anyone can
- *    see the syllabus list and the PYQ list without signing in.
- *  - Anything deeper (a specific subject, topic, concept, or question) requires
- *    authentication and bounces unauth users to /login with a callbackUrl.
+ *  - The syllabus browse pages and the previous-year-question (PYQ) pages are
+ *    public and crawlable, so search engines and first-time visitors can index
+ *    the GATE CS syllabus, concept notes, and previous year questions:
+ *      /gate, /gate/questions                       → browse hubs
+ *      /gate/<subject>[/<topic>/<concept>]          → subject & concept notes
+ *      /gate/questions/.../<questionId>             → individual PYQ pages
+ *    (The content APIs these pages call are already public, so logged-out
+ *     users get the full interactive experience too.)
+ *  - Any other route matched below still requires authentication and bounces
+ *    unauth users to sign-in with a callbackUrl.
  *
  * next-auth's `withAuth` reads `pages.signIn` from authOptions, so unauth
  * requests automatically redirect to /login?callbackUrl=<original-path>.
@@ -15,11 +21,21 @@ export default withAuth({
     authorized: ({ token, req }) => {
       const path = req.nextUrl.pathname
 
-      // Publicly browsable top-level pages
-      const publicPaths = new Set<string>(['/gate', '/gate/questions'])
-      if (publicPaths.has(path)) return true
+      // Public browse hubs
+      if (path === '/gate' || path === '/gate/questions') return true
 
-      // Everything else matched below needs a session
+      // Individual PYQ question pages:
+      // /gate/questions/<subject>/<topic>/<concept>/<questionId>
+      if (/^\/gate\/questions\/[^/]+\/[^/]+\/[^/]+\/[^/]+$/.test(path)) return true
+
+      // Subject / topic / concept notes (the /gate/[...slug] catch-all),
+      // i.e. anything under /gate that is NOT part of /gate/questions.
+      if (path.startsWith('/gate/') && !path.startsWith('/gate/questions')) {
+        return true
+      }
+
+      // Anything else under /gate (e.g. the bare /gate/questions/<subject>
+      // redirect stub) still requires a session.
       return !!token
     },
   },

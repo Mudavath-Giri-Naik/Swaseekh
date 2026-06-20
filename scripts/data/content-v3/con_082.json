@@ -1,0 +1,233 @@
+{
+ "_id": "con_082",
+ "conceptId": "con_082",
+ "conceptTitle": "Application Layer Protocols",
+ "reference": "GATE CS — Computer Networks / Application Layer",
+ "decisionGuide": {
+  "title": "Which result do I use?",
+  "map": [
+   {"condition": "Which protocol uses TCP vs UDP", "use": "\\text{HTTP, FTP, SMTP, Telnet, SSH} \\to \\text{TCP};\\quad \\text{DNS, DHCP, SNMP, TFTP} \\to \\text{UDP}"},
+   {"condition": "DNS reverse lookup of IP a.b.c.d", "use": "d.c.b.a.\\text{in-addr.arpa}"},
+   {"condition": "FTP command vs data ports", "use": "\\text{Control: port }21,\\quad \\text{Data: port }20 \\text{ (active mode)}"},
+   {"condition": "Traceroute technique", "use": "\\text{Send UDP/ICMP with TTL}=1,2,3,\\ldots; \\text{collect TTL-exceeded ICMP from each router}"},
+   {"condition": "SMTP vs POP3 vs IMAP role", "use": "\\text{SMTP: send/relay mail}\\quad \\text{POP3/IMAP: retrieve mail from server}"}
+  ]
+ },
+ "groups": [
+  {
+   "groupId": "dns-protocol",
+   "groupTitle": "DNS (Domain Name System)",
+   "formulas": [
+    {
+     "formulaId": "con_082-dns-resolution",
+     "name": "DNS: Hostname to IP Resolution",
+     "latex": "\\text{hostname} \\xrightarrow{\\text{DNS query}} \\text{IP address}",
+     "plain": "DNS resolves a human-readable hostname (e.g. www.example.com) to an IP address via iterative or recursive queries",
+     "whenToUse": "When asked what DNS does, or how a browser finds the IP for a URL",
+     "terms": [
+      {"symbol": "resolver", "means": "client-side DNS component that initiates queries"},
+      {"symbol": "recursive query", "means": "server answers on behalf of client by querying other servers"},
+      {"symbol": "iterative query", "means": "server returns best referral; client contacts next server itself"}
+     ],
+     "trap": "DNS primarily uses UDP port 53; TCP is used only for large responses (>512 bytes) or zone transfers. GATE often tests this distinction.",
+     "reference": "Computer Networks / Application Layer"
+    },
+    {
+     "formulaId": "con_082-dns-reverse-lookup",
+     "name": "DNS Reverse Lookup",
+     "latex": "\\text{Reverse lookup of } a.b.c.d \\Rightarrow \\text{query } d.c.b.a.\\texttt{in-addr.arpa}",
+     "plain": "To reverse-lookup IP a.b.c.d: reverse the octets and append .in-addr.arpa, then query PTR record",
+     "whenToUse": "When a question asks how to find the hostname for a given IP address (traceroute does this internally)",
+     "terms": [
+      {"symbol": "in-addr.arpa", "means": "special DNS zone for reverse IP lookups"},
+      {"symbol": "PTR record", "means": "DNS record type mapping IP back to hostname"}
+     ],
+     "trap": "Octets are reversed in the query name: 168.128.16.5 becomes 5.16.128.168.in-addr.arpa — a classic GATE question.",
+     "reference": "Computer Networks / Application Layer"
+    },
+    {
+     "formulaId": "con_082-dns-hierarchy",
+     "name": "DNS Hierarchy",
+     "latex": "\\text{Root} \\to \\text{TLD} \\to \\text{Authoritative Name Server} \\to \\text{Answer}",
+     "plain": "Root servers -> TLD servers (e.g. .com) -> Authoritative servers -> IP answer",
+     "whenToUse": "Tracing the path of a DNS query from a client with no cached information",
+     "terms": [
+      {"symbol": "TLD", "means": "Top-Level Domain server (e.g. .com, .org, .edu)"},
+      {"symbol": "authoritative", "means": "server that holds the definitive record for a domain"}
+     ],
+     "trap": "Root servers do NOT know the final IP; they only refer to TLD servers. The actual IP comes from the authoritative server.",
+     "reference": "Computer Networks / Application Layer"
+    },
+    {
+     "formulaId": "con_082-dns-record-types",
+     "name": "DNS Record Types",
+     "latex": "\\text{A: hostname}\\to\\text{IPv4} \\quad \\text{AAAA: hostname}\\to\\text{IPv6} \\quad \\text{MX: mail server} \\quad \\text{CNAME: alias} \\quad \\text{PTR: reverse}",
+     "plain": "A=IPv4 address | AAAA=IPv6 address | MX=mail exchanger | CNAME=canonical name alias | PTR=reverse lookup | NS=name server",
+     "whenToUse": "When asked what type of DNS record a given operation uses",
+     "terms": [
+      {"symbol": "MX", "means": "Mail eXchanger — DNS record pointing to the mail server for a domain"},
+      {"symbol": "CNAME", "means": "Canonical NAME — alias pointing to another hostname"}
+     ],
+     "trap": "MX records point to hostnames, not IPs directly; a separate A/AAAA lookup is needed for the mail server IP.",
+     "reference": "Computer Networks / Application Layer"
+    }
+   ]
+  },
+  {
+   "groupId": "http-protocol",
+   "groupTitle": "HTTP",
+   "formulas": [
+    {
+     "formulaId": "con_082-http-methods",
+     "name": "HTTP Request Methods",
+     "latex": "\\text{GET: retrieve} \\quad \\text{POST: submit data} \\quad \\text{HEAD: headers only} \\quad \\text{PUT: upload} \\quad \\text{DELETE: remove}",
+     "plain": "GET: retrieve resource | POST: submit data (body) | HEAD: headers only (no body) | PUT: upload/replace | DELETE: remove resource",
+     "whenToUse": "When a GATE question asks which HTTP method is used for a specific action, or matching command to protocol",
+     "terms": [
+      {"symbol": "HEAD", "means": "same as GET but server returns only headers, no body — used to check resource metadata"}
+     ],
+     "trap": "HEAD returns only headers (no response body). PROMPT is an FTP command, not HTTP. GATE 2014 question tests HEAD vs GET.",
+     "reference": "Computer Networks / Application Layer"
+    },
+    {
+     "formulaId": "con_082-http-persistent-non-persistent",
+     "name": "HTTP Non-Persistent vs Persistent Connections",
+     "latex": "\\text{Non-persistent: 1 TCP connection per object} \\quad \\text{Persistent: multiple objects per connection}",
+     "plain": "Non-persistent HTTP/1.0: new TCP connection (1 RTT + 1 RTT data) per object. Persistent HTTP/1.1: reuse connection for multiple objects.",
+     "whenToUse": "When computing time to load a web page with multiple objects given RTT",
+     "terms": [
+      {"symbol": "RTT", "means": "Round-Trip Time for one message to travel to server and back"}
+     ],
+     "trap": "Non-persistent HTTP requires 2 RTTs per object (1 for TCP setup + 1 for request/response) plus transmission time. With pipelining, persistent HTTP allows multiple concurrent requests.",
+     "reference": "Computer Networks / Application Layer"
+    }
+   ]
+  },
+  {
+   "groupId": "ftp-protocol",
+   "groupTitle": "FTP",
+   "formulas": [
+    {
+     "formulaId": "con_082-ftp-ports",
+     "name": "FTP Control and Data Ports",
+     "latex": "\\text{Control connection: TCP port }21 \\quad \\text{Data connection: TCP port }20\\text{ (active mode)}",
+     "plain": "FTP uses two TCP connections: port 21 for control (commands/responses) and port 20 for data transfer (active mode)",
+     "whenToUse": "When asked about FTP port numbers or the two-channel architecture of FTP",
+     "terms": [
+      {"symbol": "active mode", "means": "server initiates data connection from port 20 to client's ephemeral port"},
+      {"symbol": "passive mode", "means": "client initiates both connections; server listens on a random port for data"}
+     ],
+     "trap": "FTP uses TWO separate TCP connections (unlike HTTP which uses one). RCPT is an SMTP command, not FTP. PROMPT is an FTP interactive command.",
+     "reference": "Computer Networks / Application Layer"
+    },
+    {
+     "formulaId": "con_082-ftp-commands",
+     "name": "FTP Commands (GATE-tested)",
+     "latex": "\\text{RETR: download file} \\quad \\text{STOR: upload file} \\quad \\text{PROMPT: toggle interactive mode} \\quad \\text{LIST: directory listing}",
+     "plain": "RETR=download | STOR=upload | PROMPT=toggle interactive prompting | LIST=list directory | USER=authenticate username",
+     "whenToUse": "GATE matching questions that associate commands with protocols — PROMPT is FTP-specific",
+     "terms": [
+      {"symbol": "PROMPT", "means": "FTP command that toggles whether FTP prompts user for confirmation on multi-file operations"}
+     ],
+     "trap": "PROMPT is an FTP command, HEAD is HTTP, RCPT is SMTP — GATE 2012 tested exactly this three-way association.",
+     "reference": "Computer Networks / Application Layer"
+    }
+   ]
+  },
+  {
+   "groupId": "smtp-email",
+   "groupTitle": "SMTP and Email Protocols",
+   "formulas": [
+    {
+     "formulaId": "con_082-smtp-commands",
+     "name": "SMTP Commands",
+     "latex": "\\text{HELO/EHLO} \\to \\text{MAIL FROM} \\to \\text{RCPT TO} \\to \\text{DATA} \\to \\text{QUIT}",
+     "plain": "SMTP dialog: HELO -> MAIL FROM:<sender> -> RCPT TO:<recipient> -> DATA (message body) -> QUIT",
+     "whenToUse": "When a GATE question asks which command belongs to SMTP, or the sequence of SMTP commands",
+     "terms": [
+      {"symbol": "RCPT", "means": "SMTP command specifying the recipient(s) of the email"},
+      {"symbol": "MAIL FROM", "means": "SMTP command specifying the sender's address"}
+     ],
+     "trap": "RCPT is an SMTP command (not FTP or HTTP). SMTP uses TCP port 25. SMTP is for sending/relaying mail — POP3/IMAP are for receiving.",
+     "reference": "Computer Networks / Application Layer"
+    },
+    {
+     "formulaId": "con_082-email-protocols",
+     "name": "Email Protocol Roles",
+     "latex": "\\text{SMTP (port 25): send/relay} \\quad \\text{POP3 (port 110): download \& delete} \\quad \\text{IMAP (port 143): sync \& manage on server}",
+     "plain": "SMTP=send/relay (TCP 25); POP3=download and optionally delete from server (TCP 110); IMAP=manage mail on server, sync across devices (TCP 143)",
+     "whenToUse": "Matching email protocols to their functions (send vs retrieve) or port numbers",
+     "terms": [
+      {"symbol": "POP3", "means": "Post Office Protocol v3 — downloads mail to local client"},
+      {"symbol": "IMAP", "means": "Internet Message Access Protocol — keeps mail on server, synced across clients"}
+     ],
+     "trap": "SMTP cannot be used to retrieve email; it only sends/relays. POP3 typically deletes mail from server after download; IMAP keeps it on the server.",
+     "reference": "Computer Networks / Application Layer"
+    }
+   ]
+  },
+  {
+   "groupId": "traceroute-tools",
+   "groupTitle": "Traceroute and Network Diagnostics",
+   "formulas": [
+    {
+     "formulaId": "con_082-traceroute-mechanism",
+     "name": "Traceroute Mechanism",
+     "latex": "\\text{Send probes with TTL}=1,2,3,\\ldots; \\text{ each router returns ICMP Time-Exceeded when TTL}=0",
+     "plain": "Traceroute sends packets with increasing TTL (1, 2, 3, ...); each router decrements TTL and sends ICMP Time-Exceeded when TTL hits 0, revealing the router's IP",
+     "whenToUse": "When asked how traceroute discovers intermediate routers/hops between source and destination",
+     "terms": [
+      {"symbol": "TTL", "means": "Time To Live — hop count field in IP header, decremented by each router"},
+      {"symbol": "ICMP Time-Exceeded", "means": "error message sent back when TTL reaches 0"}
+     ],
+     "trap": "Traceroute discovers routers by exploiting TTL expiry and ICMP, NOT by querying DNS or routing tables directly. The source uses the ICMP source IP to identify each hop.",
+     "reference": "Computer Networks / Application Layer"
+    },
+    {
+     "formulaId": "con_082-ping-icmp",
+     "name": "PING (ICMP Echo)",
+     "latex": "\\text{PING: sends ICMP Echo Request} \\to \\text{receives ICMP Echo Reply} \\Rightarrow \\text{RTT and reachability}",
+     "plain": "PING uses ICMP Echo Request/Reply to test reachability and measure round-trip time to a host",
+     "whenToUse": "When asked which protocol or message type ping uses, or how to test basic connectivity",
+     "terms": [
+      {"symbol": "ICMP", "means": "Internet Control Message Protocol — carries error and diagnostic messages at network layer"}
+     ],
+     "trap": "PING uses ICMP (not TCP or UDP). ICMP operates at the Network layer (Layer 3), not Transport. A firewall blocking ICMP will make a host appear unreachable to ping even if it is up.",
+     "reference": "Computer Networks / Application Layer"
+    }
+   ]
+  },
+  {
+   "groupId": "dhcp-snmp",
+   "groupTitle": "DHCP and SNMP",
+   "formulas": [
+    {
+     "formulaId": "con_082-dhcp-process",
+     "name": "DHCP DORA Process",
+     "latex": "\\text{Discover} \\to \\text{Offer} \\to \\text{Request} \\to \\text{Acknowledge}",
+     "plain": "DHCP: client broadcasts Discover -> server sends Offer -> client sends Request -> server sends Acknowledge (DORA)",
+     "whenToUse": "When asked about the DHCP process for auto-assigning an IP address to a new host",
+     "terms": [
+      {"symbol": "DORA", "means": "Discover-Offer-Request-Acknowledge — four steps of DHCP address assignment"},
+      {"symbol": "UDP 67/68", "means": "DHCP uses UDP: server on port 67, client on port 68"}
+     ],
+     "trap": "DHCP uses UDP (not TCP) because the client has no IP yet when it sends the Discover broadcast. All four DORA messages are broadcast or unicast at UDP layer.",
+     "reference": "Computer Networks / Application Layer"
+    },
+    {
+     "formulaId": "con_082-snmp-role",
+     "name": "SNMP (Simple Network Management Protocol)",
+     "latex": "\\text{SNMP: manager polls agents via UDP 161 to monitor/manage network devices (MIB)}",
+     "plain": "SNMP allows a network manager to monitor and control network devices (routers, switches) via UDP port 161; data is stored in MIB",
+     "whenToUse": "When a question asks which protocol is used for network management or which transport protocol SNMP uses",
+     "terms": [
+      {"symbol": "MIB", "means": "Management Information Base — structured collection of device variables accessible via SNMP"},
+      {"symbol": "agent", "means": "software running on managed device that responds to SNMP queries"}
+     ],
+     "trap": "SNMP uses UDP (not TCP) for polling. SNMP traps (unsolicited alerts from agent to manager) use UDP port 162.",
+     "reference": "Computer Networks / Application Layer"
+    }
+   ]
+  }
+ ]
+}

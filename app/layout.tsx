@@ -28,21 +28,62 @@ const caveat = Caveat({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://swaseekh.in'),
   title: {
-    default: 'Swaseekh',
+    default: 'Swaseekh — GATE CS Preparation Platform',
     template: '%s | Swaseekh',
   },
   description:
-    'Master every concept. Crack any exam. Structured preparation for GATE, NEET, UPSC, JEE with previous year questions and detailed explanations.',
+    'Prepare for GATE CS (Computer Science) with Swaseekh: 2000+ previous year questions (PYQs) mapped to every syllabus concept, year-wise full-length mock tests, quantitative aptitude practice, and clear step-by-step solutions — built for GATE 2027 aspirants.',
   keywords: [
-    'GATE',
     'GATE CS',
-    'Computer Science',
-    'GATE preparation',
-    'PYQ',
+    'GATE Computer Science',
+    'GATE CS syllabus',
+    'GATE CS previous year questions',
+    'GATE CS PYQs',
+    'GATE CS mock test',
+    'GATE 2027 preparation',
+    'quantitative aptitude',
+    'GATE CSE',
     'previous year questions',
-    'exam preparation',
   ],
+  applicationName: 'Swaseekh',
+  authors: [{ name: 'Swaseekh' }],
+  creator: 'Swaseekh',
+  publisher: 'Swaseekh',
+  manifest: '/manifest.json',
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://swaseekh.in',
+    siteName: 'Swaseekh',
+    title: 'Swaseekh — GATE CS Preparation Platform',
+    description:
+      'GATE CS preparation, decoded. 2000+ PYQs mapped to every concept, year-wise mock tests, aptitude practice, and step-by-step solutions.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Swaseekh — GATE CS Preparation Platform',
+    description:
+      'GATE CS preparation, decoded. 2000+ PYQs mapped to every concept, year-wise mock tests, aptitude practice, and step-by-step solutions.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
+    },
+  },
+  verification: {
+    google: 'YOUR_GOOGLE_VERIFICATION_CODE',
+  },
 }
 
 export default function RootLayout({

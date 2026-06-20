@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import Navbar from '@/components/Navbar'
 import AvatarGroup from '@/components/AvatarGroup'
@@ -8,10 +9,88 @@ import {
   MobileCardStack,
 } from '@/components/HeroCardStack'
 import ProductPreview from '@/components/ProductPreview'
+import JsonLd from '@/components/JsonLd'
+import { websiteSchema, organizationSchema } from '@/lib/seo'
+
+export const metadata: Metadata = {
+  alternates: { canonical: '/' },
+}
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'What is a good GATE CS score?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'A good GATE CS score depends on your goal. The qualifying cutoff for the general category typically falls around 25-30 marks (out of 100), but admission to the top IITs/IISc for the MTech programme usually needs a much higher score — often a 700+ GATE score with an AIR within the low hundreds. For PSU recruitment and most NITs, a score in the 500-650 range is generally competitive.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'How many previous year questions (PYQs) does Swaseekh have?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Swaseekh has 2000+ GATE CS previous year questions (PYQs), each mapped to the exact concept in the syllabus it tests. This concept mapping lets you study by topic and instantly see how frequently and how deeply each concept has been asked across years.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Is Swaseekh free to use?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Yes. Swaseekh is free to start and browse — you can explore the syllabus and concept map without signing up. Full access to all PYQs, solutions and mock tests is available through Swaseekh Pro at ₹999/year.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Which years of GATE CS questions are covered?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Swaseekh covers GATE CS previous year questions spanning 1989 to 2025, along with year-wise mock tests so you can practise full papers from individual exam years.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Does Swaseekh have GATE CS mock tests?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Yes. Swaseekh offers year-wise, full-length GATE CS mock tests that simulate the real exam, complete with a countdown timer and detailed step-by-step solutions for every question.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'What does the GATE CS syllabus cover?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'The GATE CS syllabus covers core computer science subjects — Programming & Data Structures, Algorithms, Theory of Computation, Compiler Design, Operating Systems, Databases, Computer Networks, Digital Logic and Computer Organisation & Architecture — plus Engineering Mathematics, Discrete Mathematics and General Aptitude.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'How should I start GATE CS preparation?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'A concept-first approach works best: learn each concept thoroughly, then solve PYQs topic by topic to see how that concept is tested, and finally attempt full-length mock tests under timed conditions. Swaseekh maps every PYQ to its concept so you can follow exactly this progression.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'What makes Swaseekh different from other GATE CS prep tools?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Swaseekh focuses on what GATE actually asks. Instead of unfiltered material, every one of its 2000+ PYQs is mapped to a specific concept in the GATE CSE syllabus, so you can see what gets asked, how deep it goes, and what you still have not covered — and then practise it with year-wise mock tests.',
+      },
+    },
+  ],
+}
 
 export default function HomePage() {
   return (
     <div className="relative min-h-screen bg-[#FAFAFB] font-sans">
+      <JsonLd data={[websiteSchema(), organizationSchema(), faqSchema]} />
       {/* Dotted pattern — strongest at the top, fades to nothing at the bottom */}
       <div
         aria-hidden

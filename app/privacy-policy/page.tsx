@@ -1,3 +1,12 @@
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Privacy Policy',
+  description:
+    'How Swaseekh collects, uses and protects your data while you prepare for GATE CS.',
+  alternates: { canonical: '/privacy-policy' },
+}
+
 export default function PrivacyPolicyPage() {
   return (
     <div className="min-h-screen bg-white">
