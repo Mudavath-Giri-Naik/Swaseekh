@@ -186,7 +186,7 @@ function AptitudePageInner() {
 
     setLoading(true)
     Promise.all([
-      fetch('/api/aptitude/questions?limit=5000').then((res) => res.json()),
+      fetch('/api/aptitude/questions?limit=20000').then((res) => res.json()),
       fetch('/api/aptitude/concepts').then((res) => res.json())
     ])
       .then(([qData, cData]) => {
