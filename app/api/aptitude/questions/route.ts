@@ -14,6 +14,7 @@ export async function GET(request: NextRequest) {
     const source = searchParams.get('source')
     const difficulty = searchParams.get('difficulty')
     const tag = searchParams.get('tag')
+    const search = searchParams.get('search')
     const page = parseInt(searchParams.get('page') ?? '1', 10)
     const limit = parseInt(searchParams.get('limit') ?? '20', 10)
 
@@ -24,6 +25,14 @@ export async function GET(request: NextRequest) {
     if (source) query.source = source
     if (difficulty) query.difficulty = difficulty
     if (tag) query.tags = tag
+    
+    if (search) {
+      const searchRegex = { $regex: search, $options: 'i' }
+      query.$or = [
+        { questionText: searchRegex },
+        { tags: searchRegex },
+      ]
+    }
 
     const skip = (page - 1) * limit
 

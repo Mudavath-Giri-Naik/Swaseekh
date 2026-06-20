@@ -1,6 +1,8 @@
 'use client'
 
-import { useEffect, useState, useMemo, Suspense } from 'react'
+import { useEffect, useState, useMemo, Suspense, useCallback } from 'react'
+import { useInView } from 'react-intersection-observer'
+import { Loader2 } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useSidebarData } from '@/components/sidebar-context'
@@ -137,17 +139,17 @@ export default function AptitudeClient() {
   )
 }
 
+const moduleQuestionsCache: Record<string, { questions: Question[]; page: number; totalPages: number; totalQ: number }> = {}
+
+function buildQCacheKey(concept: string, model: string, diff: string, source: string, search: string): string {
+  return `${concept}|${model}|${diff}|${source}|${search}`
+}
+
 function AptitudePageInner() {
   const sidebarData = useSidebarData()
   const searchParams = useSearchParams()
   
-  const cachedQ = globalCache.data.aptitudeQuestions?.questions ?? []
-  const isCacheValid = cachedQ.length > 1000
-
-  const [questions, setQuestions] = useState<Question[]>(isCacheValid ? cachedQ : [])
   const [concepts, setConcepts] = useState<Concept[]>(globalCache.data.aptitudeConcepts?.concepts ?? [])
-  const [loading, setLoading] = useState(!isCacheValid || !globalCache.data.aptitudeConcepts)
-  const [searchQuery, setSearchQuery] = useState('')
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
   const [isMounted, setIsMounted] = useState(false)
 
@@ -156,60 +158,100 @@ function AptitudePageInner() {
   const [selectedModel, setSelectedModel] = useState('')
   const [selectedDifficulty, setSelectedDifficulty] = useState('')
   const [selectedSource, setSelectedSource] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
 
-  // Set sidebar state
+  // Pagination State
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalQ, setTotalQ] = useState(0)
+  const [questions, setQuestions] = useState<Question[]>([])
+  const [loading, setLoading] = useState(!globalCache.data.aptitudeConcepts)
+  const [qLoading, setQLoading] = useState(true)
+
+  const { ref, inView } = useInView()
+
+  // Fetch concepts
   useEffect(() => {
     setIsMounted(true)
     sidebarData.setIsQuestionsMode(true)
     sidebarData.setConceptName('Aptitude')
-    return () => {
-      sidebarData.clearSubjectData()
+
+    if (!globalCache.data.aptitudeConcepts) {
+      fetch('/api/aptitude/concepts').then(r => r.json()).then(c => {
+        globalCache.data.aptitudeConcepts = c
+        setConcepts(c.concepts || [])
+        setLoading(false)
+      })
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => sidebarData.clearSubjectData()
   }, [])
 
-  // Fetch all questions & concepts
+  // Debounced search
+  const [debouncedSearch, setDebouncedSearch] = useState(searchQuery)
   useEffect(() => {
-    const checkAndSet = () => {
-      const q = globalCache.data.aptitudeQuestions?.questions
-      const c = globalCache.data.aptitudeConcepts?.concepts
-      if (q && c) {
-        if (q.length < 1000) return // Ignore stale or partial cache
-        setQuestions(q)
-        setConcepts(c)
-        setLoading(false)
-      }
-    }
+    const handler = setTimeout(() => setDebouncedSearch(searchQuery), 500)
+    return () => clearTimeout(handler)
+  }, [searchQuery])
 
-    const unsubscribe = globalCache.subscribe(() => {
-      checkAndSet()
-    })
+  const fetchQuestions = useCallback((pg: number, reset = false) => {
+    const cacheKey = buildQCacheKey(selectedConcept, selectedModel, selectedDifficulty, selectedSource, debouncedSearch)
+    setQLoading(true)
 
-    const hasValidQ = globalCache.data.aptitudeQuestions?.questions && globalCache.data.aptitudeQuestions.questions.length >= 1000
-    if (hasValidQ && globalCache.data.aptitudeConcepts) {
-      checkAndSet()
-      return unsubscribe
-    }
+    const qp = new URLSearchParams({ page: String(pg), limit: '20' })
+    if (selectedConcept) qp.set('concept', selectedConcept)
+    if (selectedModel) qp.set('model', selectedModel)
+    if (selectedDifficulty) qp.set('difficulty', selectedDifficulty)
+    if (selectedSource) qp.set('source', selectedSource)
+    if (debouncedSearch) qp.set('search', debouncedSearch)
 
-    setLoading(true)
-    Promise.all([
-      fetch('/api/aptitude/questions?limit=10000').then((res) => res.json()),
-      fetch('/api/aptitude/concepts').then((res) => res.json())
-    ])
-      .then(([qData, cData]) => {
-        globalCache.data.aptitudeQuestions = qData
-        globalCache.data.aptitudeConcepts = cData
-        checkAndSet()
+    fetch(`/api/aptitude/questions?${qp.toString()}`)
+      .then(r => r.json())
+      .then(d => {
+        const newQs = d.questions || []
+        setQuestions(prev => {
+          const updated = reset ? newQs : [...prev, ...newQs]
+          moduleQuestionsCache[cacheKey] = {
+            questions: updated,
+            page: pg,
+            totalPages: d.totalPages || 1,
+            totalQ: d.total || 0
+          }
+          return updated
+        })
+        setTotalPages(d.totalPages || 1)
+        setTotalQ(d.total || 0)
       })
-      .catch((err) => {
-        console.error("Failed to load aptitude data:", err)
-        setLoading(false)
-      })
+      .catch(() => {})
+      .finally(() => setQLoading(false))
+  }, [selectedConcept, selectedModel, selectedDifficulty, selectedSource, debouncedSearch])
 
-    return unsubscribe
-  }, [])
+  // Filter effect
+  useEffect(() => {
+    const cacheKey = buildQCacheKey(selectedConcept, selectedModel, selectedDifficulty, selectedSource, debouncedSearch)
+    const cached = moduleQuestionsCache[cacheKey]
 
-  // Maps & Derived Options
+    if (cached) {
+      setQuestions(cached.questions)
+      setPage(cached.page)
+      setTotalPages(cached.totalPages)
+      setTotalQ(cached.totalQ)
+      setQLoading(false)
+    } else {
+      setPage(1)
+      setQuestions([])
+      fetchQuestions(1, true)
+    }
+  }, [selectedConcept, selectedModel, selectedDifficulty, selectedSource, debouncedSearch, fetchQuestions])
+
+  // Infinite scroll effect
+  useEffect(() => {
+    if (inView && page < totalPages && !qLoading) {
+      const nextPage = page + 1
+      setPage(nextPage)
+      fetchQuestions(nextPage, false)
+    }
+  }, [inView, page, totalPages, qLoading, fetchQuestions])
+
   const conceptMap = useMemo(() => {
     const map: Record<string, string> = {}
     concepts.forEach(c => { map[c.slug] = c.name })
@@ -217,39 +259,17 @@ function AptitudePageInner() {
   }, [concepts])
 
   const conceptOptions = useMemo(() => {
-    const set = new Set<string>()
-    questions.forEach((q) => set.add(q.conceptSlug))
-    return Array.from(set).map((slug) => ({
-      value: slug,
-      label: conceptMap[slug] || slug
-    })).sort((a, b) => a.label.localeCompare(b.label))
-  }, [questions, conceptMap])
+    return concepts.map(c => ({ value: c.slug, label: c.name })).sort((a, b) => a.label.localeCompare(b.label))
+  }, [concepts])
 
+  // Fake model options derived from current page questions
   const modelOptions = useMemo(() => {
     const set = new Set<string>()
-    questions
-      .filter((q) => !selectedConcept || q.conceptSlug === selectedConcept)
-      .forEach((q) => set.add(q.modelId))
-    return Array.from(set).map((m) => ({ value: m, label: formatModelId(m) })).sort((a, b) => a.label.localeCompare(b.label))
-  }, [questions, selectedConcept])
+    questions.forEach(q => set.add(q.modelId))
+    return Array.from(set).map(m => ({ value: m, label: formatModelId(m) })).sort((a, b) => a.label.localeCompare(b.label))
+  }, [questions])
 
-  // Filter questions
-  const filteredQuestions = useMemo(() => {
-    return questions.filter((q) => {
-      if (selectedConcept && q.conceptSlug !== selectedConcept) return false
-      if (selectedModel && q.modelId !== selectedModel) return false
-      if (selectedDifficulty && q.difficulty !== selectedDifficulty) return false
-      if (selectedSource && q.source !== selectedSource) return false
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase()
-        if (
-          !q.questionText.toLowerCase().includes(query) &&
-          !(conceptMap[q.conceptSlug] || '').toLowerCase().includes(query)
-        ) return false
-      }
-      return true
-    })
-  }, [questions, selectedConcept, selectedModel, selectedDifficulty, selectedSource, searchQuery, conceptMap])
+  const filteredQuestions = questions
 
   const toggleRow = (id: string, e: React.MouseEvent) => {
     setExpandedRows((prev) => {
@@ -263,7 +283,6 @@ function AptitudePageInner() {
     })
   }
 
-  // Filter chip styling
   const filterTriggerClass =
     'inline-flex h-10 shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-lg border bg-card px-3.5 text-[15px] font-medium text-foreground/80 transition-colors hover:bg-accent hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring/30 data-[state=open]:bg-accent data-[state=open]:text-foreground sm:h-8 sm:px-2.5 sm:text-sm dark:border-transparent dark:bg-white/[0.04] dark:hover:bg-white/[0.07] dark:data-[state=open]:bg-white/[0.07]'
 
@@ -407,7 +426,7 @@ function AptitudePageInner() {
               </div>
               <DrawerFooter className="pt-2">
                 <DrawerClose asChild>
-                  <Button className="w-full text-[15px] font-semibold h-12 rounded-xl">View {filteredQuestions.length} Results</Button>
+                  <Button className="w-full text-[15px] font-semibold h-12 rounded-xl">View {totalQ} Results</Button>
                 </DrawerClose>
               </DrawerFooter>
             </DrawerContent>
@@ -427,8 +446,7 @@ function AptitudePageInner() {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
           <InputGroupAddon align="inline-end">
-            {filteredQuestions.length} result
-            {filteredQuestions.length !== 1 ? 's' : ''}
+            {totalQ} result\n            {totalQ !== 1 ? 's' : ''}
           </InputGroupAddon>
         </InputGroup>
 
@@ -571,6 +589,13 @@ function AptitudePageInner() {
             </Table>
           </div>
         </div>
+
+        {/* Infinite Scroll Trigger */}
+        {page < totalPages && (
+          <div ref={ref} className="py-8 flex justify-center items-center w-full">
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          </div>
+        )}
       </div>
     </div>
   )
