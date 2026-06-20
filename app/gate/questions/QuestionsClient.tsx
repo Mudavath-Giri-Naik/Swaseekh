@@ -143,7 +143,7 @@ function QuestionsListPageInner() {
   const [loading, setLoading] = useState(initialQs.length === 0 || !globalCache.data.gateQuestions)
   const [solvedStatuses, setSolvedStatuses] = useState<Record<string, boolean>>({})
 
-  // ΓöÇΓöÇΓöÇ Read initial state from URL search params ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  // --- Read initial state from URL search params ----------------------
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') ?? '')
   const [selectedSubject, setSelectedSubject] = useState(searchParams.get('subject') ?? '')
   const [selectedTopic, setSelectedTopic] = useState(searchParams.get('topic') ?? '')
@@ -163,7 +163,7 @@ function QuestionsListPageInner() {
     order: (searchParams.get('sortOrder') as 'asc' | 'desc') || 'desc',
   })
 
-  // Formula name map ΓÇö built from content API or derived from IDs
+  // Formula name map - built from content API or derived from IDs
   const [formulaNameMap, setFormulaNameMap] = useState<Record<string, string>>({})
   // Richer info for hover-card previews ({ name, latex, plain } per ID)
   const [formulaInfoMap, setFormulaInfoMap] = useState<
@@ -172,10 +172,10 @@ function QuestionsListPageInner() {
 
   const [isMounted, setIsMounted] = useState(false)
 
-  // ΓöÇΓöÇΓöÇ Track if this is the initial mount (skip URL sync on first render) ΓöÇ
+  // --- Track if this is the initial mount (skip URL sync on first render) -
   const isInitialMount = useRef(true)
 
-  // ΓöÇΓöÇΓöÇ Sync state to URL search params ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  // --- Sync state to URL search params --------------------------------
   const syncToUrl = useCallback(() => {
     const params = new URLSearchParams()
     if (selectedSubject) params.set('subject', selectedSubject)
@@ -394,7 +394,7 @@ function QuestionsListPageInner() {
       })
   }, [questions, selectedSubject, selectedTopic, selectedConcept, selectedYear, selectedDifficulty, selectedType, selectedFormula, searchQuery, sort])
 
-  // ΓöÇΓöÇΓöÇ Infinite Scroll ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  // --- Infinite Scroll ------------------------------------------------
   const { ref: loadMoreRef, inView } = useInView({ rootMargin: '400px' })
 
   useEffect(() => {
@@ -414,7 +414,7 @@ function QuestionsListPageInner() {
     return filteredQuestions.slice(0, visibleCount)
   }, [filteredQuestions, visibleCount])
 
-  // ΓöÇΓöÇΓöÇ Filter change helpers (reset visibleCount) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  // --- Filter change helpers (reset visibleCount) ----------------------
   const handleSubjectChange = useCallback((val: string) => {
     setSelectedSubject(val)
     setSelectedTopic('')
@@ -436,7 +436,7 @@ function QuestionsListPageInner() {
     setVisibleCount(ITEMS_PER_PAGE)
   }, [])
 
-  // Filter trigger style ΓÇö compact pill that opens the DropdownMenu.
+  // Filter trigger style - compact pill that opens the DropdownMenu.
   // In dark mode we drop the border entirely (any border reads as a
   // white line on the deep-blue body) and rely on a soft bg tint for
   // shape.
@@ -453,7 +453,7 @@ function QuestionsListPageInner() {
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden w-full max-w-[100vw]">
-      {/* ΓöÇΓöÇΓöÇ Sticky page header: sidebar trigger + filter chips ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */}
+      {/* --- Sticky page header: sidebar trigger + filter chips ----------- */}
       <header className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b bg-background/90 px-3 backdrop-blur sm:h-12 sm:px-4 dark:border-transparent">
         <div className="flex min-w-0 items-center gap-2">
           <SidebarTrigger className="-ml-1 shrink-0" />
@@ -667,7 +667,7 @@ function QuestionsListPageInner() {
       </header>
 
       <div className="max-w-[1100px] mx-auto px-2 py-3 sm:px-4 sm:py-6">
-        {/* ΓöÇΓöÇΓöÇ Search bar ΓÇö stays in its original position, full width ΓöÇΓöÇ */}
+        {/* --- Search bar - stays in its original position, full width -- */}
         <InputGroup className="mb-4 w-full sm:mb-5">
           <InputGroupAddon>
             <Search />
@@ -684,7 +684,7 @@ function QuestionsListPageInner() {
           </InputGroupAddon>
         </InputGroup>
 
-        {/* ΓöÇΓöÇΓöÇ Mobile card list (< md) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */}
+        {/* --- Mobile card list (< md) ------------------------------- */}
         <ul className="space-y-4 md:hidden">
           {paginatedQuestions.length === 0 ? (
             <li className="rounded-2xl border bg-card px-4 py-16 text-center text-base text-muted-foreground">
@@ -780,9 +780,9 @@ function QuestionsListPageInner() {
                         <span className="font-semibold text-slate-700 dark:text-slate-300">
                           {q.subjectName}
                         </span>
-                        <span className="text-slate-300">ΓÇ║</span>
+                        <span className="text-slate-300">›</span>
                         <span className="text-slate-500">{q.topicName}</span>
-                        <span className="text-slate-300">ΓÇ║</span>
+                        <span className="text-slate-300">›</span>
                         <span className="font-medium text-indigo-600 dark:text-indigo-400">
                           {q.conceptName}
                         </span>
@@ -795,7 +795,7 @@ function QuestionsListPageInner() {
           )}
         </ul>
 
-        {/* ΓöÇΓöÇΓöÇ Desktop table (md+) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */}
+        {/* --- Desktop table (md+) ----------------------------------- */}
         <div className="hidden rounded-xl border bg-card shadow-sm dark:border-transparent dark:shadow-none md:block [&_tr]:border-border/50 dark:[&_tr]:border-white/[0.04] [&_thead_tr]:border-b-0 dark:[&_thead_tr]:border-b-0 w-full overflow-hidden">
           <Table className="w-full table-fixed">
             <TableHeader>
@@ -935,7 +935,7 @@ function QuestionsListPageInner() {
                             })()}
                           </div>
                         ) : (
-                          <span className="text-xs text-muted-foreground/50">ΓÇö</span>
+                          <span className="text-xs text-muted-foreground/50">-</span>
                         )}
                       </TableCell>
 
@@ -947,7 +947,7 @@ function QuestionsListPageInner() {
           </Table>
         </div>
 
-        {/* ΓöÇΓöÇΓöÇ Infinite Scroll Sentinel ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */}
+        {/* --- Infinite Scroll Sentinel -------------------------------- */}
         {visibleCount < filteredQuestions.length && (
           <div ref={loadMoreRef} className="flex justify-center py-8">
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
@@ -963,7 +963,7 @@ function QuestionsListPageInner() {
   )
 }
 
-/* ΓöÇΓöÇΓöÇ Sortable column header (used for Year / Marks / Difficulty) ΓöÇΓöÇΓöÇΓöÇ */
+/* --- Sortable column header (used for Year / Marks / Difficulty) ---- */
 
 function SortableTableHead({
   label,
@@ -991,13 +991,13 @@ function SortableTableHead({
             : 'text-muted-foreground/50 group-hover:text-muted-foreground'
         }
       >
-        {active ? (order === 'desc' ? 'Γåô' : 'Γåæ') : 'Γåò'}
+        {active ? (order === 'desc' ? '↓' : '↑') : '↕'}
       </span>
     </TableHead>
   )
 }
 
-/* ΓöÇΓöÇΓöÇ FilterMenu ΓÇö pill trigger + radio dropdown for one filter ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+/* --- FilterMenu - pill trigger + radio dropdown for one filter ------- */
 
 function FilterMenu({
   label,
