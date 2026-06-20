@@ -255,12 +255,12 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                     <SidebarMenuItem>
                       <SidebarMenuButton
                         asChild
-                        isActive={pathname.startsWith("/admin")}
-                        tooltip="Admin"
+                        isActive={pathname === "/admin"}
+                        tooltip="Overview"
                       >
                         <Link href="/admin">
                           <Sparkles className="h-4 w-4" />
-                          <span>Admin</span>
+                          <span>Overview</span>
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -298,11 +298,15 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-semibold flex items-center gap-1.5">
                       {session?.user?.name || 'Student'}
-                      {isPro && (
+                      {isAdmin ? (
+                        <span className="bg-blue-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0">
+                          Admin
+                        </span>
+                      ) : isPro ? (
                         <span className="bg-[#4A235A] text-white text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0">
                           Pro
                         </span>
-                      )}
+                      ) : null}
                     </span>
                     <span className="truncate text-xs text-muted-foreground">
                       {session?.user?.email || 'Free Plan'}

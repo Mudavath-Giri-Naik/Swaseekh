@@ -53,6 +53,7 @@ export async function GET(request: NextRequest) {
 
     const [docs, total] = await Promise.all([
       QuestionModel.find(query)
+        .select('_id meta.year meta.marks meta.difficulty meta.type meta.subject meta.subtopic meta.topic formula_ids_used')
         .sort({ 'meta.year': -1 })
         .skip(skip)
         .limit(limit)

@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useState, useMemo, Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useEffect, useState, useMemo, Suspense, useCallback, useRef } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useSidebarData } from '@/components/sidebar-context'
 import MathRenderer from '@/components/MathRenderer'
@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { CheckCircle2, Circle, Search, ChevronDown, FlaskConical } from "lucide-react"
+import { CheckCircle2, Circle, Search, ChevronDown, FlaskConical, ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,6 +24,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer"
+import { Button } from "@/components/ui/button"
+import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
@@ -31,6 +42,7 @@ import {
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
 import FormulaBadge from "@/components/concept/FormulaBadge"
+import { useInView } from "react-intersection-observer"
 
 interface Question {
   _id: string
@@ -53,6 +65,10 @@ interface FormulaInfo {
   formulaId: string
   name: string
 }
+
+import { globalCache } from '@/lib/global-cache'
+
+const ITEMS_PER_PAGE = 20
 
 // Helpers
 function slugify(str: string) {
@@ -80,6 +96,17 @@ const diffColors: Record<string, { bg: string; text: string; border: string }> =
   Hard:   { bg: 'bg-rose-50 dark:bg-rose-500/10',       text: 'text-rose-700 dark:text-rose-300',       border: 'border-rose-200 dark:border-rose-500/20' },
 }
 
+const typeColors: Record<string, { bg: string; text: string }> = {
+  MCQ: { bg: 'bg-blue-50 dark:bg-blue-500/10', text: 'text-blue-700 dark:text-blue-300' },
+  MSQ: { bg: 'bg-indigo-50 dark:bg-indigo-500/10', text: 'text-indigo-700 dark:text-indigo-300' },
+  NAT: { bg: 'bg-fuchsia-50 dark:bg-fuchsia-500/10', text: 'text-fuchsia-700 dark:text-fuchsia-300' },
+}
+
+const marksColors: Record<number, { bg: string; text: string }> = {
+  1: { bg: 'bg-sky-50 dark:bg-sky-500/10', text: 'text-sky-700 dark:text-sky-300' },
+  2: { bg: 'bg-violet-50 dark:bg-violet-500/10', text: 'text-violet-700 dark:text-violet-300' },
+}
+
 export default function QuestionsListPage() {
   return (
     <Suspense fallback={
@@ -95,32 +122,78 @@ export default function QuestionsListPage() {
 function QuestionsListPageInner() {
   const sidebarData = useSidebarData()
   const searchParams = useSearchParams()
-  const [questions, setQuestions] = useState<Question[]>([])
-  const [loading, setLoading] = useState(true)
+  const router = useRouter()
+  
+  const getInitialQuestions = useCallback(() => {
+    const raw = globalCache.data.gateQuestions?.questions ?? [];
+    const qs = [...raw] as Question[]
+    qs.forEach((q) => {
+      if (!Array.isArray(q.formulaIds)) q.formulaIds = []
+      if (!q.formulaId) q.formulaId = null
+    })
+    return qs
+  }, [])
+
+  const [questions, setQuestions] = useState<Question[]>(() => getInitialQuestions())
+  const [loading, setLoading] = useState(!globalCache.data.gateQuestions)
   const [solvedStatuses, setSolvedStatuses] = useState<Record<string, boolean>>({})
-  const [searchQuery, setSearchQuery] = useState('')
 
-  // Filters
-  const [selectedSubject, setSelectedSubject] = useState('')
-  const [selectedTopic, setSelectedTopic] = useState('')
-  const [selectedConcept, setSelectedConcept] = useState('')
-  const [selectedYear, setSelectedYear] = useState('')
-  const [selectedDifficulty, setSelectedDifficulty] = useState('')
-  const [selectedType, setSelectedType] = useState('')
-  const [selectedFormula, setSelectedFormula] = useState('')
+  // ΓöÇΓöÇΓöÇ Read initial state from URL search params ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') ?? '')
+  const [selectedSubject, setSelectedSubject] = useState(searchParams.get('subject') ?? '')
+  const [selectedTopic, setSelectedTopic] = useState(searchParams.get('topic') ?? '')
+  const [selectedConcept, setSelectedConcept] = useState(searchParams.get('concept') ?? '')
+  const [selectedYear, setSelectedYear] = useState(searchParams.get('year') ?? '')
+  const [selectedDifficulty, setSelectedDifficulty] = useState(searchParams.get('difficulty') ?? '')
+  const [selectedType, setSelectedType] = useState(searchParams.get('type') ?? '')
+  const [selectedFormula, setSelectedFormula] = useState(searchParams.get('formula') ?? '')
+  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE)
 
-  // Formula name map — built from content API or derived from IDs
+  // Unified sort state
+  const [sort, setSort] = useState<{
+    by: 'year' | 'marks' | 'difficulty'
+    order: 'asc' | 'desc'
+  }>({
+    by: (searchParams.get('sortBy') as 'year' | 'marks' | 'difficulty') || 'year',
+    order: (searchParams.get('sortOrder') as 'asc' | 'desc') || 'desc',
+  })
+
+  // Formula name map ΓÇö built from content API or derived from IDs
   const [formulaNameMap, setFormulaNameMap] = useState<Record<string, string>>({})
   // Richer info for hover-card previews ({ name, latex, plain } per ID)
   const [formulaInfoMap, setFormulaInfoMap] = useState<
     Record<string, { name?: string; latex?: string; plain?: string }>
   >({})
 
-  // Unified sort state — tracks which column is active and the direction
-  const [sort, setSort] = useState<{
-    by: 'year' | 'marks' | 'difficulty'
-    order: 'asc' | 'desc'
-  }>({ by: 'year', order: 'desc' })
+  // ΓöÇΓöÇΓöÇ Track if this is the initial mount (skip URL sync on first render) ΓöÇ
+  const isInitialMount = useRef(true)
+
+  // ΓöÇΓöÇΓöÇ Sync state to URL search params ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  const syncToUrl = useCallback(() => {
+    const params = new URLSearchParams()
+    if (selectedSubject) params.set('subject', selectedSubject)
+    if (selectedTopic) params.set('topic', selectedTopic)
+    if (selectedConcept) params.set('concept', selectedConcept)
+    if (selectedYear) params.set('year', selectedYear)
+    if (selectedDifficulty) params.set('difficulty', selectedDifficulty)
+    if (selectedType) params.set('type', selectedType)
+    if (selectedFormula) params.set('formula', selectedFormula)
+    if (searchQuery) params.set('search', searchQuery)
+    if (sort.by !== 'year') params.set('sortBy', sort.by)
+    if (sort.order !== 'desc') params.set('sortOrder', sort.order)
+
+    const qs = params.toString()
+    const newUrl = qs ? `/gate/questions?${qs}` : '/gate/questions'
+    router.replace(newUrl, { scroll: false })
+  }, [selectedSubject, selectedTopic, selectedConcept, selectedYear, selectedDifficulty, selectedType, selectedFormula, searchQuery, sort, router])
+
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false
+      return
+    }
+    syncToUrl()
+  }, [syncToUrl])
 
   const toggleSort = (col: 'year' | 'marks' | 'difficulty') => {
     setSort((prev) =>
@@ -128,6 +201,7 @@ function QuestionsListPageInner() {
         ? { by: col, order: prev.order === 'desc' ? 'asc' : 'desc' }
         : { by: col, order: 'desc' }
     )
+    setVisibleCount(ITEMS_PER_PAGE)
   }
 
   // Difficulty rank for ordering: easy < medium < hard
@@ -136,14 +210,6 @@ function QuestionsListPageInner() {
     medium: 2,
     hard: 3,
   }
-
-  // Read formula filter from URL search params (for deep-linking from concept page)
-  useEffect(() => {
-    const formulaParam = searchParams.get('formula')
-    if (formulaParam) {
-      setSelectedFormula(formulaParam)
-    }
-  }, [searchParams])
 
   // Set sidebar state
   useEffect(() => {
@@ -155,8 +221,22 @@ function QuestionsListPageInner() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Fetch all questions
+  // Fetch all questions (use cache if available)
   useEffect(() => {
+    const unsubscribe = globalCache.subscribe(() => {
+      if (globalCache.data.gateQuestions) {
+        setQuestions(getInitialQuestions())
+        setLoading(false)
+      }
+    })
+
+    if (globalCache.data.gateQuestions) {
+      setQuestions(getInitialQuestions())
+      setLoading(false)
+      return unsubscribe
+    }
+
+    globalCache.pauseBackgroundSync()
     setLoading(true)
     const qs = new URLSearchParams()
     qs.set('limit', '5000')
@@ -164,50 +244,61 @@ function QuestionsListPageInner() {
     fetch(`/api/questions?${qs.toString()}`)
       .then((res) => res.json())
       .then((data) => {
-        const qs = (data.questions ?? []) as Question[]
-        // Ensure formulaIds is always an array
-        qs.forEach((q) => {
-          if (!Array.isArray(q.formulaIds)) q.formulaIds = []
-          if (!q.formulaId) q.formulaId = null
-        })
-        setQuestions(qs)
+        globalCache.data.gateQuestions = data
+        setQuestions(getInitialQuestions())
         setLoading(false)
       })
       .catch(() => setLoading(false))
-  }, [])
+
+    return unsubscribe
+  }, [getInitialQuestions])
 
   // Build formula name map from all unique formula IDs across questions
-  // Try to fetch names from the content API, fall back to humanized IDs
   useEffect(() => {
     if (questions.length === 0) return
 
-    // Collect all unique formula IDs across questions
-    const allIds = new Set<string>()
-    questions.forEach((q) => {
-      if (q.formulaId) allIds.add(q.formulaId)
-      q.formulaIds?.forEach((id) => allIds.add(id))
+    const buildMaps = (info: any) => {
+      const allIds = new Set<string>()
+      questions.forEach((q) => {
+        if (q.formulaId) allIds.add(q.formulaId)
+        q.formulaIds?.forEach((id) => allIds.add(id))
+      })
+
+      if (allIds.size === 0) return
+
+      const nameMap: Record<string, string> = {}
+      Object.entries(info ?? {}).forEach(([id, v]: [string, any]) => {
+        if (v?.name) nameMap[id] = v.name
+      })
+      // Fill any remaining IDs with humanized fallbacks
+      allIds.forEach((id) => {
+        if (!nameMap[id]) nameMap[id] = formulaIdToName(id)
+      })
+      setFormulaNameMap(nameMap)
+      setFormulaInfoMap(info ?? {})
+    }
+
+    if (globalCache.data.gateFormulaInfoMap) {
+      buildMaps(globalCache.data.gateFormulaInfoMap)
+    }
+
+    const unsubscribe = globalCache.subscribe(() => {
+      if (globalCache.data.gateFormulaInfoMap) {
+        buildMaps(globalCache.data.gateFormulaInfoMap)
+      }
     })
 
-    if (allIds.size === 0) return
+    if (!globalCache.data.gateFormulaInfoMap) {
+      fetch('/api/formulas/info')
+        .then((res) => (res.ok ? res.json() : {}))
+        .then((info) => {
+          globalCache.data.gateFormulaInfoMap = info
+          buildMaps(info)
+        })
+        .catch(() => {})
+    }
 
-    // Fetch the single, app-wide formula info map. Cheaper + more reliable
-    // than scanning per-concept content docs (the new schema doesn't carry
-    // a conceptId on questions, so per-concept lookups would 404).
-    fetch('/api/formulas/info')
-      .then((res) => (res.ok ? res.json() : {}))
-      .then((info: Record<string, { name?: string; latex?: string; plain?: string }>) => {
-        const nameMap: Record<string, string> = {}
-        Object.entries(info ?? {}).forEach(([id, v]) => {
-          if (v?.name) nameMap[id] = v.name
-        })
-        // Fill any remaining IDs with humanized fallbacks
-        allIds.forEach((id) => {
-          if (!nameMap[id]) nameMap[id] = formulaIdToName(id)
-        })
-        setFormulaNameMap(nameMap)
-        setFormulaInfoMap(info ?? {})
-      })
-      .catch(() => {})
+    return unsubscribe
   }, [questions])
 
   // Derived filter options
@@ -293,7 +384,49 @@ function QuestionsListPageInner() {
       })
   }, [questions, selectedSubject, selectedTopic, selectedConcept, selectedYear, selectedDifficulty, selectedType, selectedFormula, searchQuery, sort])
 
-  // Filter trigger style — compact pill that opens the DropdownMenu.
+  // ΓöÇΓöÇΓöÇ Infinite Scroll ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  const { ref: loadMoreRef, inView } = useInView({ rootMargin: '400px' })
+
+  useEffect(() => {
+    if (inView) {
+      setVisibleCount((prev) => Math.min(prev + ITEMS_PER_PAGE, filteredQuestions.length))
+    }
+  }, [inView, filteredQuestions.length])
+
+  // Reset visibleCount if filters change and reduce the total below current visibleCount
+  useEffect(() => {
+    if (visibleCount > filteredQuestions.length && filteredQuestions.length > 0) {
+      setVisibleCount(Math.max(ITEMS_PER_PAGE, filteredQuestions.length))
+    }
+  }, [visibleCount, filteredQuestions.length])
+
+  const paginatedQuestions = useMemo(() => {
+    return filteredQuestions.slice(0, visibleCount)
+  }, [filteredQuestions, visibleCount])
+
+  // ΓöÇΓöÇΓöÇ Filter change helpers (reset visibleCount) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  const handleSubjectChange = useCallback((val: string) => {
+    setSelectedSubject(val)
+    setSelectedTopic('')
+    setSelectedConcept('')
+    setVisibleCount(ITEMS_PER_PAGE)
+  }, [])
+  const handleTopicChange = useCallback((val: string) => {
+    setSelectedTopic(val)
+    setSelectedConcept('')
+    setVisibleCount(ITEMS_PER_PAGE)
+  }, [])
+  const handleConceptChange = useCallback((val: string) => { setSelectedConcept(val); setVisibleCount(ITEMS_PER_PAGE) }, [])
+  const handleYearChange = useCallback((val: string) => { setSelectedYear(val); setVisibleCount(ITEMS_PER_PAGE) }, [])
+  const handleDifficultyChange = useCallback((val: string) => { setSelectedDifficulty(val); setVisibleCount(ITEMS_PER_PAGE) }, [])
+  const handleTypeChange = useCallback((val: string) => { setSelectedType(val); setVisibleCount(ITEMS_PER_PAGE) }, [])
+  const handleFormulaChange = useCallback((val: string) => { setSelectedFormula(val); setVisibleCount(ITEMS_PER_PAGE) }, [])
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value)
+    setVisibleCount(ITEMS_PER_PAGE)
+  }, [])
+
+  // Filter trigger style ΓÇö compact pill that opens the DropdownMenu.
   // In dark mode we drop the border entirely (any border reads as a
   // white line on the deep-blue body) and rely on a soft bg tint for
   // shape.
@@ -309,111 +442,222 @@ function QuestionsListPageInner() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* ─── Sticky page header: sidebar trigger + filter chips ─────────── */}
-      <header className="sticky top-0 z-40 flex h-16 items-center gap-2 border-b bg-background/90 px-3 backdrop-blur sm:h-12 sm:px-4 dark:border-transparent">
-        <SidebarTrigger className="-ml-1 shrink-0" />
-        <Separator
-          orientation="vertical"
-          className="mr-1 h-4 shrink-0 bg-slate-200"
-        />
-        {/* Horizontally scrollable filter chip row */}
-        <div className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <FilterMenu
-            label="Subject"
-            value={selectedSubject}
-            triggerClass={filterTriggerClass}
-            options={[
-              { value: '', label: 'All Subjects' },
-              ...subjects.map((s) => ({ value: s.id, label: s.name })),
-            ]}
-            onChange={(val) => {
-              setSelectedSubject(val)
-              setSelectedTopic('')
-              setSelectedConcept('')
-            }}
+    <div className="min-h-screen bg-background overflow-x-hidden w-full max-w-[100vw]">
+      {/* ΓöÇΓöÇΓöÇ Sticky page header: sidebar trigger + filter chips ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */}
+      <header className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b bg-background/90 px-3 backdrop-blur sm:h-12 sm:px-4 dark:border-transparent">
+        <div className="flex min-w-0 items-center gap-2">
+          <SidebarTrigger className="-ml-1 shrink-0" />
+          <Separator
+            orientation="vertical"
+            className="mr-1 h-4 shrink-0 bg-slate-200"
           />
-          <FilterMenu
-            label="Topic"
-            value={selectedTopic}
-            triggerClass={filterTriggerClass}
-            options={[
-              { value: '', label: 'All Topics' },
-              ...topics.map((t) => ({ value: t.id, label: t.name })),
-            ]}
-            onChange={(val) => {
-              setSelectedTopic(val)
-              setSelectedConcept('')
-            }}
-          />
-          <FilterMenu
-            label="Concept"
-            value={selectedConcept}
-            triggerClass={filterTriggerClass}
-            options={[
-              { value: '', label: 'All Concepts' },
-              ...concepts.map((c) => ({ value: c.id, label: c.name })),
-            ]}
-            onChange={setSelectedConcept}
-          />
-          <FilterMenu
-            label="Year"
-            value={selectedYear}
-            triggerClass={filterTriggerClass}
-            options={[
-              { value: '', label: 'All Years' },
-              ...years.map((y) => ({
-                value: String(y),
-                label: `GATE ${y}`,
-              })),
-            ]}
-            onChange={setSelectedYear}
-          />
-          <FilterMenu
-            label="Difficulty"
-            value={selectedDifficulty}
-            triggerClass={filterTriggerClass}
-            options={[
-              { value: '', label: 'All Difficulties' },
-              { value: 'easy', label: 'Easy' },
-              { value: 'medium', label: 'Medium' },
-              { value: 'hard', label: 'Hard' },
-            ]}
-            onChange={setSelectedDifficulty}
-          />
-          <FilterMenu
-            label="Type"
-            value={selectedType}
-            triggerClass={filterTriggerClass}
-            options={[
-              { value: '', label: 'All Types' },
-              { value: 'MCQ', label: 'MCQ' },
-              { value: 'MSQ', label: 'MSQ' },
-              { value: 'NAT', label: 'NAT' },
-            ]}
-            onChange={setSelectedType}
-          />
-          {formulaOptions.length > 0 && (
+          
+          {/* Mobile Title */}
+          <div className="md:hidden flex items-center gap-2 text-[15px] font-bold text-foreground/80 truncate">
+            {selectedSubject ? selectedSubject : 'All Questions'}
+          </div>
+
+          {/* Desktop Filters */}
+          <div className="hidden md:flex min-w-0 flex-1 items-center gap-2 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <FilterMenu
-              label="Formula"
-              value={selectedFormula}
+              label="Subject"
+              value={selectedSubject}
               triggerClass={filterTriggerClass}
-              icon={<FlaskConical className="h-3.5 w-3.5 text-violet-500" />}
               options={[
-                { value: '', label: 'All Formulas' },
-                ...formulaOptions.map((f) => ({
-                  value: f.formulaId,
-                  label: f.name,
+                { value: '', label: 'All Subjects' },
+                ...subjects.map((s) => ({ value: s.id, label: s.name })),
+              ]}
+              onChange={handleSubjectChange}
+            />
+            <FilterMenu
+              label="Topic"
+              value={selectedTopic}
+              triggerClass={filterTriggerClass}
+              options={[
+                { value: '', label: 'All Topics' },
+                ...topics.map((t) => ({ value: t.id, label: t.name })),
+              ]}
+              onChange={handleTopicChange}
+            />
+            <FilterMenu
+              label="Concept"
+              value={selectedConcept}
+              triggerClass={filterTriggerClass}
+              options={[
+                { value: '', label: 'All Concepts' },
+                ...concepts.map((c) => ({ value: c.id, label: c.name })),
+              ]}
+              onChange={handleConceptChange}
+            />
+            <FilterMenu
+              label="Year"
+              value={selectedYear}
+              triggerClass={filterTriggerClass}
+              options={[
+                { value: '', label: 'All Years' },
+                ...years.map((y) => ({
+                  value: String(y),
+                  label: `GATE ${y}`,
                 })),
               ]}
-              onChange={setSelectedFormula}
+              onChange={handleYearChange}
             />
-          )}
+            <FilterMenu
+              label="Difficulty"
+              value={selectedDifficulty}
+              triggerClass={filterTriggerClass}
+              options={[
+                { value: '', label: 'All Difficulties' },
+                { value: 'easy', label: 'Easy' },
+                { value: 'medium', label: 'Medium' },
+                { value: 'hard', label: 'Hard' },
+              ]}
+              onChange={handleDifficultyChange}
+            />
+            <FilterMenu
+              label="Type"
+              value={selectedType}
+              triggerClass={filterTriggerClass}
+              options={[
+                { value: '', label: 'All Types' },
+                { value: 'MCQ', label: 'MCQ' },
+                { value: 'MSQ', label: 'MSQ' },
+                { value: 'NAT', label: 'NAT' },
+              ]}
+              onChange={handleTypeChange}
+            />
+            {formulaOptions.length > 0 && (
+              <FilterMenu
+                label="Formula"
+                value={selectedFormula}
+                triggerClass={filterTriggerClass}
+                icon={<FlaskConical className="h-3.5 w-3.5 text-violet-500" />}
+                options={[
+                  { value: '', label: 'All Formulas' },
+                  ...formulaOptions.map((f) => ({
+                    value: f.formulaId,
+                    label: f.name,
+                  })),
+                ]}
+                onChange={handleFormulaChange}
+              />
+            )}
+          </div>
+        </div>
+
+        {/* Mobile Filter Drawer Trigger */}
+        <div className="md:hidden shrink-0 ml-2">
+          <Drawer>
+            <DrawerTrigger asChild>
+              <Button variant="ghost" size="icon" className="relative h-9 w-9 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">
+                <SlidersHorizontal className="h-5 w-5" />
+                {(selectedSubject || selectedTopic || selectedConcept || selectedYear || selectedDifficulty || selectedType || selectedFormula) ? (
+                  <span className="absolute right-1.5 top-1.5 flex h-2 w-2 rounded-full bg-primary" />
+                ) : null}
+              </Button>
+            </DrawerTrigger>
+            <DrawerContent>
+              <DrawerHeader className="text-left">
+                <DrawerTitle>Filters</DrawerTitle>
+                <DrawerDescription>Narrow down the questions</DrawerDescription>
+              </DrawerHeader>
+              <div className="px-4 py-2 flex flex-col gap-4 overflow-y-auto max-h-[55vh]">
+                <FilterMenu
+                  label="Subject"
+                  value={selectedSubject}
+                  triggerClass={`${filterTriggerClass} w-full justify-between h-12 text-base`}
+                  options={[
+                    { value: '', label: 'All Subjects' },
+                    ...subjects.map((s) => ({ value: s.id, label: s.name })),
+                  ]}
+                  onChange={handleSubjectChange}
+                />
+                <FilterMenu
+                  label="Topic"
+                  value={selectedTopic}
+                  triggerClass={`${filterTriggerClass} w-full justify-between h-12 text-base`}
+                  options={[
+                    { value: '', label: 'All Topics' },
+                    ...topics.map((t) => ({ value: t.id, label: t.name })),
+                  ]}
+                  onChange={handleTopicChange}
+                />
+                <FilterMenu
+                  label="Concept"
+                  value={selectedConcept}
+                  triggerClass={`${filterTriggerClass} w-full justify-between h-12 text-base`}
+                  options={[
+                    { value: '', label: 'All Concepts' },
+                    ...concepts.map((c) => ({ value: c.id, label: c.name })),
+                  ]}
+                  onChange={handleConceptChange}
+                />
+                <FilterMenu
+                  label="Year"
+                  value={selectedYear}
+                  triggerClass={`${filterTriggerClass} w-full justify-between h-12 text-base`}
+                  options={[
+                    { value: '', label: 'All Years' },
+                    ...years.map((y) => ({
+                      value: String(y),
+                      label: `GATE ${y}`,
+                    })),
+                  ]}
+                  onChange={handleYearChange}
+                />
+                <FilterMenu
+                  label="Difficulty"
+                  value={selectedDifficulty}
+                  triggerClass={`${filterTriggerClass} w-full justify-between h-12 text-base`}
+                  options={[
+                    { value: '', label: 'All Difficulties' },
+                    { value: 'easy', label: 'Easy' },
+                    { value: 'medium', label: 'Medium' },
+                    { value: 'hard', label: 'Hard' },
+                  ]}
+                  onChange={handleDifficultyChange}
+                />
+                <FilterMenu
+                  label="Type"
+                  value={selectedType}
+                  triggerClass={`${filterTriggerClass} w-full justify-between h-12 text-base`}
+                  options={[
+                    { value: '', label: 'All Types' },
+                    { value: 'MCQ', label: 'MCQ' },
+                    { value: 'MSQ', label: 'MSQ' },
+                    { value: 'NAT', label: 'NAT' },
+                  ]}
+                  onChange={handleTypeChange}
+                />
+                {formulaOptions.length > 0 && (
+                  <FilterMenu
+                    label="Formula"
+                    value={selectedFormula}
+                    triggerClass={`${filterTriggerClass} w-full justify-between h-12 text-base`}
+                    icon={<FlaskConical className="h-4 w-4 text-violet-500" />}
+                    options={[
+                      { value: '', label: 'All Formulas' },
+                      ...formulaOptions.map((f) => ({
+                        value: f.formulaId,
+                        label: f.name,
+                      })),
+                    ]}
+                    onChange={handleFormulaChange}
+                  />
+                )}
+              </div>
+              <DrawerFooter className="pt-2">
+                <DrawerClose asChild>
+                  <Button className="w-full text-[15px] font-semibold h-12 rounded-xl">View {filteredQuestions.length} Results</Button>
+                </DrawerClose>
+              </DrawerFooter>
+            </DrawerContent>
+          </Drawer>
         </div>
       </header>
 
       <div className="max-w-[1100px] mx-auto px-2 py-3 sm:px-4 sm:py-6">
-        {/* ─── Search bar — stays in its original position, full width ── */}
+        {/* ΓöÇΓöÇΓöÇ Search bar ΓÇö stays in its original position, full width ΓöÇΓöÇ */}
         <InputGroup className="mb-4 w-full sm:mb-5">
           <InputGroupAddon>
             <Search />
@@ -422,7 +666,7 @@ function QuestionsListPageInner() {
             type="text"
             placeholder="Search questions..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={handleSearchChange}
           />
           <InputGroupAddon align="inline-end">
             {filteredQuestions.length} result
@@ -430,43 +674,31 @@ function QuestionsListPageInner() {
           </InputGroupAddon>
         </InputGroup>
 
-        {/* ─── Mobile card list (< md) ─────────────────────────────── */}
+        {/* ΓöÇΓöÇΓöÇ Mobile card list (< md) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */}
         <ul className="space-y-4 md:hidden">
-          {filteredQuestions.length === 0 ? (
+          {paginatedQuestions.length === 0 ? (
             <li className="rounded-2xl border bg-card px-4 py-16 text-center text-base text-muted-foreground">
               No questions found for this selection.
             </li>
           ) : (
-            filteredQuestions.map((q, idx) => {
+            paginatedQuestions.map((q, idx) => {
               const dColor = diffColors[q.difficulty] || diffColors.medium
+              const tColor = typeColors[q.questionType] || { bg: 'bg-slate-100 dark:bg-slate-800', text: 'text-slate-700 dark:text-slate-300' }
+              const mColor = marksColors[q.marks] || { bg: 'bg-slate-100 dark:bg-slate-800', text: 'text-slate-700 dark:text-slate-300' }
               const questionUrl = `/gate/questions/${slugify(q.subjectName)}/${slugify(q.topicName)}/${slugify(q.conceptName)}/${q._id}`
               const isSolved = !!solvedStatuses[q._id]
+              const globalIdx = idx
               return (
                 <li key={q._id}>
                   <Link
                     href={questionUrl}
                     className="group relative block w-full overflow-hidden rounded-2xl border bg-card px-4 py-5 transition-colors hover:border-foreground/20 active:bg-accent"
                   >
-                    {/* Meta row: badges left, solved button right */}
-                    <div className="mb-4 flex items-start justify-between gap-3">
-                      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
-                        <span className="text-base font-extrabold text-slate-300 dark:text-slate-600">
-                          #{idx + 1}
-                        </span>
-                        <span className="rounded-lg bg-slate-100 px-3 py-1.5 text-[15px] font-bold tracking-wide text-slate-700 dark:bg-slate-800 dark:text-slate-200">
-                          GATE {q.year}
-                        </span>
-                        <span
-                          className={`rounded-lg px-3 py-1.5 text-[15px] font-bold uppercase tracking-wide ${dColor.bg} ${dColor.text}`}
-                        >
-                          {q.difficulty}
-                        </span>
-                        <span className="rounded-lg border px-3 py-1.5 text-[15px] font-bold uppercase tracking-wide text-slate-500">
-                          {q.questionType}
-                        </span>
-                        <span className="text-[15px] font-semibold text-slate-500">
-                          {q.marks}M
-                        </span>
+                    {/* Question + Meta row swap */}
+                    <div className="flex items-start justify-between gap-3">
+                      {/* Question preview */}
+                      <div className="mb-4 line-clamp-4 break-words text-[18px] font-semibold leading-relaxed text-slate-900 dark:text-slate-100 group-hover:text-[#4A235A] dark:group-hover:text-violet-300">
+                        <MathRenderer text={q.questionText} />
                       </div>
                       <button
                         type="button"
@@ -489,9 +721,22 @@ function QuestionsListPageInner() {
                       </button>
                     </div>
 
-                    {/* Question preview */}
-                    <div className="line-clamp-4 break-words text-[18px] leading-[1.8] text-foreground group-hover:text-[#4A235A] dark:group-hover:text-violet-300">
-                      <MathRenderer text={q.questionText} />
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="rounded-lg bg-slate-100 px-3 py-1.5 text-[13px] font-bold tracking-wide text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                        #{globalIdx + 1}
+                      </span>
+                      <span className="rounded-lg bg-slate-100 px-3 py-1.5 text-[13px] font-bold tracking-wide text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                        GATE {q.year}
+                      </span>
+                      <span className={`rounded-lg px-3 py-1.5 text-[13px] font-bold uppercase tracking-wide border-transparent flex items-center ${dColor.bg} ${dColor.text}`}>
+                        {q.difficulty}
+                      </span>
+                      <span className={`rounded-lg px-3 py-1.5 text-[13px] font-bold uppercase tracking-wide border-transparent ${tColor.bg} ${tColor.text}`}>
+                        {q.questionType}
+                      </span>
+                      <span className={`rounded-lg px-3 py-1.5 text-[13px] font-bold tracking-wide border-transparent ${mColor.bg} ${mColor.text}`}>
+                        {q.marks}M
+                      </span>
                     </div>
 
                     {/* Formula badges */}
@@ -511,6 +756,7 @@ function QuestionsListPageInner() {
                                 e.preventDefault()
                                 e.stopPropagation()
                                 setSelectedFormula((prev) => prev === fId ? '' : fId)
+                                setVisibleCount(ITEMS_PER_PAGE)
                               }}
                             />
                           )
@@ -524,9 +770,9 @@ function QuestionsListPageInner() {
                         <span className="font-semibold text-slate-700 dark:text-slate-300">
                           {q.subjectName}
                         </span>
-                        <span className="text-slate-300">›</span>
+                        <span className="text-slate-300">ΓÇ║</span>
                         <span className="text-slate-500">{q.topicName}</span>
-                        <span className="text-slate-300">›</span>
+                        <span className="text-slate-300">ΓÇ║</span>
                         <span className="font-medium text-indigo-600 dark:text-indigo-400">
                           {q.conceptName}
                         </span>
@@ -539,50 +785,55 @@ function QuestionsListPageInner() {
           )}
         </ul>
 
-        {/* ─── Desktop table (md+) ─────────────────────────────────── */}
-        <div className="hidden overflow-hidden rounded-xl border bg-card shadow-sm dark:border-transparent dark:shadow-none md:block [&_tr]:border-border/50 dark:[&_tr]:border-white/[0.04] [&_thead_tr]:border-b-0 dark:[&_thead_tr]:border-b-0">
-          <div className="overflow-x-auto">
-          <Table>
+        {/* ΓöÇΓöÇΓöÇ Desktop table (md+) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */}
+        <div className="hidden rounded-xl border bg-card shadow-sm dark:border-transparent dark:shadow-none md:block [&_tr]:border-border/50 dark:[&_tr]:border-white/[0.04] [&_thead_tr]:border-b-0 dark:[&_thead_tr]:border-b-0 w-full overflow-hidden">
+          <Table className="w-full table-fixed">
             <TableHeader>
               <TableRow className="bg-muted/40 hover:bg-muted/40 dark:bg-white/[0.03] dark:hover:bg-white/[0.03]">
-                <TableHead className="w-12 text-center">#</TableHead>
-                <TableHead className="min-w-[280px] max-w-[400px]">Question</TableHead>
+                <TableHead className="w-10 text-center">#</TableHead>
+                <TableHead className="w-[200px]">Question</TableHead>
                 <SortableTableHead
                   label="Year"
                   active={sort.by === 'year'}
                   order={sort.order}
                   onClick={() => toggleSort('year')}
+                  className="w-[70px]"
                 />
                 <SortableTableHead
                   label="Difficulty"
                   active={sort.by === 'difficulty'}
                   order={sort.order}
                   onClick={() => toggleSort('difficulty')}
+                  className="w-[85px]"
                 />
                 <SortableTableHead
                   label="Marks"
                   active={sort.by === 'marks'}
                   order={sort.order}
                   onClick={() => toggleSort('marks')}
+                  className="w-[70px]"
                 />
-                <TableHead>Type</TableHead>
-                <TableHead>Formula</TableHead>
-                <TableHead>Subject</TableHead>
-                <TableHead>Topic</TableHead>
-                <TableHead>Concept</TableHead>
+                <TableHead className="w-[60px]">Type</TableHead>
+                <TableHead className="w-[80px]">Subject</TableHead>
+                <TableHead className="w-[100px]">Topic</TableHead>
+                <TableHead className="w-[120px]">Concept</TableHead>
+                <TableHead className="w-[120px]">Formula</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredQuestions.length === 0 ? (
+              {paginatedQuestions.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={10} className="text-center py-12 text-muted-foreground">
                     No questions found for this selection.
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredQuestions.map((q, idx) => {
+                paginatedQuestions.map((q, idx) => {
                   const dColor = diffColors[q.difficulty] || diffColors.medium
+                  const tColor = typeColors[q.questionType] || { bg: 'bg-muted/70 dark:bg-white/[0.06]', text: 'text-muted-foreground dark:text-foreground/70' }
+                  const mColor = marksColors[q.marks] || { bg: 'bg-muted', text: 'text-muted-foreground' }
                   const questionUrl = `/gate/questions/${slugify(q.subjectName)}/${slugify(q.topicName)}/${slugify(q.conceptName)}/${q._id}`
+                  const globalIdx = idx
 
                   return (
                     <TableRow
@@ -590,18 +841,18 @@ function QuestionsListPageInner() {
                       className="cursor-pointer hover:bg-muted/60 dark:hover:bg-white/[0.045] group transition-colors"
                     >
                       <TableCell className="text-center text-muted-foreground font-medium">
-                        {idx + 1}
+                        {globalIdx + 1}
                       </TableCell>
 
                       <TableCell>
-                        <Link href={questionUrl} className="block">
-                          <div className="line-clamp-1 max-w-[400px] text-foreground text-[14px] group-hover:text-[#4A235A] dark:group-hover:text-violet-300 transition-colors">
+                        <Link href={questionUrl} className="block w-full">
+                          <div className="line-clamp-1 w-full text-foreground text-[14px] group-hover:text-[#4A235A] dark:group-hover:text-violet-300 transition-colors">
                             <MathRenderer text={q.questionText} />
                           </div>
                         </Link>
                       </TableCell>
 
-                      <TableCell className="text-muted-foreground font-medium whitespace-nowrap">
+                      <TableCell className="text-muted-foreground font-medium whitespace-nowrap text-xs">
                         GATE {q.year}
                       </TableCell>
 
@@ -612,59 +863,70 @@ function QuestionsListPageInner() {
                       </TableCell>
 
                       <TableCell>
-                        <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-muted text-muted-foreground whitespace-nowrap">
-                          {q.marks} Mark{q.marks > 1 ? 's' : ''}
+                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-md whitespace-nowrap ${mColor.bg} ${mColor.text}`}>
+                          {q.marks}M
                         </span>
                       </TableCell>
 
                       <TableCell>
-                        <span className="rounded-md bg-muted/70 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-muted-foreground dark:bg-white/[0.06] dark:text-foreground/70">
+                        <span className={`rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${tColor.bg} ${tColor.text}`}>
                           {q.questionType}
                         </span>
                       </TableCell>
 
                       <TableCell>
-                        {q.formulaIds && q.formulaIds.length > 0 ? (
-                          <div className="flex flex-nowrap items-center gap-1.5 whitespace-nowrap">
-                            {q.formulaIds.map((fId) => {
-                              const fName = formulaNameMap[fId] || formulaIdToName(fId)
-                              return (
-                                <FormulaBadge
-                                  key={fId}
-                                  formulaId={fId}
-                                  name={fName}
-                                  info={formulaInfoMap[fId]}
-                                  primary={fId === q.formulaId}
-                                  selected={selectedFormula === fId}
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    setSelectedFormula((prev) => prev === fId ? '' : fId)
-                                  }}
-                                />
-                              )
-                            })}
-                          </div>
-                        ) : (
-                          <span className="text-xs text-muted-foreground/50">—</span>
-                        )}
-                      </TableCell>
-
-                      <TableCell>
-                        <div className="text-xs text-muted-foreground truncate max-w-[120px]" title={q.subjectName}>
+                        <div className="text-xs text-muted-foreground truncate w-full" title={q.subjectName}>
                           {q.subjectName}
                         </div>
                       </TableCell>
 
                       <TableCell>
-                        <div className="text-xs text-muted-foreground truncate max-w-[120px]" title={q.topicName}>
+                        <div className="text-xs text-muted-foreground truncate w-full" title={q.topicName}>
                           {q.topicName}
                         </div>
                       </TableCell>
 
                       <TableCell>
-                        <div className="text-xs text-muted-foreground truncate max-w-[140px]" title={q.conceptName}>
+                        <div className="text-xs text-muted-foreground truncate w-full" title={q.conceptName}>
                           {q.conceptName}
                         </div>
+                      </TableCell>
+
+                      <TableCell>
+                        {q.formulaIds && q.formulaIds.length > 0 ? (
+                          <div className="flex flex-nowrap items-center gap-1 whitespace-nowrap w-full overflow-hidden">
+                            {(() => {
+                              const primaryId = q.formulaId || q.formulaIds[0]
+                              const fName = formulaNameMap[primaryId] || formulaIdToName(primaryId)
+                              const remaining = q.formulaIds.length - 1
+                              return (
+                                <>
+                                  <div className="flex-1 min-w-0">
+                                    <FormulaBadge
+                                      formulaId={primaryId}
+                                      name={fName}
+                                      info={formulaInfoMap[primaryId]}
+                                      primary={primaryId === q.formulaId}
+                                      selected={selectedFormula === primaryId}
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        setSelectedFormula((prev) => prev === primaryId ? '' : primaryId)
+                                        setVisibleCount(ITEMS_PER_PAGE)
+                                      }}
+                                    />
+                                  </div>
+                                  {remaining > 0 && (
+                                    <Badge variant="secondary" className="px-1 text-[10px] font-bold shrink-0">
+                                      +{remaining}
+                                    </Badge>
+                                  )}
+                                </>
+                              )
+                            })()}
+                          </div>
+                        ) : (
+                          <span className="text-xs text-muted-foreground/50">ΓÇö</span>
+                        )}
                       </TableCell>
 
                     </TableRow>
@@ -673,31 +935,43 @@ function QuestionsListPageInner() {
               )}
             </TableBody>
           </Table>
-          </div>
         </div>
-      </div>
 
+        {/* ΓöÇΓöÇΓöÇ Infinite Scroll Sentinel ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */}
+        {visibleCount < filteredQuestions.length && (
+          <div ref={loadMoreRef} className="flex justify-center py-8">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
+          </div>
+        )}
+        {visibleCount >= filteredQuestions.length && filteredQuestions.length > 0 && (
+          <div className="py-8 text-center text-sm text-muted-foreground">
+            You have reached the end of the list.
+          </div>
+        )}
+      </div>
     </div>
   )
 }
 
-/* ─── Sortable column header (used for Year / Marks / Difficulty) ──── */
+/* ΓöÇΓöÇΓöÇ Sortable column header (used for Year / Marks / Difficulty) ΓöÇΓöÇΓöÇΓöÇ */
 
 function SortableTableHead({
   label,
   active,
   order,
   onClick,
+  className,
 }: {
   label: string
   active: boolean
   order: 'asc' | 'desc'
   onClick: () => void
+  className?: string
 }) {
   return (
     <TableHead
       onClick={onClick}
-      className="group cursor-pointer select-none whitespace-nowrap hover:text-foreground"
+      className={`group cursor-pointer select-none whitespace-nowrap hover:text-foreground ${className ?? ''}`}
     >
       {label}{' '}
       <span
@@ -707,13 +981,13 @@ function SortableTableHead({
             : 'text-muted-foreground/50 group-hover:text-muted-foreground'
         }
       >
-        {active ? (order === 'desc' ? '↓' : '↑') : '↕'}
+        {active ? (order === 'desc' ? 'Γåô' : 'Γåæ') : 'Γåò'}
       </span>
     </TableHead>
   )
 }
 
-/* ─── FilterMenu — pill trigger + radio dropdown for one filter ─────── */
+/* ΓöÇΓöÇΓöÇ FilterMenu ΓÇö pill trigger + radio dropdown for one filter ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
 
 function FilterMenu({
   label,

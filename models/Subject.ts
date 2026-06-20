@@ -10,6 +10,7 @@ export interface ISubject extends Document<string> {
   section: string
   totalTopics: number
   totalConcepts: number
+  weightage: number
   createdAt: Date
   updatedAt: Date
 }
@@ -25,6 +26,7 @@ const SubjectSchema = new Schema<ISubject>(
     section: { type: String, required: true },
     totalTopics: { type: Number, default: 0 },
     totalConcepts: { type: Number, default: 0 },
+    weightage: { type: Number, default: 0 },
   },
   {
     timestamps: true,

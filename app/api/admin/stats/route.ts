@@ -31,6 +31,7 @@ export async function GET(_req: NextRequest) {
     const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1)
     const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1)
     const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000)
+    const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000)
 
     const [
       totalUsers,
@@ -41,6 +42,7 @@ export async function GET(_req: NextRequest) {
       paidThisMonth,
       paidLastMonth,
       activeNow,
+      dailyActive,
       totalQuestions,
       totalSubjects,
       totalTopics,
@@ -48,6 +50,7 @@ export async function GET(_req: NextRequest) {
       recentPayments,
       monthlyRevenueRaw,
       planBreakdown,
+      allUsers,
     ] = await Promise.all([
       UserModel.countDocuments({}),
       UserModel.countDocuments({ plan: 'pro' }),
@@ -73,6 +76,7 @@ export async function GET(_req: NextRequest) {
         { $group: { _id: null, total: { $sum: '$amount' }, count: { $sum: 1 } } },
       ]),
       UserModel.countDocuments({ lastLoginAt: { $gte: oneHourAgo } }),
+      UserModel.countDocuments({ lastLoginAt: { $gte: oneDayAgo } }),
       QuestionModel.countDocuments({}),
       SubjectModel.countDocuments({}),
       TopicModel.countDocuments({}),
@@ -109,6 +113,11 @@ export async function GET(_req: NextRequest) {
       UserModel.aggregate([
         { $group: { _id: '$plan', count: { $sum: 1 } } },
       ]),
+      UserModel.find({})
+        .select('name email image plan createdAt lastLoginAt')
+        .sort({ createdAt: -1 })
+        .lean()
+        .exec(),
     ])
 
     // ── Total revenue ───────────────────────────────────────────────
@@ -176,6 +185,16 @@ export async function GET(_req: NextRequest) {
         : { name: 'Unknown user', email: '', image: '' },
     }))
 
+    const usersList = (allUsers as any[]).map((u) => ({
+      id: String(u._id),
+      name: u.name || 'Unknown',
+      email: u.email || '',
+      image: u.image || '',
+      plan: u.plan || 'free',
+      createdAt: u.createdAt ? u.createdAt.toISOString() : null,
+      lastLoginAt: u.lastLoginAt ? u.lastLoginAt.toISOString() : null,
+    }))
+
     return NextResponse.json(
       {
         totals: {
@@ -189,6 +208,7 @@ export async function GET(_req: NextRequest) {
           salesThisMonth,
           salesLastMonth,
           activeNow,
+          dailyActive,
           questions: totalQuestions,
           subjects: totalSubjects,
           topics: totalTopics,
@@ -197,6 +217,7 @@ export async function GET(_req: NextRequest) {
         planBreakdown: planMap,
         monthlyRevenue: series,
         recentSales,
+        allUsers: usersList,
       },
       { status: 200 }
     )

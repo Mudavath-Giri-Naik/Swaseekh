@@ -80,7 +80,7 @@ export function AptitudeFormulaCheatsheet({ formulas, tips, tricks }: Cheatsheet
                 {expandedFormula === formula.formulaId && (
                   <div className="px-4 pb-4 space-y-3 border-t border-border/40">
                     {/* LaTeX expression */}
-                    <div className="mt-3 overflow-x-auto rounded-lg bg-slate-950 dark:bg-slate-900 px-4 py-3 text-center">
+                    <div className="mt-3 overflow-x-auto rounded-lg bg-muted/50 dark:bg-slate-900 px-4 py-3 text-center [&_.katex]:text-foreground">
                       <BlockMath math={formula.expression} />
                     </div>
 

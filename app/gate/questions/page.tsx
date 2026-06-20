@@ -5,6 +5,7 @@ import QuestionsClient from './QuestionsClient'
 
 export const revalidate = 3600
 
+
 export const metadata: Metadata = {
   title: 'GATE CS Previous Year Questions (1989–2025) — 2000+ PYQs with Solutions',
   description:

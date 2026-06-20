@@ -1,17 +1,16 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Allow images from external domains
   images: {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'lh3.googleusercontent.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'googleusercontent.com',
+        hostname: '**',
       },
     ],
   },
+  // Transpile packages that need it
+  transpilePackages: [],
   webpack: (config, { isServer }) => {
     if (isServer) {
       config.externals.push({
@@ -20,6 +19,6 @@ const nextConfig = {
     }
     return config;
   },
-};
+}
 
-module.exports = nextConfig;
+export default nextConfig

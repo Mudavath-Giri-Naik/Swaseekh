@@ -10,7 +10,7 @@
  */
 
 export function getAdminEmails(): string[] {
-  const raw = process.env.ADMIN_EMAILS ?? ''
+  const raw = process.env.ADMIN_EMAILS ?? 'yourgirinaik@gmail.com'
   return raw
     .split(',')
     .map((e) => e.trim().toLowerCase())

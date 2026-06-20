@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
-import { Check, Tag, X, Loader2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Check, Tag, X, Loader2, Sparkles } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import PayButton from '@/components/PayButton'
 
 const BASE_PRICE = 999
@@ -28,6 +30,7 @@ interface CouponData {
 }
 
 export default function PricingPage() {
+  const router = useRouter()
   const { data: session } = useSession()
   const userPlan = (session?.user as any)?.plan || 'free'
   const isProActive = userPlan === 'pro'
@@ -104,8 +107,31 @@ export default function PricingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-lg mx-auto py-8 sm:py-12 px-4">
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      
+      {/* Overlay */}
+      <div className="absolute inset-0 z-50 flex items-center justify-center p-4">
+        <div className="absolute inset-0 bg-background/50 backdrop-blur-[6px]" />
+        <div className="relative z-10 bg-white dark:bg-slate-900 border border-[#EBE5DE] dark:border-slate-800 shadow-xl rounded-2xl p-8 max-w-md w-full text-center">
+          <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Sparkles className="w-8 h-8 text-[#4A235A] dark:text-purple-400" />
+          </div>
+          <h2 className="text-2xl font-bold text-[#1A1A2E] dark:text-slate-100 mb-3">
+            For now, everything is free!
+          </h2>
+          <p className="text-muted-foreground mb-6">
+            We've temporarily unlocked all premium features for everyone. Happy learning and good luck with your GATE preparation!
+          </p>
+          <Button 
+            className="w-full bg-[#4A235A] hover:bg-[#3A1A4A] text-white"
+            onClick={() => router.push('/gate')}
+          >
+            Start Practicing
+          </Button>
+        </div>
+      </div>
+
+      <div className="max-w-lg mx-auto py-8 sm:py-12 px-4 blur-md opacity-50 pointer-events-none select-none">
         {/* Header */}
         <div className="text-center mb-10">
           <h1 className="text-3xl font-bold text-foreground mb-2">Upgrade to Pro</h1>
@@ -238,7 +264,7 @@ export default function PricingPage() {
                     </button>
                   </div>
                   {couponError && (
-                    <p className="text-red-500 text-xs mt-1.5">{couponError}</p>
+                     <p className="text-red-500 text-xs mt-1.5">{couponError}</p>
                   )}
                 </div>
               )}

@@ -1,16 +1,18 @@
 "use client"
 
-import { useEffect, useState, useCallback } from 'react'
-import { useParams } from 'next/navigation'
+import { Suspense, useEffect, useState, useCallback, useRef } from 'react'
+import { useParams, useSearchParams, useRouter } from 'next/navigation'
+import { useInView } from 'react-intersection-observer'
 import { AptitudeFormulaCheatsheet } from '@/components/aptitude/AptitudeFormulaCheatsheet'
 import { AptitudeQuestionViewer } from '@/components/aptitude/AptitudeQuestionViewer'
+import { AptitudeDataTable } from '@/components/aptitude/AptitudeDataTable'
 import { AptitudeModelCard } from '@/components/aptitude/AptitudeModelCard'
 import {
   BookOpen, Hash, Layers, ChevronLeft, Loader2, Filter, Search, X
 } from 'lucide-react'
 import Link from 'next/link'
 
-/* ─── Types ─────────────────────────────────────────────────────────── */
+/* ΓöÇΓöÇΓöÇ Types ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
 interface Formula {
   formulaId: string; title: string; expression: string; plainText: string
   explanation: string; derivation: string; tags: string[]; source: string
@@ -38,57 +40,148 @@ const SOURCE_LABELS: Record<string, string> = {
   all: 'All', rs_agarwal: 'R.S. Agarwal', indiabix: 'IndiaBix', ppt: 'Lecture'
 }
 
-export default function ConceptSlugPage() {
+/* ΓöÇΓöÇΓöÇ Module-Level Caches ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+const metaCache: Record<string, { concept: Concept; formulas: Formula[]; models: AptModel[] }> = {}
+const questionsCache: Record<string, { questions: Question[]; totalPages: number; totalQ: number; page: number }> = {}
+
+function buildQCacheKey(slug: string, model: string, diff: string, source: string): string {
+  return `${slug}|${model}|${diff}|${source}`
+}
+
+/* ΓöÇΓöÇΓöÇ Default export with Suspense boundary (required by useSearchParams) */
+export default function AptitudeConceptClient() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-6 w-6 animate-spin text-indigo-500" />
+      </div>
+    }>
+      <ConceptSlugInner />
+    </Suspense>
+  )
+}
+
+function ConceptSlugInner() {
   const params = useParams()
   const slug = params.conceptSlug as string
+  const searchParams = useSearchParams()
+  const router = useRouter()
 
-  const [concept, setConcept] = useState<Concept | null>(null)
-  const [formulas, setFormulas] = useState<Formula[]>([])
-  const [models, setModels] = useState<AptModel[]>([])
-  const [questions, setQuestions] = useState<Question[]>([])
-  const [loading, setLoading] = useState(true)
-  const [qLoading, setQLoading] = useState(false)
+  /* ΓöÇΓöÇΓöÇ Read initial state from URL search params ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+  const initialModel = searchParams.get('model') ?? 'all'
+  const initialDiff = (searchParams.get('difficulty') ?? 'all') as typeof DIFF_TABS[number]
+  const initialSource = (searchParams.get('source') ?? 'all') as typeof SOURCE_TABS[number]
+  const initialSearch = searchParams.get('search') ?? ''
+  const initialTab = (searchParams.get('tab') === 'formulas' ? 'formulas' : 'questions') as 'questions' | 'formulas'
+
+  /* ΓöÇΓöÇΓöÇ State ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+  const cachedMeta = metaCache[slug]
+  const [concept, setConcept] = useState<Concept | null>(cachedMeta?.concept ?? null)
+  const [formulas, setFormulas] = useState<Formula[]>(cachedMeta?.formulas ?? [])
+  const [models, setModels] = useState<AptModel[]>(cachedMeta?.models ?? [])
+
+  // Pre-populate questions from cache if available
+  const initQKey = buildQCacheKey(slug, initialModel, initialDiff, initialSource)
+  const cachedQ = questionsCache[initQKey]
+
+  const [questions, setQuestions] = useState<Question[]>(cachedQ?.questions ?? [])
+  const [loading, setLoading] = useState(!cachedMeta)
+  const [qLoading, setQLoading] = useState(!cachedQ)
   const [error, setError] = useState<string | null>(null)
 
-  // Filters
-  const [activeModel, setActiveModel] = useState<string>('all')
-  const [activeDiff, setActiveDiff] = useState<typeof DIFF_TABS[number]>('all')
-  const [activeSource, setActiveSource] = useState<typeof SOURCE_TABS[number]>('all')
-  const [searchText, setSearchText] = useState('')
-  const [page, setPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
-  const [totalQ, setTotalQ] = useState(0)
-  const [activeTab, setActiveTab] = useState<'questions' | 'formulas'>('questions')
+  // Filters ΓÇö initialised from URL
+  const [activeModel, setActiveModel] = useState<string>(initialModel)
+  const [activeDiff, setActiveDiff] = useState<typeof DIFF_TABS[number]>(initialDiff)
+  const [activeSource, setActiveSource] = useState<typeof SOURCE_TABS[number]>(initialSource)
+  const [searchText, setSearchText] = useState(initialSearch)
+  const [page, setPage] = useState(cachedQ?.page ?? 1)
+  const [totalPages, setTotalPages] = useState(cachedQ?.totalPages ?? 1)
+  const [totalQ, setTotalQ] = useState(cachedQ?.totalQ ?? 0)
+  const [activeTab, setActiveTab] = useState<'questions' | 'formulas'>(initialTab)
 
-  // Fetch concept meta
+  const { ref: loadMoreRef, inView } = useInView({ rootMargin: '400px' })
+
+  // Ref to prevent the URL-sync effect from running on first mount
+  const isInitialMount = useRef(true)
+
+  /* ΓöÇΓöÇΓöÇ Sync state ΓåÆ URL search params ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false
+      return
+    }
+
+    const sp = new URLSearchParams()
+    if (activeModel !== 'all') sp.set('model', activeModel)
+    if (activeDiff !== 'all') sp.set('difficulty', activeDiff)
+    if (activeSource !== 'all') sp.set('source', activeSource)
+    if (searchText.trim()) sp.set('search', searchText.trim())
+    if (activeTab !== 'questions') sp.set('tab', activeTab)
+
+    const qs = sp.toString()
+    const newUrl = qs ? `?${qs}` : window.location.pathname
+    router.replace(newUrl, { scroll: false })
+  }, [activeModel, activeDiff, activeSource, searchText, activeTab, router])
+
+  /* ΓöÇΓöÇΓöÇ Fetch concept meta ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
   useEffect(() => {
     if (!slug) return
-    setLoading(true)
+
+    // If we have cached meta, use it but still refresh in background
+    const currentMeta = metaCache[slug]
+    if (currentMeta) {
+      setConcept(currentMeta.concept)
+      setFormulas(currentMeta.formulas)
+      setModels(currentMeta.models)
+      setLoading(false)
+    } else {
+      setLoading(true)
+    }
+
     fetch(`/api/aptitude/concepts/${slug}`)
       .then((r) => r.json())
       .then((d) => {
         if (d.error) { setError(d.error); return }
-        setConcept(d.concept)
-        setFormulas(d.formulas ?? [])
-        setModels(d.models ?? [])
+        const meta = {
+          concept: d.concept,
+          formulas: d.formulas ?? [],
+          models: d.models ?? []
+        }
+        metaCache[slug] = meta
+        setConcept(meta.concept)
+        setFormulas(meta.formulas)
+        setModels(meta.models)
       })
       .catch(() => setError('Failed to load'))
       .finally(() => setLoading(false))
   }, [slug])
 
-  // Fetch questions
-  const fetchQuestions = useCallback((pg: number) => {
+  /* ΓöÇΓöÇΓöÇ Fetch questions ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+  const fetchQuestions = useCallback((pg: number, reset = false) => {
     if (!slug) return
-    setQLoading(true)
-    const params = new URLSearchParams({ concept: slug, page: String(pg), limit: '15' })
-    if (activeModel !== 'all') params.set('model', activeModel)
-    if (activeDiff !== 'all') params.set('difficulty', activeDiff)
-    if (activeSource !== 'all') params.set('source', activeSource)
 
-    fetch(`/api/aptitude/questions?${params}`)
+    const cacheKey = buildQCacheKey(slug, activeModel, activeDiff, activeSource)
+    if (reset) setQLoading(true)
+
+    const qp = new URLSearchParams({ concept: slug, page: String(pg), limit: '15' })
+    if (activeModel !== 'all') qp.set('model', activeModel)
+    if (activeDiff !== 'all') qp.set('difficulty', activeDiff)
+    if (activeSource !== 'all') qp.set('source', activeSource)
+
+    fetch(`/api/aptitude/questions?${qp}`)
       .then((r) => r.json())
       .then((d) => {
-        setQuestions(d.questions ?? [])
+        const newQs = d.questions ?? []
+        setQuestions(prev => {
+          const updated = reset ? newQs : [...prev, ...newQs]
+          questionsCache[cacheKey] = {
+            questions: updated,
+            totalPages: d.totalPages ?? 1,
+            totalQ: d.total ?? 0,
+            page: pg
+          }
+          return updated
+        })
         setTotalPages(d.totalPages ?? 1)
         setTotalQ(d.total ?? 0)
       })
@@ -96,8 +189,30 @@ export default function ConceptSlugPage() {
       .finally(() => setQLoading(false))
   }, [slug, activeModel, activeDiff, activeSource])
 
-  useEffect(() => { setPage(1) }, [activeModel, activeDiff, activeSource])
-  useEffect(() => { fetchQuestions(page) }, [fetchQuestions, page])
+  useEffect(() => {
+    const cacheKey = buildQCacheKey(slug, activeModel, activeDiff, activeSource)
+    const cachedQ = questionsCache[cacheKey]
+    if (cachedQ) {
+      setQuestions(cachedQ.questions)
+      setTotalPages(cachedQ.totalPages)
+      setTotalQ(cachedQ.totalQ)
+      setPage(cachedQ.page)
+      setQLoading(false)
+    } else {
+      setPage(1)
+      setQuestions([])
+      fetchQuestions(1, true)
+    }
+  }, [activeModel, activeDiff, activeSource, slug, fetchQuestions])
+
+  // Infinite scroll trigger
+  useEffect(() => {
+    if (inView && page < totalPages && !qLoading && !searchText) {
+      const nextPage = page + 1
+      setPage(nextPage)
+      fetchQuestions(nextPage, false)
+    }
+  }, [inView, page, totalPages, qLoading, searchText, fetchQuestions])
 
   // Client-side search filter
   const displayed = searchText.trim()
@@ -115,7 +230,7 @@ export default function ConceptSlugPage() {
   if (error || !concept) return (
     <div className="flex flex-col items-center justify-center min-h-screen gap-3">
       <p className="text-muted-foreground">{error ?? 'Concept not found'}</p>
-      <Link href="/aptitude" className="text-indigo-500 hover:underline text-sm">← Back to Aptitude</Link>
+      <Link href="/aptitude" className="text-indigo-500 hover:underline text-sm">ΓåÉ Back to Aptitude</Link>
     </div>
   )
 
@@ -235,7 +350,7 @@ export default function ConceptSlugPage() {
                 </div>
 
                 {/* Questions */}
-                {qLoading ? (
+                {qLoading && questions.length === 0 ? (
                   <div className="flex items-center justify-center py-16">
                     <Loader2 className="h-5 w-5 animate-spin text-indigo-500" />
                   </div>
@@ -247,34 +362,21 @@ export default function ConceptSlugPage() {
                     </button>
                   </div>
                 ) : (
-                  <div className="space-y-4">
-                    {displayed.map((q, i) => (
-                      <AptitudeQuestionViewer key={q.questionId} question={q} index={(page - 1) * 15 + i + 1} />
-                    ))}
-                  </div>
-                )}
-
-                {/* Pagination */}
-                {totalPages > 1 && !searchText && (
-                  <div className="flex items-center justify-center gap-2 mt-8">
-                    <button
-                      onClick={() => setPage((p) => Math.max(1, p - 1))}
-                      disabled={page === 1}
-                      className="text-sm px-4 py-2 rounded-lg border border-border disabled:opacity-40 hover:border-indigo-400 transition-colors"
-                    >
-                      ← Prev
-                    </button>
-                    <span className="text-sm text-muted-foreground">
-                      Page {page} of {totalPages}
-                    </span>
-                    <button
-                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                      disabled={page === totalPages}
-                      className="text-sm px-4 py-2 rounded-lg border border-border disabled:opacity-40 hover:border-indigo-400 transition-colors"
-                    >
-                      Next →
-                    </button>
-                  </div>
+                  <>
+                    <AptitudeDataTable questions={displayed} startIndex={1} />
+                    
+                    {/* Infinite Scroll Sentinel */}
+                    {!searchText && page < totalPages && (
+                      <div ref={loadMoreRef} className="flex justify-center py-8">
+                        <Loader2 className="h-5 w-5 animate-spin text-indigo-500" />
+                      </div>
+                    )}
+                    {!searchText && page >= totalPages && questions.length > 0 && (
+                      <div className="py-8 text-center text-sm text-muted-foreground">
+                        You have reached the end of the list.
+                      </div>
+                    )}
+                  </>
                 )}
               </>
             )}
