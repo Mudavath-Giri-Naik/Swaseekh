@@ -141,9 +141,12 @@ function AptitudePageInner() {
   const sidebarData = useSidebarData()
   const searchParams = useSearchParams()
   
-  const [questions, setQuestions] = useState<Question[]>(globalCache.data.aptitudeQuestions?.questions ?? [])
+  const cachedQ = globalCache.data.aptitudeQuestions?.questions ?? []
+  const isCacheValid = cachedQ.length > 1000
+
+  const [questions, setQuestions] = useState<Question[]>(isCacheValid ? cachedQ : [])
   const [concepts, setConcepts] = useState<Concept[]>(globalCache.data.aptitudeConcepts?.concepts ?? [])
-  const [loading, setLoading] = useState(!globalCache.data.aptitudeQuestions || !globalCache.data.aptitudeConcepts)
+  const [loading, setLoading] = useState(!isCacheValid || !globalCache.data.aptitudeConcepts)
   const [searchQuery, setSearchQuery] = useState('')
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
   const [isMounted, setIsMounted] = useState(false)
@@ -188,13 +191,11 @@ function AptitudePageInner() {
 
     setLoading(true)
     Promise.all([
-      fetch('/api/aptitude/questions?page=1&limit=5000').then((res) => res.json()),
-      fetch('/api/aptitude/questions?page=2&limit=5000').then((res) => res.json()),
+      fetch('/api/aptitude/questions?limit=10000').then((res) => res.json()),
       fetch('/api/aptitude/concepts').then((res) => res.json())
     ])
-      .then(([qData1, qData2, cData]) => {
-        const combinedQuestions = [...(qData1.questions || []), ...(qData2.questions || [])]
-        globalCache.data.aptitudeQuestions = { questions: combinedQuestions, total: qData1.total }
+      .then(([qData, cData]) => {
+        globalCache.data.aptitudeQuestions = qData
         globalCache.data.aptitudeConcepts = cData
         checkAndSet()
       })

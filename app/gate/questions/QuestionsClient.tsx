@@ -126,6 +126,10 @@ function QuestionsListPageInner() {
   
   const getInitialQuestions = useCallback(() => {
     const raw = globalCache.data.gateQuestions?.questions ?? [];
+    if (raw.length < 1000 && globalCache.data.gateQuestions) {
+      // If we somehow cached a partial response or error fallback, ignore it
+      return [];
+    }
     const qs = [...raw] as Question[]
     qs.forEach((q) => {
       if (!Array.isArray(q.formulaIds)) q.formulaIds = []
@@ -134,8 +138,9 @@ function QuestionsListPageInner() {
     return qs
   }, [])
 
-  const [questions, setQuestions] = useState<Question[]>(() => getInitialQuestions())
-  const [loading, setLoading] = useState(!globalCache.data.gateQuestions)
+  const initialQs = getInitialQuestions()
+  const [questions, setQuestions] = useState<Question[]>(initialQs)
+  const [loading, setLoading] = useState(initialQs.length === 0 || !globalCache.data.gateQuestions)
   const [solvedStatuses, setSolvedStatuses] = useState<Record<string, boolean>>({})
 
   // ΓöÇΓöÇΓöÇ Read initial state from URL search params ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
@@ -242,15 +247,11 @@ function QuestionsListPageInner() {
     globalCache.pauseBackgroundSync()
     setLoading(true)
     const qs = new URLSearchParams()
-    Promise.all([
-      fetch(`/api/questions?page=1&limit=5000&${qs.toString()}`).then((res) => res.json()),
-      fetch(`/api/questions?page=2&limit=5000&${qs.toString()}`).then((res) => res.json()),
-      fetch(`/api/questions?page=3&limit=5000&${qs.toString()}`).then((res) => res.json()),
-      fetch(`/api/questions?page=4&limit=5000&${qs.toString()}`).then((res) => res.json()),
-    ])
-      .then(([r1, r2, r3, r4]) => {
-        const combined = [...(r1.questions || []), ...(r2.questions || []), ...(r3.questions || []), ...(r4.questions || [])]
-        const data = { questions: combined, total: r1.total }
+    qs.set('limit', '10000')
+
+    fetch(`/api/questions?${qs.toString()}`)
+      .then((res) => res.json())
+      .then((data) => {
         globalCache.data.gateQuestions = data
         setQuestions(getInitialQuestions())
         setLoading(false)
